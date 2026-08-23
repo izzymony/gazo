@@ -256,6 +256,9 @@ importers:
       '@vibaar/api-client':
         specifier: workspace:*
         version: link:../../packages/api-client
+      '@vibaar/design-tokens':
+        specifier: workspace:*
+        version: link:../../packages/design-tokens
       '@vibaar/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -368,6 +371,12 @@ importers:
         version: 3.0.6
 
   packages/config: {}
+
+  packages/design-tokens:
+    dependencies:
+      tailwindcss:
+        specifier: ^3.4.1
+        version: 3.4.19(yaml@2.9.0)
 
   packages/types: {}
 
