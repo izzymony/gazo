@@ -1,6 +1,8 @@
 import { clsx, type ClassValue } from "clsx";
 import { extendTailwindMerge } from "tailwind-merge";
 
+export * from "./format";
+
 // tailwind-merge doesn't know the design system's custom fontSize tokens
 // (tailwind.config fontSize: display/h1/h2/body-lg/body/body-sm/caption/micro).
 // Without this it misclassifies e.g. `text-micro` as a text-color and DROPS it

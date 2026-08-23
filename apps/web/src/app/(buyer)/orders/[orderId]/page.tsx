@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from "react";
 import { PiCube, CircleCheck, ChevronUp, ChevronDown } from "@/design-system/icons";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Dialog from "@/design-system/common/Dialog";
 import useOrderStore from "@/store/orderStore";

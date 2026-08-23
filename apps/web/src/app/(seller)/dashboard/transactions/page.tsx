@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Section from "@/design-system/common/Section";
 import EmptyState from "@/design-system/common/EmptyState";

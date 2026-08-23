@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Section from "@/design-system/common/Section";
 import Card from "@/design-system/common/Card";

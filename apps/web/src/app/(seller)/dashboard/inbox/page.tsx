@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import ChatList from "@/features/chat/ChatList";
 

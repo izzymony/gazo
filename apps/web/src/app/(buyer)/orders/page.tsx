@@ -4,7 +4,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import React, { ReactNode, useEffect, useState } from "react";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Dialog from "@/design-system/common/Dialog";
 import { useRouter } from "next/navigation";

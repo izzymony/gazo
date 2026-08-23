@@ -1,5 +1,5 @@
 import { ReactNode, Ref } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@vibaar/utils";
 
 interface PageShellProps {
   /** Header element (BackHeader / StepHeader / etc.). It positions itself

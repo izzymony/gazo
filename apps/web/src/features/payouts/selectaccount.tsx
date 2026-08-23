@@ -4,7 +4,7 @@
 import useBusinessStore from "@/store/businessStore";
 import EmptyState from "@/design-system/common/EmptyState";
 import { useRouter } from "next/navigation";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Section from "@/design-system/common/Section";
 import Button from "@/design-system/common/Button";

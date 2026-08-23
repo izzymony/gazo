@@ -5,7 +5,7 @@ import Product from "@/features/seller-dashboard/products";
 import Collections from "@/features/seller-dashboard/collection";
 import Discount from "@/features/seller-dashboard/discount";
 import Link from "next/link";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Button from "@/design-system/common/Button";
 import { SquareArrowUpRight, Plus } from "@/design-system/icons";

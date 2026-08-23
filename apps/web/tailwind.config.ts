@@ -15,6 +15,9 @@ const config: Config = {
     // scan these or their utility classes get purged (unstyled UI).
     "./src/features/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/design-system/**/*.{js,ts,jsx,tsx,mdx}",
+    // @vibaar/ui primitives live outside this app — scan them or their utility
+    // classes get purged (unstyled UI). Kept in sync as the design-system moves.
+    "../../packages/ui/src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   plugins: [require("tailwind-scrollbar-hide")],
 };

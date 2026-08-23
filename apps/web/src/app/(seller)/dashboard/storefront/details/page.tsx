@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import InputField from "@/design-system/common/InputField";
 import { BsThreeDots } from "@/design-system/icons";
 import { useRouter } from "next/navigation";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Button from "@/design-system/common/Button";
 import Section from "@/design-system/common/Section";

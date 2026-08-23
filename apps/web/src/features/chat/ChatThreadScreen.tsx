@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Loader from "@/design-system/common/Loader";
 import ChatThreadHeader from "./ChatThreadHeader";
 import ChatThread from "./ChatThread";

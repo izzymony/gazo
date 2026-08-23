@@ -2,7 +2,7 @@
 import { Suspense, useState } from "react";
 import EmptyState from "@/design-system/common/EmptyState";
 import Loader from "@/design-system/common/Loader";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import HeroHeader from "@/design-system/common/HeroHeader";
 import Section from "@/design-system/common/Section";
 import ListSectionHeader from "@/design-system/common/ListSectionHeader";

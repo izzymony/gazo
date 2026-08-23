@@ -1,5 +1,5 @@
 "use client";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import EmptyState from "@/design-system/common/EmptyState";
 import { BusinessData } from "@/lib/types";

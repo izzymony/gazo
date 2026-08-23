@@ -9,7 +9,7 @@ const withBundleAnalyzer = bundleAnalyzer({ enabled: process.env.ANALYZE === 'tr
 const nextConfig = {
   reactStrictMode: true,
   // Transpile raw-TS workspace packages consumed from packages/* (M1 extraction).
-  transpilePackages: ['@vibaar/types', '@vibaar/api-client'],
+  transpilePackages: ['@vibaar/types', '@vibaar/api-client', '@vibaar/ui'],
   // Allow mobile devices to access dev server
   allowedDevOrigins: ['192.168.221.10', '192.168.1.157', 'michaels-macbook-pro-2.local'],
   images: {

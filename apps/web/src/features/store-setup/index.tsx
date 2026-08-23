@@ -6,7 +6,7 @@ import AddressInput from "./AddressInput";
 import StoreDetails from "./StoreDetails";
 import { useEffect, useState } from "react";
 import useBusinessStore from "@/store/businessStore";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Image from "next/image";
 import Button from "@/design-system/common/Button";

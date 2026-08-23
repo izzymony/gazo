@@ -11,7 +11,7 @@ import { BiChevronDown, BiChevronUp, BsThreeDots, X, Plus, CircleCheck } from "@
 import Image from "next/image";
 import { toast } from "sonner";
 
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Loader from "@/design-system/common/Loader";
 import Button from "@/design-system/common/Button";

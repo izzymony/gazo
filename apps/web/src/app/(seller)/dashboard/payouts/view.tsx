@@ -2,7 +2,7 @@
 "use client";
 
 import EmptyState from "@/design-system/common/EmptyState";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Section from "@/design-system/common/Section";
 import Button from "@/design-system/common/Button";

@@ -7,7 +7,7 @@ import BankDetails from "@/features/store-setup/BankDetails";
 import useBusinessStore, { BankData } from "@/store/businessStore";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Section from "@/design-system/common/Section";
 import Button from "@/design-system/common/Button";

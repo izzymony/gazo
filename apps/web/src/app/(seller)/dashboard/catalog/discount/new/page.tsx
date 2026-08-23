@@ -9,7 +9,7 @@ import Checkbox from "@/design-system/common/Checkbox";
 import InputField from "@/design-system/common/InputField";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Accordion from "@/design-system/common/Accordion";
 import Dialog from "@/design-system/common/Dialog";

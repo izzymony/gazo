@@ -4,7 +4,7 @@ import Dropdown from "@/features/seller-shell/Dropdown";
 import Sales from "@/features/seller-dashboard/sales";
 import Customer from "@/features/seller-dashboard/customers";
 // import Engagement from "@/features/seller-dashboard/engagement";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Tabs from "@/design-system/common/Tabs";
 

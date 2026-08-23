@@ -13,7 +13,7 @@ import Otp from "./Otp";
 import UserContactForm from "./UserContactForm";
 import { signupOptions } from "@/lib/conts";
 import H1 from "@/design-system/common/Typography";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Button from "@/design-system/common/Button";
 import { useFormik } from "formik";

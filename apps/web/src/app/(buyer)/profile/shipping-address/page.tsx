@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect } from "react";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Button from "@/design-system/common/Button";
 import Card from "@/design-system/common/Card";

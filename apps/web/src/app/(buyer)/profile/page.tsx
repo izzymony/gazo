@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import Selling from "@/features/seller-dashboard/selling";
 import Buying from "@/features/seller-dashboard/buying";
 import VendorNav from "@/features/storefront/VendorNav";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Button from "@/design-system/common/Button";
 import { useRouter } from "next/navigation";

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import InputField from "@/design-system/common/InputField";
-import PageShell from "@/design-system/PageShell";
+import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Button from "@/design-system/common/Button";
 import Section from "@/design-system/common/Section";
