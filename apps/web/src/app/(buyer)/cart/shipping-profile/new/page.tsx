@@ -2,10 +2,10 @@
 import React from "react";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Button from "@/design-system/common/Button";
-import { Check } from "@/design-system/icons";
+import Button from "@vibaar/ui/common/Button";
+import { Check } from "@vibaar/ui/icons";
 import { useRouter, useSearchParams } from "next/navigation";
-import InputField from "@/design-system/common/InputField";
+import InputField from "@vibaar/ui/common/InputField";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import useAuthStore from "@/store/authStore";

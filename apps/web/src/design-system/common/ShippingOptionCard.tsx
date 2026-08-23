@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { cn, formatCurrency, parseAmount } from "@/lib/utils";
-import { CircleCheck, DeliveryTruck } from "@/design-system/icons";
+import { CircleCheck, DeliveryTruck } from "@vibaar/ui/icons";
 import type { ShippingOptionInfo } from "@/store/shippingStore";
 
 interface ShippingOptionCardProps {

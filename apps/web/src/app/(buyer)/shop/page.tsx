@@ -4,8 +4,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import React, { useCallback, useEffect, useRef, useState, useMemo } from "react";
-import { FaStar, Search, X, Heart, ShoppingCartAdd } from "@/design-system/icons";
-import Button from "@/design-system/common/Button";
+import { FaStar, Search, X, Heart, ShoppingCartAdd } from "@vibaar/ui/icons";
+import Button from "@vibaar/ui/common/Button";
 import useScroll from "@/hooks/useScroll";
 import VendorNav from "@/features/storefront/VendorNav";
 import img1 from "../../../../public/PRODUCT IMAGE (2).png";
@@ -15,9 +15,9 @@ import useProductStore from "@/store/productStore";
 import { useRouter } from "next/navigation";
 import SearchInput from "@/features/storefront/SearchInput";
 // import logo from "../../../../public/images/vendor/logo1.png";
-import HeaderSlides from "@/design-system/common/HeaderSlides";
+import HeaderSlides from "@vibaar/ui/common/HeaderSlides";
 import { BusinessData, ProductData } from "@/lib/types";
-import EmptyState from "@/design-system/common/EmptyState";
+import EmptyState from "@vibaar/ui/common/EmptyState";
 import ExploreCard from "@/features/storefront/explorecard";
 //import useScroll from "@/hooks/useScroll";
 import useShippingStore from "@/store/shippingStore";

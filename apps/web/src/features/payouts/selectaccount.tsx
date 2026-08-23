@@ -2,13 +2,13 @@
 "use client";
 
 import useBusinessStore from "@/store/businessStore";
-import EmptyState from "@/design-system/common/EmptyState";
+import EmptyState from "@vibaar/ui/common/EmptyState";
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Section from "@/design-system/common/Section";
-import Button from "@/design-system/common/Button";
-import { Bank, ChevronRight } from "@/design-system/icons";
+import Section from "@vibaar/ui/common/Section";
+import Button from "@vibaar/ui/common/Button";
+import { Bank, ChevronRight } from "@vibaar/ui/icons";
 
 export const BankCard = ({
   action,

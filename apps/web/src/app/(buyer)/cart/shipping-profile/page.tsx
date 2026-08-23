@@ -4,10 +4,10 @@
 import React, { useEffect } from "react";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Button from "@/design-system/common/Button";
+import Button from "@vibaar/ui/common/Button";
 import { useRouter } from "next/navigation";
-import DropdownMenu from "@/design-system/common/DropdownMenu";
-import { CircleCheck, Plus } from "@/design-system/icons";
+import DropdownMenu from "@vibaar/ui/common/DropdownMenu";
+import { CircleCheck, Plus } from "@vibaar/ui/icons";
 import useShippingStore from "@/store/shippingStore";
 import useAuthStore from "@/store/authStore";
 import useOrderStore from "@/store/orderStore";

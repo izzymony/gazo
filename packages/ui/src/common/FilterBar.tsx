@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import SearchField from "@/design-system/common/SearchField";
+import SearchField from "../common/SearchField";
 
 interface FilterBarProps {
     pills: string[];

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-import ComingSoonPill from "@/design-system/common/ComingSoonPill";
+import ComingSoonPill from "@vibaar/ui/common/ComingSoonPill";
 import {
   Home,
   Package,
@@ -11,7 +11,7 @@ import {
   Settings,
   HelpSquare,
   IconProps,
-} from "@/design-system/icons";
+} from "@vibaar/ui/icons";
 
 type NavLink = {
   Icon: React.ComponentType<IconProps>;

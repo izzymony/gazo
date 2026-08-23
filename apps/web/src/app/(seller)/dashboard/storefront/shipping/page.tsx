@@ -3,12 +3,12 @@
 import React, { useEffect, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Button from "@/design-system/common/Button";
-import Section from "@/design-system/common/Section";
-import Card from "@/design-system/common/Card";
-import Switch from "@/design-system/common/Switch";
-import InputField from "@/design-system/common/InputField";
-import Dialog from "@/design-system/common/Dialog";
+import Button from "@vibaar/ui/common/Button";
+import Section from "@vibaar/ui/common/Section";
+import Card from "@vibaar/ui/common/Card";
+import Switch from "@vibaar/ui/common/Switch";
+import InputField from "@vibaar/ui/common/InputField";
+import Dialog from "@vibaar/ui/common/Dialog";
 import {
   DeliveryTruck,
   StoreLocation,
@@ -16,7 +16,7 @@ import {
   FaLocationDot,
   ChevronRight,
   AiOutlineInfoCircle,
-} from "@/design-system/icons";
+} from "@vibaar/ui/icons";
 import { useRouter } from "next/navigation";
 import useBusinessStore from "@/store/businessStore";
 import { cn } from "@/lib/utils";

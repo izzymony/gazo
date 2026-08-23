@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { getMobileCompatibleImageUrl } from "@/lib/utils";
 import { buildSimpleCartItem, productHasVariants, trackSimpleAddToCart } from "@/lib/cart";
 import useOrderStore from "@/store/orderStore";
-import { FaStar, ShoppingCartAdd, HeartFilled, MdFavoriteBorder } from "@/design-system/icons";
+import { FaStar, ShoppingCartAdd, HeartFilled, MdFavoriteBorder } from "@vibaar/ui/icons";
 
 export default function WishlistComponent({
   item,

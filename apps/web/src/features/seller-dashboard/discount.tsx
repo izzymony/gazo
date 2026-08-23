@@ -2,10 +2,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { IoCubeOutline } from "@/design-system/icons";
+import { IoCubeOutline } from "@vibaar/ui/icons";
 import DataSort from "./datasort";
-import EmptyState from "@/design-system/common/EmptyState";
-import Section from "@/design-system/common/Section";
+import EmptyState from "@vibaar/ui/common/EmptyState";
+import Section from "@vibaar/ui/common/Section";
 import useBusinessStore from "@/store/businessStore";
 
 const Discount: React.FC<{ order: any }> = ({ order }) => {

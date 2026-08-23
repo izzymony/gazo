@@ -3,16 +3,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useState } from "react";
-import RadioGroup from "@/design-system/common/RadioGroup";
-import Button from "@/design-system/common/Button";
-import Checkbox from "@/design-system/common/Checkbox";
-import InputField from "@/design-system/common/InputField";
+import RadioGroup from "@vibaar/ui/common/RadioGroup";
+import Button from "@vibaar/ui/common/Button";
+import Checkbox from "@vibaar/ui/common/Checkbox";
+import InputField from "@vibaar/ui/common/InputField";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Accordion from "@/design-system/common/Accordion";
-import Dialog from "@/design-system/common/Dialog";
+import Accordion from "@vibaar/ui/common/Accordion";
+import Dialog from "@vibaar/ui/common/Dialog";
 import { useRouter } from "next/navigation";
 // import useAuthStore from "@/store/authStore";
 import useBusinessStore, { CreateCoupon } from "@/store/businessStore";

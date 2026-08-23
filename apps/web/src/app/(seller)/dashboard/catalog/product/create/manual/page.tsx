@@ -1,7 +1,7 @@
 "use client";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import Loader from '@/design-system/common/Loader';
+import Loader from '@vibaar/ui/common/Loader';
 
 export default function ManualProductRouter() {
   const router = useRouter();

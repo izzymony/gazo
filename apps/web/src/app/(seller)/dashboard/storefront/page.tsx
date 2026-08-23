@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { toast } from "sonner";
 import VendorStoreFront from "@/features/storefront";
 import BottomNav from "@/features/seller-shell/BottomNav";
-import ConfettiCelebration from "@/design-system/ConfettiCelebration";
+import ConfettiCelebration from "@vibaar/ui/ConfettiCelebration";
 
 const StoreFrontPage = () => {
   const searchParams = useSearchParams();

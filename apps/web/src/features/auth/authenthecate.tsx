@@ -5,8 +5,8 @@
 import { useCallback, useState } from "react";
 import OtpInput from "./otp";
 import { toast } from "sonner";
-import IconButton from "@/design-system/common/IconButton";
-import { BiArrowBack } from "@/design-system/icons";
+import IconButton from "@vibaar/ui/common/IconButton";
+import { BiArrowBack } from "@vibaar/ui/icons";
 
 export default function Authenthecate({
   action,

@@ -1,8 +1,8 @@
 import React from "react";
-import InputField from "@/design-system/common/InputField";
-import H1 from "@/design-system/common/Typography";
+import InputField from "@vibaar/ui/common/InputField";
+import H1 from "@vibaar/ui/common/Typography";
 import { formatPhoneNumber as formatPhone } from "@/lib/validation";
-import { AiOutlineInfoCircle, CircleCheck, X } from "@/design-system/icons";
+import { AiOutlineInfoCircle, CircleCheck, X } from "@vibaar/ui/icons";
 
 interface UserProfileSetupProps {
   profileData: {

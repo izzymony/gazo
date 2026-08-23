@@ -1,6 +1,6 @@
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@vibaar/utils";
 
 interface NavigationTabsProps {
   tabs: { label: string; path: string }[]; // Array of tab labels and their corresponding paths

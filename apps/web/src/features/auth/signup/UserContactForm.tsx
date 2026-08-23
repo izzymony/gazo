@@ -1,6 +1,6 @@
-import InputField from "@/design-system/common/InputField";
-import H1 from "@/design-system/common/Typography";
-import { CircleCheck } from "@/design-system/icons";
+import InputField from "@vibaar/ui/common/InputField";
+import H1 from "@vibaar/ui/common/Typography";
+import { CircleCheck } from "@vibaar/ui/icons";
 
 interface UserContactFormProps {
   emailPhone?: string;

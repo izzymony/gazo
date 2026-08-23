@@ -1,4 +1,4 @@
-import BottomModal from "@/design-system/common/BottomModal";
+import BottomModal from "@vibaar/ui/common/BottomModal";
 import ShippingOptionCard from "@/design-system/common/ShippingOptionCard";
 import type { ShippingOptionInfo } from "@/store/shippingStore";
 

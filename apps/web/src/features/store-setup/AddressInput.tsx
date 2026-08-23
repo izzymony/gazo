@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import InputField from "@/design-system/common/InputField";
-import { FaLocationDot } from "@/design-system/icons";
+import InputField from "@vibaar/ui/common/InputField";
+import { FaLocationDot } from "@vibaar/ui/icons";
 import LocationModal from "@/hooks/locationmodal";
 
 interface AddressInputProps {

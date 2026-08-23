@@ -6,9 +6,9 @@
 import React, { useEffect, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Button from "@/design-system/common/Button";
-import Dialog from "@/design-system/common/Dialog";
-import InputField from "@/design-system/common/InputField";
+import Button from "@vibaar/ui/common/Button";
+import Dialog from "@vibaar/ui/common/Dialog";
+import InputField from "@vibaar/ui/common/InputField";
 import {
   CircleCheck,
   IoCubeOutline,
@@ -17,9 +17,9 @@ import {
   Calendar,
   ChevronDown,
   ChevronUp,
-} from "@/design-system/icons";
+} from "@vibaar/ui/icons";
 import useOrderStore from "@/store/orderStore";
-import Loader from "@/design-system/common/Loader";
+import Loader from "@vibaar/ui/common/Loader";
 import { useRouter } from "next/navigation";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import useProductStore from "@/store/productStore";
@@ -28,7 +28,7 @@ import DispatchContactCard from "@/features/orders/DispatchContactCard";
 import { OrderDatas } from "@/lib/order";
 import { formatTimeAgos, formatTimestamp } from "@/lib/converter";
 import { Client } from "@/lib/client";
-import UserProfileImage from "@/design-system/common/UserProfileImage";
+import UserProfileImage from "@vibaar/ui/common/UserProfileImage";
 
 const ActivityTop = ({ title, date }: { title: string; date: string }) => {
   return (

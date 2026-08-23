@@ -4,13 +4,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { PiCube, CircleCheck, ChevronUp, ChevronDown } from "@/design-system/icons";
+import { PiCube, CircleCheck, ChevronUp, ChevronDown } from "@vibaar/ui/icons";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Dialog from "@/design-system/common/Dialog";
+import Dialog from "@vibaar/ui/common/Dialog";
 import useOrderStore from "@/store/orderStore";
 import { useParams } from "next/navigation";
-import Loader from "@/design-system/common/Loader";
+import Loader from "@vibaar/ui/common/Loader";
 import { useRouter } from "next/navigation";
 import {
   formatCurrency,
@@ -20,12 +20,12 @@ import {
 } from "@/lib/utils";
 import useProductStore from "@/store/productStore";
 import useBusinessStore from "@/store/businessStore";
-import InputField from "@/design-system/common/InputField";
-import Button from "@/design-system/common/Button";
+import InputField from "@vibaar/ui/common/InputField";
+import Button from "@vibaar/ui/common/Button";
 import useAuthStore from "@/store/authStore";
 // import Image from "next/image";
 import useShippingStore from "@/store/shippingStore";
-import { Emergency, Shield } from "@/design-system/svg";
+import { Emergency, Shield } from "@vibaar/ui/svg";
 import { OrderStatusIcon } from "@/features/orders/orderStatus";
 import DispatchContactCard from "@/features/orders/DispatchContactCard";
 import { formatTimeAgos, formatTimestamp } from "@/lib/converter";

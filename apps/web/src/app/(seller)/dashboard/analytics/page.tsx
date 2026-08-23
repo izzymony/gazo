@@ -6,7 +6,7 @@ import Customer from "@/features/seller-dashboard/customers";
 // import Engagement from "@/features/seller-dashboard/engagement";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Tabs from "@/design-system/common/Tabs";
+import Tabs from "@vibaar/ui/common/Tabs";
 
 const Page = () => {
   const [sortOrder, setSortOrder] = useState("Today");

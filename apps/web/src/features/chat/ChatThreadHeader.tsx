@@ -1,5 +1,5 @@
-import IconButton from "@/design-system/common/IconButton";
-import { ArrowLeft, MoreVertical } from "@/design-system/icons";
+import IconButton from "@vibaar/ui/common/IconButton";
+import { ArrowLeft, MoreVertical } from "@vibaar/ui/icons";
 import { getMobileCompatibleImageUrl } from "@/lib/utils";
 import { ChatParticipant } from "@/store/chatStore";
 

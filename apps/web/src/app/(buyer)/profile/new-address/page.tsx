@@ -2,11 +2,11 @@
 import React, { useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Button from "@/design-system/common/Button";
-import Section from "@/design-system/common/Section";
+import Button from "@vibaar/ui/common/Button";
+import Section from "@vibaar/ui/common/Section";
 import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
-import InputField from "@/design-system/common/InputField";
+import InputField from "@vibaar/ui/common/InputField";
 import useAuthStore from "@/store/authStore";
 import CountryDropDown from "@/design-system/countrydropdown";
 

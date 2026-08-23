@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import Button from "@/design-system/common/Button";
-import EmptyState from "@/design-system/common/EmptyState";
+import Button from "@vibaar/ui/common/Button";
+import EmptyState from "@vibaar/ui/common/EmptyState";
 import { useRouter } from "next/navigation";
 import WishlistComponent from "@/app/(buyer)/shop/spotlights/wishlistcomponent";
 import useProductStore from "@/store/productStore";

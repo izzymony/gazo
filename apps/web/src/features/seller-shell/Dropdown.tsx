@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown } from "@/design-system/icons";
+import { ChevronDown } from "@vibaar/ui/icons";
 
 interface DropdownProps {
   options: string[];

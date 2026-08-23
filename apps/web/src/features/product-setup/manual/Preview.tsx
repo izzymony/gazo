@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Accordion from "@/design-system/common/Accordion";
-import Button from "@/design-system/common/Button";
-import ShareModal from "@/design-system/common/ShareModal";
+import Accordion from "@vibaar/ui/common/Accordion";
+import Button from "@vibaar/ui/common/Button";
+import ShareModal from "@vibaar/ui/common/ShareModal";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import SelectVariants from "@/design-system/VariantSelector";
@@ -13,7 +13,7 @@ import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import Image from "next/image";
 import { useState } from "react";
-import { BsThreeDotsVertical, MdFavoriteBorder, PiShareFatThin, FaStar, FiUsers } from "@/design-system/icons";
+import { BsThreeDotsVertical, MdFavoriteBorder, PiShareFatThin, FaStar, FiUsers } from "@vibaar/ui/icons";
 import { toast } from "sonner";
 
 type VariantOption = string | number | boolean;

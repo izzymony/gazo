@@ -2,7 +2,7 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
-import ErrorState from "@/design-system/common/ErrorState";
+import ErrorState from "@vibaar/ui/common/ErrorState";
 
 /**
  * Root app-segment error boundary (W4.1). Renders inside the root layout so the

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { CiSearch, SortVertical } from "@/design-system/icons";
-import SearchField from "@/design-system/common/SearchField";
+import { CiSearch, SortVertical } from "@vibaar/ui/icons";
+import SearchField from "@vibaar/ui/common/SearchField";
 import Dropdown from "@/features/seller-shell/Dropdown";
 
 interface DataSortProps {

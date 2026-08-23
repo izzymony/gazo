@@ -1,4 +1,4 @@
-import { AiOutlineInfoCircle, Shield as ShieldIcon } from "@/design-system/icons";
+import { AiOutlineInfoCircle, Shield as ShieldIcon } from "./icons";
 
 export function Shield() {
   return <ShieldIcon size={20} />;

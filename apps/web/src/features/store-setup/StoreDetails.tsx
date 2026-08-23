@@ -1,10 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/exhaustive-deps */
 import Image from "next/image";
-import InputField from "@/design-system/common/InputField";
+import InputField from "@vibaar/ui/common/InputField";
 import CategorySelector from "./CategorySelector";
-import StoreLogo from "@/design-system/common/StoreLogo";
-import { ChevronDown, Check } from "@/design-system/icons";
+import StoreLogo from "@vibaar/ui/common/StoreLogo";
+import { ChevronDown, Check } from "@vibaar/ui/icons";
 import { useState } from "react";
 import { formatPhoneNumber } from "@/lib/validation";
 

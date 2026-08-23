@@ -9,12 +9,12 @@ import useBusinessStore from "@/store/businessStore";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Image from "next/image";
-import Button from "@/design-system/common/Button";
-import { ChevronRight } from "@/design-system/icons";
+import Button from "@vibaar/ui/common/Button";
+import { ChevronRight } from "@vibaar/ui/icons";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "sonner";
-import Loader from "@/design-system/common/Loader";
+import Loader from "@vibaar/ui/common/Loader";
 import useAuthStore from "@/store/authStore";
 import { validatePhoneNumber, validateEmail } from "@/lib/validation";
 import {

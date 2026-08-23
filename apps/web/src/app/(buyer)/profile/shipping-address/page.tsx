@@ -2,12 +2,12 @@
 import React, { useEffect } from "react";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Button from "@/design-system/common/Button";
-import Card from "@/design-system/common/Card";
-import Section from "@/design-system/common/Section";
-import { CircleCheck } from "@/design-system/icons";
+import Button from "@vibaar/ui/common/Button";
+import Card from "@vibaar/ui/common/Card";
+import Section from "@vibaar/ui/common/Section";
+import { CircleCheck } from "@vibaar/ui/icons";
 import { useRouter } from "next/navigation";
-import DropdownMenu from "@/design-system/common/DropdownMenu";
+import DropdownMenu from "@vibaar/ui/common/DropdownMenu";
 import useAuthStore from "@/store/authStore";
 import useShippingStore from "@/store/shippingStore";
 import { toast } from "sonner";

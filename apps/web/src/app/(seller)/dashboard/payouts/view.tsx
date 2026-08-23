@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import EmptyState from "@/design-system/common/EmptyState";
+import EmptyState from "@vibaar/ui/common/EmptyState";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Section from "@/design-system/common/Section";
-import Button from "@/design-system/common/Button";
+import Section from "@vibaar/ui/common/Section";
+import Button from "@vibaar/ui/common/Button";
 import useBusinessStore from "@/store/businessStore";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import { Bank, BsThreeDots } from "@/design-system/icons";
+import { Bank, BsThreeDots } from "@vibaar/ui/icons";
 
 const AccountCard = ({
   accountname,

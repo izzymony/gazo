@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ChevronDown, ChevronRight, Store } from "@/design-system/icons";
+import { Check, ChevronDown, ChevronRight, Store } from "@vibaar/ui/icons";
 import useOnboardingStore, {
   computeChecklistSteps,
   computeCompletionPercent,
@@ -11,7 +11,7 @@ import useOnboardingStore, {
   shouldShowChecklist,
 } from "@/store/onboardingStore";
 import useBusinessStore from "@/store/businessStore";
-import ShareModal from "@/design-system/common/ShareModal";
+import ShareModal from "@vibaar/ui/common/ShareModal";
 
 export default function SetupChecklist() {
   const router = useRouter();

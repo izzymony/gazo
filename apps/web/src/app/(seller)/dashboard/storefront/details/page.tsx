@@ -2,19 +2,19 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import InputField from "@/design-system/common/InputField";
-import { BsThreeDots } from "@/design-system/icons";
+import InputField from "@vibaar/ui/common/InputField";
+import { BsThreeDots } from "@vibaar/ui/icons";
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Button from "@/design-system/common/Button";
-import Section from "@/design-system/common/Section";
+import Button from "@vibaar/ui/common/Button";
+import Section from "@vibaar/ui/common/Section";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Image from "next/image";
 import useBusinessStore from "@/store/businessStore";
 import useAuthStore from "@/store/authStore";
-import StoreLogo from "@/design-system/common/StoreLogo";
+import StoreLogo from "@vibaar/ui/common/StoreLogo";
 
 const icons = {
   instagram: {

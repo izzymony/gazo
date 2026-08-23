@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@vibaar/utils";
 
 interface CardProps {
   children: ReactNode;

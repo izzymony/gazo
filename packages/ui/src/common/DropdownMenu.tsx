@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useRef } from "react";
-import { BsThreeDots } from "@/design-system/icons";
+import { BsThreeDots } from "../icons";
 
 interface Option {
   label: string;

@@ -6,8 +6,8 @@ import React, { useEffect, useState } from "react";
 import DataSort from "@/features/seller-dashboard/datasort";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Button from "@/design-system/common/Button";
-import { IoCubeOutline, DeliveryTruck } from "@/design-system/icons";
+import Button from "@vibaar/ui/common/Button";
+import { IoCubeOutline, DeliveryTruck } from "@vibaar/ui/icons";
 import { useRouter } from "next/navigation";
 import useOrderStore from "@/store/orderStore";
 import useBusinessStore from "@/store/businessStore";
@@ -18,7 +18,7 @@ import useShippingStore from "@/store/shippingStore";
 import useProductStore from "@/store/productStore";
 import StatusBadge from "@/features/seller-dashboard/StatusBadge";
 import { deriveSellerStatus } from "@/features/orders/orderStatus";
-import EmptyState from "@/design-system/common/EmptyState";
+import EmptyState from "@vibaar/ui/common/EmptyState";
 
 const OrderComp = ({
   order,

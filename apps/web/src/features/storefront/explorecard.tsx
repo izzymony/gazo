@@ -8,7 +8,7 @@ import useBusinessStore from "@/store/businessStore";
 import useProductStore, { Products } from "@/store/productStore";
 import Image from "next/image";
 import { useCallback } from "react";
-import StoreLogo from "@/design-system/common/StoreLogo";
+import StoreLogo from "@vibaar/ui/common/StoreLogo";
 
 export default function ExploreCard({
   cardAction,

@@ -5,7 +5,7 @@ import React from "react";
 import StatsCard from "./statcard";
 import greenstats from "../../../public/redBag.svg";
 import avatar from "../../../public/redBag.svg";
-import EmptyState from "@/design-system/common/EmptyState";
+import EmptyState from "@vibaar/ui/common/EmptyState";
 
 interface StatusBadgeProps {
   status: number;

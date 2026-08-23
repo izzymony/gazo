@@ -3,9 +3,9 @@
 
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Section from "@/design-system/common/Section";
-import EmptyState from "@/design-system/common/EmptyState";
-import FilterBar from "@/design-system/common/FilterBar";
+import Section from "@vibaar/ui/common/Section";
+import EmptyState from "@vibaar/ui/common/EmptyState";
+import FilterBar from "@vibaar/ui/common/FilterBar";
 import { TransactionCard } from "@/design-system/selecticons";
 import useBusinessStore from "@/store/businessStore";
 import { useRouter } from "next/navigation";

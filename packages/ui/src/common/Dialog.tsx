@@ -1,7 +1,7 @@
 "use client";
 import React, { ReactNode, useState, useRef, useEffect } from "react";
 import ReactDOM from "react-dom";
-import { cn } from "@/lib/utils";
+import { cn } from "@vibaar/utils";
 
 type DialogProps = {
   isOpen: boolean;

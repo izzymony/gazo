@@ -7,10 +7,10 @@ import Image from "next/image";
 import useBusinessStore from "@/store/businessStore";
 import Link from "next/link";
 import useAuthStore from "@/store/authStore";
-import KebabMenu from "@/design-system/common/header/KebabMenu";
-import StoreLogo from "@/design-system/common/StoreLogo";
-import VerifiedCheck from "@/design-system/common/VerifiedCheck";
-import ShareModal from "@/design-system/common/ShareModal";
+import KebabMenu from "@vibaar/ui/common/header/KebabMenu";
+import StoreLogo from "@vibaar/ui/common/StoreLogo";
+import VerifiedCheck from "@vibaar/ui/common/VerifiedCheck";
+import ShareModal from "@vibaar/ui/common/ShareModal";
 import { getPublicStoreUrl } from "@/lib/shareUrls";
 import { getStoreColor, DEFAULT_PATTERN } from "@/lib/bannerUtils";
 

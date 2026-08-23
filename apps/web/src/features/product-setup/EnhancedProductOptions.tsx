@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import Button from "@/design-system/common/Button";
-import Checkbox from "@/design-system/common/Checkbox";
+import Button from "@vibaar/ui/common/Button";
+import Checkbox from "@vibaar/ui/common/Checkbox";
 import {
   ChevronDown,
   ChevronRight,
@@ -12,7 +12,7 @@ import {
   Photo,
   Check,
   CiLock,
-} from "@/design-system/icons";
+} from "@vibaar/ui/icons";
 
 // ===== INTERFACES =====
 type PropertyType = 'price' | 'stock' | 'image';

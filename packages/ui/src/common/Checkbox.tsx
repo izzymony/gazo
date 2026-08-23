@@ -1,5 +1,5 @@
-import { IoCheckmark } from "@/design-system/icons";
-import { cn } from "@/lib/utils";
+import { IoCheckmark } from "../icons";
+import { cn } from "@vibaar/utils";
 
 type CheckboxProps = {
   checked: boolean;

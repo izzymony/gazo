@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useState } from "react";
-import { BiChevronDown, CiSearch } from "@/design-system/icons";
+import { BiChevronDown, CiSearch } from "../icons";
 import PasswordCriteria from "./PasswordCriteria";
 //
 interface Option {

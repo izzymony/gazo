@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Suspense, useState } from "react";
-import EmptyState from "@/design-system/common/EmptyState";
-import Loader from "@/design-system/common/Loader";
+import EmptyState from "@vibaar/ui/common/EmptyState";
+import Loader from "@vibaar/ui/common/Loader";
 import PageShell from "@vibaar/ui/PageShell";
-import HeroHeader from "@/design-system/common/HeroHeader";
-import Section from "@/design-system/common/Section";
-import ListSectionHeader from "@/design-system/common/ListSectionHeader";
+import HeroHeader from "@vibaar/ui/common/HeroHeader";
+import Section from "@vibaar/ui/common/Section";
+import ListSectionHeader from "@vibaar/ui/common/ListSectionHeader";
 import { useRouter } from "next/navigation";
 import { TransactionCard } from "@/design-system/selecticons";
 import useBusinessStore from "@/store/businessStore";
@@ -22,8 +22,8 @@ import {
   Clock,
   Package,
   Wallet,
-} from "@/design-system/icons";
-import IconButton from "@/design-system/common/IconButton";
+} from "@vibaar/ui/icons";
+import IconButton from "@vibaar/ui/common/IconButton";
 
 export default function WalletBody({ action }: { action: () => void }) {
   const router = useRouter();

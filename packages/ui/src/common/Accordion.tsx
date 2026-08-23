@@ -1,6 +1,6 @@
 import React, { useState, ReactNode } from "react";
-import { GoChevronDown } from "@/design-system/icons";
-import { cn } from "@/lib/utils";
+import { GoChevronDown } from "../icons";
+import { cn } from "@vibaar/utils";
 
 interface AccordionProps {
   title: string;

@@ -7,7 +7,7 @@ import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, useRef, useMemo } from "react";
-import { FaStar, FiUsers, IoIosArrowForward } from "@/design-system/icons";
+import { FaStar, FiUsers, IoIosArrowForward } from "@vibaar/ui/icons";
 import img1 from "../../../../../public/PRODUCT IMAGE (2).png";
 import WishlistComponent from "./wishlistcomponent";
 

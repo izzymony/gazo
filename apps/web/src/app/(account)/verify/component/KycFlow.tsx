@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Button from "@/design-system/common/Button";
-import InputField from "@/design-system/common/InputField";
+import Button from "@vibaar/ui/common/Button";
+import InputField from "@vibaar/ui/common/InputField";
 import useBusinessStore from "@/store/businessStore";
 import KycHero from "./KycHero";
 import {
@@ -19,7 +19,7 @@ import {
   AiOutlineInfoCircle,
   Shield,
   User,
-} from "@/design-system/icons";
+} from "@vibaar/ui/icons";
 
 const ID_TYPES = [
   { value: "nin", label: "NIN slip", sub: "National Identification Number", Icon: IdentityCard },

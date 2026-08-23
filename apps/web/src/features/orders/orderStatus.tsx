@@ -11,7 +11,7 @@ import {
   X,
   AiOutlineInfoCircle,
   ArrowLeft,
-} from "@/design-system/icons";
+} from "@vibaar/ui/icons";
 
 export type StatusHue =
   | "blue"

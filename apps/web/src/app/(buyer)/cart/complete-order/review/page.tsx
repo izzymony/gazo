@@ -6,18 +6,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import IconButton from "@/design-system/common/IconButton";
-import { Minus, Plus, Delete, Gift } from "@/design-system/icons";
+import IconButton from "@vibaar/ui/common/IconButton";
+import { Minus, Plus, Delete, Gift } from "@vibaar/ui/icons";
 import ShippingOptionCard from "@/design-system/common/ShippingOptionCard";
 import { useRouter, useSearchParams } from "next/navigation";
-// import RadioGroupColumn from "@/design-system/common/RadioGroupColumn"; // Removed - not used after hiding payment options
+// import RadioGroupColumn from "@vibaar/ui/common/RadioGroupColumn"; // Removed - not used after hiding payment options
 import useOrderStore from "@/store/orderStore";
 import { formatCurrency, parseAmount } from "@/lib/utils";
 import useAuthStore from "@/store/authStore";
 import { toast } from "sonner";
-import Loader from "@/design-system/common/Loader";
-import Button from "@/design-system/common/Button";
-import BottomModal from "@/design-system/common/BottomModal";
+import Loader from "@vibaar/ui/common/Loader";
+import Button from "@vibaar/ui/common/Button";
+import BottomModal from "@vibaar/ui/common/BottomModal";
 import useShippingStore, { ShippingOptionInfo } from "@/store/shippingStore";
 import { CartsItems } from "@/lib/newinterface";
 import { Client } from "@/lib/client";

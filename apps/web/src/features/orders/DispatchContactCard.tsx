@@ -1,5 +1,5 @@
 import React from "react";
-import { DeliveryTruck, User, Call } from "@/design-system/icons";
+import { DeliveryTruck, User, Call } from "@vibaar/ui/icons";
 
 /**
  * Read-only dispatch-contact card for Self-delivery orders. The seller records

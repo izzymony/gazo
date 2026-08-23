@@ -11,7 +11,7 @@ import FluidCard, {
   ShareIcon,
   Unliked,
 } from "@/features/shop/fluidcard";
-import { BiArrowBack, Plus } from "@/design-system/icons";
+import { BiArrowBack, Plus } from "@vibaar/ui/icons";
 
 export default function Page() {
   const pathName = usePathname();

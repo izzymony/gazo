@@ -8,7 +8,7 @@ import useOrderStore from "@/store/orderStore";
 import { formatCurrency } from "@/lib/utils";
 import Image from "next/image";
 import useAuthStore from "@/store/authStore";
-import Loader from "@/design-system/common/Loader";
+import Loader from "@vibaar/ui/common/Loader";
 import useShippingStore from "@/store/shippingStore";
 import { trackPurchase } from "@/lib/analytics";
 import { ORDER_ON_SUCCESS } from "@/lib/flags";

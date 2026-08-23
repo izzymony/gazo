@@ -1,27 +1,27 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import Tabs from "@/design-system/common/Tabs";
+import Tabs from "@vibaar/ui/common/Tabs";
 import VendorHeader from "@/features/storefront/VendorHeader";
 import VendorDataSort from "@/features/storefront/VendorDatatSort";
 import AllProducts from "@/features/storefront/AllProducts";
 import SmallHeader from "@/design-system/common/SmallHeader";
 import useScroll from "@/hooks/useScroll";
 import { usePathname, useSearchParams, useParams, useRouter } from "next/navigation";
-import Loader from "@/design-system/common/Loader";
+import Loader from "@vibaar/ui/common/Loader";
 import useBusinessStore from "@/store/businessStore";
-import { Modal } from "@/design-system/modal/Modal";
+import { Modal } from "@vibaar/ui/modal/Modal";
 import Image from "next/image";
 import VendorNav from "./VendorNav";
-import EmptyState from "@/design-system/common/EmptyState";
-import Button from "@/design-system/common/Button";
+import EmptyState from "@vibaar/ui/common/EmptyState";
+import Button from "@vibaar/ui/common/Button";
 import { formatNigerianCurrency } from "@/lib/utils";
 import { paginatedFetcher } from "@/app/(auth)/welcome/pagination";
 import useAuthStore from "@/store/authStore";
 import { trackStoreViewed } from "@/lib/analytics";
 import { toast } from "sonner";
-import { Check, Copy, FaStar, Add } from "@/design-system/icons";
-import IconButton from "@/design-system/common/IconButton";
+import { Check, Copy, FaStar, Add } from "@vibaar/ui/icons";
+import IconButton from "@vibaar/ui/common/IconButton";
 
 // Move shareOptions inside component to access businessProduct
 

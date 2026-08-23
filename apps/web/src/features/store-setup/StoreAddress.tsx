@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
-import InputField from "@/design-system/common/InputField";
+import InputField from "@vibaar/ui/common/InputField";
 import { useState } from "react";
-import Button from "@/design-system/common/Button";
+import Button from "@vibaar/ui/common/Button";
 import LocationModal from "@/hooks/locationmodal";
-import Loader from "@/design-system/common/Loader";
-import { BiChevronDown } from "@/design-system/icons";
+import Loader from "@vibaar/ui/common/Loader";
+import { BiChevronDown } from "@vibaar/ui/icons";
 import { DropButton } from "./StoreDetails";
 import { Categories, SubCategories, BasicCategory } from "@/store/businessStore";
-import Dialog from "@/design-system/common/Dialog";
+import Dialog from "@vibaar/ui/common/Dialog";
 
 interface Props {
   data: {

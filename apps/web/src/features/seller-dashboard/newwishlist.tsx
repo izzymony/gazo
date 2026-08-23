@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
-import Button from "@/design-system/common/Button";
-import EmptyState from "@/design-system/common/EmptyState";
+import Button from "@vibaar/ui/common/Button";
+import EmptyState from "@vibaar/ui/common/EmptyState";
 import { useRouter } from "next/navigation";
 import useProductStore from "@/store/productStore";
 // import useBusinessStore from "@/store/businessStore";

@@ -2,7 +2,7 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
-import ErrorState from "@/design-system/common/ErrorState";
+import ErrorState from "@vibaar/ui/common/ErrorState";
 
 /** Group-level error boundary for the (auth) area (W4.1). */
 export default function Error({

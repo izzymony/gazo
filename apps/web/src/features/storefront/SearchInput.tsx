@@ -3,8 +3,8 @@ import useBusinessStore from "@/store/businessStore";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
-import Loader from "@/design-system/common/Loader";
-import StoreLogo from "@/design-system/common/StoreLogo";
+import Loader from "@vibaar/ui/common/Loader";
+import StoreLogo from "@vibaar/ui/common/StoreLogo";
 import { trackSearch } from "@/lib/analytics";
 
 // Add this helper function before the SearchInput component

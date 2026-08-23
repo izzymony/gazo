@@ -8,7 +8,7 @@ import {
   Analytics,
   Settings,
   IconProps,
-} from "@/design-system/icons";
+} from "@vibaar/ui/icons";
 
 type NavLink = {
   Icon: React.ComponentType<IconProps>;

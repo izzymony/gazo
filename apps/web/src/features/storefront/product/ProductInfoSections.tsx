@@ -1,7 +1,7 @@
-import Accordion from "@/design-system/common/Accordion";
-import StoreLogo from "@/design-system/common/StoreLogo";
-import VerifiedCheck from "@/design-system/common/VerifiedCheck";
-import { FaStar, FiUsers } from "@/design-system/icons";
+import Accordion from "@vibaar/ui/common/Accordion";
+import StoreLogo from "@vibaar/ui/common/StoreLogo";
+import VerifiedCheck from "@vibaar/ui/common/VerifiedCheck";
+import { FaStar, FiUsers } from "@vibaar/ui/icons";
 import { StoreData } from "@/lib/types";
 
 /**

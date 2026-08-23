@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import BottomNav from "@/features/seller-shell/BottomNav";
 import useOrderStore from "@/store/orderStore";
-import { Home, ShoppingCart, User, IconProps } from "@/design-system/icons";
+import { Home, ShoppingCart, User, IconProps } from "@vibaar/ui/icons";
 
 interface Props {
   isSeller?: {

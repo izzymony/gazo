@@ -6,14 +6,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import Loader from "@/design-system/common/Loader";
+import Loader from "@vibaar/ui/common/Loader";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Button from "@/design-system/common/Button";
+import Button from "@vibaar/ui/common/Button";
 import Otp from "@/features/auth/signup/Otp";
 import CreateNewPassword from "./CreateNewPassword";
-import InputField from "@/design-system/common/InputField";
-import H1 from "@/design-system/common/Typography";
+import InputField from "@vibaar/ui/common/InputField";
+import H1 from "@vibaar/ui/common/Typography";
 
 
 

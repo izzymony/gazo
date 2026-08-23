@@ -7,21 +7,21 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { BiChevronDown, BiChevronUp, BsThreeDots, X, Plus, CircleCheck } from "@/design-system/icons";
+import { BiChevronDown, BiChevronUp, BsThreeDots, X, Plus, CircleCheck } from "@vibaar/ui/icons";
 import Image from "next/image";
 import { toast } from "sonner";
 
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Loader from "@/design-system/common/Loader";
-import Button from "@/design-system/common/Button";
-import Switch from "@/design-system/common/Switch";
+import Loader from "@vibaar/ui/common/Loader";
+import Button from "@vibaar/ui/common/Button";
+import Switch from "@vibaar/ui/common/Switch";
 import useAuthStore from "@/store/authStore";
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import CategorySelector from "@/features/store-setup/CategorySelector";
 import CollectionComponent from "@/features/product-setup/manual/ProductCollection";
-import InputField from "@/design-system/common/InputField";
+import InputField from "@vibaar/ui/common/InputField";
 import EnhancedProductOptions from "@/features/product-setup/EnhancedProductOptions";
 import { handleAxiosError } from "@/lib/utils";
 

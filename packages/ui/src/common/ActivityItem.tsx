@@ -1,6 +1,6 @@
 "use client";
 
-import ListItem from "@/design-system/common/ListItem";
+import ListItem from "../common/ListItem";
 
 interface ActivityItemProps {
   /** Icon key — mapped to an illustration in /public/icons. */

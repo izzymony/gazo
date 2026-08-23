@@ -1,12 +1,12 @@
 import Link from "next/link";
-import StepNavigation from "./StepNavigation";
+import StepNavigation from "@vibaar/ui/common/StepNavigation";
 import { HeaderProps } from "@/lib/types";
 import SearchInput from "@/features/storefront/SearchInput";
 import { useState } from "react";
-import { Emergency } from "@/design-system/svg";
+import { Emergency } from "@vibaar/ui/svg";
 import Image from 'next/image'
-import IconButton from "./IconButton";
-import { BiArrowBack, CiSearch, Menu, BsThreeDotsVertical, Bell } from "@/design-system/icons";
+import IconButton from "@vibaar/ui/common/IconButton";
+import { BiArrowBack, CiSearch, Menu, BsThreeDotsVertical, Bell } from "@vibaar/ui/icons";
 export default function Header({
   showBack = false,
   showLogo = false,

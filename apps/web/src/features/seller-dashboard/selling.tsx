@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import useBusinessStore from "@/store/businessStore";
 import useAuthStore from "@/store/authStore";
-import StoreLogo from "@/design-system/common/StoreLogo";
+import StoreLogo from "@vibaar/ui/common/StoreLogo";
 import { useRewardsInfo } from "@/hooks/useRewardsInfo";
 import { toast } from "sonner";
 import {
@@ -23,7 +23,7 @@ import {
   Logout,
   Gift,
   FaStar,
-} from "@/design-system/icons";
+} from "@vibaar/ui/icons";
 
 const Sellercard = ({
   text,

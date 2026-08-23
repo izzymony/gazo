@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // Otp.tsx
 import React from "react";
-import H1 from "@/design-system/common/Typography";
+import H1 from "@vibaar/ui/common/Typography";
 import { FormikErrors } from "formik";
 import OtpInput from "@/features/auth/otp";
 import useProductStore from "@/store/productStore";

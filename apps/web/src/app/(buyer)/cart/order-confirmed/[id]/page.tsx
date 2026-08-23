@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import VendorNav from "@/features/storefront/VendorNav";
-import { FaStar, MdFavoriteBorder } from "@/design-system/icons";
+import { FaStar, MdFavoriteBorder } from "@vibaar/ui/icons";
 import { useParams, useRouter } from "next/navigation";
 import CartIcon from "@/assets/icons/CartIcon";
 import useOrderStore from "@/store/orderStore";

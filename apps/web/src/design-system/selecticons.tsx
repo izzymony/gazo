@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import useBusinessStore from "@/store/businessStore";
 import { useRouter } from "next/navigation";
-import ListItem from "@/design-system/common/ListItem";
-import TransactionIcon from "@/design-system/common/TransactionIcon";
+import ListItem from "@vibaar/ui/common/ListItem";
+import TransactionIcon from "@vibaar/ui/common/TransactionIcon";
 
 export const TransactionCard = ({
   type,

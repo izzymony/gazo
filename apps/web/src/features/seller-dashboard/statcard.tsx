@@ -1,6 +1,6 @@
 import React from "react";
 import { formatNigerianCurrency, cn } from "@/lib/utils";
-import { ArrowUpRight, ArrowDownRight } from "@/design-system/icons";
+import { ArrowUpRight, ArrowDownRight } from "@vibaar/ui/icons";
 
 interface StatsCardProps {
   data: {

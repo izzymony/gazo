@@ -3,13 +3,13 @@
 
 import useBusinessStore from "@/store/businessStore";
 import { useRouter } from "next/navigation";
-import TransactionIcon from "@/design-system/common/TransactionIcon";
+import TransactionIcon from "@vibaar/ui/common/TransactionIcon";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Section from "@/design-system/common/Section";
-import Button from "@/design-system/common/Button";
-import DetailRow from "@/design-system/common/DetailRow";
-import DetailList from "@/design-system/common/DetailList";
+import Section from "@vibaar/ui/common/Section";
+import Button from "@vibaar/ui/common/Button";
+import DetailRow from "@vibaar/ui/common/DetailRow";
+import DetailList from "@vibaar/ui/common/DetailList";
 import StatusBadge from "@/features/seller-dashboard/StatusBadge";
 
 export default function WithdrawalDetails({

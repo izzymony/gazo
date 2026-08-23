@@ -4,10 +4,10 @@ import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import EmptyState from "@/design-system/common/EmptyState";
-import Button from "@/design-system/common/Button";
-import FilterBar from "@/design-system/common/FilterBar";
-import ActivityItem from "@/design-system/common/ActivityItem";
+import EmptyState from "@vibaar/ui/common/EmptyState";
+import Button from "@vibaar/ui/common/Button";
+import FilterBar from "@vibaar/ui/common/FilterBar";
+import ActivityItem from "@vibaar/ui/common/ActivityItem";
 import useAuthStore from "@/store/authStore";
 import {
   useNotifications,

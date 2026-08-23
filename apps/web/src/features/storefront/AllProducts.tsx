@@ -1,12 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import React from "react";
-import { FaPlus, Heart, ShoppingCartAdd, FaStar } from "@/design-system/icons";
+import { FaPlus, Heart, ShoppingCartAdd, FaStar } from "@vibaar/ui/icons";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import EmptyState from "@/design-system/common/EmptyState";
-import Button from "@/design-system/common/Button";
-import Loader from "@/design-system/common/Loader";
+import EmptyState from "@vibaar/ui/common/EmptyState";
+import Button from "@vibaar/ui/common/Button";
+import Loader from "@vibaar/ui/common/Loader";
 import useProductStore from "@/store/productStore";
 import useOrderStore from "@/store/orderStore";
 import { formatCurrency, getMobileCompatibleImageUrl } from "@/lib/utils";

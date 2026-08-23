@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import EmptyState from "@/design-system/common/EmptyState";
+import EmptyState from "@vibaar/ui/common/EmptyState";
 import { getGreeting, formatNigerianCurrency, formatTrendForNigerianMarket } from "@/lib/utils";
 import Image from "next/image";
 import { DEFAULT_PATTERN } from "@/lib/bannerUtils";
@@ -8,22 +8,22 @@ import { Suspense, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import useBusinessStore from "@/store/businessStore";
-import Loader from "@/design-system/common/Loader";
+import Loader from "@vibaar/ui/common/Loader";
 import PageShell from "@vibaar/ui/PageShell";
-import HeroHeader from "@/design-system/common/HeroHeader";
-import Section from "@/design-system/common/Section";
-import ListSectionHeader from "@/design-system/common/ListSectionHeader";
+import HeroHeader from "@vibaar/ui/common/HeroHeader";
+import Section from "@vibaar/ui/common/Section";
+import ListSectionHeader from "@vibaar/ui/common/ListSectionHeader";
 import useAuthStore from "@/store/authStore";
 import useChatStore from "@/store/chatStore";
-import StoreLogo from "@/design-system/common/StoreLogo";
-import { SquareArrowUpRight, BubbleChat, Bell, ChevronRight, ShoppingBag, Tag } from "@/design-system/icons";
-import IconButton from "@/design-system/common/IconButton";
+import StoreLogo from "@vibaar/ui/common/StoreLogo";
+import { SquareArrowUpRight, BubbleChat, Bell, ChevronRight, ShoppingBag, Tag } from "@vibaar/ui/icons";
+import IconButton from "@vibaar/ui/common/IconButton";
 import { useNotificationCount } from "@/hooks/useNotificationCount";
-import TrendIndicator from "@/design-system/common/TrendIndicator";
+import TrendIndicator from "@vibaar/ui/common/TrendIndicator";
 import { useNotifications, useMarkNotificationRead, type AppNotification } from "@/hooks/useNotifications";
 import { iconFor, formatTime } from "@/features/notifications/notificationDisplay";
-import ActivityItem from "@/design-system/common/ActivityItem";
-import StoreStatusBadge from "@/design-system/common/StoreStatusBadge";
+import ActivityItem from "@vibaar/ui/common/ActivityItem";
+import StoreStatusBadge from "@vibaar/ui/common/StoreStatusBadge";
 import NudgeBanner from "@/features/onboarding/NudgeBanner";
 
 // Lazy-load the onboarding widgets — they pull in framer-motion and render only

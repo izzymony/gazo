@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@vibaar/utils";
 
 interface TabsProps {
   tabs: string[];

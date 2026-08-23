@@ -1,15 +1,15 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable jsx-a11y/alt-text */
 import React, { useEffect, useState } from "react";
-import Button from "@/design-system/common/Button";
+import Button from "@vibaar/ui/common/Button";
 import img1 from "../../../public/PRODUCT IMAGE (2).png";
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import { useRouter } from "next/navigation";
-import EmptyState from "@/design-system/common/EmptyState";
+import EmptyState from "@vibaar/ui/common/EmptyState";
 import { BusinessData, ProductData } from "@/lib/types";
 import { formatCurrency, getMobileCompatibleImageUrl } from "@/lib/utils";
-import { FaStar, FiUsers, IoIosArrowForward, HeartFilled, MdFavoriteBorder } from "@/design-system/icons";
+import { FaStar, FiUsers, IoIosArrowForward, HeartFilled, MdFavoriteBorder } from "@vibaar/ui/icons";
 
 type BusinessDetails = (
   data: BusinessData[],

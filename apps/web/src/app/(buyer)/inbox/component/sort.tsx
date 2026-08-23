@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { Search, SortVertical } from "@/design-system/icons";
+import { Search, SortVertical } from "@vibaar/ui/icons";
 
 export default function Sort({
   onFilterChange,

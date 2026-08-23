@@ -1,5 +1,5 @@
-import type { IconProps } from "@/design-system/icons";
-import { VerifiedBadge } from "@/design-system/icons";
+import type { IconProps } from "@vibaar/ui/icons";
+import { VerifiedBadge } from "@vibaar/ui/icons";
 
 /**
  * KycHero — the teal "ripple" illustration for the person/identity + status

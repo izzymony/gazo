@@ -5,7 +5,7 @@ import {
   ChevronRight,
   Shield,
   AiOutlineInfoCircle,
-} from "@/design-system/icons";
+} from "@vibaar/ui/icons";
 import type { ShippingOptionInfo } from "@/store/shippingStore";
 
 /**

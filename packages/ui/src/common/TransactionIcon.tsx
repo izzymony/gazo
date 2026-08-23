@@ -10,7 +10,7 @@ import {
   GiftIcon,
   Coins01Icon,
 } from "@hugeicons/core-free-icons";
-import { cn } from "@/lib/utils";
+import { cn } from "@vibaar/utils";
 
 type TxType = "credit" | "debit" | "pending";
 type Glyph = React.ComponentProps<typeof HugeiconsIcon>["icon"];

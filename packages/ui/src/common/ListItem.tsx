@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@vibaar/utils";
 
 interface ListItemProps {
   /** Left visual — an icon badge / avatar. Rendered in a fixed 40px slot so

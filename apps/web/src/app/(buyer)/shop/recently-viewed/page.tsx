@@ -1,7 +1,7 @@
 "use client";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import EmptyState from "@/design-system/common/EmptyState";
+import EmptyState from "@vibaar/ui/common/EmptyState";
 import { BusinessData } from "@/lib/types";
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";

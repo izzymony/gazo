@@ -5,7 +5,7 @@
 import React, { useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useBusinessStore from "@/store/businessStore";
-import Loader from "@/design-system/common/Loader";
+import Loader from "@vibaar/ui/common/Loader";
 import SalesBody from "@/features/seller-shell/sales";
 import useAuthStore from "@/store/authStore";
 import useProductStore from "@/store/productStore";

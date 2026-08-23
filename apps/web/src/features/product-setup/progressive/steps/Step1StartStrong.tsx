@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import Image from "next/image";
-import { X, Plus, CircleCheck } from "@/design-system/icons";
+import { X, Plus, CircleCheck } from "@vibaar/ui/icons";
 
-import H1 from "@/design-system/common/Typography";
-import InputField from "@/design-system/common/InputField";
-import Switch from "@/design-system/common/Switch";
+import H1 from "@vibaar/ui/common/Typography";
+import InputField from "@vibaar/ui/common/InputField";
+import Switch from "@vibaar/ui/common/Switch";
 
 interface ImageProps {
     base64: string;

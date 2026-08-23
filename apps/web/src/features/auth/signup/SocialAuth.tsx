@@ -4,16 +4,16 @@ import useAuthStore from "@/store/authStore";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Otp from "./Otp";
-import H1 from "@/design-system/common/Typography";
+import H1 from "@vibaar/ui/common/Typography";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Button from "@/design-system/common/Button";
+import Button from "@vibaar/ui/common/Button";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import Loader from "@/design-system/common/Loader";
+import Loader from "@vibaar/ui/common/Loader";
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
-import InputField from "@/design-system/common/InputField";
+import InputField from "@vibaar/ui/common/InputField";
 import { splitFullName } from "@/lib/nameUtils";
 
 const validationSchema = [

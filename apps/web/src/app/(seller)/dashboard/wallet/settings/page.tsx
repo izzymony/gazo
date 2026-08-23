@@ -3,9 +3,9 @@
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Section from "@/design-system/common/Section";
-import Card from "@/design-system/common/Card";
-import { ChevronRight, Bank, LockPassword } from "@/design-system/icons";
+import Section from "@vibaar/ui/common/Section";
+import Card from "@vibaar/ui/common/Card";
+import { ChevronRight, Bank, LockPassword } from "@vibaar/ui/icons";
 
 export default function Page() {
   const router = useRouter();

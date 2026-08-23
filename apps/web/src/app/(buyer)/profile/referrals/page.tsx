@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Button from "@/design-system/common/Button";
-import EmptyState from "@/design-system/common/EmptyState";
+import Button from "@vibaar/ui/common/Button";
+import EmptyState from "@vibaar/ui/common/EmptyState";
 import useAuthStore from "@/store/authStore";
 import { toast } from "sonner";
 import { Client } from "@/lib/client";
@@ -18,7 +18,7 @@ import {
   Copy,
   CircleCheck,
   FaStar,
-} from "@/design-system/icons";
+} from "@vibaar/ui/icons";
 
 export default function ReferralsPage() {
   const router = useRouter();

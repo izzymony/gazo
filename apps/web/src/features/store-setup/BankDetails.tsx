@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useState } from "react";
-import InputField from "@/design-system/common/InputField";
+import InputField from "@vibaar/ui/common/InputField";
 import useBusinessStore from "@/store/businessStore";
 import { DropButton } from "./StoreDetails";
-import { Bank } from "@/design-system/icons";
-import Dialog from "@/design-system/common/Dialog";
+import { Bank } from "@vibaar/ui/icons";
+import Dialog from "@vibaar/ui/common/Dialog";
 
 interface Props {
   data: {

@@ -3,7 +3,7 @@
 import React from "react";
 import { toast } from "sonner";
 import Dialog from "./Dialog";
-import { Check, Copy } from "@/design-system/icons";
+import { Check, Copy } from "../icons";
 
 interface ShareModalProps {
   isOpen: boolean;

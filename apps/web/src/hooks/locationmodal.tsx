@@ -2,9 +2,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
-import BottomModal from "@/design-system/common/BottomModal";
+import BottomModal from "@vibaar/ui/common/BottomModal";
 import { useCallback, useEffect, useState } from "react";
-import { CiSearch } from "@/design-system/icons";
+import { CiSearch } from "@vibaar/ui/icons";
 
 // Extend Window interface for Google Maps
 declare global {

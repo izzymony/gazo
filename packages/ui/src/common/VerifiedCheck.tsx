@@ -1,4 +1,4 @@
-import { VerifiedBadge } from "@/design-system/icons";
+import { VerifiedBadge } from "../icons";
 
 /**
  * Buyer-facing seller trust mark (KYC1 §5). Renders a trust-blue verified check

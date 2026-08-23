@@ -1,6 +1,6 @@
 import React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
+import { cn } from '@vibaar/utils';
 
 // Button variant system.
 //   variant  — filled (primary CTA) · bordered (secondary/outline) · ghost (tertiary/text)

@@ -1,5 +1,5 @@
 import React from "react";
-import Tabs from "@/design-system/common/Tabs";
+import Tabs from "@vibaar/ui/common/Tabs";
 import Reviewed from "./Reviewed";
 import AwaitingReview from "./AwaitingReview";
 

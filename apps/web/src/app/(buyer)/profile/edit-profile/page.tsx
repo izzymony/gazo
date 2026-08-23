@@ -1,16 +1,16 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import InputField from "@/design-system/common/InputField";
+import InputField from "@vibaar/ui/common/InputField";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Button from "@/design-system/common/Button";
-import Section from "@/design-system/common/Section";
+import Button from "@vibaar/ui/common/Button";
+import Section from "@vibaar/ui/common/Section";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/store/authStore";
 import { User } from "@/lib/types";
-import UserProfileImage from "@/design-system/common/UserProfileImage";
+import UserProfileImage from "@vibaar/ui/common/UserProfileImage";
 import { toast } from "sonner";
 import * as Yup from "yup";
 

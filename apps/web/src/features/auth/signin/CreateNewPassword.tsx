@@ -1,6 +1,6 @@
 import React from 'react'
-import InputField from '@/design-system/common/InputField'
-import H1 from '@/design-system/common/Typography'
+import InputField from '@vibaar/ui/common/InputField'
+import H1 from '@vibaar/ui/common/Typography'
 
 interface UserProfileSetupProps {
     profileData: {

@@ -1,14 +1,14 @@
 "use client";
 import { useEffect } from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Loader from "@/design-system/common/Loader";
+import Loader from "@vibaar/ui/common/Loader";
 import ChatThreadHeader from "./ChatThreadHeader";
 import ChatThread from "./ChatThread";
 import ChatComposer from "./ChatComposer";
 import useChatStore from "@/store/chatStore";
 import useAuthStore from "@/store/authStore";
 import { useRouter } from "next/navigation";
-import Button from "@/design-system/common/Button";
+import Button from "@vibaar/ui/common/Button";
 
 /**
  * Full thread screen shared by the buyer and seller thread routes — resolves

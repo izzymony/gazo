@@ -2,7 +2,7 @@
 
 import { HugeiconsIcon } from "@hugeicons/react";
 import { AlertCircleIcon } from "@hugeicons/core-free-icons";
-import Button from "@/design-system/common/Button";
+import Button from "../common/Button";
 
 /**
  * Shared branded error UI (W4.1) — used by the root and per-area `error.tsx`

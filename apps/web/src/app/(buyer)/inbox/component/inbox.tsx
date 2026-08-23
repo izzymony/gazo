@@ -5,14 +5,14 @@
 
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Tabs from "@/design-system/common/Tabs";
+import Tabs from "@vibaar/ui/common/Tabs";
 import VendorNav from "@/features/storefront/VendorNav";
 import ChatList from "@/features/chat/ChatList";
 import { useRouter } from "next/navigation";
 import Assets from "./assets";
 import Sort from "./sort";
 import useAuthStore from "@/store/authStore";
-import Button from "@/design-system/common/Button";
+import Button from "@vibaar/ui/common/Button";
 
 export default function Inbox() {
   const router = useRouter();

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import useChatStore, { Conversation } from "@/store/chatStore";
-import { Add, Send } from "@/design-system/icons";
+import { Add, Send } from "@vibaar/ui/icons";
 
 /**
  * Message input bar — mounted in PageShell.footerAction by the thread routes.

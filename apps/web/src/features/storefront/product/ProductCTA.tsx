@@ -1,6 +1,6 @@
-import Button from "@/design-system/common/Button";
-import IconButton from "@/design-system/common/IconButton";
-import { PiShareFatThin, Minus, Plus, ShoppingCartAdd } from "@/design-system/icons";
+import Button from "@vibaar/ui/common/Button";
+import IconButton from "@vibaar/ui/common/IconButton";
+import { PiShareFatThin, Minus, Plus, ShoppingCartAdd } from "@vibaar/ui/icons";
 
 /**
  * The product-page sticky bottom action bar (W4.4).

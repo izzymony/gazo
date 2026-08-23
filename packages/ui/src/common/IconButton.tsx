@@ -1,7 +1,7 @@
 import React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
-import { IconProps } from "@/design-system/icons";
+import { cn } from "@vibaar/utils";
+import { IconProps } from "../icons";
 
 // Icon-button system — the single primitive for "an icon in a tappable container".
 // Standardises touch-target size, icon scale, radius, and hover/active states so
@@ -38,7 +38,7 @@ const ICON_SIZE: Record<NonNullable<VariantProps<typeof iconButtonVariants>["siz
 };
 
 type IconButtonProps = {
-  /** Icon component from `@/design-system/icons`. */
+  /** Icon component from `../icons`. */
   icon: React.ComponentType<IconProps>;
   /** Accessible name — required since the button has no visible text. */
   label: string;

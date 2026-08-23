@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Header from "@/design-system/common/Header";
-import Footer from "@/design-system/common/Footer";
-import Button from "@/design-system/common/Button";
+import Footer from "@vibaar/ui/common/Footer";
+import Button from "@vibaar/ui/common/Button";
 import { MainLayoutProps } from "@/lib/types";
 import Image from "next/image";
 

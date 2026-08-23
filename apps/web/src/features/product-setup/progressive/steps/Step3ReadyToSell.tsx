@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
 
-import H1 from "@/design-system/common/Typography";
-import InputField from "@/design-system/common/InputField";
+import H1 from "@vibaar/ui/common/Typography";
+import InputField from "@vibaar/ui/common/InputField";
 import EnhancedProductOptions from "../../EnhancedProductOptions";
 
 interface Step3Props {

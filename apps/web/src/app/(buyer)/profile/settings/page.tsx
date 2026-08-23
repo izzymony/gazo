@@ -3,9 +3,9 @@ import React from "react";
 
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Card from "@/design-system/common/Card";
-import Section from "@/design-system/common/Section";
-import { ChevronRight, CiLock, Bell } from "@/design-system/icons";
+import Card from "@vibaar/ui/common/Card";
+import Section from "@vibaar/ui/common/Section";
+import { ChevronRight, CiLock, Bell } from "@vibaar/ui/icons";
 import { useRouter } from "next/navigation";
 
 const Security = () => {

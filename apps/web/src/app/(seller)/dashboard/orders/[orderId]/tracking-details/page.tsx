@@ -1,13 +1,13 @@
 "use client";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import InputField from "@/design-system/common/InputField";
-import Checkbox from "@/design-system/common/Checkbox";
-import Button from "@/design-system/common/Button";
-import Section from "@/design-system/common/Section";
+import InputField from "@vibaar/ui/common/InputField";
+import Checkbox from "@vibaar/ui/common/Checkbox";
+import Button from "@vibaar/ui/common/Button";
+import Section from "@vibaar/ui/common/Section";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import { AiOutlineInfoCircle } from "@/design-system/icons";
+import { AiOutlineInfoCircle } from "@vibaar/ui/icons";
 
 const TrackingDetails = () => {
   const formik = useFormik({

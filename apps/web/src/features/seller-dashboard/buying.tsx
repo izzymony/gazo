@@ -1,13 +1,13 @@
 import React from "react";
 import { useRouter } from "next/navigation";
-import Tabs from "@/design-system/common/Tabs";
+import Tabs from "@vibaar/ui/common/Tabs";
 import Wishlist from "./wishlist";
 import Vendor from "./vendor";
 import Review from "./reviews";
 import useAuthStore from "@/store/authStore";
-import UserProfileImage from "@/design-system/common/UserProfileImage";
+import UserProfileImage from "@vibaar/ui/common/UserProfileImage";
 import { useRewardsInfo } from "@/hooks/useRewardsInfo";
-import { Gift, FaStar, ChevronRight } from "@/design-system/icons";
+import { Gift, FaStar, ChevronRight } from "@vibaar/ui/icons";
 
 // Rewards Access Button Component
 const RewardsAccessButton = ({

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 
-import H1 from "@/design-system/common/Typography";
-import InputField from "@/design-system/common/InputField";
+import H1 from "@vibaar/ui/common/Typography";
+import InputField from "@vibaar/ui/common/InputField";
 import CategorySelector from "@/features/store-setup/CategorySelector";
 import CollectionComponent from "@/features/product-setup/manual/ProductCollection";
 

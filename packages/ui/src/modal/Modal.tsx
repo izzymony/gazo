@@ -1,8 +1,8 @@
 import Image from 'next/image';
 import React from 'react';
-import H1 from '@/design-system/common/Typography';
-import Button from '@/design-system/common/Button';
-import Dialog from '@/design-system/common/Dialog';
+import H1 from '../common/Typography';
+import Button from '../common/Button';
+import Dialog from '../common/Dialog';
 
 interface ModalProps {
   imageSrc?: string;

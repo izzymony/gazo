@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import Button from "@/design-system/common/Button";
-import InputField from "@/design-system/common/InputField";
-import Dialog from "@/design-system/common/Dialog";
-import { BiChevronDown, X } from "@/design-system/icons";
+import Button from "@vibaar/ui/common/Button";
+import InputField from "@vibaar/ui/common/InputField";
+import Dialog from "@vibaar/ui/common/Dialog";
+import { BiChevronDown, X } from "@vibaar/ui/icons";
 import { categories as productCategories, storeCategories, getCategoryEmoji } from "@/lib/category";
 import { useCategories } from "@/hooks/useCategories";
 

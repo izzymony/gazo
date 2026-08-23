@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
-import { IoIosArrowForward, CiLock, LockPassword } from "@/design-system/icons";
+import { IoIosArrowForward, CiLock, LockPassword } from "@vibaar/ui/icons";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Button from "@/design-system/common/Button";
-import Card from "@/design-system/common/Card";
-import Section from "@/design-system/common/Section";
+import Button from "@vibaar/ui/common/Button";
+import Card from "@vibaar/ui/common/Card";
+import Section from "@vibaar/ui/common/Section";
 import { useRouter } from "next/navigation";
 
 const Security = () => {

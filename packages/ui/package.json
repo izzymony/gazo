@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
+    "./icons": "./src/icons/index.tsx",
     "./*": "./src/*.tsx"
   },
   "dependencies": {

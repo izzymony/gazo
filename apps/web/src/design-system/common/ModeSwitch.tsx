@@ -3,7 +3,7 @@ import React from "react";
 import { useRouter, usePathname } from "next/navigation";
 import useAuthStore from "@/store/authStore";
 import Image from "next/image";
-import ComingSoonPill from "./ComingSoonPill";
+import ComingSoonPill from "@vibaar/ui/common/ComingSoonPill";
 
 const ModeSwitch = () => {
   const router = useRouter();

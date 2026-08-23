@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Heart, CircleCheck, ChevronRight } from "@/design-system/icons";
+import { Heart, CircleCheck, ChevronRight } from "@vibaar/ui/icons";
 import useBusinessStore from "@/store/businessStore";
 import useOnboardingStore, {
   computeSellerStage,
@@ -11,7 +11,7 @@ import useOnboardingStore, {
   computeCompletionPercent,
   shouldShowChecklist,
 } from "@/store/onboardingStore";
-import ShareModal from "@/design-system/common/ShareModal";
+import ShareModal from "@vibaar/ui/common/ShareModal";
 
 export default function DashboardWelcome() {
   const router = useRouter();

@@ -7,14 +7,14 @@ import Buying from "@/features/seller-dashboard/buying";
 import VendorNav from "@/features/storefront/VendorNav";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Button from "@/design-system/common/Button";
+import Button from "@vibaar/ui/common/Button";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/store/authStore";
 import { useNotificationCount } from "@/hooks/useNotificationCount";
 import Image from "next/image";
-import H1 from "@/design-system/common/Typography";
+import H1 from "@vibaar/ui/common/Typography";
 import ModeSwitch from "@/design-system/common/ModeSwitch";
-import Dialog from "@/design-system/common/Dialog";
+import Dialog from "@vibaar/ui/common/Dialog";
 import { toast } from "sonner";
 import {
   ChevronRight,
@@ -27,7 +27,7 @@ import {
   HelpSquare,
   Logout,
   CircleCheck,
-} from "@/design-system/icons";
+} from "@vibaar/ui/icons";
 
 const MenuItem = ({
   icon: Icon,

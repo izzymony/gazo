@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import EmptyState from '@/design-system/common/EmptyState'
-import Button from '@/design-system/common/Button'
+import EmptyState from '@vibaar/ui/common/EmptyState'
+import Button from '@vibaar/ui/common/Button'
 import { useRouter } from 'next/navigation'
 
 const AwaitingReview = () => {

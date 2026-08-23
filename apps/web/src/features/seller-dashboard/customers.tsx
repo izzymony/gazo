@@ -3,8 +3,8 @@
 
 import React from "react";
 import StatsCard from "./statcard";
-import EmptyState from "@/design-system/common/EmptyState";
-import Section from "@/design-system/common/Section";
+import EmptyState from "@vibaar/ui/common/EmptyState";
+import Section from "@vibaar/ui/common/Section";
 import useBusinessStore from "@/store/businessStore";
 import CustomerComp from "@/features/seller-dashboard/CustomerComp";
 

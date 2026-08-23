@@ -2,8 +2,8 @@
 
 import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { ShoppingBag } from "@/design-system/icons";
-import BottomModal from "@/design-system/common/BottomModal";
+import { ShoppingBag } from "@vibaar/ui/icons";
+import BottomModal from "@vibaar/ui/common/BottomModal";
 import useOnboardingStore, {
   computeChecklistSteps,
   getCurrentNudge,

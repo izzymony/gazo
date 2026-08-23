@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import ComingSoonPill from '@/design-system/common/ComingSoonPill';
+import ComingSoonPill from '@vibaar/ui/common/ComingSoonPill';
 import svgPaths from "./svg-paths";
 const imgFrame1618869089 = "/figma-assets/ece298d0ec2c16f10310d45724b276a6035cb503.png";
 const imgImage372 = "/figma-assets/3db0124c8b3188d64f4e920263c8e40ef0b3a781.png";

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import Loader from "@/design-system/common/Loader";
+import Loader from "@vibaar/ui/common/Loader";
 import useAuthStore from "@/store/authStore";
 import useProductStore from "@/store/productStore";
 import useShippingStore from "@/store/shippingStore";
@@ -9,10 +9,10 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { paginatedFetcher } from "./pagination";
 import Image from "next/image";
-import Button from "@/design-system/common/Button";
+import Button from "@vibaar/ui/common/Button";
 import { toast } from "sonner";
-import ComingSoonPill from "@/design-system/common/ComingSoonPill";
-import { CircleCheck } from "@/design-system/icons";
+import ComingSoonPill from "@vibaar/ui/common/ComingSoonPill";
+import { CircleCheck } from "@vibaar/ui/icons";
 
 export default function Welcome() {
   const [activeTab, setActiveTab] = useState("sell");

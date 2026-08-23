@@ -6,8 +6,8 @@ import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Section from "@/design-system/common/Section";
-import Button from "@/design-system/common/Button";
+import Section from "@vibaar/ui/common/Section";
+import Button from "@vibaar/ui/common/Button";
 
 export const ReceiptCard = ({
   title,

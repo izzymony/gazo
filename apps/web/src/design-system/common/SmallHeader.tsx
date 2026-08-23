@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import useBusinessStore from "@/store/businessStore";
-import VerifiedCheck from "@/design-system/common/VerifiedCheck";
+import VerifiedCheck from "@vibaar/ui/common/VerifiedCheck";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { PiShareFatThin } from "@/design-system/icons";
-import StoreLogo from "./StoreLogo";
-import BackButton from "./header/BackButton";
-import KebabMenu from "./header/KebabMenu";
+import { PiShareFatThin } from "@vibaar/ui/icons";
+import StoreLogo from "@vibaar/ui/common/StoreLogo";
+import BackButton from "@vibaar/ui/common/header/BackButton";
+import KebabMenu from "@vibaar/ui/common/header/KebabMenu";
 import { getStoreColor, DEFAULT_PATTERN } from "@/lib/bannerUtils";
 
 interface SmallHeaderProps {

@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 
 // Lazy-load: ExpandableIconMenu pulls in framer-motion, and this menu lives in
 // the storefront headers — keeping framer-motion out of that bundle. (Perf P3.)
-const ExpandableIconMenu = dynamic(() => import("@/design-system/slidingcomponent"), { ssr: false });
+const ExpandableIconMenu = dynamic(() => import("../../slidingcomponent"), { ssr: false });
 
 interface KebabMenuStore {
   instagram_profile?: string | null;

@@ -1,9 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
 
-import InputField from "@/design-system/common/InputField";
-import { PasswordInput } from "@/design-system/common/inputs";
-import H1 from "@/design-system/common/Typography";
+import InputField from "@vibaar/ui/common/InputField";
+import { PasswordInput } from "@vibaar/ui/common/inputs";
+import H1 from "@vibaar/ui/common/Typography";
 
 interface UserContactFormProps {
   identifier?: string;

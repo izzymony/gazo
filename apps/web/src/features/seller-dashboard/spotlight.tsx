@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import DataSort from "./datasort";
 import { formatCurrency, formatDate, getMobileCompatibleImageUrl } from "@/lib/utils";
 import useProductStore from "@/store/productStore";
-import EmptyState from "@/design-system/common/EmptyState";
+import EmptyState from "@vibaar/ui/common/EmptyState";
 import { useRouter } from "next/navigation";
 import useBusinessStore, { BusinessProduct } from "@/store/businessStore";
 import useAuthStore from "@/store/authStore";

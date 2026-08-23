@@ -2,9 +2,9 @@
 import { useEffect } from "react";
 import useChatStore, { Conversation } from "@/store/chatStore";
 import { cn, getMobileCompatibleImageUrl } from "@/lib/utils";
-import EmptyState from "@/design-system/common/EmptyState";
-import Loader from "@/design-system/common/Loader";
-import { BubbleChat } from "@/design-system/icons";
+import EmptyState from "@vibaar/ui/common/EmptyState";
+import Loader from "@vibaar/ui/common/Loader";
+import { BubbleChat } from "@vibaar/ui/icons";
 import { relativeTime } from "./relativeTime";
 
 /* eslint-disable @next/next/no-img-element */

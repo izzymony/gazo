@@ -2,7 +2,7 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
-import ErrorState from "@/design-system/common/ErrorState";
+import ErrorState from "@vibaar/ui/common/ErrorState";
 
 /** Error boundary for the cart area (W4.1) — isolates failures here from the rest of the app. */
 export default function Error({

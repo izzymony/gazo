@@ -1,6 +1,6 @@
 "use client";
 
-import { formatTrendForNigerianMarket } from "@/lib/utils";
+import { formatTrendForNigerianMarket } from "@vibaar/utils";
 import Image from "next/image";
 
 interface TrendIndicatorProps {

@@ -12,8 +12,8 @@ import { toast } from "sonner";
 
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Button from "@/design-system/common/Button";
-import Loader from "@/design-system/common/Loader";
+import Button from "@vibaar/ui/common/Button";
+import Loader from "@vibaar/ui/common/Loader";
 import useAuthStore from "@/store/authStore";
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";

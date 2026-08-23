@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import useChatStore, { Conversation } from "@/store/chatStore";
 import useAuthStore from "@/store/authStore";
 import { cn, getMobileCompatibleImageUrl } from "@/lib/utils";
-import Loader from "@/design-system/common/Loader";
+import Loader from "@vibaar/ui/common/Loader";
 
 /* eslint-disable @next/next/no-img-element */
 /**

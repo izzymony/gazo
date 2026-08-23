@@ -5,10 +5,10 @@ import useBusinessStore from "@/store/businessStore";
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
-import Section from "@/design-system/common/Section";
-import Button from "@/design-system/common/Button";
-import BottomModal from "@/design-system/common/BottomModal";
-import { ChevronRight, Shield } from "@/design-system/icons";
+import Section from "@vibaar/ui/common/Section";
+import Button from "@vibaar/ui/common/Button";
+import BottomModal from "@vibaar/ui/common/BottomModal";
+import { ChevronRight, Shield } from "@vibaar/ui/icons";
 
 // KYC1 withdrawal gate: pre-check to surface the verify CTA early. The BACKEND is
 // authoritative (KYC_WITHDRAWAL_GATE_NGN, default 100000) — RequestWithdrawal

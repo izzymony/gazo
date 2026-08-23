@@ -1,12 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
 import React from 'react'
-import { BsThreeDots, MdOutlineAddCard } from "@/design-system/icons";
+import { BsThreeDots, MdOutlineAddCard } from "@vibaar/ui/icons";
 import { useRouter } from 'next/navigation';
 import PageShell from '@vibaar/ui/PageShell'
 import Header from '@/design-system/common/Header'
-import Card from '@/design-system/common/Card'
-import Section from '@/design-system/common/Section'
+import Card from '@vibaar/ui/common/Card'
+import Section from '@vibaar/ui/common/Section'
 
 
 

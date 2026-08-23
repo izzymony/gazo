@@ -4,8 +4,8 @@ import React from "react";
 import Image from "next/image";
 import useBusinessStore from "@/store/businessStore";
 import { useRouter } from "next/navigation";
-import StoreLogo from "@/design-system/common/StoreLogo";
-import BackButton from "@/design-system/common/header/BackButton";
+import StoreLogo from "@vibaar/ui/common/StoreLogo";
+import BackButton from "@vibaar/ui/common/header/BackButton";
 import { getStoreColor, DEFAULT_PATTERN } from "@/lib/bannerUtils";
 
 interface SmallHeaderProps {

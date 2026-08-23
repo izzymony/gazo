@@ -2,8 +2,8 @@
 
 import React, { useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import ConfettiCelebration from "@/design-system/ConfettiCelebration";
-import BottomModal from "@/design-system/common/BottomModal";
+import ConfettiCelebration from "@vibaar/ui/ConfettiCelebration";
+import BottomModal from "@vibaar/ui/common/BottomModal";
 import useOnboardingStore, {
   computeChecklistSteps,
   computeCompletionPercent,

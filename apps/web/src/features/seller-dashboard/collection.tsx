@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import DataSort from "./datasort";
-import { IoCubeOutline } from "@/design-system/icons";
-import EmptyState from "@/design-system/common/EmptyState";
-import Section from "@/design-system/common/Section";
+import { IoCubeOutline } from "@vibaar/ui/icons";
+import EmptyState from "@vibaar/ui/common/EmptyState";
+import Section from "@vibaar/ui/common/Section";
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import { formatCurrency } from "@/lib/utils";
