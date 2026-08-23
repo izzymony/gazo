@@ -1,0 +1,34 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# builds / caches
+.next/
+out/
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+
+# go (compiled binaries + runtime dirs live in services/backend)
+services/backend/main
+services/backend/insta-api
+services/backend/instashop-backend
+services/backend/temp_build
+services/backend/bin/
+services/backend/tmp/
+services/backend/uploads/
+services/backend/logs/
+
+# logs
+*.log
+
+# env / secrets — never commit real ones; templates are whitelisted below
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# os / editor
+.DS_Store
+coverage/

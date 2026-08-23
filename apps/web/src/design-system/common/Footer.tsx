@@ -1,0 +1,21 @@
+import Link from "next/link";
+
+const Footer = () => {
+  return (
+    <div className=" max-w-[320px] text-center mx-auto w-full px-5 pb-2.5 ">
+      <p className="text-ink-40 text-caption -leading-1 font-normal ">
+        By continuing, I agree to myInstashop&apos;s {" "}
+        <Link href={"/terms"} className="text-instaRed">
+          Terms of service
+        </Link>{" "}
+        <br />
+        and{" "}
+        <Link href={"/privacy"} className="text-instaRed">
+          Privacy Policy
+        </Link>
+      </p>
+    </div>
+  );
+};
+
+export default Footer;

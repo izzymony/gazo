@@ -1,0 +1,89 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+type Business struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+func enableCORS(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+}
+
+func validateEmailOrPhoneHandler(w http.ResponseWriter, r *http.Request) {
+	enableCORS(w)
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// Updated response format to match frontend expectations
+	response := map[string]interface{}{
+		"success":   true,
+		"message":   "Valid",
+		"exists":    false, // Changed from "available" to "exists"
+		"available": true,  // Keep this too for compatibility
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+func businessHandler(w http.ResponseWriter, r *http.Request) {
+	enableCORS(w)
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	businesses := []Business{
+		{ID: "0d15c5f5-c0f4-4903-a0a5-eeb3bb22c56f", Name: "MikeFlla Store", Description: "Test store"},
+	}
+
+	response := map[string]interface{}{
+		"data": businesses,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	enableCORS(w)
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+}
+
+func main() {
+	http.HandleFunc("/api/v1/validate-email-or-phone", validateEmailOrPhoneHandler)
+	http.HandleFunc("/api/v1/business", businessHandler)
+	http.HandleFunc("/api/v1/health", healthHandler)
+
+	fmt.Println("Test server starting on port 8088")
+	fmt.Println("CORS configured for http://localhost:3000")
+	fmt.Println("Endpoints available:")
+	fmt.Println("  - POST /api/v1/validate-email-or-phone")
+	fmt.Println("  - GET  /api/v1/business")
+	fmt.Println("  - GET  /api/v1/health")
+
+	if err := http.ListenAndServe(":8088", nil); err != nil {
+		fmt.Printf("Server error: %v\n", err)
+	}
+}

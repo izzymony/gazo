@@ -1,0 +1,122 @@
+package services
+
+import (
+	"os"
+	"log"
+	"insta-api/internal/core/external_service/payments"
+	"insta-api/internal/core/external_service/smtp"
+	"insta-api/internal/core/external_service/mail/sms"
+	"insta-api/internal/core/external_service/file-upload"
+	"insta-api/internal/core/external_service/shipping"
+)
+
+// ServiceFactory provides environment-aware service creation
+type ServiceFactory struct {
+	isLocal bool
+	isTest  bool
+	useMocks bool
+}
+
+// NewServiceFactory creates a new service factory
+func NewServiceFactory() *ServiceFactory {
+	env := os.Getenv("ENV")
+	return &ServiceFactory{
+		isLocal:  env == "local" || env == "development",
+		isTest:   env == "test",
+		useMocks: os.Getenv("ENABLE_MOCK_SERVICES") == "true",
+	}
+}
+
+// GetPaymentService returns appropriate payment service based on environment
+func (f *ServiceFactory) GetPaymentService() interface{} {
+	if f.useMocks && (f.isLocal || f.isTest) {
+		log.Println("[ServiceFactory] Using MOCK Payment Service")
+		return &MockPaymentService{}
+	}
+	log.Println("[ServiceFactory] Using REAL Paystack Service")
+	return payments.NewPaystackService()
+}
+
+// GetSMSService returns appropriate SMS service based on environment
+func (f *ServiceFactory) GetSMSService() interface{} {
+	if f.useMocks && (f.isLocal || f.isTest) {
+		log.Println("[ServiceFactory] Using MOCK SMS Service")
+		return &MockSMSService{}
+	}
+	
+	// Determine which SMS provider to use
+	provider := os.Getenv("SMS_PROVIDER")
+	switch provider {
+	case "twilio":
+		log.Println("[ServiceFactory] Using REAL Twilio Service")
+		return smtp.NewTwilioService()
+	case "termii":
+		log.Println("[ServiceFactory] Using REAL Termii Service")
+		return smtp.NewTermiiService()
+	case "sendchamp":
+		log.Println("[ServiceFactory] Using REAL Sendchamp Service")
+		return smtp.NewSendchampService()
+	default:
+		log.Println("[ServiceFactory] Using REAL Sleengshort Service")
+		return sms.NewSleengshortService()
+	}
+}
+
+// GetEmailService returns appropriate email service based on environment
+func (f *ServiceFactory) GetEmailService() interface{} {
+	if f.useMocks && (f.isLocal || f.isTest) {
+		log.Println("[ServiceFactory] Using MOCK Email Service")
+		return &MockEmailService{}
+	}
+	log.Println("[ServiceFactory] Using REAL Email Service")
+	// Return actual email service
+	return nil // TODO: Implement actual email service
+}
+
+// GetFileUploadService returns appropriate file upload service based on environment
+func (f *ServiceFactory) GetFileUploadService() interface{} {
+	if f.useMocks && (f.isLocal || f.isTest) {
+		log.Println("[ServiceFactory] Using MOCK File Upload Service")
+		return &MockCloudinaryService{}
+	}
+	log.Println("[ServiceFactory] Using REAL Cloudinary Service")
+	return cloudinary.NewCloudinaryService()
+}
+
+// GetShippingService returns appropriate shipping service based on environment
+func (f *ServiceFactory) GetShippingService() interface{} {
+	if f.useMocks && (f.isLocal || f.isTest) {
+		log.Println("[ServiceFactory] Using MOCK Shipping Service")
+		return &MockShippingService{}
+	}
+	log.Println("[ServiceFactory] Using REAL Shipbubble Service")
+	return shipping.NewShipbubbleService()
+}
+
+// IsLocalEnvironment checks if running in local environment
+func (f *ServiceFactory) IsLocalEnvironment() bool {
+	return f.isLocal
+}
+
+// IsTestEnvironment checks if running in test environment
+func (f *ServiceFactory) IsTestEnvironment() bool {
+	return f.isTest
+}
+
+// ShouldSkipOTPVerification determines if OTP verification should be skipped
+func (f *ServiceFactory) ShouldSkipOTPVerification() bool {
+	return (f.isLocal || f.isTest) && os.Getenv("SKIP_SMS_VERIFICATION") == "true"
+}
+
+// ShouldSkipEmailVerification determines if email verification should be skipped
+func (f *ServiceFactory) ShouldSkipEmailVerification() bool {
+	return (f.isLocal || f.isTest) && os.Getenv("SKIP_EMAIL_VERIFICATION") == "true"
+}
+
+// GetDefaultOTP returns a default OTP for testing (only in local/test)
+func (f *ServiceFactory) GetDefaultOTP() string {
+	if f.isLocal || f.isTest {
+		return "123456" // Default OTP for testing
+	}
+	return ""
+}

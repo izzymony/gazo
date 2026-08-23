@@ -1,0 +1,303 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* InstaShop Admin Light Theme */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    
+    --radius: 0.5rem;
+    
+    /* Chart colors */
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  .dark {
+    /* InstaShop Admin Dark Theme */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+    
+    /* Chart colors for dark mode */
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Admin-specific component styles */
+  .admin-card {
+    @apply rounded-lg border bg-card text-card-foreground shadow-sm;
+  }
+  
+  .admin-metric-card {
+    @apply admin-card p-6 transition-shadow hover:shadow-lg;
+  }
+  
+  .admin-button-primary {
+    @apply inline-flex items-center justify-center rounded-md bg-adminPrimary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-adminPrimary/90 focus:outline-none focus:ring-2 focus:ring-adminPrimary focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+  }
+  
+  .admin-button-danger {
+    @apply inline-flex items-center justify-center rounded-md bg-instaRed px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-instaRedDark focus:outline-none focus:ring-2 focus:ring-instaRed focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+  }
+  
+  .admin-badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors;
+  }
+  
+  .admin-badge-success {
+    @apply admin-badge bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400;
+  }
+  
+  .admin-badge-warning {
+    @apply admin-badge bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400;
+  }
+  
+  .admin-badge-error {
+    @apply admin-badge bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400;
+  }
+  
+  .admin-badge-info {
+    @apply admin-badge bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400;
+  }
+  
+  /* Data table styles */
+  .admin-table {
+    @apply w-full caption-bottom text-sm;
+  }
+  
+  .admin-table-header {
+    @apply border-b bg-muted/50 font-medium;
+  }
+  
+  .admin-table-row {
+    @apply border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted;
+  }
+  
+  .admin-table-cell {
+    @apply p-4 align-middle [&:has([role=checkbox])]:pr-0;
+  }
+  
+  /* Form styles */
+  .admin-input {
+    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  
+  .admin-label {
+    @apply text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70;
+  }
+  
+  /* Sidebar styles */
+  .admin-sidebar {
+    @apply fixed left-0 top-0 z-40 h-screen w-64 bg-card border-r transition-transform;
+  }
+  
+  .admin-sidebar-item {
+    @apply flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-accent;
+  }
+  
+  .admin-sidebar-item-active {
+    @apply bg-accent text-primary font-medium;
+  }
+}
+
+@layer utilities {
+  /* Utility classes for admin portal */
+  .admin-container {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .admin-section {
+    @apply py-8 sm:py-12;
+  }
+  
+  .admin-heading-1 {
+    @apply text-3xl font-bold tracking-tight;
+  }
+  
+  .admin-heading-2 {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+  
+  .admin-heading-3 {
+    @apply text-xl font-semibold;
+  }
+  
+  .admin-text-muted {
+    @apply text-muted-foreground;
+  }
+  
+  /* Animation utilities */
+  .admin-transition {
+    @apply transition-all duration-200 ease-in-out;
+  }
+  
+  .admin-transition-fast {
+    @apply transition-all duration-150 ease-in-out;
+  }
+  
+  /* Loading states */
+  .admin-skeleton {
+    @apply animate-pulse bg-muted rounded;
+  }
+  
+  /* Scrollbar styles */
+  .admin-scrollbar {
+    @apply scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-900;
+  }
+
+  /* Mobile-first utilities from main app */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* iOS Safe Area Support */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .pl-safe {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .pr-safe {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Fix iOS viewport height issues */
+  .h-screen-ios {
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for better mobile support */
+  }
+
+  /* Prevent iOS zoom on input focus */
+  input, select, textarea {
+    font-size: 16px;
+  }
+}
+
+/* Custom scrollbar styles */
+@supports (scrollbar-width: thin) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(156 163 175) transparent;
+  }
+  
+  .dark * {
+    scrollbar-color: rgb(75 85 99) transparent;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 dark:bg-gray-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500 dark:bg-gray-500;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .admin-sidebar {
+    display: none !important;
+  }
+  
+  .admin-header {
+    display: none !important;
+  }
+}

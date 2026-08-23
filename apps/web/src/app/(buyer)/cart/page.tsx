@@ -1,0 +1,489 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @next/next/no-img-element */
+"use client";
+import React, { useEffect, useState } from "react";
+import PageShell from "@/design-system/PageShell";
+import Header from "@/design-system/common/Header";
+import { useRouter } from "next/navigation";
+import useOrderStore from "@/store/orderStore";
+import { formatCurrency } from "@/lib/utils";
+import useBusinessStore from "@/store/businessStore";
+import useProductStore from "@/store/productStore";
+import EmptyState from "@/design-system/common/EmptyState";
+import Button from "@/design-system/common/Button";
+import IconButton from "@/design-system/common/IconButton";
+import { Minus, Plus, Delete, CircleCheck } from "@/design-system/icons";
+import NavigationTabs from "@/design-system/common/NavigationTabs";
+import VendorNav from "@/features/storefront/VendorNav";
+import Loader from "@/design-system/common/Loader";
+import useShippingStore from "@/store/shippingStore";
+import { CartsItems } from "@/lib/newinterface";
+import { trackBeginCheckout, trackViewCart, trackRemoveFromCart, startTiming } from "@/lib/analytics";
+
+// const cars: CartsItems[] = [
+//   {
+//     id: "1",
+//     product_id: "prod_001",
+//     price: 29.99,
+//     quantity: 2,
+//     title: "Wireless Mouse",
+//     image: "https://example.com/images/mouse.jpg",
+//     color: "Black",
+//     shippingPrice: "$4.99",
+//     shippingEstimate: "3-5 business days",
+//     shippingName: "Standard Shipping",
+//     shippingId: "ship_001",
+//   },
+//   {
+//     id: "2",
+//     product_id: "prod_002",
+//     price: 99.99,
+//     quantity: 1,
+//     title: "Mechanical Keyboard",
+//     image: "https://example.com/images/keyboard.jpg",
+//     color: "White",
+//     shippingPrice: "$6.99",
+//     shippingEstimate: "2-4 business days",
+//     shippingName: "Express Shipping",
+//     shippingId: "ship_002",
+//   },
+//   {
+//     id: "3",
+//     product_id: "prod_003",
+//     price: 59.99,
+//     quantity: 3,
+//     title: "Bluetooth Headphones",
+//     image: "https://example.com/images/headphones.jpg",
+//     color: "Blue",
+//     shippingPrice: "$5.99",
+//     shippingEstimate: "3-7 business days",
+//     shippingName: "Standard Shipping",
+//     shippingId: "ship_001",
+//   },
+//   {
+//     id: "4",
+//     product_id: "prod_004",
+//     price: 199.99,
+//     quantity: 1,
+//     title: "Smart Watch",
+//     image: "https://example.com/images/watch.jpg",
+//     shippingPrice: "$7.99",
+//     shippingEstimate: "1-3 business days",
+//     shippingName: "Express Shipping",
+//     shippingId: "ship_002",
+//   },
+//   {
+//     id: "5",
+//     product_id: "prod_005",
+//     price: 25.0,
+//     quantity: 4,
+//     title: "USB-C Cable",
+//     image: "https://example.com/images/cable.jpg",
+//     color: "Gray",
+//     shippingPrice: "$2.99",
+//     shippingEstimate: "5-7 business days",
+//     shippingName: "Economy Shipping",
+//     shippingId: "ship_003",
+//   },
+//   {
+//     id: "6",
+//     product_id: "prod_006",
+//     price: 49.99,
+//     quantity: 2,
+//     title: "Portable Charger",
+//     image: "https://example.com/images/charger.jpg",
+//     color: "Red",
+//     shippingPrice: "$3.99",
+//     shippingEstimate: "2-5 business days",
+//     shippingName: "Standard Shipping",
+//     shippingId: "ship_001",
+//   },
+//   {
+//     id: "7",
+//     product_id: "prod_007",
+//     price: 89.99,
+//     quantity: 1,
+//     title: "External SSD",
+//     image: "https://example.com/images/ssd.jpg",
+//     shippingPrice: "$6.49",
+//     shippingEstimate: "3-5 business days",
+//     shippingName: "Standard Shipping",
+//     shippingId: "ship_001",
+//   },
+//   {
+//     id: "8",
+//     product_id: "prod_008",
+//     price: 15.0,
+//     quantity: 5,
+//     title: "Notebook",
+//     image: "https://example.com/images/notebook.jpg",
+//     color: "Green",
+//     shippingPrice: "$1.99",
+//     shippingEstimate: "5-10 business days",
+//     shippingName: "Economy Shipping",
+//     shippingId: "ship_003",
+//   },
+//   {
+//     id: "9",
+//     product_id: "prod_009",
+//     price: 120.0,
+//     quantity: 1,
+//     title: "Gaming Chair",
+//     image: "https://example.com/images/chair.jpg",
+//     color: "Black/Red",
+//     shippingPrice: "$15.00",
+//     shippingEstimate: "7-10 business days",
+//     shippingName: "Freight Shipping",
+//     shippingId: "ship_004",
+//   },
+//   {
+//     id: "10",
+//     product_id: "prod_010",
+//     price: 39.99,
+//     quantity: 2,
+//     title: "Webcam",
+//     image: "https://example.com/images/webcam.jpg",
+//     shippingPrice: "$4.49",
+//     shippingEstimate: "3-5 business days",
+//     shippingName: "Standard Shipping",
+//     shippingId: "ship_001",
+//   },
+// ];
+
+const Page = () => {
+  const router = useRouter();
+  const tabs = [
+    { label: "Cart", path: "/cart" },
+    { label: "Order History", path: "/orders" },
+  ];
+  const { cart: carts, addToCarts, setCheckoutCart } = useOrderStore();
+  const { fetchStores } = useBusinessStore((state) => state);
+  const { shippingDetails } = useShippingStore();
+  const { products, fetchProducts } = useProductStore();
+  const { stores } = useBusinessStore();
+  const [loading, setLoading] = useState(false);
+  const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
+
+  const [unchecked, setUnchecked] = useState<string[]>([]);
+
+  const newArr: {
+    id: string;
+    title: { name: string; img: string };
+    data: CartsItems[];
+  }[] = carts.reduce((acc, it) => {
+    // Use business_id directly from cart item, or fallback to finding via products
+    const businameid = it.business_id ||
+      products.find((its) => its.product_id === it.product_id)?.business_id ||
+      "";
+
+    const business = stores.find((itc) => itc.id === businameid);
+    const businame = business?.name || "Vendor name";
+    const busiimg = (business?.logo as string | undefined) || "";
+
+    console.log("🛒 Cart grouping debug:", {
+      cartItemId: it.id,
+      businessId: businameid,
+      businessName: businame,
+      storesCount: stores.length
+    });
+
+    const finder = acc.findIndex((group) => group.id === businameid);
+
+    if (finder >= 0) {
+      acc[finder].data.push(it);
+    } else {
+      acc.push({
+        id: businameid,
+        title: { name: businame, img: busiimg },
+        data: [it],
+      });
+    }
+    return acc;
+  }, [] as { id: string; title: { name: string; img: string }; data: CartsItems[] }[]);
+
+  useEffect(() => {
+    fetchStores();
+    fetchProducts();
+  }, [fetchStores, fetchProducts]);
+
+  // Track view_cart when cart page loads with items
+  useEffect(() => {
+    if (carts.length > 0) {
+      const total = carts.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      trackViewCart(
+        carts.map(item => ({
+          id: item.product_id,
+          name: item.title,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+        total
+      );
+      // Start checkout timing when viewing cart
+      startTiming('checkout');
+    }
+  }, []);
+
+  const increment = (id: string) => {
+    return addToCarts(
+      carts.map((item) => {
+        //("clicked incr");
+        if (item.id === id) {
+          //("clicked incr 1");
+          return { ...item, quantity: item.quantity + 1 };
+        } else {
+          //("clicked incr -1");
+          return item;
+        }
+      })
+    );
+  };
+  const { removeCartItem } = useOrderStore();
+
+  const decrement = (id: string) => {
+    const item = carts.find(item => item.id === id);
+    if (item && item.quantity === 0) {
+      // If quantity is 0, remove the item completely (trash icon clicked)
+      // Track remove from cart event
+      trackRemoveFromCart({
+        id: item.product_id,
+        name: item.title,
+        price: item.price,
+        quantity: 1, // Removing 1 item
+      });
+      removeCartItem(id);
+    } else {
+      // Otherwise, decrease quantity (can go to 0)
+      return addToCarts(
+        carts.map((item) => {
+          //("clicked dcr");
+          if (item.id === id) {
+            //("clicked dcr 1");
+            return { ...item, quantity: Math.max(0, item.quantity - 1) };
+          } else {
+            //("clicked dcr -1");
+            return item;
+          }
+        })
+      );
+    }
+  };
+
+  const CartCard = ({ cart, id }: { cart: CartsItems; id: string }) => (
+    <div className="bg-ink-3 rounded-field mt-3 relative">
+      <div className="flex gap-2 mb-4 bg-white rounded-field">
+        <div className="h-20 w-20">
+          <img
+            src={cart.image || "/PRODUCT IMAGE (2).png"}
+            alt=""
+            className="rounded-field h-[80px] w-[80px] object-cover"
+          />
+        </div>
+        <div className="flex flex-col w-full gap-3">
+          <div>
+            <p className="text-body-sm font-normal">{cart.title}</p>
+            <p className="text-body-sm font-medium text-ink-40">
+              Color: {cart.color}
+            </p>
+          </div>
+          <div className="flex justify-between items-center">
+            <p className="text-body-sm font-normal">{formatCurrency(cart.price)}</p>
+            <div className="flex items-center space-x-1">
+              {cart.quantity === 0 ? (
+                <IconButton
+                  icon={Delete}
+                  label="Remove item"
+                  onClick={() => decrement(cart.id)}
+                  className="bg-ink-3"
+                  iconClassName="text-red"
+                  iconSize={18}
+                />
+              ) : (
+                <IconButton
+                  icon={Minus}
+                  label="Decrease quantity"
+                  onClick={() => decrement(cart.id)}
+                  className="bg-ink-3"
+                  iconSize={18}
+                />
+              )}
+              <span className="text-body font-normal">{cart.quantity}</span>
+              <IconButton
+                icon={Plus}
+                label="Increase quantity"
+                onClick={() => increment(cart.id)}
+                className="bg-ink-3"
+                iconSize={18}
+              />
+            </div>
+          </div>
+          <div
+            onClick={() => {
+              if (unchecked.includes(cart.id)) {
+                return setUnchecked(unchecked.filter((it) => it !== cart.id));
+              } else {
+                return setUnchecked((prev) => [...prev, cart.id, id]);
+              }
+            }}
+            className="absolute right-0 top-0 cursor-pointer">
+            {unchecked.includes(cart.id) ? (
+              <div className="w-5 h-5 rounded-full border border-instaRed" />
+            ) : (
+              <CircleCheck size={20} className="text-instaRed" />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const Cart = () => (
+    <div className="py-4">
+      {carts.length <= 0 ? (
+        <EmptyState
+          title="Your cart is empty."
+          subtitle="Once you add a product to your cart, they will appear here."
+          image="/images/cart/empty_cart_state.svg">
+          <Button
+            variant="bordered"
+            type="button"
+            onClick={() => router.push("/shop")}
+            className="text-body-sm !px-5 py-1 !w-[max-content]">
+            Explore vendors
+          </Button>
+        </EmptyState>
+      ) : (
+        newArr.map((cart, index) => {
+          return (
+            <div key={cart.title.name} className={index > 0 ? "mt-6" : ""}>
+              <div className="flex justify-between items-center w-full">
+                <div className="flex gap-1 items-center">
+                  <img
+                    src={cart.title.img || "/PRODUCT IMAGE (2).png"}
+                    alt=""
+                    className="rounded-full h-[20px] w-[20px] object-cover"
+                  />
+                  <p className="text-body text-ink-90 font-medium">
+                    {cart.title.name}
+                  </p>
+                </div>
+                <div
+                  className="cursor-pointer"
+                  onClick={() => {
+                    if (unchecked.includes(cart.id)) {
+                      const l = unchecked.map((it) => {
+                        const nex = [cart.id, ...cart.data.map((t) => t.id)];
+                        if (!nex.includes(it)) {
+                          return it;
+                        } else {
+                          return "";
+                        }
+                      });
+                      return setUnchecked(l.filter((i) => i !== ""));
+                    } else {
+                      const nex = [cart.id, ...cart.data.map((t) => t.id)];
+                      return setUnchecked((prev) => [...prev, ...nex]);
+                    }
+                  }}>
+                  {unchecked.includes(cart.id) ? (
+                    <div className="w-5 h-5 rounded-full border border-instaRed" />
+                  ) : (
+                    <CircleCheck size={20} className="text-instaRed" />
+                  )}
+                </div>
+              </div>
+              {cart.data.map((it) => (
+                <CartCard key={it.id} cart={it} id={cart.id} />
+              ))}
+            </div>
+          );
+        })
+      )}
+
+      {carts?.length <= 0 && <VendorNav />}
+    </div>
+  );
+
+  const totals = carts.filter((its) => {
+    if (!unchecked.includes(its.id)) {
+      return its;
+    }
+  });
+
+  if (loading) {
+    return <Loader />;
+  }
+
+  const handleCheckout = async () => {
+    setIsProcessingCheckout(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 300)); // Brief delay for UX
+
+      // Track begin_checkout event
+      const total = totals.reduce((a, b) => a + +b.price * +b.quantity, 0);
+      trackBeginCheckout(
+        totals.map(item => ({
+          id: item.product_id,
+          name: item.title,
+          price: +item.price,
+          quantity: item.quantity,
+        })),
+        total
+      );
+
+      // Carry only the selected items to checkout WITHOUT overwriting the cart,
+      // so unchecked items are preserved (W1.8).
+      setCheckoutCart(totals);
+      setLoading(true);
+
+      const destination = shippingDetails.length > 0
+        ? "/cart/complete-order/review"
+        : "/cart/shipping-profile/new";
+
+      await router.push(destination);
+    } finally {
+      setIsProcessingCheckout(false);
+    }
+  };
+
+  return (
+    <PageShell
+      header={
+        <Header
+          showBack
+          customText="Cart and Orders"
+          showMenu
+          onBackClick={() => router.back()}
+        />
+      }
+      footerAction={
+        carts?.length > 0 && totals?.length > 0 ? (
+          <div className="flex items-center gap-4">
+            <div className="flex flex-col w-24 shrink-0">
+              <p className="text-ink-40 line-clamp-1 text-body-sm">
+                Total ({totals.length}):
+              </p>
+              <p className="font-medium">
+                {formatCurrency(
+                  +totals.reduce((a, b) => a + +b.price * +b.quantity, 0)
+                )}
+              </p>
+            </div>
+            <Button
+              onClick={handleCheckout}
+              loading={isProcessingCheckout}
+              className="flex-1">
+              Proceed to checkout
+            </Button>
+          </div>
+        ) : undefined
+      }>
+      <div className="w-full">
+        <NavigationTabs tabs={tabs} />
+        <Cart key="cart" />
+      </div>
+    </PageShell>
+  );
+};
+
+export default Page;

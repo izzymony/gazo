@@ -1,0 +1,80 @@
+# ============================================
+# INSTASHOP BACKEND - TEST MAKEFILE
+# ============================================
+
+.PHONY: help test test-unit test-integration test-coverage test-verbose clean-test setup-test
+
+help:
+	@echo "Available test commands:"
+	@echo "  make setup-test      - Install test dependencies"
+	@echo "  make test           - Run all tests"
+	@echo "  make test-unit      - Run unit tests only"
+	@echo "  make test-integration - Run integration tests"
+	@echo "  make test-coverage  - Run tests with coverage"
+	@echo "  make test-verbose   - Run tests with verbose output"
+	@echo "  make clean-test     - Clean test cache and artifacts"
+
+# Install test dependencies
+setup-test:
+	go get -u github.com/stretchr/testify/assert
+	go get -u github.com/stretchr/testify/mock
+	go get -u github.com/stretchr/testify/suite
+	go get -u github.com/golang/mock/mockgen
+	go install github.com/golang/mock/mockgen@latest
+
+# Run all tests
+test:
+	@echo "Running all tests..."
+	go test -v ./... -tags=test
+
+# Run unit tests only
+test-unit:
+	@echo "Running unit tests..."
+	go test -v -short ./... -tags=unit
+
+# Run integration tests
+test-integration:
+	@echo "Running integration tests..."
+	go test -v -run Integration ./... -tags=integration
+
+# Run tests with coverage
+test-coverage:
+	@echo "Running tests with coverage..."
+	go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+	go tool cover -html=coverage.out -o coverage.html
+	@echo "Coverage report generated: coverage.html"
+
+# Run tests with verbose output
+test-verbose:
+	@echo "Running tests with verbose output..."
+	go test -v -race ./...
+
+# Generate mocks
+generate-mocks:
+	@echo "Generating mocks..."
+	mockgen -source=internal/ports/repository.go -destination=internal/mocks/mock_repository.go -package=mocks
+	mockgen -source=internal/ports/productInterface.go -destination=internal/mocks/mock_product.go -package=mocks
+	mockgen -source=internal/ports/userInterface.go -destination=internal/mocks/mock_user.go -package=mocks
+	@echo "Mocks generated successfully"
+
+# Clean test cache and artifacts
+clean-test:
+	@echo "Cleaning test cache..."
+	go clean -testcache
+	rm -f coverage.out coverage.html
+	@echo "Test cache cleaned"
+
+# Run specific test
+test-specific:
+	@echo "Running specific test: $(TEST)"
+	go test -v -run $(TEST) ./...
+
+# Benchmark tests
+test-benchmark:
+	@echo "Running benchmark tests..."
+	go test -bench=. -benchmem ./...
+
+# Run tests with race detection
+test-race:
+	@echo "Running tests with race detection..."
+	go test -race ./...

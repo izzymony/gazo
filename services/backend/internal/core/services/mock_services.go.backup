@@ -1,0 +1,180 @@
+package services
+
+import (
+	"fmt"
+	"log"
+	"os"
+	"insta-api/internal/core/domain"
+)
+
+// MockServiceManager handles all mock services for local development
+type MockServiceManager struct {
+	enabled bool
+}
+
+// NewMockServiceManager creates a new mock service manager
+func NewMockServiceManager() *MockServiceManager {
+	return &MockServiceManager{
+		enabled: os.Getenv("ENABLE_MOCK_SERVICES") == "true",
+	}
+}
+
+// IsMockEnabled checks if mock services are enabled
+func (m *MockServiceManager) IsMockEnabled() bool {
+	return m.enabled
+}
+
+// MockPaymentService simulates Paystack payment operations
+type MockPaymentService struct{}
+
+func (m *MockPaymentService) InitializePayment(amount float64, email string, reference string) (string, error) {
+	if os.Getenv("ENV") != "local" && os.Getenv("ENV") != "test" {
+		return "", fmt.Errorf("mock payment service only available in local/test environment")
+	}
+	
+	log.Printf("[MOCK] Payment initialized: Amount=%f, Email=%s, Reference=%s", amount, email, reference)
+	
+	// Return a mock payment URL
+	mockURL := fmt.Sprintf("http://localhost:3000/mock-payment?ref=%s&amount=%f", reference, amount)
+	return mockURL, nil
+}
+
+func (m *MockPaymentService) VerifyPayment(reference string) (bool, error) {
+	log.Printf("[MOCK] Payment verified: Reference=%s", reference)
+	// Always return success in mock mode
+	return true, nil
+}
+
+// MockSMSService simulates SMS sending operations
+type MockSMSService struct{}
+
+func (m *MockSMSService) SendSMS(phoneNumber, message string) error {
+	if os.Getenv("SKIP_SMS_VERIFICATION") != "true" {
+		log.Printf("[MOCK] SMS would be sent to %s: %s", phoneNumber, message)
+	} else {
+		log.Printf("[MOCK] SMS skipped (SKIP_SMS_VERIFICATION=true): %s", phoneNumber)
+	}
+	return nil
+}
+
+func (m *MockSMSService) SendOTP(phoneNumber string, otp string) error {
+	log.Printf("[MOCK] OTP '%s' would be sent to %s", otp, phoneNumber)
+	// In test mode, we can log the OTP for manual testing
+	if os.Getenv("ENV") == "test" {
+		log.Printf("[TEST-OTP] Use this OTP for testing: %s", otp)
+	}
+	return nil
+}
+
+// MockEmailService simulates email sending operations
+type MockEmailService struct{}
+
+func (m *MockEmailService) SendEmail(to, subject, body string) error {
+	if os.Getenv("SKIP_EMAIL_VERIFICATION") != "true" {
+		log.Printf("[MOCK] Email would be sent:\nTo: %s\nSubject: %s\nBody: %s", to, subject, body)
+	} else {
+		log.Printf("[MOCK] Email skipped (SKIP_EMAIL_VERIFICATION=true): %s", to)
+	}
+	return nil
+}
+
+func (m *MockEmailService) SendVerificationEmail(email, token string) error {
+	verificationURL := fmt.Sprintf("http://localhost:3000/verify?token=%s", token)
+	log.Printf("[MOCK] Verification email to %s with URL: %s", email, verificationURL)
+	return nil
+}
+
+// MockCloudinaryService simulates file upload operations
+type MockCloudinaryService struct{}
+
+func (m *MockCloudinaryService) UploadFile(filePath string) (string, error) {
+	if os.Getenv("USE_LOCAL_FILE_STORAGE") == "true" {
+		// Return a local file URL
+		mockURL := fmt.Sprintf("http://localhost:8088/uploads/%s", filePath)
+		log.Printf("[MOCK] File uploaded: %s -> %s", filePath, mockURL)
+		return mockURL, nil
+	}
+	
+	// Return a mock Cloudinary URL
+	mockURL := fmt.Sprintf("https://res.cloudinary.com/mock/image/upload/v1234567890/%s", filePath)
+	log.Printf("[MOCK] File uploaded to mock Cloudinary: %s", mockURL)
+	return mockURL, nil
+}
+
+// MockShippingService simulates shipping operations
+type MockShippingService struct{}
+
+func (m *MockShippingService) CreateShipment(order *domain.Order) (*domain.Shipment, error) {
+	log.Printf("[MOCK] Shipment created for order: %s", order.ID)
+	
+	mockShipment := &domain.Shipment{
+		OrderID:        order.ID,
+		TrackingNumber: fmt.Sprintf("MOCK-%s", order.ID),
+		Status:         "pending",
+		Carrier:        "Mock Carrier",
+		EstimatedDelivery: "3-5 business days",
+	}
+	
+	return mockShipment, nil
+}
+
+func (m *MockShippingService) GetShippingRate(from, to string, weight float64) (float64, error) {
+	log.Printf("[MOCK] Shipping rate requested: %s -> %s, Weight: %fkg", from, to, weight)
+	// Return a mock rate based on weight
+	mockRate := weight * 10.0 // $10 per kg
+	return mockRate, nil
+}
+
+func (m *MockShippingService) TrackShipment(trackingNumber string) (string, error) {
+	log.Printf("[MOCK] Tracking shipment: %s", trackingNumber)
+	return "in_transit", nil
+}
+
+// MockInstagramService simulates Instagram OAuth operations
+type MockInstagramService struct{}
+
+func (m *MockInstagramService) GetAuthURL() string {
+	return "http://localhost:3000/mock-instagram-auth"
+}
+
+func (m *MockInstagramService) ExchangeToken(code string) (string, error) {
+	log.Printf("[MOCK] Instagram token exchanged for code: %s", code)
+	return "mock_instagram_token_" + code, nil
+}
+
+func (m *MockInstagramService) GetUserProfile(token string) (map[string]interface{}, error) {
+	log.Printf("[MOCK] Instagram profile requested with token: %s", token)
+	
+	mockProfile := map[string]interface{}{
+		"id":       "mock_user_123",
+		"username": "mock_user",
+		"email":    "mock@example.com",
+		"name":     "Mock User",
+	}
+	
+	return mockProfile, nil
+}
+
+// GetMockService returns the appropriate mock service based on environment
+func GetMockService(serviceName string) interface{} {
+	if os.Getenv("ENABLE_MOCK_SERVICES") != "true" {
+		return nil
+	}
+	
+	switch serviceName {
+	case "payment":
+		return &MockPaymentService{}
+	case "sms":
+		return &MockSMSService{}
+	case "email":
+		return &MockEmailService{}
+	case "cloudinary":
+		return &MockCloudinaryService{}
+	case "shipping":
+		return &MockShippingService{}
+	case "instagram":
+		return &MockInstagramService{}
+	default:
+		return nil
+	}
+}

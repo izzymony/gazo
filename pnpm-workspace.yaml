@@ -1,0 +1,5 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+# services/backend is a standalone Go module (module insta-api) — intentionally
+# NOT a JS workspace member. It builds with `go build`, not pnpm/turbo.

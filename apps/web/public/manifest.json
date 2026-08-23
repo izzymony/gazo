@@ -1,0 +1,26 @@
+{
+  "name": "Instashop - Your One-Stop Shop",
+  "short_name": "Instashop",
+  "description": "Instashop is a simple and efficient progressive web application built with Next.js, offering a seamless shopping experience.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "scope": "/",
+  "orientation": "portrait",
+  "lang": "en-US",
+  "icons": [
+    {
+      "src": "/icon3.ico",
+      "sizes": "72x72",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/icon2.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    }
+  ]
+}
+
+

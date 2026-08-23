@@ -1,0 +1,78 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+
+	"insta-api/internal/adapter/api/middleware"
+	"insta-api/internal/adapter/api/routes"
+	"insta-api/internal/database"
+	"insta-api/internal/logger"
+	"insta-api/internal/migration"
+)
+
+func main() {
+	// Load environment variables
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, using system environment variables")
+	}
+
+	// Initialize logger
+	logger.InitLogger()
+
+	// Connect to database
+	db := database.ConnectDB()
+	if db == nil {
+		log.Fatal("Failed to connect to database")
+	}
+
+	// Run migrations
+	migration.Migrate()
+
+	// Initialize Gin router
+	router := gin.Default()
+
+	// Configure CORS
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{"http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000"}
+	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"}
+	corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "Accept", "X-Requested-With", "Cache-Control"}
+	corsConfig.AllowCredentials = true
+	
+	router.Use(cors.New(corsConfig))
+
+	// Add middleware
+	router.Use(middleware.LoggerMiddleware())
+
+	// Set up API routes
+	api := router.Group("/api/v1")
+	routes.SetupRoutes(api)
+
+	// Health check endpoint
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status": "healthy",
+			"env":    os.Getenv("ENV"),
+			"port":   os.Getenv("PORT"),
+		})
+	})
+
+	// Get port from environment
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8088"
+	}
+
+	// Start server
+	fmt.Printf("🚀 InstaShop API Server starting on port %s\n", port)
+	fmt.Printf("📍 Health check: http://localhost:%s/health\n", port)
+	fmt.Printf("📍 API base URL: http://localhost:%s/api/v1\n", port)
+	fmt.Printf("🌍 Environment: %s\n", os.Getenv("ENV"))
+	
+	log.Fatal(router.Run(":" + port))
+}

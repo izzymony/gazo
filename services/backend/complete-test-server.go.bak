@@ -1,0 +1,1063 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"strings"
+	"time"
+)
+
+// Test data structures
+type User struct {
+	ID        string `json:"id"`
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
+	UserName  string `json:"user_name"`
+	Email     string `json:"email"`
+	Phone     string `json:"phone"`
+	AuthType  string `json:"auth_type"`
+	Business  *Business `json:"business"`
+}
+
+type Business struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Tag         string `json:"tag"`
+	Email       string `json:"email"`
+	Phone       string `json:"phone"`
+	UserID      string `json:"user_id"`
+	Category    string `json:"category"`
+	Description string `json:"description"`
+	OrderCount  int    `json:"order_count"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
+	Address     *Address `json:"address,omitempty"`
+	BusinessSetting *BusinessSetting `json:"business_setting,omitempty"`
+	BusinessBankAccountDetail *BankAccountDetail `json:"business_bank_account_detail,omitempty"`
+}
+
+type BankAccountDetail struct {
+	ID         string `json:"id"`
+	Account    string `json:"account"`
+	Bank       string `json:"bank"`
+	BusinessID string `json:"business_id"`
+	Identifier string `json:"identifier"`
+	CreatedAt  string `json:"created_at"`
+	UpdatedAt  string `json:"updated_at"`
+}
+
+type Address struct {
+	ID                      string `json:"id"`
+	AddressLine             string `json:"address_line"`
+	AddressLineTwo          string `json:"address_line_two"`
+	Country                 string `json:"country"`
+	Province                string `json:"province"`
+	BusinessID              string `json:"business_id"`
+	ShipbubbleAddressCode   int    `json:"shipbubble_address_code"`
+	CreatedAt               string `json:"created_at"`
+	UpdatedAt               string `json:"updated_at"`
+}
+
+type BusinessSetting struct {
+	ID                      string `json:"id"`
+	BusinessID              string `json:"business_id"`
+	ShippingAmount          int    `json:"shipping_amount"`
+	ShippingType            string `json:"shipping_type"`
+	PersonalisedSettings    *PersonalisedSetting `json:"personalised_settings,omitempty"`
+	CreatedAt               string `json:"created_at"`
+	UpdatedAt               string `json:"updated_at"`
+}
+
+type PersonalisedSetting struct {
+	ID               string `json:"id"`
+	BackgroundColor  string `json:"background_color"`
+	BackgroundImage  string `json:"background_image"`
+	BackgroundState  string `json:"background_state"`
+	CreatedAt        string `json:"created_at"`
+	UpdatedAt        string `json:"updated_at"`
+}
+
+type LoginRequest struct {
+	Identifier string `json:"identifier"`
+	Password   string `json:"password"`
+	AuthType   string `json:"auth_type"`
+}
+
+type SignupRequest struct {
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
+	UserName  string `json:"user_name"`
+	Email     string `json:"email"`
+	Phone     string `json:"phone"`
+	Password  string `json:"password"`
+	AuthType  string `json:"auth_type"`
+}
+
+// Additional data structures for comprehensive API coverage
+type Product struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	Category    string  `json:"category"`
+	BusinessID  string  `json:"business_id"`
+	ImageURL    string  `json:"image_url"`
+	InStock     bool    `json:"in_stock"`
+	Rating      float64 `json:"rating"`
+	CreatedAt   string  `json:"created_at"`
+}
+
+type Order struct {
+	ID         string    `json:"id"`
+	UserID     string    `json:"user_id"`
+	BusinessID string    `json:"business_id"`
+	Products   []Product `json:"products"`
+	Total      float64   `json:"total"`
+	Status     string    `json:"status"`
+	CreatedAt  string    `json:"created_at"`
+}
+
+type WalletBalance struct {
+	Available float64 `json:"available"`
+	Pending   float64 `json:"pending"`
+	Total     float64 `json:"total"`
+}
+
+type Transaction struct {
+	ID        string  `json:"id"`
+	Amount    float64 `json:"amount"`
+	Type      string  `json:"type"`
+	Status    string  `json:"status"`
+	CreatedAt string  `json:"created_at"`
+}
+
+type BankAccount struct {
+	ID          string `json:"id"`
+	BankName    string `json:"bank_name"`
+	AccountName string `json:"account_name"`
+	AccountNumber string `json:"account_number"`
+}
+
+type Analytics struct {
+	TotalSales     float64 `json:"total_sales"`
+	TotalOrders    int     `json:"total_orders"`
+	TotalCustomers int     `json:"total_customers"`
+	TotalProducts  int     `json:"total_products"`
+}
+
+// Dashboard Analytics structure matching frontend expectations
+type DashboardAnalytics struct {
+	Summary map[string]interface{} `json:"summary"`
+	PercentChange map[string]interface{} `json:"percent_change"`
+}
+
+type ShippingProfile struct {
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Address string `json:"address"`
+	Phone   string `json:"phone"`
+	IsDefault bool `json:"is_default"`
+}
+
+// Vendor/Spotlight item structure for vendors page
+type VendorItem struct {
+	ID         string    `json:"id"`
+	BusinessID string    `json:"business_id"`
+	Business   *Business `json:"business"`
+	Products   []Product `json:"products"`
+	CreatedAt  string    `json:"created_at"`
+	UpdatedAt  string    `json:"updated_at"`
+}
+
+// Mock data
+var testUser = &User{
+	ID:        "6e64b2a1-9bcd-4de9-b790-117bcbbb7604",
+	FirstName: "Test",
+	LastName:  "User",
+	UserName:  "testuser",
+	Email:     "adefila761@gmail.com",
+	Phone:     "09027392696",
+	AuthType:  "email",
+	Business: &Business{
+		ID:          "88de780c-10cb-401b-968e-f9371711120b",
+		Name:        "My New Store",
+		Tag:         "mynewstore",
+		Email:       "filabrands1@gmail.com",
+		Phone:       "09027392696",
+		UserID:      "6e64b2a1-9bcd-4de9-b790-117bcbbb7604",
+		Category:    "🍽️ Food & Beverages",
+		Description: "Test store for authentication fix",
+		OrderCount:  15,
+		CreatedAt:   "2024-01-01T00:00:00Z",
+		UpdatedAt:   "2024-01-15T00:00:00Z",
+		Address: &Address{
+			ID:                    "addr1",
+			AddressLine:           "Test Address Lagos",
+			AddressLineTwo:        "",
+			Country:               "Nigeria",
+			Province:              "Lagos",
+			BusinessID:            "88de780c-10cb-401b-968e-f9371711120b",
+			ShipbubbleAddressCode: 100001,
+			CreatedAt:             "2024-01-01T00:00:00Z",
+			UpdatedAt:             "2024-01-15T00:00:00Z",
+		},
+		BusinessSetting: &BusinessSetting{
+			ID:             "setting1",
+			BusinessID:     "88de780c-10cb-401b-968e-f9371711120b",
+			ShippingAmount: 1000,
+			ShippingType:   "flat",
+			CreatedAt:      "2024-01-01T00:00:00Z",
+			UpdatedAt:      "2024-01-15T00:00:00Z",
+			PersonalisedSettings: &PersonalisedSetting{
+				ID:              "theme1",
+				BackgroundColor: "#ffffff",
+				BackgroundImage: "",
+				BackgroundState: "color",
+				CreatedAt:       "2024-01-01T00:00:00Z",
+				UpdatedAt:       "2024-01-15T00:00:00Z",
+			},
+		},
+		BusinessBankAccountDetail: &BankAccountDetail{
+			ID:         "bank_detail1",
+			Account:    "1234567890",
+			Bank:       "Access Bank",
+			BusinessID: "88de780c-10cb-401b-968e-f9371711120b",
+			Identifier: "acc-1234567890",
+			CreatedAt:  "2024-01-01T00:00:00Z",
+			UpdatedAt:  "2024-01-15T00:00:00Z",
+		},
+	},
+}
+
+var testBusinesses = []*Business{
+	{
+		ID:          "88de780c-10cb-401b-968e-f9371711120b",
+		Name:        "My New Store",
+		Tag:         "mynewstore",
+		Email:       "filabrands1@gmail.com",
+		Phone:       "09027392696",
+		UserID:      "6e64b2a1-9bcd-4de9-b790-117bcbbb7604",
+		Category:    "🍽️ Food & Beverages",
+		Description: "Primary test store",
+		OrderCount:  15,
+		CreatedAt:   "2024-01-01T00:00:00Z",
+		UpdatedAt:   "2024-01-15T00:00:00Z",
+		Address: &Address{
+			ID:                    "addr1",
+			AddressLine:           "Test Address Lagos",
+			AddressLineTwo:        "",
+			Country:               "Nigeria",
+			Province:              "Lagos",
+			BusinessID:            "88de780c-10cb-401b-968e-f9371711120b",
+			ShipbubbleAddressCode: 100001,
+			CreatedAt:             "2024-01-01T00:00:00Z",
+			UpdatedAt:             "2024-01-15T00:00:00Z",
+		},
+		BusinessSetting: &BusinessSetting{
+			ID:             "setting1",
+			BusinessID:     "88de780c-10cb-401b-968e-f9371711120b",
+			ShippingAmount: 1000,
+			ShippingType:   "flat",
+			CreatedAt:      "2024-01-01T00:00:00Z",
+			UpdatedAt:      "2024-01-15T00:00:00Z",
+			PersonalisedSettings: &PersonalisedSetting{
+				ID:              "theme1",
+				BackgroundColor: "#ffffff",
+				BackgroundImage: "",
+				BackgroundState: "color",
+				CreatedAt:       "2024-01-01T00:00:00Z",
+				UpdatedAt:       "2024-01-15T00:00:00Z",
+			},
+		},
+		BusinessBankAccountDetail: &BankAccountDetail{
+			ID:         "bank_detail1",
+			Account:    "1234567890",
+			Bank:       "Access Bank",
+			BusinessID: "88de780c-10cb-401b-968e-f9371711120b",
+			Identifier: "acc-1234567890",
+			CreatedAt:  "2024-01-01T00:00:00Z",
+			UpdatedAt:  "2024-01-15T00:00:00Z",
+		},
+	},
+	{
+		ID:          "d27f3d92-653a-45ac-9086-3187b8c1ba33",
+		Name:        "MyInstaShop",
+		Tag:         "myinstashop",
+		Email:       "myinstashop@gmail.com",
+		Phone:       "08012345678",
+		UserID:      "6e64b2a1-9bcd-4de9-b790-117bcbbb7604",
+		Category:    "👗 Fashion & Beauty",
+		Description: "Secondary test store",
+		OrderCount:  8,
+		CreatedAt:   "2024-01-02T00:00:00Z",
+		UpdatedAt:   "2024-01-16T00:00:00Z",
+		Address: &Address{
+			ID:                    "addr2",
+			AddressLine:           "Victoria Island Lagos",
+			AddressLineTwo:        "",
+			Country:               "Nigeria",
+			Province:              "Lagos",
+			BusinessID:            "d27f3d92-653a-45ac-9086-3187b8c1ba33",
+			ShipbubbleAddressCode: 100002,
+			CreatedAt:             "2024-01-02T00:00:00Z",
+			UpdatedAt:             "2024-01-16T00:00:00Z",
+		},
+		BusinessSetting: &BusinessSetting{
+			ID:             "setting2",
+			BusinessID:     "d27f3d92-653a-45ac-9086-3187b8c1ba33",
+			ShippingAmount: 800,
+			ShippingType:   "percentage",
+			CreatedAt:      "2024-01-02T00:00:00Z",
+			UpdatedAt:      "2024-01-16T00:00:00Z",
+			PersonalisedSettings: &PersonalisedSetting{
+				ID:              "theme2",
+				BackgroundColor: "#f0f0f0",
+				BackgroundImage: "",
+				BackgroundState: "color",
+				CreatedAt:       "2024-01-02T00:00:00Z",
+				UpdatedAt:       "2024-01-16T00:00:00Z",
+			},
+		},
+	},
+}
+
+// Mock data for comprehensive API testing
+var testProducts = []Product{
+	{
+		ID: "prod1", Name: "Premium T-Shirt", Description: "High quality cotton t-shirt",
+		Price: 25.99, Category: "Fashion", BusinessID: "88de780c-10cb-401b-968e-f9371711120b",
+		ImageURL: "https://example.com/tshirt.jpg", InStock: true, Rating: 4.5, CreatedAt: "2024-01-01T00:00:00Z",
+	},
+	{
+		ID: "prod2", Name: "Organic Coffee Beans", Description: "Single origin coffee beans",
+		Price: 15.50, Category: "Food & Beverages", BusinessID: "88de780c-10cb-401b-968e-f9371711120b",
+		ImageURL: "https://example.com/coffee.jpg", InStock: true, Rating: 4.8, CreatedAt: "2024-01-02T00:00:00Z",
+	},
+}
+
+var testOrders = []Order{
+	{
+		ID: "order1", UserID: "6e64b2a1-9bcd-4de9-b790-117bcbbb7604",
+		BusinessID: "88de780c-10cb-401b-968e-f9371711120b", Products: testProducts[:1],
+		Total: 25.99, Status: "completed", CreatedAt: "2024-01-15T00:00:00Z",
+	},
+}
+
+var testWalletBalance = WalletBalance{Available: 150.75, Pending: 25.00, Total: 175.75}
+
+var testTransactions = []Transaction{
+	{ID: "tx1", Amount: 25.99, Type: "sale", Status: "completed", CreatedAt: "2024-01-15T00:00:00Z"},
+	{ID: "tx2", Amount: 100.00, Type: "withdrawal", Status: "pending", CreatedAt: "2024-01-16T00:00:00Z"},
+}
+
+var testBankAccounts = []BankAccount{
+	{ID: "bank1", BankName: "Access Bank", AccountName: "Test User", AccountNumber: "1234567890"},
+}
+
+var testAnalytics = Analytics{TotalSales: 1250.75, TotalOrders: 48, TotalCustomers: 25, TotalProducts: 12}
+
+var testDashboardAnalytics = map[string]interface{}{
+	"summary": map[string]interface{}{
+		"revenue_generated": 125000.75,
+		"store_visitors":    1250,
+		"total_orders":      48,
+		"total_sales":       125000.75,
+	},
+	"percent_change": map[string]interface{}{
+		"revenue_generated": 12.5,
+		"store_visitors":    8.3,
+		"total_orders":      15.2,
+		"total_sales":       12.5,
+	},
+}
+
+var testShippingProfiles = []ShippingProfile{
+	{ID: "ship1", Name: "Home Address", Address: "123 Main St, Lagos", Phone: "09027392696", IsDefault: true},
+}
+
+// Mock vendor items for vendors page with proper structure
+var testVendorItems = []VendorItem{
+	{
+		ID:         "vendor1",
+		BusinessID: "88de780c-10cb-401b-968e-f9371711120b",
+		Business:   testBusinesses[0], // My New Store
+		Products:   testProducts,
+		CreatedAt:  "2024-01-01T00:00:00Z",
+		UpdatedAt:  "2024-01-15T00:00:00Z",
+	},
+	{
+		ID:         "vendor2",
+		BusinessID: "d27f3d92-653a-45ac-9086-3187b8c1ba33",
+		Business:   testBusinesses[1], // MyInstaShop
+		Products:   []Product{testProducts[1]}, // Just coffee product
+		CreatedAt:  "2024-01-02T00:00:00Z",
+		UpdatedAt:  "2024-01-16T00:00:00Z",
+	},
+}
+
+// CORS middleware
+func enableCORS(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3001")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept, Origin, Cache-Control, X-Requested-With")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Max-Age", "86400")
+}
+
+func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		enableCORS(w)
+		
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		
+		next(w, r)
+	}
+}
+
+// Health check
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"status":  "ok",
+		"message": "Complete Test Server Running",
+		"endpoints": []string{
+			"POST /api/v1/validate-email-or-phone",
+			"POST /api/v1/register",
+			"POST /api/v1/login", 
+			"GET  /api/v1/business",
+			"GET  /api/v1/business/:id",
+			"PUT  /api/v1/business/:id",
+		},
+	})
+}
+
+// Validate email or phone
+func validateEmailOrPhoneHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	// Parse the request body
+	var req map[string]string
+	json.NewDecoder(r.Body).Decode(&req)
+	identifier := req["identifier"]
+	
+	// Check if user exists in test data
+	userExists := false
+	userType := "email"
+	username := ""
+	
+	// Check against test user data
+	if testUser.Email == identifier || testUser.Phone == identifier {
+		userExists = true
+		if strings.Contains(identifier, "@") {
+			userType = "email"
+		} else {
+			userType = "phone"
+		}
+		username = testUser.UserName
+	}
+	
+	response := map[string]interface{}{
+		"success": true,
+		"message": "Valid",
+		"data": map[string]interface{}{
+			"exists":    userExists,
+			"available": !userExists, // available means can be used for new registration
+			"type":      userType,
+			"username":  username,
+		},
+	}
+	
+	json.NewEncoder(w).Encode(response)
+}
+
+// Register/Signup
+func registerHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	var signupReq SignupRequest
+	if err := json.NewDecoder(r.Body).Decode(&signupReq); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request body"})
+		return
+	}
+	
+	// Mock successful registration
+	mockToken := "mock-access-token-" + fmt.Sprintf("%d", time.Now().Unix())
+	mockRefreshToken := "mock-refresh-token-" + fmt.Sprintf("%d", time.Now().Unix())
+	
+	// Create user with business
+	newUser := *testUser
+	newUser.FirstName = signupReq.FirstName
+	newUser.LastName = signupReq.LastName
+	newUser.UserName = signupReq.UserName
+	newUser.Email = signupReq.Email
+	newUser.Phone = signupReq.Phone
+	newUser.AuthType = signupReq.AuthType
+	
+	response := map[string]interface{}{
+		"data": map[string]interface{}{
+			"token":         mockToken,
+			"access_token":  mockToken,
+			"refresh_token": mockRefreshToken,
+			"data":          newUser,
+		},
+	}
+	
+	json.NewEncoder(w).Encode(response)
+}
+
+// Login
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	var loginReq LoginRequest
+	if err := json.NewDecoder(r.Body).Decode(&loginReq); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request body"})
+		return
+	}
+	
+	// Mock successful login
+	mockToken := "mock-access-token-" + fmt.Sprintf("%d", time.Now().Unix())
+	mockRefreshToken := "mock-refresh-token-" + fmt.Sprintf("%d", time.Now().Unix())
+	
+	response := map[string]interface{}{
+		"data": map[string]interface{}{
+			"token":         mockToken,
+			"access_token":  mockToken,
+			"refresh_token": mockRefreshToken,
+			"data":          testUser,
+		},
+	}
+	
+	json.NewEncoder(w).Encode(response)
+}
+
+// Get all businesses
+func businessListHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	response := map[string]interface{}{
+		"data": map[string]interface{}{
+			"message": "successful",
+			"data":    testBusinesses,
+		},
+	}
+	
+	json.NewEncoder(w).Encode(response)
+}
+
+// Get single business
+func businessByIdHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	// Extract ID from URL path
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) < 5 {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid business ID"})
+		return
+	}
+	
+	businessID := pathParts[4]
+	
+	// Find business by ID
+	var business *Business
+	for _, b := range testBusinesses {
+		if b.ID == businessID {
+			business = b
+			break
+		}
+	}
+	
+	if business == nil {
+		// Return default business if not found
+		business = testBusinesses[0]
+	}
+	
+	response := map[string]interface{}{
+		"data": business,
+	}
+	
+	json.NewEncoder(w).Encode(response)
+}
+
+// Send Register OTP
+func sendRegisterOtpHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	// Mock successful OTP send
+	response := map[string]interface{}{
+		"success": true,
+		"message": "OTP sent successfully",
+		"data": map[string]interface{}{
+			"otp_sent": true,
+		},
+	}
+	
+	json.NewEncoder(w).Encode(response)
+}
+
+// Validate OTP Code
+func validateOtpHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	// Mock successful OTP validation (accept any OTP)
+	response := map[string]interface{}{
+		"success": true,
+		"message": "OTP validated successfully",
+		"data": map[string]interface{}{
+			"valid": true,
+		},
+	}
+	
+	json.NewEncoder(w).Encode(response)
+}
+
+// Update business
+func updateBusinessHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	// Extract ID from URL path
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) < 5 {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid business ID"})
+		return
+	}
+	
+	businessID := pathParts[4]
+	
+	// Mock successful update
+	updatedBusiness := *testBusinesses[0]
+	updatedBusiness.ID = businessID
+	
+	// Try to parse request body for updates
+	var updateData map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&updateData); err == nil {
+		if name, ok := updateData["name"].(string); ok {
+			updatedBusiness.Name = name
+		}
+		if email, ok := updateData["email"].(string); ok {
+			updatedBusiness.Email = email
+		}
+		if phone, ok := updateData["phone"].(string); ok {
+			updatedBusiness.Phone = phone
+		}
+	}
+	
+	response := map[string]interface{}{
+		"message": "Business updated successfully",
+		"data":    updatedBusiness,
+	}
+	
+	json.NewEncoder(w).Encode(response)
+}
+
+// COMPREHENSIVE API ENDPOINTS - Product Management
+func productsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	switch r.Method {
+	case "GET":
+		response := map[string]interface{}{
+			"data": map[string]interface{}{
+				"data": testProducts,
+				"pagination": map[string]interface{}{
+					"page": 1, "limit": 10, "total": len(testProducts),
+				},
+			},
+		}
+		json.NewEncoder(w).Encode(response)
+	case "POST":
+		response := map[string]interface{}{
+			"message": "Product created successfully",
+			"data": testProducts[0],
+		}
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
+func productByIdHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) >= 4 {
+		response := map[string]interface{}{"data": testProducts[0]}
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
+// Business Analytics & Dashboard Endpoints
+func dashboardAnalyticsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	response := map[string]interface{}{
+		"data": testDashboardAnalytics,
+	}
+	json.NewEncoder(w).Encode(response)
+}
+
+func salesAnalyticsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	response := map[string]interface{}{
+		"data": map[string]interface{}{
+			"daily_sales": 250.50, "weekly_sales": 1250.75, "monthly_sales": 5200.25,
+		},
+	}
+	json.NewEncoder(w).Encode(response)
+}
+
+func customerAnalyticsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	response := map[string]interface{}{
+		"data": map[string]interface{}{
+			"new_customers": 15, "returning_customers": 32, "total_customers": 47,
+		},
+	}
+	json.NewEncoder(w).Encode(response)
+}
+
+func businessCustomersHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	customers := []map[string]interface{}{
+		{"id": "cust1", "name": "John Doe", "email": "john@example.com", "orders": 5},
+		{"id": "cust2", "name": "Jane Smith", "email": "jane@example.com", "orders": 3},
+	}
+	response := map[string]interface{}{
+		"data": map[string]interface{}{
+			"data": customers, "pagination": map[string]interface{}{"page": 1, "limit": 10, "total": 2},
+		},
+	}
+	json.NewEncoder(w).Encode(response)
+}
+
+// Order Management Endpoints
+func ordersHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	switch r.Method {
+	case "GET":
+		response := map[string]interface{}{
+			"data": map[string]interface{}{
+				"data": testOrders, "pagination": map[string]interface{}{"page": 1, "limit": 10, "total": 1},
+			},
+		}
+		json.NewEncoder(w).Encode(response)
+	case "POST":
+		response := map[string]interface{}{
+			"message": "Order created successfully", "data": testOrders[0],
+		}
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
+func businessOrdersHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	response := map[string]interface{}{
+		"data": map[string]interface{}{
+			"data": testOrders, "pagination": map[string]interface{}{"page": 1, "limit": 10, "total": 1},
+		},
+	}
+	json.NewEncoder(w).Encode(response)
+}
+
+// Wallet & Financial Endpoints
+func walletBalanceHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	response := map[string]interface{}{"data": testWalletBalance}
+	json.NewEncoder(w).Encode(response)
+}
+
+func walletTransactionsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	response := map[string]interface{}{
+		"data": map[string]interface{}{
+			"data": testTransactions, "pagination": map[string]interface{}{"page": 1, "limit": 10, "total": 2},
+		},
+	}
+	json.NewEncoder(w).Encode(response)
+}
+
+func bankAccountsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	switch r.Method {
+	case "GET":
+		response := map[string]interface{}{"data": testBankAccounts}
+		json.NewEncoder(w).Encode(response)
+	case "POST":
+		response := map[string]interface{}{
+			"message": "Bank account added successfully", "data": testBankAccounts[0],
+		}
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
+// User Profile & Management Endpoints
+func usersHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	switch r.Method {
+	case "GET", "POST":
+		response := map[string]interface{}{"data": testUser}
+		json.NewEncoder(w).Encode(response)
+	case "PUT":
+		response := map[string]interface{}{
+			"message": "User updated successfully", "data": testUser,
+		}
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
+// Shipping & Address Endpoints  
+func shippingProfilesHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	switch r.Method {
+	case "GET":
+		response := map[string]interface{}{"data": testShippingProfiles}
+		json.NewEncoder(w).Encode(response)
+	case "POST":
+		response := map[string]interface{}{
+			"message": "Shipping profile created", "data": testShippingProfiles[0],
+		}
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
+func shippingOptionsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	options := []map[string]interface{}{
+		{"id": "standard", "name": "Standard Delivery", "price": 5.00, "duration": "3-5 days"},
+		{"id": "express", "name": "Express Delivery", "price": 10.00, "duration": "1-2 days"},
+	}
+	response := map[string]interface{}{"data": options}
+	json.NewEncoder(w).Encode(response)
+}
+
+// Categories & Collections
+func categoriesHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	categories := []map[string]interface{}{
+		{"id": "fashion", "name": "Fashion & Beauty", "icon": "👗"},
+		{"id": "food", "name": "Food & Beverages", "icon": "🍽️"},
+		{"id": "electronics", "name": "Electronics", "icon": "📱"},
+	}
+	response := map[string]interface{}{"data": categories}
+	json.NewEncoder(w).Encode(response)
+}
+
+// Wishlist Management - returns vendor items with business structure
+func wishlistHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	switch r.Method {
+	case "GET":
+		// Return vendor items structure that vendors page expects
+		response := map[string]interface{}{
+			"data": map[string]interface{}{
+				"data": testVendorItems, 
+				"pagination": map[string]interface{}{"page": 1, "limit": 10, "total": len(testVendorItems)},
+			},
+		}
+		json.NewEncoder(w).Encode(response)
+	case "POST":
+		response := map[string]interface{}{
+			"message": "Product added to wishlist", "success": true,
+		}
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
+// Recently viewed businesses handler - returns vendor items structure
+func recentlyViewedBusinessesHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	// Return vendor items with business structure that vendors page expects
+	response := map[string]interface{}{
+		"data": map[string]interface{}{
+			"data": testVendorItems,
+			"pagination": map[string]interface{}{"page": 1, "limit": 10, "total": len(testVendorItems)},
+		},
+	}
+	json.NewEncoder(w).Encode(response)
+}
+
+// Generic success handler for simple endpoints
+func genericSuccessHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	response := map[string]interface{}{
+		"success": true, "message": "Operation successful",
+	}
+	json.NewEncoder(w).Encode(response)
+}
+
+// Router
+func setupRoutes() {
+	http.HandleFunc("/api/v1/healthcheck", corsMiddleware(healthHandler))
+	http.HandleFunc("/api/v1/validate-email-or-phone", corsMiddleware(validateEmailOrPhoneHandler))
+	http.HandleFunc("/api/v1/register", corsMiddleware(registerHandler))
+	http.HandleFunc("/api/v1/login", corsMiddleware(loginHandler))
+	
+	// OTP endpoints
+	http.HandleFunc("/api/v1/verification-code/send-register-otp", corsMiddleware(sendRegisterOtpHandler))
+	http.HandleFunc("/api/v1/verification-code/validate-code", corsMiddleware(validateOtpHandler))
+	http.HandleFunc("/api/v1/verification-code/send-withdrawal-request-otp", corsMiddleware(sendRegisterOtpHandler))
+	
+	// Business routes with method handling
+	http.HandleFunc("/api/v1/business", corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "GET":
+			businessListHandler(w, r)
+		case "POST":
+			registerHandler(w, r) // Create business
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	}))
+	
+	http.HandleFunc("/api/v1/business/", corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		// Handle background theme endpoints
+		if strings.Contains(r.URL.Path, "/background") {
+			genericSuccessHandler(w, r)
+			return
+		}
+		
+		// Handle metrics endpoints
+		if strings.Contains(r.URL.Path, "/metrics/") {
+			dashboardAnalyticsHandler(w, r)
+			return
+		}
+		
+		// Handle regular business CRUD
+		switch r.Method {
+		case "GET":
+			businessByIdHandler(w, r)
+		case "PUT":
+			updateBusinessHandler(w, r)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	}))
+	
+	// Business Analytics & Dashboard
+	http.HandleFunc("/api/v1/business/get-dashboard-analytics", corsMiddleware(dashboardAnalyticsHandler))
+	http.HandleFunc("/api/v1/business/get-sales-analytics", corsMiddleware(salesAnalyticsHandler))
+	http.HandleFunc("/api/v1/business/get-customer-analytics", corsMiddleware(customerAnalyticsHandler))
+	http.HandleFunc("/api/v1/business/get-store-analytics/", corsMiddleware(salesAnalyticsHandler))
+	http.HandleFunc("/api/v1/business/get-customers", corsMiddleware(businessCustomersHandler))
+	http.HandleFunc("/api/v1/business/get-product-ranking", corsMiddleware(productsHandler))
+	http.HandleFunc("/api/v1/business/get-activities", corsMiddleware(genericSuccessHandler))
+	http.HandleFunc("/api/v1/business/mark-activity-read/", corsMiddleware(genericSuccessHandler))
+	http.HandleFunc("/api/v1/business/get-all-products", corsMiddleware(productsHandler))
+	http.HandleFunc("/api/v1/business/get-product/", corsMiddleware(productByIdHandler))
+	http.HandleFunc("/api/v1/business/get-orders", corsMiddleware(businessOrdersHandler))
+	http.HandleFunc("/api/v1/business/get-user-recently-viewed-businesses", corsMiddleware(recentlyViewedBusinessesHandler))
+	http.HandleFunc("/api/v1/business/add-recently-viewed-businesses", corsMiddleware(genericSuccessHandler))
+	http.HandleFunc("/api/v1/business/get-discounts", corsMiddleware(genericSuccessHandler))
+	http.HandleFunc("/api/v1/business/create-discount", corsMiddleware(genericSuccessHandler))
+	http.HandleFunc("/api/v1/business/get-bank-accounts", corsMiddleware(bankAccountsHandler))
+	http.HandleFunc("/api/v1/business/add-bank-account", corsMiddleware(bankAccountsHandler))
+	
+	// Business Theme & Customization - handled by existing /api/v1/business/ route above
+	
+	// Product Management
+	http.HandleFunc("/api/v1/products", corsMiddleware(productsHandler))
+	http.HandleFunc("/api/v1/products/", corsMiddleware(productByIdHandler))
+	http.HandleFunc("/api/v1/product/", corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "PUT":
+			productsHandler(w, r)
+		default:
+			productByIdHandler(w, r)
+		}
+	}))
+	http.HandleFunc("/api/v1/products/rating", corsMiddleware(genericSuccessHandler))
+	http.HandleFunc("/api/v1/products/get-user-wishlist", corsMiddleware(wishlistHandler))
+	http.HandleFunc("/api/v1/products/add-wishlist/", corsMiddleware(wishlistHandler))
+	
+	// Categories & Collections
+	http.HandleFunc("/api/v1/categories/get-all-categories", corsMiddleware(categoriesHandler))
+	http.HandleFunc("/api/v1/collections/get-collections/", corsMiddleware(categoriesHandler))
+	
+	// Order Management
+	http.HandleFunc("/api/v1/orders", corsMiddleware(ordersHandler))
+	http.HandleFunc("/api/v1/orders/", corsMiddleware(ordersHandler))
+	http.HandleFunc("/api/v1/orders/create-order", corsMiddleware(ordersHandler))
+	http.HandleFunc("/api/v1/orders/get-user-orders", corsMiddleware(ordersHandler))
+	http.HandleFunc("/api/v1/orders/get-order/", corsMiddleware(ordersHandler))
+	
+	// User Management
+	http.HandleFunc("/api/v1/users", corsMiddleware(usersHandler))
+	http.HandleFunc("/api/v1/users/", corsMiddleware(usersHandler))
+	http.HandleFunc("/api/v1/users/update-user", corsMiddleware(usersHandler))
+	http.HandleFunc("/api/v1/users/recommendations/", corsMiddleware(usersHandler))
+	http.HandleFunc("/api/v1/users/follow-business/", corsMiddleware(genericSuccessHandler))
+	http.HandleFunc("/api/v1/users/unfollow-business/", corsMiddleware(genericSuccessHandler))
+	http.HandleFunc("/api/v1/users/get-following", corsMiddleware(businessListHandler))
+	
+	// Shipping & Address Management
+	http.HandleFunc("/api/v1/shipping/add-shipping-profile", corsMiddleware(shippingProfilesHandler))
+	http.HandleFunc("/api/v1/shipping-address/", corsMiddleware(shippingProfilesHandler))
+	http.HandleFunc("/api/v1/shipping/get-user-shipping-profiles", corsMiddleware(shippingProfilesHandler))
+	http.HandleFunc("/api/v1/shipping/get-shipping-options", corsMiddleware(shippingOptionsHandler))
+	
+	// Financial Management
+	http.HandleFunc("/api/v1/wallet/get-wallet-balances", corsMiddleware(walletBalanceHandler))
+	http.HandleFunc("/api/v1/wallet/get-wallet-transactions", corsMiddleware(walletTransactionsHandler))
+	http.HandleFunc("/api/v1/wallet/withdraw", corsMiddleware(genericSuccessHandler))
+	http.HandleFunc("/api/v1/bank/get-banks", corsMiddleware(bankAccountsHandler))
+	http.HandleFunc("/api/v1/bank/validate-bank-account", corsMiddleware(genericSuccessHandler))
+	
+	// Payment & Transactions
+	http.HandleFunc("/api/v1/transactions/initiate", corsMiddleware(genericSuccessHandler))
+	http.HandleFunc("/api/v1/transactions/verify", corsMiddleware(genericSuccessHandler))
+	
+	// Authentication & Social
+	http.HandleFunc("/api/v1/refresh-token", corsMiddleware(loginHandler))
+	http.HandleFunc("/api/v1/forgot-password", corsMiddleware(genericSuccessHandler))
+	http.HandleFunc("/api/v1/otp", corsMiddleware(sendRegisterOtpHandler))
+	http.HandleFunc("/api/v1/auth/instagram", corsMiddleware(genericSuccessHandler))
+	http.HandleFunc("/api/v1/auth/google", corsMiddleware(genericSuccessHandler))
+	http.HandleFunc("/api/v1/auth/tiktok", corsMiddleware(genericSuccessHandler))
+	http.HandleFunc("/api/v1/auth/callback", corsMiddleware(genericSuccessHandler))
+}
+
+func main() {
+	setupRoutes()
+	
+	fmt.Println("🚀 COMPREHENSIVE InstaShop Test Server Starting on port 8088")
+	fmt.Println("🔗 CORS configured for http://localhost:3001")
+	fmt.Println("📊 Available endpoints (60+ endpoints):")
+	fmt.Println("🔐 Authentication:")
+	fmt.Println("   - POST /api/v1/register, /login, /validate-email-or-phone")
+	fmt.Println("   - POST /api/v1/verification-code/* (OTP endpoints)")
+	fmt.Println("🏪 Business Management:")
+	fmt.Println("   - GET|POST|PUT /api/v1/business/* (CRUD + analytics)")
+	fmt.Println("📦 Product Management:")
+	fmt.Println("   - GET|POST|PUT /api/v1/products/* (products + wishlist)")
+	fmt.Println("🛒 Order Management:")
+	fmt.Println("   - GET|POST /api/v1/orders/* (order lifecycle)")
+	fmt.Println("👤 User Management:")
+	fmt.Println("   - GET|POST|PUT /api/v1/users/* (profiles + following)")
+	fmt.Println("💰 Financial:")
+	fmt.Println("   - GET|POST /api/v1/wallet/* /bank/* (wallet + banking)")
+	fmt.Println("🚚 Shipping:")
+	fmt.Println("   - GET|POST /api/v1/shipping/* (addresses + options)")
+	fmt.Println("📊 Analytics:")
+	fmt.Println("   - GET /api/v1/business/get-*-analytics (dashboard data)")
+	fmt.Println("")
+	fmt.Println("🎯 Ready for complete authentication fix testing!")
+	fmt.Println("   Test data includes:")
+	fmt.Println("   - User: adefila761@gmail.com")
+	fmt.Println("   - Business: My New Store (88de780c-10cb-401b-968e-f9371711120b)")
+	fmt.Println("   - Email: filabrands1@gmail.com")
+	
+	if err := http.ListenAndServe(":8088", nil); err != nil {
+		log.Fatalf("Server error: %v", err)
+	}
+}

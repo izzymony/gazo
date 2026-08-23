@@ -1,0 +1,167 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useCallback, useEffect, useState } from "react";
+import InputField from "@/design-system/common/InputField";
+import useBusinessStore from "@/store/businessStore";
+import { DropButton } from "./StoreDetails";
+import { Bank } from "@/design-system/icons";
+import Dialog from "@/design-system/common/Dialog";
+
+interface Props {
+  data: {
+    bank_name: string;
+    account_number?: string;
+    account_name?: string;
+  };
+  error: {
+    bank_name?: string;
+    account_number?: string;
+    account_name?: string;
+  };
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  setBanks: (val: string) => void;
+}
+
+// Bank selection modal (Dialog primitive) — auto-closes on selection.
+// Dialog owns the backdrop, sheet/dialog responsiveness, keyboard-aware height,
+// drag indicator, and a11y (Escape/focus-trap/scroll-lock) — was all hand-rolled.
+const BankSelectorModal = ({
+  isOpen,
+  banks,
+  selectedName,
+  onSelect,
+  onClose,
+}: {
+  isOpen: boolean;
+  banks: { name: string; code: string }[];
+  selectedName: string;
+  onSelect: (bank: { name: string; code: string }) => void;
+  onClose: () => void;
+}) => {
+  const [search, setSearch] = useState("");
+
+  // Filter out undefined/malformed bank items and then search
+  const safeBanks = banks.filter((bank) => bank && bank.name && bank.code);
+  const filteredBanks = search
+    ? safeBanks.filter((bank) =>
+        bank.name.toLowerCase().includes(search.toLowerCase())
+      )
+    : safeBanks;
+
+  return (
+    <Dialog isOpen={isOpen} onClose={onClose} ariaLabel="Select a bank">
+      {/* Header */}
+      <div className="w-full flex flex-col items-center space-y-4">
+        <p className="text-ink-90 text-body-lg font-medium">Select a bank</p>
+        <InputField
+          type="text"
+          name="search"
+          value={search}
+          onChange={(e) => setSearch(e.currentTarget.value)}
+          placeholder="Search bank"
+          showSearch={true}
+        />
+      </div>
+
+      {/* Bank list — own scroll so the search header stays put */}
+      <div className="overflow-y-scroll scrollbar-hide mt-4 max-h-[55vh]">
+        {filteredBanks.map((bank) => (
+          <div
+            key={bank.code}
+            onClick={() => {
+              onSelect(bank);
+              onClose();
+            }}
+            className={`flex items-center px-3 py-3 cursor-pointer rounded-field ${
+              selectedName === bank.name
+                ? "bg-instaRed/10 border border-instaRed"
+                : "hover:bg-ink-5"
+            }`}
+          >
+            {/* Bank icon */}
+            <div className="w-8 h-8 rounded-full bg-green/10 flex items-center justify-center mr-3">
+              <Bank size={16} className="text-green" />
+            </div>
+            <span className="text-body text-ink-90">{bank.name}</span>
+          </div>
+        ))}
+      </div>
+    </Dialog>
+  );
+};
+
+const BankDetails = ({ data, handleInputChange, error, setBanks }: Props) => {
+  const [show, setShow] = useState(false);
+  const { banks, selectedBank, validateBank, fetchBanks } = useBusinessStore();
+  const [selectedBankName, setSelectedBankName] = useState("");
+  const [bankCode, setBankCode] = useState("");
+
+  // Fetch banks on mount if not already loaded
+  useEffect(() => {
+    if (!banks || banks.length === 0) {
+      fetchBanks(1);
+    }
+  }, [banks, fetchBanks]);
+
+  const validate = useCallback(async () => {
+    await validateBank({
+      account_number: data.account_number ? data.account_number : "",
+      bank_code: bankCode ? bankCode : "",
+    });
+  }, [bankCode, data, validateBank]);
+
+  useEffect(() => {
+    if (bankCode && data.account_number && data.account_number.length >= 10) {
+      validate();
+    }
+  }, [bankCode, data.account_number, validate]);
+
+  // Transform banks for the selector - filter out undefined/malformed items
+  const bankList = (banks || [])
+    .filter((b) => b && b.name && b.code)
+    .map((b) => ({ name: b.name, code: b.code }));
+
+  const handleBankSelect = (bank: { name: string; code: string }) => {
+    setSelectedBankName(bank.name);
+    setBankCode(bank.code);
+    setBanks(bank.name);
+  };
+
+  return (
+    <>
+      <div className="space-y-4">
+        <DropButton
+          toogleDrop={() => setShow(!show)}
+          text={selectedBankName || "Select bank"}
+          icon={true}
+        />
+        <InputField
+          type="text"
+          name="account_number"
+          value={data?.account_number}
+          onChange={handleInputChange}
+          placeholder="Account number"
+          error={error?.account_number}
+        />
+        <InputField
+          type="text"
+          name="account_name"
+          value={selectedBank.AccountName}
+          onChange={handleInputChange}
+          placeholder="Account name"
+          error={error?.account_name}
+          disabled={true}
+        />
+      </div>
+
+      <BankSelectorModal
+        isOpen={show}
+        banks={bankList}
+        selectedName={selectedBankName}
+        onSelect={handleBankSelect}
+        onClose={() => setShow(false)}
+      />
+    </>
+  );
+};
+
+export default BankDetails;

@@ -1,0 +1,97 @@
+/* Responsive Grid Utilities - Add these to any container for responsive grids */
+
+/* Product Grid - 1 col mobile, 2 tablet, 3-4 desktop */
+.product-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6;
+}
+
+/* Card Grid - 1 col mobile, 2 tablet, 3 desktop */
+.card-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6;
+}
+
+/* Vendor Grid - scrollable mobile, grid desktop */
+.vendor-grid {
+  @apply flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4;
+  @apply overflow-x-auto md:overflow-visible scrollbar-hide;
+}
+
+/* Two Column Layout - single col mobile, two col desktop */
+.two-col-layout {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8;
+}
+
+/* Sidebar Layout - stacked mobile, sidebar + main desktop */
+.sidebar-layout {
+  @apply grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6;
+}
+
+/* Stats Grid - 2x2 mobile, 3 cols tablet, 6 cols desktop */
+.stats-grid {
+  @apply grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4;
+}
+
+/* Form Grid - single col mobile, 2 col desktop for form fields */
+.form-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6;
+}
+
+/* Responsive Text Sizes */
+.text-responsive-xs {
+  @apply text-xs md:text-sm;
+}
+
+.text-responsive-sm {
+  @apply text-sm md:text-base;
+}
+
+.text-responsive-base {
+  @apply text-base md:text-lg;
+}
+
+.text-responsive-lg {
+  @apply text-lg md:text-xl lg:text-2xl;
+}
+
+.text-responsive-xl {
+  @apply text-xl md:text-2xl lg:text-3xl;
+}
+
+.text-responsive-2xl {
+  @apply text-2xl md:text-3xl lg:text-4xl;
+}
+
+/* Responsive Padding/Spacing */
+.responsive-padding {
+  @apply px-4 md:px-6 lg:px-8;
+}
+
+.responsive-padding-y {
+  @apply py-4 md:py-6 lg:py-8;
+}
+
+.responsive-gap {
+  @apply gap-4 md:gap-6 lg:gap-8;
+}
+
+/* Responsive Container */
+.container-responsive {
+  @apply w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8;
+}
+
+/* Hide/Show by Screen Size */
+.mobile-only {
+  @apply block lg:hidden;
+}
+
+.desktop-only {
+  @apply hidden lg:block;
+}
+
+.tablet-up {
+  @apply hidden md:block;
+}
+
+.tablet-only {
+  @apply hidden md:block lg:hidden;
+}

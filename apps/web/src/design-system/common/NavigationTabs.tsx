@@ -1,0 +1,46 @@
+import { usePathname, useRouter } from "next/navigation";
+import React from "react";
+import { cn } from "@/lib/utils";
+
+interface NavigationTabsProps {
+  tabs: { label: string; path: string }[]; // Array of tab labels and their corresponding paths
+  tabClass?: string;
+}
+
+/**
+ * Route-based tab bar. Mirrors the state-based `Tabs` sticky pattern exactly:
+ * `sticky top-0 z-sticky bg-white`, no self-padding (inherits PageShell's px),
+ * border lives on the buttons — so it pins under the header for the full scroll.
+ */
+const NavigationTabs: React.FC<NavigationTabsProps> = ({ tabs, tabClass }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handleTabClick = (path: string) => {
+    router.push(path);
+  };
+
+  return (
+    <div
+      className={cn(
+        "flex justify-between lg:justify-center sticky top-0 z-sticky bg-white",
+        tabClass
+      )}>
+      {tabs.map((tab, index) => (
+        <button
+          key={index}
+          onClick={() => handleTabClick(tab.path)}
+          className={cn(
+            "w-full lg:w-auto text-center py-2 md:py-3 px-4 md:px-6 lg:px-8 border-b-2 text-body md:text-body-lg transition-all",
+            pathname === tab.path
+              ? "border-ink-90 text-ink-90 font-medium"
+              : "border-transparent text-ink-30 font-normal hover:text-ink-60 hover:border-ink-20"
+          )}>
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+export default NavigationTabs;

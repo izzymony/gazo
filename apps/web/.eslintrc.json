@@ -1,0 +1,72 @@
+{
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["react-icons", "react-icons/*", "lucide-react", "@heroicons/*"],
+            "message": "Icons are consolidated on HugeIcons (W3.8). Import from '@/components/icons', or add the icon there / use '@hugeicons/react' directly."
+          }
+        ]
+      }
+    ],
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "Literal[value=/FE2C55/i]",
+        "message": "Hardcoded brand hex #FE2C55 is banned (W3.9/W5.1) — use var(--brand) or the brand/instaRed token so a rebrand stays a one-token change."
+      },
+      {
+        "selector": "Literal[value=/text-\\[[0-9]+px\\]/]",
+        "message": "Arbitrary font size (text-[Npx]) is banned — use a type-scale token (display/h1/h2/body-lg/body/body-sm/caption/micro)."
+      },
+      {
+        "selector": "Literal[value=/\\bfont-\\[[0-9]+\\]/]",
+        "message": "Arbitrary font weight (font-[N]) is banned — use font-normal/medium/semibold/bold."
+      },
+      {
+        "selector": "Literal[value=/rounded(-[trblse]+)?-\\[[0-9]+px\\]/]",
+        "message": "Arbitrary radius (rounded-[Npx]) is banned — use rounded-field/card/pill or a Tailwind-named radius (rounded, -lg, -xl, -2xl, -3xl)."
+      }
+    ],
+    "max-lines": ["warn", { "max": 400, "skipBlankLines": true, "skipComments": true }],
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "react/no-unescaped-entities": "warn"
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/app/(marketing)/**",
+        "src/app/(buyer)/shop/**",
+        "src/features/storefront/**",
+        "src/features/shop/**",
+        "src/features/store-setup/**",
+        "src/features/product-setup/**"
+      ],
+      "rules": {
+        "no-restricted-syntax": [
+          "warn",
+          {
+            "selector": "Literal[value=/FE2C55/i]",
+            "message": "Hardcoded brand hex #FE2C55 is banned — use var(--brand)/instaRed token."
+          },
+          {
+            "selector": "Literal[value=/text-\\[[0-9]+px\\]/]",
+            "message": "Arbitrary font size (text-[Npx]) — use a type-scale token."
+          },
+          {
+            "selector": "Literal[value=/\\bfont-\\[[0-9]+\\]/]",
+            "message": "Arbitrary font weight (font-[N]) — use font-normal/medium/semibold/bold."
+          },
+          {
+            "selector": "Literal[value=/rounded(-[trblse]+)?-\\[[0-9]+px\\]/]",
+            "message": "Arbitrary radius (rounded-[Npx]) — use rounded-field/card/pill or a Tailwind-named radius."
+          }
+        ]
+      }
+    }
+  ]
+}

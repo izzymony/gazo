@@ -1,0 +1,14 @@
+./node_modules
+.env
+.env.bak
+.env.local
+.env.*.local
+logs
+.idea/
+banks.json
+
+# Uploaded files (should be stored in cloud storage)
+uploads/
+# Test files and binaries
+test_seeder_fix
+scripts/test_*.go
