@@ -33,7 +33,7 @@ export default function ReferralsPage() {
   const username = user?.user_name || "";
   // Use referral_id from API if available, otherwise construct from username
   const referralCode = referralInfo?.referral_id || (username ? `@${username}` : "--------");
-  const referralLink = referralInfo?.referral_link || `https://myinstashop.co/signup?ref=${username}`;
+  const referralLink = referralInfo?.referral_link || `https://vibaar.com/signup?ref=${username}`;
 
   const copyCode = () => {
     const message = `Join Vibaar using my referral ID: ${referralCode}

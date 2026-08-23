@@ -8,7 +8,7 @@ const dmSans = DM_Sans({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Vibaar Admin Portal",
   description: "Comprehensive backoffice administration system for Vibaar platform",
-  keywords: "admin, backoffice, ecommerce, nigeria, myinstashop, management",
+  keywords: "admin, backoffice, ecommerce, nigeria, vibaar, management",
   authors: [{ name: "Vibaar Development Team" }],
   creator: "Vibaar",
   publisher: "Vibaar",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Vibaar Admin Portal",
     description: "Comprehensive backoffice administration system for Vibaar platform",
-    url: "https://admin.myinstashop.com",
+    url: "https://admin.vibaar.com",
     siteName: "Vibaar Admin",
     locale: "en_NG",
     type: "website",

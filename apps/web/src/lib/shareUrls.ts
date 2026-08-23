@@ -3,7 +3,7 @@
  * Always generates public-facing URLs (never /dashboard/ dashboard URLs).
  */
 
-const PRODUCTION_DOMAIN = 'https://myinstashop.co';
+const PRODUCTION_DOMAIN = 'https://vibaar.com';
 
 interface StoreData {
   tag?: string;
@@ -14,7 +14,7 @@ interface StoreData {
 /**
  * Generate public store URL for sharing.
  * Uses /shop/{storeName} route (public marketplace).
- * @example getPublicStoreUrl({ name: 'My Store' }) => 'https://myinstashop.co/shop/My%20Store'
+ * @example getPublicStoreUrl({ name: 'My Store' }) => 'https://vibaar.com/shop/My%20Store'
  */
 export const getPublicStoreUrl = (store: StoreData): string => {
   const encodedStoreName = encodeURIComponent(store?.name || '');
@@ -24,7 +24,7 @@ export const getPublicStoreUrl = (store: StoreData): string => {
 /**
  * Generate public product URL for sharing.
  * Always uses /shop/ route (public marketplace), never /dashboard/ (dashboard).
- * @example getPublicProductUrl('abc-123', 'My Store') => 'https://myinstashop.co/shop/My%20Store/products/abc-123'
+ * @example getPublicProductUrl('abc-123', 'My Store') => 'https://vibaar.com/shop/My%20Store/products/abc-123'
  */
 export const getPublicProductUrl = (productId: string, storeName: string): string => {
   const encodedStoreName = encodeURIComponent(storeName || '');

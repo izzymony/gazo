@@ -282,7 +282,7 @@ const ReviewOrder = () => {
         firstname: user?.firstname || "Guest",
         lastname: user?.lastname || "User",
         phone: user?.phone || "08000000000", // Valid Nigerian phone format
-        email: user?.email || "guest@myinstashop.com",
+        email: user?.email || "guest@vibaar.com",
       },
     })
       .then((res: any) => openDeliveryModal())

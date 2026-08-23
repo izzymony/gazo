@@ -33,7 +33,7 @@ export default function DashboardWelcome() {
   const stepsRemaining = steps.filter((s) => !s.completed).length;
 
   // Share store URL and text
-  const storeUrl = `https://myinstashop.co/store/${store?.tag || store?.id}`;
+  const storeUrl = `https://vibaar.com/store/${store?.tag || store?.id}`;
   const shareText = `Check out ${store?.name || "my store"} on Vibaar!`;
 
   // Activated sellers see the normal dashboard

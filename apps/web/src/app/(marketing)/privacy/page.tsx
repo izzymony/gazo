@@ -379,11 +379,11 @@ const Page = () => {
           If you have any questions about this Privacy Policy, please contact us
           at:
           <br />
-          <b>Email:</b> hellogetinstashop@gmail.com <br />
+          <b>Email:</b> hello@vibaar.com <br />
           <br />
           <span className="font-bold text-base">Acknowledgement</span> <br />
           <br />
-          By using instashop you acknowledge that you have read , understood and
+          By using Vibaar you acknowledge that you have read , understood and
           agree to the terms of the Privacy Policy
         </div>
       </div>

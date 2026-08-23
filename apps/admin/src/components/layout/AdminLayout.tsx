@@ -121,7 +121,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </div>
               <div className="ml-3 flex-1">
                 <p className="text-white font-medium text-sm">{admin?.name || 'Admin User'}</p>
-                <p className="text-gray-400 text-xs">{admin?.email || 'admin@instashop.com'}</p>
+                <p className="text-gray-400 text-xs">{admin?.email || 'admin@vibaar.com'}</p>
                 <div className="flex items-center mt-1">
                   <Shield className="h-3 w-3 text-gray-400 mr-1" />
                   <span className="text-gray-400 text-xs capitalize">{admin?.role || 'admin'} Role</span>

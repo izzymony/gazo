@@ -19,18 +19,18 @@ export const metadata: Metadata = {
   description: "Create your free online store in minutes. Accept payments, manage orders, and grow your business on social media. Built for Nigerian entrepreneurs.",
   generator: "Next.js",
   manifest: "/manifest.json",
-  keywords: ["online store", "ecommerce", "instagram selling", "tiktok shop", "nigeria", "social commerce", "instashop"],
+  keywords: ["online store", "ecommerce", "instagram selling", "tiktok shop", "nigeria", "social commerce", "vibaar"],
   authors: [
     {
       name: "Vibaar",
-      url: "https://myinstashop.co",
+      url: "https://vibaar.com",
     },
   ],
-  metadataBase: new URL('https://myinstashop.co'),
+  metadataBase: new URL('https://vibaar.com'),
   openGraph: {
     title: "Vibaar - Sell Smarter on Instagram & TikTok",
     description: "Create your free online store in minutes. Accept payments, manage orders, and grow your business on social media.",
-    url: 'https://myinstashop.co',
+    url: 'https://vibaar.com',
     siteName: 'Vibaar',
     images: [
       {

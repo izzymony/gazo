@@ -431,7 +431,7 @@ function SocialIcon() {
 function Frame2147207419() {
   return (
     <a
-      href="https://www.instagram.com/mytinstashop.co/"
+      href="https://www.instagram.com/vibaar/"
       target="_blank"
       rel="noopener noreferrer"
       className="bg-[#242424] box-border content-stretch flex gap-[4.5px] items-center justify-center p-[4.5px] relative rounded-[71.429px] shrink-0 size-[32px] sm:size-[36px] md:size-[40px]"
@@ -458,7 +458,7 @@ function TikTok() {
 function Frame2147207420() {
   return (
     <a
-      href="https://www.tiktok.com/@myinstashop.co"
+      href="https://www.tiktok.com/@vibaar"
       target="_blank"
       rel="noopener noreferrer"
       className="bg-[#242424] box-border content-stretch flex gap-[4.5px] items-center justify-center p-[4.5px] relative rounded-[71.429px] shrink-0 size-[32px] sm:size-[36px] md:size-[40px]"
@@ -507,7 +507,7 @@ function PrimeTwitter() {
 function Frame2147207416() {
   return (
     <a
-      href="https://x.com/mytinstashop_co"
+      href="https://x.com/vibaar"
       target="_blank"
       rel="noopener noreferrer"
       className="bg-[#242424] box-border content-stretch flex gap-[4.5px] items-center justify-center p-[4.5px] relative rounded-[71.429px] shrink-0 size-[32px] sm:size-[36px] md:size-[40px]"

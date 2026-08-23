@@ -48,7 +48,7 @@ const systemSettings = {
       enabled: true,
       publicKey: "pk_test_xxxxxxxxxxxxx",
       secretKey: "sk_test_xxxxxxxxxxxxx",
-      webhookUrl: "https://admin.instashop.ng/webhooks/paystack"
+      webhookUrl: "https://admin.vibaar.com/webhooks/paystack"
     },
     flutterwave: {
       enabled: false,
