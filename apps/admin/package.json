@@ -23,7 +23,6 @@
     "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,md}\"",
     "security:audit": "npm audit",
     "security:fix": "npm audit fix",
-    "prepare": "node -e \"try { require('husky').install() } catch (e) { if (e.code !== 'MODULE_NOT_FOUND') throw e }\"",
     "pre-commit": "lint-staged"
   },
   "dependencies": {
