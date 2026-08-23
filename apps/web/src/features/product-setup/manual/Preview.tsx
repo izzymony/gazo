@@ -397,7 +397,7 @@ export default function ProductsPreview({
         onClose={() => setIsShareModalOpen(false)}
         title="Share Product"
         shareUrl={typeof window !== 'undefined' ? window.location.href : ''}
-        shareText={`Check out ${productPreview?.title || 'this product'} on myInstaShop!`}
+        shareText={`Check out ${productPreview?.title || 'this product'} on Vibaar!`}
       />
     </PageShell>
   );

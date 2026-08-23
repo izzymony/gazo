@@ -63,7 +63,7 @@ export default function DesktopNav() {
       <div className="mb-8 px-3">
         <Image
           src="/images/instashop_logo_black.svg"
-          alt="myInstaShop"
+          alt="Vibaar"
           width={140}
           height={42}
           className="mb-2"

@@ -6,12 +6,12 @@ import { Toaster } from "sonner";
 const dmSans = DM_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "myInstaShop Admin Portal",
-  description: "Comprehensive backoffice administration system for myInstaShop platform",
+  title: "Vibaar Admin Portal",
+  description: "Comprehensive backoffice administration system for Vibaar platform",
   keywords: "admin, backoffice, ecommerce, nigeria, myinstashop, management",
-  authors: [{ name: "myInstaShop Development Team" }],
-  creator: "myInstaShop",
-  publisher: "myInstaShop",
+  authors: [{ name: "Vibaar Development Team" }],
+  creator: "Vibaar",
+  publisher: "Vibaar",
   formatDetection: {
     email: false,
     address: false,
@@ -24,10 +24,10 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.json",
   openGraph: {
-    title: "myInstaShop Admin Portal",
-    description: "Comprehensive backoffice administration system for myInstaShop platform",
+    title: "Vibaar Admin Portal",
+    description: "Comprehensive backoffice administration system for Vibaar platform",
     url: "https://admin.myinstashop.com",
-    siteName: "myInstaShop Admin",
+    siteName: "Vibaar Admin",
     locale: "en_NG",
     type: "website",
   },

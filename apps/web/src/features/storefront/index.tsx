@@ -222,8 +222,8 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     : `${typeof window !== 'undefined' ? window.location.origin : ''}/shop/${encodeURIComponent(currentStore?.name || '')}`;
 
   const shareText = newestProduct
-    ? `Check out my new product: ${newestProduct.title} on myINSTASHOP!`
-    : `Check out my store on myINSTASHOP!`;
+    ? `Check out my new product: ${newestProduct.title} on Vibaar!`
+    : `Check out my store on Vibaar!`;
 
   const shareOptions = [
     {

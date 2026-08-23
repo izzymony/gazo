@@ -243,7 +243,7 @@ const Page = () => {
       {!user ? (
         <div className="h-[90%] flex flex-col justify-center items-center gap-5">
           <Image
-            alt="Instashop"
+            alt="Vibaar"
             width={0}
             height={0}
             src="/Logo (6).svg"
@@ -254,7 +254,7 @@ const Page = () => {
               Sign in to your account
             </H1>
             <p className="text-ink-60 mt-3 max-w-[320px]">
-              To continue enjoying myInstashop’s features you need to sign in to
+              To continue enjoying Vibaar’s features you need to sign in to
               your account.
             </p>
           </div>

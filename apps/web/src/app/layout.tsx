@@ -15,29 +15,29 @@ const dmSans = DM_Sans({
 // Note: Switzer font is loaded via CDN in the head section below
 
 export const metadata: Metadata = {
-  title: "myInstashop - Sell Smarter on Instagram & TikTok",
+  title: "Vibaar - Sell Smarter on Instagram & TikTok",
   description: "Create your free online store in minutes. Accept payments, manage orders, and grow your business on social media. Built for Nigerian entrepreneurs.",
   generator: "Next.js",
   manifest: "/manifest.json",
   keywords: ["online store", "ecommerce", "instagram selling", "tiktok shop", "nigeria", "social commerce", "instashop"],
   authors: [
     {
-      name: "myInstashop",
+      name: "Vibaar",
       url: "https://myinstashop.co",
     },
   ],
   metadataBase: new URL('https://myinstashop.co'),
   openGraph: {
-    title: "myInstashop - Sell Smarter on Instagram & TikTok",
+    title: "Vibaar - Sell Smarter on Instagram & TikTok",
     description: "Create your free online store in minutes. Accept payments, manage orders, and grow your business on social media.",
     url: 'https://myinstashop.co',
-    siteName: 'myInstashop',
+    siteName: 'Vibaar',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'myInstashop - Your Social Commerce Platform',
+        alt: 'Vibaar - Your Social Commerce Platform',
       },
     ],
     locale: 'en_NG',
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "myInstashop - Sell Smarter on Instagram & TikTok",
+    title: "Vibaar - Sell Smarter on Instagram & TikTok",
     description: "Create your free online store in minutes. Accept payments, manage orders, and grow your business on social media.",
     images: ['/og-image.png'],
   },

@@ -462,7 +462,7 @@ export default function SignInOverview() {
                     {/* Bottom Section - Footer */}
                     <div className="mt-6">
                       <p className="text-body-sm text-ink-50 text-center">
-                        By continuing, I agree to myInstashop&apos;s{" "} <br />
+                        By continuing, I agree to Vibaar&apos;s{" "} <br />
                         <Link href="/terms" className="text-brand hover:underline">
                           Terms of use
                         </Link>

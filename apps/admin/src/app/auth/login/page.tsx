@@ -183,7 +183,7 @@ export default function LoginPage() {
                 className="w-full"
               >
                 <Shield className="mr-2 h-5 w-5 inline" />
-                Sign In to myInstaShop
+                Sign In to Vibaar
               </Button>
             </form>
           ) : (
@@ -248,7 +248,7 @@ export default function LoginPage() {
               <span className="text-xs font-semibold text-instaRed">Secure Admin Portal</span>
             </div>
             <p className="text-xs text-center text-gray-500 leading-relaxed">
-              This is a secure myInstaShop administrative portal. All activities are logged and monitored.
+              This is a secure Vibaar administrative portal. All activities are logged and monitored.
               <br />
               Unauthorized access attempts will be reported to security team.
             </p>

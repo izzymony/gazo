@@ -59,7 +59,7 @@ export default function ChatList({
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between gap-2">
               <p className="text-ink-90 font-medium text-body line-clamp-1">
-                {c.other_participant.name || "InstaShop user"}
+                {c.other_participant.name || "Vibaar user"}
               </p>
               <span className="text-ink-40 text-caption flex-shrink-0">
                 {relativeTime(c.last_message_at)}

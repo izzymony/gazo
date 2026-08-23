@@ -171,7 +171,7 @@ export default function Welcome() {
             {/* Welcome Text */}
             <div className="text-center">
               <h1 className="text-h1 font-medium text-ink-90 leading-tight">
-                Welcome to <span className="text-brand font-bold">myInstaShop</span>, <span className="font-bold">{userName}</span>! 👋
+                Welcome to <span className="text-brand font-bold">Vibaar</span>, <span className="font-bold">{userName}</span>! 👋
               </h1>
             </div>
 
@@ -201,7 +201,7 @@ export default function Welcome() {
             {/* Dynamic subtitle */}
             <div className="text-center">
               <h2 className="text-body-lg font-medium text-ink-90">
-                {activeTab === "sell" ? "Why sellers choose myInstashop" : "Why buyers love myInstashop"}
+                {activeTab === "sell" ? "Why sellers choose Vibaar" : "Why buyers love Vibaar"}
               </h2>
             </div>
 
@@ -213,7 +213,7 @@ export default function Welcome() {
                     "Set Up Your Store in Minutes",
                     "Reach more buyers at zero cost",
                     "Manage Orders and Shipping Easily",
-                    "Grow Your Business With myInstashop",
+                    "Grow Your Business With Vibaar",
                   ]
                   : [
                     "Shop from verified Instagram sellers",

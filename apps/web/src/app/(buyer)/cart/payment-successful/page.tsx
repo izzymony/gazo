@@ -210,7 +210,7 @@ const PaymentSucceful = () => {
             Your payment has been successfully confirmed.
           </p>
           <p className="text-ink-60 text-center text-body font-normal mb-8">
-            Thank you for shopping on InstaShop.
+            Thank you for shopping on Vibaar.
           </p>
         </div>
         <div className="border border-brand bg-brand/10 rounded-field p-3 space-y-3 text-body-sm font-medium mb-2 mt-10">

@@ -49,7 +49,7 @@ export default function TermsofUse() {
         </div>
         <div className="space-y-5 border-b border-b-ink-10 pb-6">
           <div className="text-display font-medium leading-[45px] text-black">
-            myInstashop
+            Vibaar
             <br />
             Terms of Service
           </div>
@@ -60,18 +60,18 @@ export default function TermsofUse() {
           </p>
         </div>
         <span className="text-ink-90 text-body leading-[20px] tracking-wider font-normal">
-          Welcome to myInstashop! These Terms of Service ("Terms") govern your
-          access to and use of the myInstashop platform, including our website,
+          Welcome to Vibaar! These Terms of Service ("Terms") govern your
+          access to and use of the Vibaar platform, including our website,
           mobile application, and related services (collectively, the
           "Platform"). By accessing or using the Platform, you agree to be bound
           by these Terms. If you do not agree with these Terms, please do not
           use the Platform.
         </span>
         <div className="text-ink-90 text-body-sm leading-[16px] tracking-wider font-normal pb-20">
-          <span className="font-bold text-base">1. Overview of Instashop</span>
+          <span className="font-bold text-base">1. Overview of Vibaar</span>
           <br />
           <br />
-          myInstashop is an online platform that connects social media vendors
+          Vibaar is an online platform that connects social media vendors
           ("Vendors") with buyers ("Buyers") to facilitate seamless e-commerce
           transactions. Vendors can set up and manage storefronts, while Buyers
           can browse, shop, and manage orders. <br />
@@ -113,7 +113,7 @@ export default function TermsofUse() {
           <br />
           <br />
           You are responsible for maintaining the confidentiality of your
-          account credentials. Instashop is not liable for any unauthorized
+          account credentials. Vibaar is not liable for any unauthorized
           access to your account. <br />
           <br />
           <span className="font-bold text-base">3. Use of the Platform</span>
@@ -172,7 +172,7 @@ export default function TermsofUse() {
           <ul className="list-disc pl-5 space-y-2">
             <li>Payments are processed through Paystasck.</li>
             <li>
-              By making a purchase, you authorize Instashop and our payment
+              By making a purchase, you authorize Vibaar and our payment
               processor to charge your payment method.
             </li>
           </ul>
@@ -181,14 +181,14 @@ export default function TermsofUse() {
           <span className="font-bold text-sm">4.2 Fees and Commissions</span>
           <br />
           <br />
-          myInstashop may charge a commission or transaction fee for sales made
+          Vibaar may charge a commission or transaction fee for sales made
           through the Platform. Details will be provided during Vendor
           onboarding. <br />
           <br />
           <span className="font-bold text-sm">4.3 Refund Policy</span>
           <br />
           <br />
-          Buyers must contact Vendors directly for refund requests. myInstashop
+          Buyers must contact Vendors directly for refund requests. Vibaar
           may mediate disputes but is not responsible for issuing refunds.
           <br />
           <br />
@@ -201,7 +201,7 @@ export default function TermsofUse() {
               and costs are set by individual Vendors.
             </li>
             <li>
-              myInstashop is not liable for delays or issues caused by third-party
+              Vibaar is not liable for delays or issues caused by third-party
               delivery services.
             </li>
           </ul>
@@ -216,7 +216,7 @@ export default function TermsofUse() {
               reviews).
             </li>
             <li>
-              You retain ownership of your content but grant myInstashop a
+              You retain ownership of your content but grant Vibaar a
               non-exclusive, royalty-free license to use, display, and
               distribute your content for platform operations and marketing
               purposes.
@@ -231,7 +231,7 @@ export default function TermsofUse() {
           <br />
           <ul className="list-disc pl-5 space-y-2">
             <li>
-              myInstashop collects and processes personal data in accordance with
+              Vibaar collects and processes personal data in accordance with
               our Privacy Policy.
             </li>
             <li>We do not sell user data to third parties.</li>
@@ -246,11 +246,11 @@ export default function TermsofUse() {
           <br />
           <ul className="list-disc pl-5 space-y-2">
             <li>
-              myInstashop encourages Buyers and Vendors to resolve disputes
+              Vibaar encourages Buyers and Vendors to resolve disputes
               directly.
             </li>
             <li>
-              If a resolution cannot be reached, Instashop may offer mediation
+              If a resolution cannot be reached, Vibaar may offer mediation
               but does not guarantee a specific outcome.
             </li>
           </ul>
@@ -261,7 +261,7 @@ export default function TermsofUse() {
           <br />
           <ul className="list-disc pl-5 space-y-2">
             <li>
-              Any disputes with Instashop will be governed by the laws of [your
+              Any disputes with Vibaar will be governed by the laws of [your
               country/state].
             </li>
             <li>
@@ -276,7 +276,7 @@ export default function TermsofUse() {
           </span>
           <br />
           <br />
-          myInstashop reserves the right to suspend or terminate accounts that
+          Vibaar reserves the right to suspend or terminate accounts that
           violate these Terms. Terminated accounts may lose access to all data
           and services.
           <br />
@@ -286,7 +286,7 @@ export default function TermsofUse() {
           </span>
           <br />
           <br />
-          myInstashop is not liable for:
+          Vibaar is not liable for:
           <br />
           <br />
           <ul className="list-disc pl-5 space-y-2">
@@ -308,7 +308,7 @@ export default function TermsofUse() {
           <br />
           <br />
           All content on the Platform (excluding user-generated content) is the
-          property of myInstashop or its licensors. You may not copy, distribute,
+          property of Vibaar or its licensors. You may not copy, distribute,
           or use our content without explicit permission.
           <br />
           <br />
@@ -333,7 +333,7 @@ export default function TermsofUse() {
           <br />
           <span className="font-bold text-base">Acknowledgement</span> <br />
           <br />
-          By using myInstashop, you acknowledge that you have read, understood,
+          By using Vibaar, you acknowledge that you have read, understood,
           and agree to be bound by these Terms of Service.
         </div>
       </div>

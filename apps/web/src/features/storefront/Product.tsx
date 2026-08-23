@@ -830,7 +830,7 @@ const Product = () => {
         onClose={() => setIsShareModalOpen(false)}
         title="Share Product"
         shareUrl={getPublicProductUrl(productId as string, store?.name || stor?.name || '')}
-        shareText={`Check out ${productPreview?.title || 'this product'} on myInstaShop!`}
+        shareText={`Check out ${productPreview?.title || 'this product'} on Vibaar!`}
       />
 
       {/* Delivery flow modals — single mount, shared by the mobile + desktop cards */}

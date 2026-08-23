@@ -36,7 +36,7 @@ export default function ReferralsPage() {
   const referralLink = referralInfo?.referral_link || `https://myinstashop.co/signup?ref=${username}`;
 
   const copyCode = () => {
-    const message = `Join myInstaShop using my referral ID: ${referralCode}
+    const message = `Join Vibaar using my referral ID: ${referralCode}
 
 Sign up here: ${referralLink}
 
@@ -46,12 +46,12 @@ Enter "${username}" in the Referral ID field when signing up.`;
   };
 
   const handleShare = async () => {
-    const message = `Join myInstaShop using my referral ID: ${referralCode}\n\nSign up here: ${referralLink}`;
+    const message = `Join Vibaar using my referral ID: ${referralCode}\n\nSign up here: ${referralLink}`;
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Join myInstaShop",
+          title: "Join Vibaar",
           text: message,
           url: referralLink,
         });

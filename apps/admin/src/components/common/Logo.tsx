@@ -31,7 +31,7 @@ export default function Logo({
     // Return just text version
     return (
       <div className={`font-bold text-gray-900 ${className}`}>
-        myInstaShop
+        Vibaar
       </div>
     );
   }

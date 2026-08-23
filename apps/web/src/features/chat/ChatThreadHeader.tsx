@@ -38,7 +38,7 @@ export default function ChatThreadHeader({
             className="w-8 h-8 rounded-full object-cover flex-shrink-0"
           />
           <p className="font-medium text-body-lg text-ink-90 flex-1 min-w-0 truncate">
-            {participant.name || "InstaShop user"}
+            {participant.name || "Vibaar user"}
           </p>
           <IconButton icon={MoreVertical} label="Options" size="sm" />
         </div>

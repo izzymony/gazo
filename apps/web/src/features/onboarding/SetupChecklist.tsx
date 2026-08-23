@@ -32,7 +32,7 @@ export default function SetupChecklist() {
 
   // Share store URL and text
   const storeUrl = `https://myinstashop.co/store/${store?.tag || store?.id}`;
-  const shareText = `Check out ${store?.name || "my store"} on myInstaShop!`;
+  const shareText = `Check out ${store?.name || "my store"} on Vibaar!`;
 
   const handleShareStore = () => {
     markShareLinkClicked();

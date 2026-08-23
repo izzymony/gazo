@@ -106,7 +106,7 @@ const OrderConfirmed = () => {
       <div className="w-full pt-4">
         <p className="text-h1 font-medium mb-2">Order confirmed</p>
         <p className="text-ink-60 text-body font-normal mb-5">
-          Thank you for shopping on Instashop. <br /> You will receive a
+          Thank you for shopping on Vibaar. <br /> You will receive a
           confirmation email.
         </p>
 

@@ -83,7 +83,7 @@ function VendorHeader({ isSeller }: HeaderProp) {
 
   // Share store URL and text
   const storeUrl = getPublicStoreUrl({ name: store?.name });
-  const shareText = `Check out ${store?.name || "my store"} on myInstaShop!`;
+  const shareText = `Check out ${store?.name || "my store"} on Vibaar!`;
 
   // Share store handler
   const handleShareStore = useCallback(() => {

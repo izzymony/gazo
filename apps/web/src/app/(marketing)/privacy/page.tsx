@@ -50,7 +50,7 @@ const Page = () => {
 
         <div className="space-y-5 border-b border-b-ink-10 pb-6">
           <div className="text-display font-medium leading-[45px] text-black">
-            myInstashop
+            Vibaar
             <br />
             Privacy Policy
           </div>
@@ -62,8 +62,8 @@ const Page = () => {
         </div>
 
         <span className="text-ink-90 text-body leading-[20px] tracking-wider font-normal">
-          Welcome to myInstashop! Your privacy is important to us. This Privacy
-          Policy explains how myInstashop ("we", "us", or "our") collects, uses,
+          Welcome to Vibaar! Your privacy is important to us. This Privacy
+          Policy explains how Vibaar ("we", "us", or "our") collects, uses,
           discloses and protects your personal information when you use our
           platform, website, and mobile application (collectively, the
           "Platform"). By accessing or using the Platform, you agree to the

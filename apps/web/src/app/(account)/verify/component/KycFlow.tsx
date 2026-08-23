@@ -337,7 +337,7 @@ export default function KycFlow() {
             {consent && <Check size={13} className="text-white" />}
           </span>
           <p className="text-body-sm text-ink-70">
-            I consent to myInstaShop verifying my identity.
+            I consent to Vibaar verifying my identity.
           </p>
         </div>
       </div>

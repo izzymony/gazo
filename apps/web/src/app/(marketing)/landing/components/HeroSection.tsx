@@ -352,12 +352,12 @@ function Group3() {
   );
 }
 
-function MyInstaShop() {
+function VibaarWordmark() {
   return (
-    <div className="h-[16px] sm:h-[19px] md:h-[21.648px] relative shrink-0 w-[96px] sm:w-[115px] md:w-[130.364px]" data-name="myInstaShop">
+    <div className="h-[16px] sm:h-[19px] md:h-[21.648px] relative shrink-0 w-[96px] sm:w-[115px] md:w-[130.364px]" data-name="Vibaar">
       <div className="absolute bottom-[-0.01%] left-0 right-0 top-0">
         <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 131 22">
-          <g id="myInstaShop">
+          <g id="Vibaar">
             <path d={svgPaths.p1e7e0800} fill="var(--fill-0, white)" id="Vector" />
             <path d={svgPaths.p621e00} fill="var(--fill-0, white)" id="Vector_2" />
             <path d={svgPaths.p34e48d00} fill="var(--fill-0, white)" id="Vector_3" />
@@ -543,7 +543,7 @@ function Frame2147207470() {
       <div className="flex items-center gap-2 sm:gap-3">
         <div className="box-border content-stretch flex gap-[4px] sm:gap-[6px] md:gap-[8.118px] items-end px-[3px] sm:px-[6px] md:px-[8px] py-[4px] sm:py-[6px] md:py-[10.824px] relative shrink-0" data-name="Logo">
           <Group3 />
-          <MyInstaShop />
+          <VibaarWordmark />
         </div>
         <div className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-[#FF6B00]/10 border border-[#FF6B00]/20">
           <span className="text-caption sm:text-xs font-semibold text-[#FF6B00] tracking-wide">BETA</span>
@@ -653,7 +653,7 @@ function Frame2147207434() {
   return (
     <div className="content-stretch flex flex-col gap-[15.396px] items-center justify-center relative shrink-0 w-[590.834px] max-w-full">
       <Frame2147207499 />
-      <p className="font-['DM_Sans:Regular',sans-serif] leading-[1.5] not-italic relative shrink-0 text-[#b9b9b9] text-body sm:text-body-lg md:text-[19.245px] text-center tracking-[-0.3px] sm:tracking-[-0.35px] md:tracking-[-0.3849px] w-full animate-[fadeInUp_1s_ease-out_0.4s_both] px-4">myInstaShop brings buyers and sellers together in a social shopping experience like no other.</p>
+      <p className="font-['DM_Sans:Regular',sans-serif] leading-[1.5] not-italic relative shrink-0 text-[#b9b9b9] text-body sm:text-body-lg md:text-[19.245px] text-center tracking-[-0.3px] sm:tracking-[-0.35px] md:tracking-[-0.3849px] w-full animate-[fadeInUp_1s_ease-out_0.4s_both] px-4">Vibaar brings buyers and sellers together in a social shopping experience like no other.</p>
     </div>
   );
 }

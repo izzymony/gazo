@@ -280,7 +280,7 @@ const CreateStore = () => {
           Your store is ready!
         </p>
         <p className="text-ink-60 text-body px-6 font-medium mt-2">
-          Welcome to <span className="text-brand">myInstaShop</span>{" "}
+          Welcome to <span className="text-brand">Vibaar</span>{" "}
           <span className="font-semibold text-ink-90">@{myStore?.name + " "}</span>{" "}
           <br />
           Millions of social shoppers are already waiting, Now publish your first

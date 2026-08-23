@@ -34,7 +34,7 @@ export default function DashboardWelcome() {
 
   // Share store URL and text
   const storeUrl = `https://myinstashop.co/store/${store?.tag || store?.id}`;
-  const shareText = `Check out ${store?.name || "my store"} on myInstaShop!`;
+  const shareText = `Check out ${store?.name || "my store"} on Vibaar!`;
 
   // Activated sellers see the normal dashboard
   if (stage === "activated") return null;

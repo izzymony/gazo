@@ -43,8 +43,8 @@ export default function UserContactForm({
       </H1>
       <p className="text-body tracking-[0px] mt-2 text-ink-60 text-start">
         {isDirectLogin 
-          ? "Please enter your email or phone number and password to sign in to your myInstaShop account"
-          : "Please enter your password to sign in to your myInstaShop account"
+          ? "Please enter your email or phone number and password to sign in to your Vibaar account"
+          : "Please enter your password to sign in to your Vibaar account"
         }
       </p>
       <div className="mt-6">

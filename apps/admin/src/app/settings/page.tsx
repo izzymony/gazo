@@ -35,7 +35,7 @@ import {
 // Mock system settings data
 const systemSettings = {
   platform: {
-    siteName: "InstaShop Admin",
+    siteName: "Vibaar Admin",
     siteDescription: "Nigerian Social Commerce Platform Administration",
     maintenanceMode: false,
     debugMode: false,

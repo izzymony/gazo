@@ -24,16 +24,16 @@ export async function generateMetadata(
       s.name?.toLowerCase() === vendor.toLowerCase()
   )
   const name = store?.name || vendor
-  const title = `${name} · myInstashop`
+  const title = `${name} · Vibaar`
   const description = (
     store?.description ||
-    `Shop ${name}'s store on myInstashop — discover products and order securely.`
+    `Shop ${name}'s store on Vibaar — discover products and order securely.`
   ).slice(0, 160)
   const images = store?.logo ? [store.logo] : []
   return {
     title,
     description,
-    openGraph: { title, description, images, type: "website", siteName: "myInstashop" },
+    openGraph: { title, description, images, type: "website", siteName: "Vibaar" },
     twitter: { card: "summary_large_image", title, description, images },
   }
 }

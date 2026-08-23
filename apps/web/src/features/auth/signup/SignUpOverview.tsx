@@ -741,7 +741,7 @@ export default function SignUpOverview() {
                     {/* Bottom Section - Footer */}
                     <div className="mt-6">
                       <p className="text-body-sm text-ink-50 text-center">
-                        By continuing, I agree to myInstashop's{" "} <br />
+                        By continuing, I agree to Vibaar's{" "} <br />
                         <Link href="/terms" className="text-brand hover:underline">
                           Terms of use
                         </Link>
