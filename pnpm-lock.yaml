@@ -253,6 +253,9 @@ importers:
       '@types/canvas-confetti':
         specifier: ^1.9.0
         version: 1.9.0
+      '@vibaar/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
       '@vibaar/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -347,6 +350,22 @@ importers:
       typescript:
         specifier: 5.7.2
         version: 5.7.2
+
+  packages/api-client:
+    dependencies:
+      '@tanstack/react-query':
+        specifier: ^5.101.4
+        version: 5.102.2(react@18.3.1)
+      axios:
+        specifier: ^1.7.7
+        version: 1.19.0
+      js-cookie:
+        specifier: ^3.0.5
+        version: 3.0.8
+    devDependencies:
+      '@types/js-cookie':
+        specifier: ^3.0.6
+        version: 3.0.6
 
   packages/config: {}
 

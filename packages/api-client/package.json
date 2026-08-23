@@ -1,0 +1,22 @@
+{
+  "name": "@vibaar/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./unwrap": "./src/unwrap.ts",
+    "./queryClient": "./src/queryClient.ts",
+    "./serverFetch": "./src/serverFetch.ts"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.101.4",
+    "axios": "^1.7.7",
+    "js-cookie": "^3.0.5"
+  },
+  "devDependencies": {
+    "@types/js-cookie": "^3.0.6"
+  }
+}
