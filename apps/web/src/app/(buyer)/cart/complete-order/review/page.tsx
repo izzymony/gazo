@@ -106,7 +106,7 @@ const CartItem = ({
           <span className="ml-auto font-500 text-ink-90">
             {delivery.price}
             {"   "}
-            <button onClick={action} className="text-instaRed font-medium">
+            <button onClick={action} className="text-brand font-medium">
               {delivery.title ? "Change" : "Select"}
             </button>
           </span>
@@ -310,13 +310,13 @@ const ReviewOrder = () => {
   //           <button
   //             onClick={() => router.push("/cart/shipping-profile/new")}
   //             type="button"
-  //             className="w-1/2 py-3 rounded-2xl bg-instaRed  text-white text-body">
+  //             className="w-1/2 py-3 rounded-2xl bg-brand  text-white text-body">
   //             create
   //           </button>
   //           <button
   //             onClick={() => router.push("/cart/shipping-profile/new")}
   //             type="button"
-  //             className="w-1/2 py-3 rounded-2xl bg-white border border-instaRed text-instaRed text-body">
+  //             className="w-1/2 py-3 rounded-2xl bg-white border border-brand text-brand text-body">
   //             cancel
   //           </button>
   //         </div>
@@ -599,7 +599,7 @@ const ReviewOrder = () => {
               <div className="border border-ink-10 rounded-card p-4 mt-4 bg-red/5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-instaRed rounded-full flex items-center justify-center">
+                    <div className="w-8 h-8 bg-brand rounded-full flex items-center justify-center">
                       <Gift size={16} className="text-white" />
                     </div>
                     <div>
@@ -622,7 +622,7 @@ const ReviewOrder = () => {
                     <span className="relative">
                       <span
                         className={`block w-[32px] h-[20px] rounded-full transition-colors duration-200 ease-linear ${
-                          useReferralCredit ? "bg-instaRed" : "bg-ink-20"
+                          useReferralCredit ? "bg-brand" : "bg-ink-20"
                         } ${totalCredit === 0 ? "opacity-50" : ""}`}
                       ></span>
                       <span
@@ -643,7 +643,7 @@ const ReviewOrder = () => {
 
             <button
               type="button"
-              className="border border-ink-10 text-instaRed rounded-3xl px-10 md:px-24 py-2 font-[12px] mx-auto block  mt-5 w-full">
+              className="border border-ink-10 text-brand rounded-3xl px-10 md:px-24 py-2 font-[12px] mx-auto block  mt-5 w-full">
               Add Coupon
             </button>
 
@@ -651,7 +651,7 @@ const ReviewOrder = () => {
             <div className="mt-4">
               <p className="mb-3 text-body-sm font-normal">Shipping method</p>
               <div className="p-2 rounded-field border flex flex-col gap-2 text-body-sm font-normal text-ink-90">
-                <span className="border rounded-full px-4 py-1 text-caption border-instaRed bg-instaRed/10 text-instaRed w-[max-content]">
+                <span className="border rounded-full px-4 py-1 text-caption border-brand bg-brand/10 text-brand w-[max-content]">
                   Default
                 </span>
                 <p>

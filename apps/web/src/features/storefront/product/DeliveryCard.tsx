@@ -67,10 +67,10 @@ export default function DeliveryCard({
         <div className="flex px-2 justify-between w-full">
           <div className="flex gap-3">
             <div className="flex flex-col items-center">
-              <span className="w-4 h-4 rounded-full bg-instaRed/10 border border-instaRed/40 flex items-center justify-center">
-                <span className="w-2 h-2 rounded-full bg-instaRed" />
+              <span className="w-4 h-4 rounded-full bg-brand/10 border border-brand/40 flex items-center justify-center">
+                <span className="w-2 h-2 rounded-full bg-brand" />
               </span>
-              <span className="w-px h-4 border-l border-dashed border-instaRed/50" />
+              <span className="w-px h-4 border-l border-dashed border-brand/50" />
             </div>
             <div className="flex gap-2 items-center">
               <DeliveryTruck size={20} className="text-black" />
@@ -87,13 +87,13 @@ export default function DeliveryCard({
         {/* To row (route destination) */}
         <div className="flex px-2 justify-between mb-2 gap-3 w-full">
           <div className="flex items-center gap-3">
-            <FaLocationDot size={18} className="text-instaRed" />
+            <FaLocationDot size={18} className="text-brand" />
             <p className="text-sm font-medium">To:</p>
           </div>
           <div
-            className="text-instaRed flex gap-1 items-center text-xs font-medium cursor-pointer flex-1 justify-end"
+            className="text-brand flex gap-1 items-center text-xs font-medium cursor-pointer flex-1 justify-end"
             onClick={openLocationModal}>
-            <FaLocationDot size={12} className="text-instaRed shrink-0" />
+            <FaLocationDot size={12} className="text-brand shrink-0" />
             <p className="line-clamp-1">{toLocation}</p>
           </div>
         </div>
@@ -111,7 +111,7 @@ export default function DeliveryCard({
             <p>~{selectedDelivery?.delivery_days}</p>
           </div>
           <div
-            className="cursor-pointer py-1 px-2 border bg-instaRed/10 rounded-pill border-instaRed flex justify-between items-center"
+            className="cursor-pointer py-1 px-2 border bg-brand/10 rounded-pill border-brand flex justify-between items-center"
             onClick={() => {
               if (shippingOptions && shippingOptions.length > 0) {
                 openDeliveryModal();
@@ -126,7 +126,7 @@ export default function DeliveryCard({
                 {selectedDelivery?.delivery_days || "1 to 2 business days"}
               </p>
             </div>
-            <ChevronRight size={16} className="text-instaRed shrink-0" />
+            <ChevronRight size={16} className="text-brand shrink-0" />
           </div>
         </div>
       </div>

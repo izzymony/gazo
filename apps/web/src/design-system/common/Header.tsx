@@ -135,7 +135,7 @@ export default function Header({
         {showSkip && (
           <Link
             href={skipLink || ""}
-            className="font-medium text-body text-instaRed ml-auto">
+            className="font-medium text-body text-brand ml-auto">
             Skip
           </Link>
         )}

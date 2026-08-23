@@ -236,9 +236,9 @@ const formikToSmart = (formikVariations: FormikVariation[]): SmartVariation[] =>
 // ===== ICON COMPONENTS (HugeIcons; call sites unchanged) =====
 const ChevronDownIcon = () => <ChevronDown size={20} className="text-ink-60" />;
 const ChevronRightIcon = () => <ChevronRight size={16} className="text-ink-40" />;
-const EditIcon = () => <Edit size={20} className="text-instaRed" />;
+const EditIcon = () => <Edit size={20} className="text-brand" />;
 const CloseIcon = () => <X size={16} className="text-ink-60" />;
-const PlusIcon = () => <Plus size={16} className="text-instaRed" />;
+const PlusIcon = () => <Plus size={16} className="text-brand" />;
 const ImageIcon = () => <Photo size={24} className="text-ink-40" />;
 
 // Delegates to the shared Checkbox primitive.
@@ -297,9 +297,9 @@ const PropertyToggle = ({
       className={`
         flex items-center gap-2 px-3 py-2 rounded-full text-body font-medium transition-all
         ${isActive
-          ? 'bg-instaRed text-white border border-instaRed'
+          ? 'bg-brand text-white border border-brand'
           : isAvailable
-            ? 'bg-white text-ink-70 border border-ink-20 hover:border-instaRed'
+            ? 'bg-white text-ink-70 border border-ink-20 hover:border-brand'
             : 'bg-ink-5 text-ink-40 border border-ink-10 cursor-not-allowed'
         }
       `}
@@ -618,7 +618,7 @@ const SingleStepContent = ({
       {canAddMore && (
         <button
           onClick={onAddVariation}
-          className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-dashed border-instaRed rounded-full text-instaRed text-body font-medium hover:bg-instaRed/5 transition-colors"
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-dashed border-brand rounded-full text-brand text-body font-medium hover:bg-brand/5 transition-colors"
         >
           <PlusIcon />
           <span>Add new Variant</span>
@@ -719,7 +719,7 @@ const VariationFieldWithProperties = ({
         {newValue && (
           <button
             onClick={addValue}
-            className="text-instaRed text-body font-medium hover:underline flex-shrink-0"
+            className="text-brand text-body font-medium hover:underline flex-shrink-0"
           >
             Add
           </button>
@@ -737,7 +737,7 @@ const VariationFieldWithProperties = ({
             {/* Show clean property indicators */}
             <div className="flex items-center gap-1">
               {variation.ownedProperties?.includes('price') && (
-                <div className="w-4 h-4 bg-instaRed rounded-full flex items-center justify-center" title="Custom Price">
+                <div className="w-4 h-4 bg-brand rounded-full flex items-center justify-center" title="Custom Price">
                   <span className="text-white text-body-sm font-bold">₦</span>
                 </div>
               )}
@@ -800,7 +800,7 @@ const VariationFieldWithProperties = ({
                       className={`
                         flex items-center justify-center gap-1 px-2 h-[22px] rounded-full text-body-sm font-medium transition-all
                         ${isActive
-                          ? 'bg-instaRed/10 text-instaRed'
+                          ? 'bg-brand/10 text-brand'
                           : isAvailable
                             ? 'bg-ink-3 text-ink-70 hover:bg-ink-10'
                             : 'bg-ink-3 text-ink-40 cursor-not-allowed'
@@ -1330,12 +1330,12 @@ export default function EnhancedProductOptions({
                     <button
                       key={template.id}
                       onClick={() => handleManageVariations(template)}
-                      className="w-full p-4 border border-instaRed bg-instaRed/5 rounded-card text-left hover:bg-instaRed/10 transition-colors"
+                      className="w-full p-4 border border-brand bg-brand/5 rounded-card text-left hover:bg-brand/10 transition-colors"
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{template.icon}</span>
                         <div className="flex-1">
-                          <h3 className="text-body-lg font-medium text-instaRed">{template.name}</h3>
+                          <h3 className="text-body-lg font-medium text-brand">{template.name}</h3>
                           <p className="text-body text-ink-60 mt-0.5">{template.description}</p>
                         </div>
                         <ChevronRightIcon />
@@ -1347,14 +1347,14 @@ export default function EnhancedProductOptions({
                 {/* Custom Option */}
                 <button
                   onClick={() => handleManageVariations()}
-                  className="w-full p-4 border border-ink-10 bg-white rounded-card text-left hover:border-instaRed/30 transition-colors"
+                  className="w-full p-4 border border-ink-10 bg-white rounded-card text-left hover:border-brand/30 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 flex items-center justify-center">
                       <EditIcon />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-body-lg font-medium text-instaRed">Create Custom variants</h3>
+                      <h3 className="text-body-lg font-medium text-brand">Create Custom variants</h3>
                       <p className="text-body text-ink-60 mt-0.5">Create your own</p>
                     </div>
                     <ChevronRightIcon />
@@ -1378,7 +1378,7 @@ export default function EnhancedProductOptions({
                   </h3>
                   <button
                     onClick={() => handleManageVariations()}
-                    className="flex items-center gap-1 px-2 py-1 text-instaRed text-body-sm font-medium hover:bg-instaRed/5 rounded transition-colors"
+                    className="flex items-center gap-1 px-2 py-1 text-brand text-body-sm font-medium hover:bg-brand/5 rounded transition-colors"
                   >
                     <EditIcon />
                     Edit

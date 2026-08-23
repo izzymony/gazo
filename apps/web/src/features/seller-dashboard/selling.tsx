@@ -77,7 +77,7 @@ const Selling = () => {
             </div>
           </div>
           <div
-            className="text-instaRed flex gap-1 items-center cursor-pointer"
+            className="text-brand flex gap-1 items-center cursor-pointer"
             onClick={() => router.push(`/dashboard/storefront`)}>
             View store
             <ChevronRight size={20} />
@@ -89,7 +89,7 @@ const Selling = () => {
       <div
         onClick={() => router.push("/profile/referrals")}
         className="cursor-pointer overflow-hidden">
-        <div className="relative bg-gradient-to-r from-instaRed to-instaRed/70 rounded-card p-4 text-white shadow-card">
+        <div className="relative bg-gradient-to-r from-brand to-brand/70 rounded-card p-4 text-white shadow-card">
           {/* Decorative sparkle */}
           <div className="absolute top-2 right-3 opacity-30">
             <FaStar size={16} className="text-white" />
@@ -202,7 +202,7 @@ const Selling = () => {
 
           {/* Log out - always at the bottom */}
           <div
-            className="flex gap-2 text-body font-normal items-center cursor-pointer text-instaRed"
+            className="flex gap-2 text-body font-normal items-center cursor-pointer text-brand"
             onClick={() => logout(() => router.push("/signin"))}>
             <Logout size={20} />
             <p>Log out</p>

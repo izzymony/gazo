@@ -171,7 +171,7 @@ export default function Welcome() {
             {/* Welcome Text */}
             <div className="text-center">
               <h1 className="text-h1 font-medium text-ink-90 leading-tight">
-                Welcome to <span className="text-instaRed font-bold">myInstaShop</span>, <span className="font-bold">{userName}</span>! 👋
+                Welcome to <span className="text-brand font-bold">myInstaShop</span>, <span className="font-bold">{userName}</span>! 👋
               </h1>
             </div>
 
@@ -188,7 +188,7 @@ export default function Welcome() {
                     disabled={option.disabled}
                     className={`flex-1 py-2 px-3 rounded-full text-body-sm font-medium transition-all duration-200 relative flex items-center justify-center gap-1 ${
                       activeTab === option.key
-                        ? "bg-white text-instaRed shadow-card"
+                        ? "bg-white text-brand shadow-card"
                         : "text-ink-60"
                     } ${option.disabled ? "opacity-50 cursor-not-allowed" : ""}`}>
                     <span>{option.label}</span>
@@ -206,7 +206,7 @@ export default function Welcome() {
             </div>
 
             {/* Features List */}
-            <div className="bg-instaRed/10 border border-instaRed/20 rounded-card p-4">
+            <div className="bg-brand/10 border border-brand/20 rounded-card p-4">
               <ul className="space-y-3">
                 {(activeTab === "sell"
                   ? [
@@ -224,7 +224,7 @@ export default function Welcome() {
                 ).map((feature) => (
                   <li key={feature} className="flex items-center gap-3">
                     <div className="flex-shrink-0">
-                      <CircleCheck size={18} className="text-instaRed" />
+                      <CircleCheck size={18} className="text-brand" />
                     </div>
                     <span className="text-body-sm font-medium text-ink-80">{feature}</span>
                   </li>

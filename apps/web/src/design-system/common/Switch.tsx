@@ -32,7 +32,7 @@ export default function Switch({
         onChange={onChange}
       />
 
-      <span className="relative rounded-full peer-focus-visible:ring-2 peer-focus-visible:ring-instaRed/40 peer-focus-visible:ring-offset-1">
+      <span className="relative rounded-full peer-focus-visible:ring-2 peer-focus-visible:ring-brand/40 peer-focus-visible:ring-offset-1">
         <span
           className={`block w-[32px] h-[20px] rounded-full transition-colors duration-200 ease-linear
             ${checked ? color : "bg-gray-300"}`}></span>

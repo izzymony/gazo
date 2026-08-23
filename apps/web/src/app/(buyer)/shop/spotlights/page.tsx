@@ -390,7 +390,7 @@ const Page = () => {
                           router.push(`/shop/${businessDetails?.name}`);
                         }}
                         type="button"
-                        className="flex flex-row gap-1 justify-center items-center text-center py-3 rounded-full text-body-sm font-normal px-3 bg-instaRed text-white z-30 relative">
+                        className="flex flex-row gap-1 justify-center items-center text-center py-3 rounded-full text-body-sm font-normal px-3 bg-brand text-white z-30 relative">
                         Visit store front{" "}
                         <IoIosArrowForward size={20} className="text-white" />
                       </button>

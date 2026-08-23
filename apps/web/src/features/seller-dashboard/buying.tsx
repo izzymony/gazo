@@ -21,7 +21,7 @@ const RewardsAccessButton = ({
 }) => (
   <div onClick={onClick} className="cursor-pointer overflow-hidden">
     {/* Gradient background card */}
-    <div className="relative bg-gradient-to-r from-instaRed to-instaRed/70 rounded-card p-4 text-white shadow-card">
+    <div className="relative bg-gradient-to-r from-brand to-brand/70 rounded-card p-4 text-white shadow-card">
       {/* Decorative sparkle/star elements (subtle) */}
       <FaStar size={16} className="absolute top-2 right-3 text-white opacity-30" />
       <FaStar size={12} className="absolute bottom-3 right-8 text-white opacity-20" />

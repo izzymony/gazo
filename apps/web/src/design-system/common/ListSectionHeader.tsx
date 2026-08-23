@@ -15,7 +15,7 @@ export default function ListSectionHeader({ title, action, className }: ListSect
         <button
           type="button"
           onClick={action.onClick}
-          className="text-instaRed text-body-sm font-medium min-h-[36px] flex items-center">
+          className="text-brand text-body-sm font-medium min-h-[36px] flex items-center">
           {action.label}
         </button>
       )}

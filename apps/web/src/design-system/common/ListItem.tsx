@@ -52,7 +52,7 @@ export default function ListItem({
         <div className="relative flex-shrink-0 w-10 h-10 flex items-center justify-center">
           {leading}
           {showDot && (
-            <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-instaRed rounded-full border-2 border-white" />
+            <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-brand rounded-full border-2 border-white" />
           )}
         </div>
       )}

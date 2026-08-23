@@ -71,7 +71,7 @@ const Page = () => {
           <Link
             href={active === 0 ? "/dashboard/catalog/product/create" : "/dashboard/catalog/discount/new"}
             aria-label={active === 0 ? "Add product" : "Add discount"}
-            className="absolute bottom-28 right-4 lg:right-[calc((100%-64rem)/2+1rem)] w-12 h-12 rounded-full bg-instaRed flex items-center justify-center z-dropdown"
+            className="absolute bottom-28 right-4 lg:right-[calc((100%-64rem)/2+1rem)] w-12 h-12 rounded-full bg-brand flex items-center justify-center z-dropdown"
             style={{ boxShadow: "4px 8px 24px 0px rgb(var(--brand-rgb) / 0.2)" }}>
             <Plus size={24} className="text-white" />
           </Link>
@@ -87,7 +87,7 @@ const Page = () => {
           onClick={handleViewStorefront}
           className="shadow-pop">
           View store front
-          <SquareArrowUpRight size={20} className="text-instaRed" />
+          <SquareArrowUpRight size={20} className="text-brand" />
         </Button>
       </div>
     </>

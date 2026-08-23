@@ -26,7 +26,7 @@ const Billing = () => {
                 <Card>
                     <div className='flex justify-between'>
                         <p className='font-medium'>Booster</p>
-                        <p className='text-instaRed text-body-sm'>Change plan</p>
+                        <p className='text-brand text-body-sm'>Change plan</p>
                     </div>
 
                     <p className="text-ink-40 text-body">₦2,300/month</p>
@@ -42,7 +42,7 @@ const Billing = () => {
                             <img src={'/images/vendor/visa.png'} alt="Visa" className="w-8 h-5 object-contain" />
                             <div>
                                 <span className='text-body font-medium text-ink-90'>Mastercard-1243</span>
-                                <span className="text-instaRed ml-2 border border-instaRed rounded-pill px-2 bg-instaRed/10 text-caption font-normal">Default</span>
+                                <span className="text-brand ml-2 border border-brand rounded-pill px-2 bg-brand/10 text-caption font-normal">Default</span>
                                 <p className="text-body font-normal text-ink-60">02/29</p>
                             </div>
                         </div>
@@ -56,7 +56,7 @@ const Billing = () => {
                             <img src={'/images/vendor/mastercard.png'} alt="Mastercard" className="w-8 h-5 object-contain" />
                             <div>
                                 <span className='text-body font-medium text-ink-90'>Visacard-1243</span>
-                                <span className="text-instaRed ml-2 border border-instaRed rounded-pill px-2 bg-instaRed/10 text-caption font-normal">Default</span>
+                                <span className="text-brand ml-2 border border-brand rounded-pill px-2 bg-brand/10 text-caption font-normal">Default</span>
                                 <p className="text-body font-normal text-ink-60">02/29</p>
                             </div>
                         </div>
@@ -66,7 +66,7 @@ const Billing = () => {
                 </Card>
                 <div className="flex justify-end">
                     <p
-                        className="cursor-pointer text-instaRed flex items-center text-body-sm font-medium"
+                        className="cursor-pointer text-brand flex items-center text-body-sm font-medium"
                         onClick={() => router.push(`/dashboard/settings/billing/add-card`)}
                     >
                         Add new Card <MdOutlineAddCard className="ml-0.5" />

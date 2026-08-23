@@ -20,7 +20,7 @@ export default function ErrorState({
 }) {
   return (
     <div className="min-h-[70vh] w-full flex flex-col items-center justify-center px-6 text-center">
-      <div className="w-16 h-16 rounded-full bg-instaRed/10 flex items-center justify-center mb-5">
+      <div className="w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center mb-5">
         <HugeiconsIcon icon={AlertCircleIcon} size={30} color="var(--brand)" />
       </div>
       <h2 className="text-h2 font-semibold text-ink-90 mb-2 text-balance">

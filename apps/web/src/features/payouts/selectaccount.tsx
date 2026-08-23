@@ -50,7 +50,7 @@ export const BankCard = ({
           {accountnumber.slice(-4)}
         </p>
         {isDefault && (
-          <span className="rounded-pill bg-instaRed/10 text-instaRed text-caption font-medium px-2 py-0.5">
+          <span className="rounded-pill bg-brand/10 text-brand text-caption font-medium px-2 py-0.5">
             Default
           </span>
         )}

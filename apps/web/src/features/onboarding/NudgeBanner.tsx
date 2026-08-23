@@ -40,7 +40,7 @@ export default function NudgeBanner() {
     <BottomModal isOpen={true} onClose={dismissNudge}>
       <div className="flex flex-col items-center text-center px-4 py-6">
         <div className="w-14 h-14 rounded-full bg-[#FFEAEE] flex items-center justify-center mb-4">
-          <ShoppingBag size={28} className="text-instaRed" />
+          <ShoppingBag size={28} className="text-brand" />
         </div>
         <h2 className="text-body-lg font-semibold text-ink-90 mb-2">
           Ready to start selling?
@@ -53,7 +53,7 @@ export default function NudgeBanner() {
             dismissNudge();
             router.push(nudge.ctaRoute);
           }}
-          className="bg-instaRed text-white text-body-sm font-semibold px-5 py-3 rounded-full min-h-[44px] w-full mb-2 touch-manipulation"
+          className="bg-brand text-white text-body-sm font-semibold px-5 py-3 rounded-full min-h-[44px] w-full mb-2 touch-manipulation"
           style={{ boxShadow: '4px 8px 24px 0px rgb(var(--brand-rgb) / 0.2)' }}
         >
           {nudge.ctaLabel}

@@ -65,7 +65,7 @@ const ActivityText = ({
           className={`text-body-sm font-medium ${show
             ? `${title.toLowerCase() === "order delivered"
               ? "text-success-strong"
-              : "text-instaRed"
+              : "text-brand"
             }`
             : "text-ink-60"
             }`}>
@@ -89,12 +89,12 @@ const Indicators = ({ show = false }: { show: boolean }) => {
         className={
           !show
             ? "h-[10px] border border-ink-20"
-            : "h-[10px] border border-instaRed"
+            : "h-[10px] border border-brand"
         }
       />
       {show ? (
-        <div className="w-4 h-4 rounded-full border border-instaRed bg-instaRed/10 flex justify-center items-center">
-          <div className="w-[10px] h-[10px] bg-instaRed rounded-full" />
+        <div className="w-4 h-4 rounded-full border border-brand bg-brand/10 flex justify-center items-center">
+          <div className="w-[10px] h-[10px] bg-brand rounded-full" />
         </div>
       ) : (
         <div className="w-4 h-4 rounded-full flex justify-center items-center">
@@ -236,7 +236,7 @@ const Shipping = ({
     <div className="mt-4">
       <p className="mb-3 text-body-sm font-normal">Shipping profile</p>
       <div className="p-2 rounded-field border flex flex-col gap-2 text-body font-normal">
-        <span className="border-[0.5px] rounded-full font-normal px-3 py-[2px] text-body-sm border-instaRed bg-instaRed/10 text-instaRed w-[max-content]">
+        <span className="border-[0.5px] rounded-full font-normal px-3 py-[2px] text-body-sm border-brand bg-brand/10 text-brand w-[max-content]">
           Default
         </span>
         <p>
@@ -252,7 +252,7 @@ const Shipping = ({
             router.push("/cart/shipping-profile");
           }}
           type="button"
-          className="w-full rounded-full py-2 border bg-white text-instaRed text-body font-medium mt-2">
+          className="w-full rounded-full py-2 border bg-white text-brand text-body font-medium mt-2">
           Change Shipping Details
         </button>
       </div>
@@ -334,7 +334,7 @@ const ProgressBar = ({ pick }: { pick: number }) => {
           key={item}
           className={
             item > 0 && item <= pick
-              ? " bg-instaRed h-full flex-1"
+              ? " bg-brand h-full flex-1"
               : "h-full flex-1"
           }
         />
@@ -522,18 +522,18 @@ const Order = () => {
               {status ? (
                 <div
                   onClick={() => setStatus(!status)}
-                  className="flex justify-center items-center mt-2 text-instaRed font-medium text-body-sm">
+                  className="flex justify-center items-center mt-2 text-brand font-medium text-body-sm">
                   Collapse timeline{" "}
-                  <ChevronUp size={16} className="text-instaRed" />
+                  <ChevronUp size={16} className="text-brand" />
                 </div>
               ) : (
                 <>
                   <div className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-white via-white to-transparent" />
                   <div
                     onClick={() => setStatus(!status)}
-                    className="flex justify-center items-center text-instaRed font-medium text-body-sm w-full absolute bottom-3 left-0 right-0 h-[40px]">
+                    className="flex justify-center items-center text-brand font-medium text-body-sm w-full absolute bottom-3 left-0 right-0 h-[40px]">
                     View full timeline{" "}
-                    <ChevronDown size={16} className="text-instaRed" />
+                    <ChevronDown size={16} className="text-brand" />
                   </div>
                 </>
               )}

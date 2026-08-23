@@ -114,7 +114,7 @@ const OrderComp = ({
                 }
               }}>
               Mark as ready for shipping
-              <DeliveryTruck size={16} className="text-instaRed" />
+              <DeliveryTruck size={16} className="text-brand" />
             </Button>
           )}
           {showSelfCta && (
@@ -123,7 +123,7 @@ const OrderComp = ({
               size="sm"
               onClick={() => router.push(`orders/${order?.id}`)}>
               Mark out for delivery
-              <DeliveryTruck size={16} className="text-instaRed" />
+              <DeliveryTruck size={16} className="text-brand" />
             </Button>
           )}
         </div>

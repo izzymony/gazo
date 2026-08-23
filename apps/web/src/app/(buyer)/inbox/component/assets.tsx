@@ -10,7 +10,7 @@ export default function Assets() {
               alt="asset"
               className="w-10 h-10 rounded-field object-cover"
             />
-            <div className="w-[10px] h-[10px] rounded-full bg-instaRed absolute bottom-0 right-0 border-2 border-white"></div>
+            <div className="w-[10px] h-[10px] rounded-full bg-brand absolute bottom-0 right-0 border-2 border-white"></div>
           </div>
           <div className="flex-1">
             <p className="line-clamp-2 text-ink-90 font-medium text-body-sm">
@@ -21,7 +21,7 @@ export default function Assets() {
         </div>
       </div>
       <div className="items-center justify-center flex">
-        <p className="text-instaRed text-body-sm font-medium whitespace-nowrap">
+        <p className="text-brand text-body-sm font-medium whitespace-nowrap">
           View details
         </p>
       </div>

@@ -43,7 +43,7 @@ const AccountCard = ({
             {`${bankname}-Ending in ${accountnumber.slice(-4)}`}
           </p>
           {defaults && (
-            <span className="rounded-pill bg-instaRed/10 text-instaRed text-caption font-medium px-2 py-0.5">
+            <span className="rounded-pill bg-brand/10 text-brand text-caption font-medium px-2 py-0.5">
               Default
             </span>
           )}
@@ -61,7 +61,7 @@ const AccountCard = ({
         }}>
         <BsThreeDots
           size={20}
-          className={show === id ? "text-instaRed" : "text-ink-90"}
+          className={show === id ? "text-brand" : "text-ink-90"}
         />
       </div>
       {show === id && (
@@ -78,7 +78,7 @@ const AccountCard = ({
             </p>
           )}
           <p
-            className="text-body text-instaRed font-medium cursor-pointer hover:opacity-80"
+            className="text-body text-brand font-medium cursor-pointer hover:opacity-80"
             onClick={(e) => {
               e.stopPropagation();
               onDelete();

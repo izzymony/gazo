@@ -9,7 +9,7 @@ import { Compass01Icon, Home01Icon } from "@hugeicons/core-free-icons";
 export default function NotFound() {
   return (
     <div className="min-h-[70vh] w-full flex flex-col items-center justify-center px-6 text-center">
-      <div className="w-16 h-16 rounded-full bg-instaRed/10 flex items-center justify-center mb-5">
+      <div className="w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center mb-5">
         <HugeiconsIcon icon={Compass01Icon} size={30} color="var(--brand)" />
       </div>
       <p className="text-display font-bold text-ink-90 leading-none mb-1">404</p>
@@ -21,7 +21,7 @@ export default function NotFound() {
       </p>
       <Link
         href="/"
-        className="inline-flex items-center justify-center gap-2 rounded-full bg-instaRed text-white text-body font-medium py-3 px-6 touch-manipulation active:bg-brandHover"
+        className="inline-flex items-center justify-center gap-2 rounded-full bg-brand text-white text-body font-medium py-3 px-6 touch-manipulation active:bg-brandHover"
       >
         <HugeiconsIcon icon={Home01Icon} size={18} color="white" />
         Back home

@@ -312,7 +312,7 @@ export default function Page() {
         <div className="w-full flex flex-row justify-between items-center gap-3">
           <div
             onClick={() => setNext(2)}
-            className="flex-1 h-10 rounded-full bg-instaRed text-white text-base font-medium justify-center items-center flex">
+            className="flex-1 h-10 rounded-full bg-brand text-white text-base font-medium justify-center items-center flex">
             Next
           </div>
         </div>
@@ -496,12 +496,12 @@ export default function Page() {
         <div className="w-full flex flex-row justify-between items-center gap-3">
           <div
             onClick={() => router.push("/setup")}
-            className="flex-1 h-10 rounded-full border-instaRed border bg-white text-instaRed text-base font-medium justify-center items-center flex">
+            className="flex-1 h-10 rounded-full border-brand border bg-white text-brand text-base font-medium justify-center items-center flex">
             Save Draft
           </div>
           <div
             onClick={() => router.push("/setup")}
-            className="flex-1 h-10 rounded-full bg-instaRed text-white text-base font-medium justify-center items-center flex">
+            className="flex-1 h-10 rounded-full bg-brand text-white text-base font-medium justify-center items-center flex">
             Post Spotlight
           </div>
         </div>

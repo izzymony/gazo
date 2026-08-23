@@ -13,7 +13,7 @@ type CheckboxProps = {
 /**
  * Unified checkbox primitive — labeled (checkmark + text) or standalone box.
  * Selection cue matches RadioGroup: neutral ink-30 ring when unchecked, brand
- * instaRed fill + white check when checked.
+ * brand fill + white check when checked.
  */
 const Checkbox = ({ checked, onChange, label, isRound = false }: CheckboxProps) => {
   // Standalone box (was CustomCheckbox) — no label.
@@ -24,7 +24,7 @@ const Checkbox = ({ checked, onChange, label, isRound = false }: CheckboxProps) 
         className={cn(
           "w-5 h-5 border-2 flex items-center justify-center cursor-pointer transition-colors flex-shrink-0",
           isRound ? "rounded-full" : "rounded",
-          checked ? "bg-instaRed border-instaRed" : "border-ink-30"
+          checked ? "bg-brand border-brand" : "border-ink-30"
         )}>
         {checked && (
           <IoCheckmark className="text-white" size={14} strokeWidth={3} />
@@ -41,7 +41,7 @@ const Checkbox = ({ checked, onChange, label, isRound = false }: CheckboxProps) 
       <div
         className={cn(
           "w-5 h-5 flex items-center justify-center rounded border-2 transition-colors flex-shrink-0",
-          checked ? "bg-instaRed border-instaRed" : "border-ink-30"
+          checked ? "bg-brand border-brand" : "border-ink-30"
         )}>
         {checked && (
           <IoCheckmark className="text-white" size={14} strokeWidth={3} />

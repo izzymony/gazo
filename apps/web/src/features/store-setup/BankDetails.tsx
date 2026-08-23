@@ -73,7 +73,7 @@ const BankSelectorModal = ({
             }}
             className={`flex items-center px-3 py-3 cursor-pointer rounded-field ${
               selectedName === bank.name
-                ? "bg-instaRed/10 border border-instaRed"
+                ? "bg-brand/10 border border-brand"
                 : "hover:bg-ink-5"
             }`}
           >

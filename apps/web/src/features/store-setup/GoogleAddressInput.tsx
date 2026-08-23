@@ -117,7 +117,7 @@ const GoogleAddressInput = ({
                 <button
                     type="button"
                     onClick={() => setManualEntry(true)}
-                    className="text-body-sm text-instaRed hover:opacity-80 mt-1 underline"
+                    className="text-body-sm text-brand hover:opacity-80 mt-1 underline"
                 >
                     Can't find your address? Enter manually
                 </button>

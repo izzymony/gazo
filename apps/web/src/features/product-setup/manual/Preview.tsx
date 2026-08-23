@@ -258,7 +258,7 @@ export default function ProductsPreview({
                     productPreview?.oldPrice ? +productPreview.oldPrice : 0
                   )}
                 </span>
-                <div className="ml-auto text-white font-normal rounded-full bg-instaRed px-3 py-1 text-caption">
+                <div className="ml-auto text-white font-normal rounded-full bg-brand px-3 py-1 text-caption">
                   {Math.floor(discount)}% OFF
                 </div>
               </>
@@ -294,7 +294,7 @@ export default function ProductsPreview({
                       key={optionIndex}
                       className={`px-4 h-[22px] text-body-sm bg-ink-3 rounded-full ${(selectedVariant[variant?.name as string] || "") ===
                         option
-                        ? "bg-instaRed text-white"
+                        ? "bg-brand text-white"
                         : ""
                         }`}
                       onClick={() =>
@@ -323,7 +323,7 @@ export default function ProductsPreview({
               productPreview?.description.length > 100 &&
               !isDescriptionExpanded && (
                 <button
-                  className=" text-instaRed text-body-sm font-medium"
+                  className=" text-brand text-body-sm font-medium"
                   onClick={() => {
                     setIsDescriptionExpanded(!isDescriptionExpanded);
                   }}>
@@ -332,7 +332,7 @@ export default function ProductsPreview({
               )}
             {isDescriptionExpanded && (
               <button
-                className="ml-2 text-instaRed text-body-sm"
+                className="ml-2 text-brand text-body-sm"
                 onClick={() => {
                   setIsDescriptionExpanded(!isDescriptionExpanded);
                 }}>
@@ -370,7 +370,7 @@ export default function ProductsPreview({
                 </p>
               </div>
 
-              <div className="text-instaRed text-body-sm ml-auto font-medium">
+              <div className="text-brand text-body-sm ml-auto font-medium">
                 Follow
               </div>
             </div>

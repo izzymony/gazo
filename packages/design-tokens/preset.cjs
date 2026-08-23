@@ -31,7 +31,6 @@ module.exports = {
         'micro': ['8px', { lineHeight: '12px' }],
       },
       colors: {
-        instaRed: "rgb(var(--brand-rgb) / <alpha-value>)",
         brand: "rgb(var(--brand-rgb) / <alpha-value>)",
         brandHover: "var(--brand-hover)",
         ink: {

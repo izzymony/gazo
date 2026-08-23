@@ -76,7 +76,7 @@ export default function Authenthecate({
               : buttonAction
           }
           className={`p-2 h-10 justify-center items-center flex text-white font-medium w-full text-body-sm rounded-full cursor-pointer ${
-            isLoading ? "bg-ink-30 cursor-not-allowed" : "bg-instaRed"
+            isLoading ? "bg-ink-30 cursor-not-allowed" : "bg-brand"
           }`}>
           {isLoading ? "Processing..." : base ? "Confirm withdrawal" : "Confirm"}
         </div>

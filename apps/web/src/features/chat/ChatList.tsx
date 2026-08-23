@@ -76,7 +76,7 @@ export default function ChatList({
                 {c.last_message || "Say hello 👋"}
               </p>
               {c.unread_count > 0 && (
-                <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-instaRed text-white text-micro font-semibold flex items-center justify-center">
+                <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-brand text-white text-micro font-semibold flex items-center justify-center">
                   {c.unread_count > 9 ? "9+" : c.unread_count}
                 </span>
               )}

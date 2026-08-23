@@ -32,7 +32,7 @@ export const TransactionCard = ({
     type === "credit"
       ? "text-green-700"
       : type === "debit"
-      ? "text-instaRed"
+      ? "text-brand"
       : "text-ink-60";
   return (
     <ListItem

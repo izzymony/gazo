@@ -698,9 +698,9 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                                         key={`${image.name}-${index}`}
                                                         className={`relative flex-shrink-0 w-24 h-24 rounded-card overflow-hidden border cursor-move transition-all duration-200 ${
                                                             dragOverIndex === index
-                                                                ? "border-instaRed border-dashed"
+                                                                ? "border-brand border-dashed"
                                                                 : draggedIndex === index
-                                                                ? "border-instaRed opacity-50"
+                                                                ? "border-brand opacity-50"
                                                                 : "border-ink-10"
                                                         }`}
                                                         draggable
@@ -742,7 +742,7 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
 
                                     {/* Add Image Button */}
                                     <div className="w-full">
-                                        <label className="block w-full bg-ink-3 px-4 py-4 font-medium rounded-card text-body text-instaRed border-2 border-dashed border-ink-10 hover:border-instaRed transition-colors cursor-pointer group">
+                                        <label className="block w-full bg-ink-3 px-4 py-4 font-medium rounded-card text-body text-brand border-2 border-dashed border-ink-10 hover:border-brand transition-colors cursor-pointer group">
                                             <div className="flex items-center justify-center gap-2">
                                                 <input
                                                     type="file"
@@ -751,7 +751,7 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                                     className="hidden"
                                                     onChange={handleAddImage}
                                                 />
-                                                <Plus className="h-5 w-5 text-instaRed group-hover:scale-110 transition-transform" />
+                                                <Plus className="h-5 w-5 text-brand group-hover:scale-110 transition-transform" />
                                                 <span>Add image</span>
                                             </div>
                                         </label>

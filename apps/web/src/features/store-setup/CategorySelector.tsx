@@ -155,7 +155,7 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
         </div>
       </div>
 
-      {error && <small className="text-instaRed">{error}</small>}
+      {error && <small className="text-brand">{error}</small>}
 
       {/* Category Selection Modal - Responsive Design */}
       {showModal && (
@@ -232,7 +232,7 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
                       }}
                       className={
                         (mode === 'store' && selectedOriginalCategory?.id === category.id)
-                          ? "flex cursor-pointer text-body font-normal items-center relative text-ink-90 px-2 py-2 rounded-field bg-instaRed/10 border-instaRed border justify-between"
+                          ? "flex cursor-pointer text-body font-normal items-center relative text-ink-90 px-2 py-2 rounded-field bg-brand/10 border-brand border justify-between"
                           : "flex cursor-pointer text-body font-normal relative items-center text-ink-90 px-2 py-2 rounded-field justify-between"
                       }>
                       <div className="flex gap-1 items-center">
@@ -278,7 +278,7 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
                             }}
                             className={`cursor-pointer text-body font-normal px-2 py-2 rounded-[4px] flex items-center justify-between ${
                               selectedSubcategory?.name === sub.name
-                                ? "bg-instaRed/10 border-instaRed border text-instaRed"
+                                ? "bg-brand/10 border-brand border text-brand"
                                 : "text-ink-70 hover:bg-ink-5"
                             }`}>
                             <div className="flex items-center">

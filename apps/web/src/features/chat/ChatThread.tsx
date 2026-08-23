@@ -69,7 +69,7 @@ export default function ChatThread({
               <div
                 className={cn(
                   "max-w-[75%] rounded-card p-3 text-body break-words",
-                  mine ? "bg-instaRed text-white" : "bg-ink-3 text-ink-90"
+                  mine ? "bg-brand text-white" : "bg-ink-3 text-ink-90"
                 )}>
                 {m.content}
               </div>

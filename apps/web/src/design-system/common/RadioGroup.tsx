@@ -23,9 +23,9 @@ const Indicator = ({ selected }: { selected: boolean }) => (
   <div
     className={cn(
       "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors",
-      selected ? "border-instaRed" : "border-ink-30"
+      selected ? "border-brand" : "border-ink-30"
     )}>
-    {selected && <div className="w-2.5 h-2.5 rounded-full bg-instaRed" />}
+    {selected && <div className="w-2.5 h-2.5 rounded-full bg-brand" />}
   </div>
 );
 
@@ -51,7 +51,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
             className={cn(
               "flex justify-between items-center p-3 border rounded-field cursor-pointer transition-colors",
               selectedValue === option.value
-                ? "border-instaRed bg-instaRed/5"
+                ? "border-brand bg-brand/5"
                 : "border-ink-10"
             )}>
             <div className="flex items-center gap-4">

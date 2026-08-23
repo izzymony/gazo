@@ -74,7 +74,7 @@ export default function DashboardWelcome() {
       >
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-full bg-[#FFEAEE] flex items-center justify-center flex-shrink-0">
-            <Heart size={20} className="text-instaRed" />
+            <Heart size={20} className="text-brand" />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-body text-ink-90 mb-1">
@@ -86,7 +86,7 @@ export default function DashboardWelcome() {
             </p>
             <button
               onClick={() => router.push("/dashboard/catalog/product/create/manual/new")}
-              className="bg-instaRed text-white text-body-sm font-semibold px-4 py-2.5 rounded-full min-h-[40px] w-full touch-manipulation flex items-center justify-center gap-1"
+              className="bg-brand text-white text-body-sm font-semibold px-4 py-2.5 rounded-full min-h-[40px] w-full touch-manipulation flex items-center justify-center gap-1"
               style={{ boxShadow: '4px 8px 24px 0px rgb(var(--brand-rgb) / 0.2)' }}
             >
               Add Your First Product
@@ -135,7 +135,7 @@ export default function DashboardWelcome() {
           <div className="flex gap-2">
             <button
               onClick={handleShareStore}
-              className="flex-1 bg-instaRed text-white text-body-sm font-semibold px-4 py-2.5 rounded-full min-h-[40px] touch-manipulation flex items-center justify-center gap-1"
+              className="flex-1 bg-brand text-white text-body-sm font-semibold px-4 py-2.5 rounded-full min-h-[40px] touch-manipulation flex items-center justify-center gap-1"
               style={{ boxShadow: '4px 8px 24px 0px rgb(var(--brand-rgb) / 0.2)' }}
             >
               Share Store
@@ -143,7 +143,7 @@ export default function DashboardWelcome() {
             </button>
             <button
               onClick={() => router.push("/dashboard/catalog/product/create/manual/new")}
-              className="px-4 py-2.5 rounded-full min-h-[40px] border border-instaRed text-instaRed text-body-sm font-medium touch-manipulation"
+              className="px-4 py-2.5 rounded-full min-h-[40px] border border-brand text-brand text-body-sm font-medium touch-manipulation"
             >
               Add Products
             </button>

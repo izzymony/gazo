@@ -613,7 +613,7 @@ function Frame1618869057() {
           backgroundRepeat: 'repeat-x, repeat-y, repeat-x, repeat-y'
         }}
       />
-      <p className="bg-clip-text bg-gradient-to-b font-['DM_Sans:Regular',sans-serif] from-instaRed from-[23.558%] leading-[1.1] not-italic relative shrink-0 text-display sm:text-[56px] md:text-[69.283px] text-nowrap to-[#f24cdf] tracking-[-2.0785px] whitespace-pre" style={{ WebkitTextFillColor: "transparent" }}>{`Social `}</p>
+      <p className="bg-clip-text bg-gradient-to-b font-['DM_Sans:Regular',sans-serif] from-brand from-[23.558%] leading-[1.1] not-italic relative shrink-0 text-display sm:text-[56px] md:text-[69.283px] text-nowrap to-[#f24cdf] tracking-[-2.0785px] whitespace-pre" style={{ WebkitTextFillColor: "transparent" }}>{`Social `}</p>
     </div>
   );
 }
@@ -769,7 +769,7 @@ function Button({ onFindVendors }: { onFindVendors: () => void }) {
       className="bg-[rgba(255,255,255,0.1)] box-border content-stretch flex gap-[8px] items-center justify-center px-[12px] py-[10px] relative rounded-[90px] shrink-0 cursor-not-allowed transition-all duration-300 backdrop-blur-sm w-full max-w-[300px] h-[52px] md:h-[62px] opacity-50"
       data-name="Button"
     >
-      <div aria-hidden="true" className="absolute border-instaRed border-[0.6px] border-solid inset-0 pointer-events-none rounded-[90px]" />
+      <div aria-hidden="true" className="absolute border-brand border-[0.6px] border-solid inset-0 pointer-events-none rounded-[90px]" />
       <Frame2147207468 />
       <Frame1618869090 />
     </button>
@@ -792,10 +792,10 @@ function Frame1618868935() {
     <div className="content-stretch flex gap-[12px] md:flex-row flex-col items-center relative shrink-0 animate-[fadeInUp_1s_ease-out_0.6s_both] w-full md:w-auto justify-center">
       <div
         onClick={handleStartSelling}
-        className="bg-instaRed box-border content-stretch flex h-[52px] md:h-[62px] items-center justify-center p-[10px] relative rounded-[90px] shrink-0 w-[181px] md:w-[181px] w-full max-w-[300px] cursor-pointer transition-all duration-300 hover:bg-[#ff3d64] hover:shadow-[6px_10px_32px_0px_rgba(254,44,85,0.3)] hover:scale-105 active:scale-95"
+        className="bg-brand box-border content-stretch flex h-[52px] md:h-[62px] items-center justify-center p-[10px] relative rounded-[90px] shrink-0 w-[181px] md:w-[181px] w-full max-w-[300px] cursor-pointer transition-all duration-300 hover:bg-[#ff3d64] hover:shadow-[6px_10px_32px_0px_rgba(254,44,85,0.3)] hover:scale-105 active:scale-95"
         data-name="Button"
       >
-        <div aria-hidden="true" className="absolute border border-instaRed border-solid inset-0 pointer-events-none rounded-[90px] shadow-[4px_8px_24px_0px_rgba(254,44,85,0.2)]" />
+        <div aria-hidden="true" className="absolute border border-brand border-solid inset-0 pointer-events-none rounded-[90px] shadow-[4px_8px_24px_0px_rgba(254,44,85,0.2)]" />
         <ButtonText />
       </div>
       <Button onFindVendors={handleFindVendors} />
@@ -991,7 +991,7 @@ function Frame1618868898() {
   return (
     <div className="box-border content-stretch flex gap-[4px] sm:gap-[7px] md:gap-[5.333px] items-center overflow-clip px-[10px] sm:px-[13px] md:px-[9.761px] py-[5px] sm:py-[7px] md:py-[5.333px] relative rounded-[60px] sm:rounded-[70px] md:rounded-[81.338px] shadow-[0px_4px_12px_0px_rgba(254,44,85,0.5)] sm:shadow-[0px_5px_14px_0px_rgba(254,44,85,0.5)] md:shadow-[0px_5.333px_15.998px_0px_rgba(254,44,85,0.5)] scale-[0.85] sm:scale-100" style={{ backgroundImage: "linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%), linear-gradient(90deg, rgb(254, 44, 85) 0%, rgb(254, 44, 85) 100%)" }}>
       <HiconLinearLike2 />
-      <p className="font-['DM_Sans:Medium',sans-serif] leading-[normal] not-italic relative shrink-0 text-instaRed text-body-sm sm:text-[15.5px] md:text-[14.665px] text-nowrap tracking-[0.0733px] whitespace-pre">Engage</p>
+      <p className="font-['DM_Sans:Medium',sans-serif] leading-[normal] not-italic relative shrink-0 text-brand text-body-sm sm:text-[15.5px] md:text-[14.665px] text-nowrap tracking-[0.0733px] whitespace-pre">Engage</p>
     </div>
   );
 }

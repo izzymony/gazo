@@ -442,7 +442,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
                 className={`flex items-center justify-center gap-1.5 px-5 py-3 rounded-full min-h-[44px] font-semibold text-body transition-all touch-manipulation ${
                   copied
                     ? "bg-green text-white"
-                    : "bg-instaRed text-white active:scale-95"
+                    : "bg-brand text-white active:scale-95"
                 }`}
                 style={{
                   boxShadow: !copied ? '4px 8px 24px 0px rgb(var(--brand-rgb) / 0.2)' : undefined

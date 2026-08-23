@@ -105,7 +105,7 @@ export const CircleCheck = make(CheckmarkCircle02Icon);
 export const Copy = make(Copy01Icon);
 export const Heart = make(FavouriteIcon);
 /* Filled heart — the free HugeIcons set is outline-only (FavouriteIcon), so this
-   solid glyph backs the "liked" state. Color via className (e.g. text-instaRed). */
+   solid glyph backs the "liked" state. Color via className (e.g. text-brand). */
 export const HeartFilled = ({
   size = 20,
   className = "",

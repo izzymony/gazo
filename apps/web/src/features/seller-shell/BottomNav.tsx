@@ -71,7 +71,7 @@ const BottomNav = memo(() => {
             onClick={() => handleNavClick(route)}
             disabled={isLoading || (loadingRoute !== null && !isActive)}
             className={`flex-1 h-full flex flex-col justify-center items-center gap-1 text-caption font-medium transition-colors disabled:opacity-50 ${
-              isActive ? "text-instaRed" : "text-ink-40"
+              isActive ? "text-brand" : "text-ink-40"
             }`}>
             {isLoading ? (
               <svg

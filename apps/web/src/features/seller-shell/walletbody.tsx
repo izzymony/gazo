@@ -196,8 +196,8 @@ export default function WalletBody({ action }: { action: () => void }) {
       <div className="w-full font-medium text-body text-ink-90 p-3 gap-2">
         <div className="w-full flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <div className="w-[30px] h-[30px] rounded-full bg-instaRed/10 flex items-center justify-center">
-              <Wallet size={18} className="text-instaRed" />
+            <div className="w-[30px] h-[30px] rounded-full bg-brand/10 flex items-center justify-center">
+              <Wallet size={18} className="text-brand" />
             </div>
             <p className="text-body text-ink-90 font-medium">Wallet Summary</p>
           </div>

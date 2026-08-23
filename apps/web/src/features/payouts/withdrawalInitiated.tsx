@@ -65,7 +65,7 @@ export default function WithdrawalInitiated({
             account shortly.
           </p>
         </div>
-        <div className="p-3 border gap-3 flex flex-col bg-instaRed/10 w-full border-instaRed rounded-field">
+        <div className="p-3 border gap-3 flex flex-col bg-brand/10 w-full border-brand rounded-field">
           <div className="flex flex-row justify-between items-center">
             <p className="text-ink-60 text-body-sm font-normal">Withdrawal</p>
             <p className="text-ink-90 text-body-sm font-medium">NGN {amount}</p>

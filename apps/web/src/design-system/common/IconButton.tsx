@@ -18,8 +18,8 @@ const iconButtonVariants = cva(
         plain: "text-ink-90 hover:bg-ink-5 active:bg-ink-10",
         muted: "text-ink-60 hover:bg-ink-5 active:bg-ink-10",
         onDark: "text-white hover:bg-white/10 active:bg-white/20",
-        filled: "bg-instaRed text-white hover:bg-brandHover active:bg-brandHover",
-        soft: "bg-instaRed/10 text-instaRed hover:bg-instaRed/20",
+        filled: "bg-brand text-white hover:bg-brandHover active:bg-brandHover",
+        soft: "bg-brand/10 text-brand hover:bg-brand/20",
       },
       size: {
         sm: "h-8 w-8",

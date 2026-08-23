@@ -31,7 +31,7 @@ export default function DispatchContactCard({
           <button
             type="button"
             onClick={onEdit}
-            className="ml-auto text-caption font-medium text-instaRed">
+            className="ml-auto text-caption font-medium text-brand">
             Edit
           </button>
         ) : eta ? (
@@ -46,8 +46,8 @@ export default function DispatchContactCard({
       )}
       {phone && (
         <a href={`tel:${phone}`} className="flex items-center gap-2">
-          <Call size={16} className="text-instaRed shrink-0" />
-          <p className="text-body-sm font-medium text-instaRed">{phone}</p>
+          <Call size={16} className="text-brand shrink-0" />
+          <p className="text-body-sm font-medium text-brand">{phone}</p>
         </a>
       )}
       {note && <p className="text-caption text-ink-60">{note}</p>}

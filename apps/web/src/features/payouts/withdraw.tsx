@@ -83,7 +83,7 @@ export default function Withdraw({
               <div
                 onClick={() => router.push("/dashboard/payouts/addaccount")}
                 className="cursor-pointer">
-                <p className="text-instaRed font-medium text-body">
+                <p className="text-brand font-medium text-body">
                   + Add bank account
                 </p>
                 <p className="text-ink-60 text-body-sm font-normal">
@@ -95,7 +95,7 @@ export default function Withdraw({
           {hasAccount && (
             <p
               onClick={() => action("selectaccount")}
-              className="text-instaRed text-body font-medium">
+              className="text-brand text-body font-medium">
               Change
             </p>
           )}
@@ -104,14 +104,14 @@ export default function Withdraw({
 
       {gated && (
         <Section>
-          <div className="rounded-card border border-instaRed/30 bg-instaRed/5 p-3">
+          <div className="rounded-card border border-brand/30 bg-brand/5 p-3">
             <p className="text-body-sm font-medium text-ink-90">
               Verify your identity to withdraw
             </p>
             <p className="text-caption text-ink-60">
               You&apos;ve earned over ₦{GATE_NGN.toLocaleString()}.{" "}
               <span
-                className="cursor-pointer font-medium text-instaRed"
+                className="cursor-pointer font-medium text-brand"
                 onClick={() => router.push("/verify")}>
                 Verify now
               </span>
@@ -126,7 +126,7 @@ export default function Withdraw({
             <p className="text-body-sm text-ink-90">
               You&apos;re close to ₦{GATE_NGN.toLocaleString()} in sales —{" "}
               <span
-                className="cursor-pointer font-medium text-instaRed"
+                className="cursor-pointer font-medium text-brand"
                 onClick={() => router.push("/verify")}>
                 verify now
               </span>{" "}
@@ -147,7 +147,7 @@ export default function Withdraw({
           onChange={(e) => setAmount(e.target.value)}
         />
         {checker && (
-          <p className="text-instaRed font-normal text-body w-[300px] text-center">
+          <p className="text-brand font-normal text-body w-[300px] text-center">
             Amount entered is more than available balance
           </p>
         )}
@@ -158,7 +158,7 @@ export default function Withdraw({
           Available balance :{" "}
           <span
             className={
-              checker ? "text-instaRed inline-flex" : "text-green inline-flex"
+              checker ? "text-brand inline-flex" : "text-green inline-flex"
             }>
             N {balance}
           </span>
@@ -167,8 +167,8 @@ export default function Withdraw({
 
       <BottomModal isOpen={showGate} onClose={() => setShowGate(false)}>
         <div className="flex flex-col items-center gap-3 py-2 text-center">
-          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-instaRed/10">
-            <Shield size={32} className="text-instaRed" />
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand/10">
+            <Shield size={32} className="text-brand" />
           </span>
           <h2 className="text-body-lg font-medium text-ink-90">Verify to withdraw</h2>
           <p className="max-w-[280px] text-body-sm text-ink-60">

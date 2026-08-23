@@ -14,11 +14,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         filled:
-          "bg-instaRed text-white hover:bg-brandHover active:bg-brandHover",
+          "bg-brand text-white hover:bg-brandHover active:bg-brandHover",
         bordered:
-          "border border-instaRed text-instaRed bg-white hover:bg-ink-3 active:bg-ink-5",
+          "border border-brand text-brand bg-white hover:bg-ink-3 active:bg-ink-5",
         ghost:
-          "bg-transparent text-instaRed hover:bg-ink-3 active:bg-ink-5",
+          "bg-transparent text-brand hover:bg-ink-3 active:bg-ink-5",
       },
       size: {
         sm: "py-1.5 px-4 text-body-sm",

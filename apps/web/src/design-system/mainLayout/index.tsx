@@ -94,7 +94,7 @@ export default function MainLayout({
                 {secondaryText && secondaryLink && (
                   <Link
                     href={secondaryLink}
-                    className="text-instaRed text-body font-medium w-full text-center py-3 px-6 flex justify-center mt-3">
+                    className="text-brand text-body font-medium w-full text-center py-3 px-6 flex justify-center mt-3">
                     {secondaryText}
                   </Link>
                 )}
@@ -175,7 +175,7 @@ export default function MainLayout({
                 {secondaryText && secondaryLink && (
                   <Link
                     href={secondaryLink}
-                    className="text-instaRed text-body font-medium w-full text-center py-3 px-6 flex justify-center mt-3">
+                    className="text-brand text-body font-medium w-full text-center py-3 px-6 flex justify-center mt-3">
                     {secondaryText}
                   </Link>
                 )}

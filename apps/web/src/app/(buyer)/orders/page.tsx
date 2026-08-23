@@ -80,7 +80,7 @@ const OrderAgainButton = ({ action }: { action: () => void }) => {
   return (
     <button
       onClick={action}
-      className=" border border-instaRed bg-white text-instaRed text-body font-normal rounded-full w-full p-1 justify-center items-center">
+      className=" border border-brand bg-white text-brand text-body font-normal rounded-full w-full p-1 justify-center items-center">
       Order again
     </button>
   );
@@ -270,7 +270,7 @@ const Page = () => {
           <p className="text-body mt-3 text-center text-ink-60">
             Don’t have an account?{" "}
             <span
-              className="text-instaRed ml-2 cursor-pointer"
+              className="text-brand ml-2 cursor-pointer"
               onClick={() => router.push("/signup")}>
               Sign up
             </span>

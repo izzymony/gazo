@@ -151,7 +151,7 @@ html {
 
   /* Brand — rgb channels so Tailwind's /opacity modifier composes.
      The pending rebrand is a one-line change here. */
-  --brand-rgb: 254 44 85;          /* #FE2C55 (instaRed) */
+  --brand-rgb: 254 44 85;          /* #FE2C55 — vibaar brand (change here to rebrand the color) */
   --brand: rgb(var(--brand-rgb));  /* convenience for inline styles / SVG fill+stroke */
   --brand-hover: #e02549;          /* pressed/hover shade already used in tour */
 

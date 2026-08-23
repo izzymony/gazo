@@ -374,7 +374,7 @@ const Page: React.FC = () => {
                       </p>
                       <p
                         onClick={() => router.push("/shop/recently-viewed")}
-                        className="text-caption md:text-body-sm font-medium text-instaRed cursor-pointer hover:underline">
+                        className="text-caption md:text-body-sm font-medium text-brand cursor-pointer hover:underline">
                         See all
                       </p>
                     </div>
@@ -437,7 +437,7 @@ const Page: React.FC = () => {
                     <p className="font-medium text-body md:text-body-lg">My wishlists</p>
                     <p
                       onClick={() => router.push("")}
-                      className="text-caption md:text-body-sm font-medium text-instaRed cursor-pointer hover:underline">
+                      className="text-caption md:text-body-sm font-medium text-brand cursor-pointer hover:underline">
                       See all
                     </p>
                   </div>
@@ -521,7 +521,7 @@ const Page: React.FC = () => {
                   </h1>
                   <p
                     onClick={() => router.push("/shop/spotlights")}
-                    className="text-instaRed font-medium text-caption md:text-body-sm cursor-pointer hover:underline">
+                    className="text-brand font-medium text-caption md:text-body-sm cursor-pointer hover:underline">
                     View spotlights
                   </p>
                 </div>

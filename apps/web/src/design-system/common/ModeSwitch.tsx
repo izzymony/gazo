@@ -54,7 +54,7 @@ const ModeSwitch = () => {
       <button
         onClick={handleSwitch}
         disabled={isDisabled}
-        className={`flex items-center gap-2 rounded-full shadow-pop px-4 py-3 w-max bg-instaRed text-white relative ${
+        className={`flex items-center gap-2 rounded-full shadow-pop px-4 py-3 w-max bg-brand text-white relative ${
           isDisabled ? "opacity-50 cursor-not-allowed" : ""
         }`}
       >

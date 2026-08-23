@@ -587,10 +587,10 @@ export default function SignUpOverview() {
                           <div
                             key={option?.title}
                             className={`text-ink-90 flex flex-row justify-center items-center cursor-pointer h-[52px] rounded-full ${option.isPrimary
-                              ? "bg-instaRed text-white hover:bg-brandHover"
+                              ? "bg-brand text-white hover:bg-brandHover"
                               : option.isSecondary
-                                ? "border border-instaRed text-instaRed hover:bg-instaRed hover:text-white"
-                                : "border border-ink-10 hover:border-instaRed"
+                                ? "border border-brand text-brand hover:bg-brand hover:text-white"
+                                : "border border-ink-10 hover:border-brand"
                               } ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}>
                             <div
                               onClick={
@@ -620,7 +620,7 @@ export default function SignUpOverview() {
                     {/* <div className="mt-2">
                       <div
                         onClick={buttonLoading.exploreMarketplace ? undefined : handleExploreMarketplaceClick}
-                        className={`text-ink-90 flex flex-row justify-between items-center cursor-pointer border border-ink-10 hover:border-instaRed h-[52px] rounded-full mx-auto min-w-[180px] ${buttonLoading.exploreMarketplace ? "opacity-70 cursor-not-allowed" : ""}`}>
+                        className={`text-ink-90 flex flex-row justify-between items-center cursor-pointer border border-ink-10 hover:border-brand h-[52px] rounded-full mx-auto min-w-[180px] ${buttonLoading.exploreMarketplace ? "opacity-70 cursor-not-allowed" : ""}`}>
                         <div
                           className="flex flex-row justify-between items-center mx-auto w-[180px]"
                           aria-busy={buttonLoading.exploreMarketplace}
@@ -682,10 +682,10 @@ export default function SignUpOverview() {
                             <div
                               key={option?.title}
                               className={`text-ink-90 flex flex-row justify-center items-center cursor-pointer h-14 rounded-full ${option.isPrimary
-                                ? "bg-instaRed text-white hover:bg-brandHover"
+                                ? "bg-brand text-white hover:bg-brandHover"
                                 : option.isSecondary
-                                  ? "border-2 border-instaRed text-instaRed hover:bg-instaRed hover:text-white"
-                                  : "border border-ink-10 hover:border-instaRed"
+                                  ? "border-2 border-brand text-brand hover:bg-brand hover:text-white"
+                                  : "border border-ink-10 hover:border-brand"
                                 } ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}>
                               <div
                                 onClick={
@@ -716,7 +716,7 @@ export default function SignUpOverview() {
                       {/* Explore Marketplace Button */}
                       {/* <div
                         onClick={buttonLoading.exploreMarketplace ? undefined : handleExploreMarketplaceClick}
-                        className={`text-ink-90 flex flex-row justify-center items-center cursor-pointer border border-ink-10 hover:border-instaRed h-14 rounded-full ${buttonLoading.exploreMarketplace ? "opacity-70 cursor-not-allowed" : ""}`}>
+                        className={`text-ink-90 flex flex-row justify-center items-center cursor-pointer border border-ink-10 hover:border-brand h-14 rounded-full ${buttonLoading.exploreMarketplace ? "opacity-70 cursor-not-allowed" : ""}`}>
                         <div
                           className="flex flex-row justify-center items-center gap-2"
                           aria-busy={buttonLoading.exploreMarketplace}
@@ -742,11 +742,11 @@ export default function SignUpOverview() {
                     <div className="mt-6">
                       <p className="text-body-sm text-ink-50 text-center">
                         By continuing, I agree to myInstashop's{" "} <br />
-                        <Link href="/terms" className="text-instaRed hover:underline">
+                        <Link href="/terms" className="text-brand hover:underline">
                           Terms of use
                         </Link>
                         {" "}and{" "}
-                        <Link href="/privacy" className="text-instaRed hover:underline">
+                        <Link href="/privacy" className="text-brand hover:underline">
                           Privacy Policy
                         </Link>
                       </p>

@@ -85,7 +85,7 @@ export default function DesktopNav() {
               disabled={isLoading || (loadingRoute !== null && !isActive)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-field text-body transition-all duration-200 disabled:opacity-50 ${
                 isActive
-                  ? "bg-instaRed/10 text-instaRed font-semibold"
+                  ? "bg-brand/10 text-brand font-semibold"
                   : "text-ink-60 hover:bg-ink-5 font-medium"
               }`}>
               {isLoading ? (
@@ -130,7 +130,7 @@ export default function DesktopNav() {
             // DISABLED: router.push("/shop");
           }}
           disabled
-          className="w-full flex items-center gap-2 px-4 py-3 rounded-full bg-instaRed text-white transition-colors shadow-pop opacity-50 cursor-not-allowed relative">
+          className="w-full flex items-center gap-2 px-4 py-3 rounded-full bg-brand text-white transition-colors shadow-pop opacity-50 cursor-not-allowed relative">
           <Image
             src="/icons/Switch-to-buying.svg"
             alt="Switch to buying"

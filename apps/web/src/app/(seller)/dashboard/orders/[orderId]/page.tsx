@@ -63,7 +63,7 @@ const ActivityText = ({
           className={`text-body-sm font-medium ${show
             ? `${title.toLowerCase() === "order delivered"
               ? "text-green"
-              : "text-instaRed"
+              : "text-brand"
             }`
             : "text-ink-60"
             }`}>
@@ -87,12 +87,12 @@ const Indicators = ({ show = false }: { show: boolean }) => {
         className={
           !show
             ? "h-[10px] border border-ink-20"
-            : "h-[10px] border border-instaRed"
+            : "h-[10px] border border-brand"
         }
       />
       {show ? (
-        <div className="w-4 h-4 rounded-full border border-instaRed bg-instaRed/10 flex justify-center items-center">
-          <div className="w-[10px] h-[10px] bg-instaRed rounded-full" />
+        <div className="w-4 h-4 rounded-full border border-brand bg-brand/10 flex justify-center items-center">
+          <div className="w-[10px] h-[10px] bg-brand rounded-full" />
         </div>
       ) : (
         <div className="w-4 h-4 rounded-full flex justify-center items-center">
@@ -214,7 +214,7 @@ const Cards = ({ order, buyerInfo }: { order: OrderDatas; buyerInfo?: {user_name
           </div>
           <button
             type="button"
-            className="border border-instaRed text-instaRed rounded-full py-1 px-2 text-caption font-medium">
+            className="border border-brand text-brand rounded-full py-1 px-2 text-caption font-medium">
             Send a message
           </button>
         </div>
@@ -231,7 +231,7 @@ const ProgressBar = ({ pick }: { pick: number }) => {
           key={item}
           className={
             item > 0 && item <= pick
-              ? " bg-instaRed h-full flex-1"
+              ? " bg-brand h-full flex-1"
               : "h-full flex-1"
           }
         />
@@ -507,7 +507,7 @@ const Order = ({ params }: { params: { orderId: string } }) => {
             {status ? (
               <div
                 onClick={() => setStatus(!status)}
-                className="flex justify-center items-center mt-2 text-instaRed font-medium text-body-sm">
+                className="flex justify-center items-center mt-2 text-brand font-medium text-body-sm">
                 Collapse timeline{" "}
                 <ChevronUp size={16} />
               </div>
@@ -516,7 +516,7 @@ const Order = ({ params }: { params: { orderId: string } }) => {
                 <div className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-white via-white to-transparent" />
                 <div
                   onClick={() => setStatus(!status)}
-                  className="flex justify-center items-center text-instaRed font-medium text-body-sm w-full absolute bottom-3 left-0 right-0 h-[40px]">
+                  className="flex justify-center items-center text-brand font-medium text-body-sm w-full absolute bottom-3 left-0 right-0 h-[40px]">
                   View full timeline{" "}
                   <ChevronDown size={16} />
                 </div>

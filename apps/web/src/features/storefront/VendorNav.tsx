@@ -51,13 +51,13 @@ const VendorNav = memo(({ isSeller }: Props) => {
             prefetch
             key={Array.isArray(route) ? route[0] : route}
             className={`flex items-center flex-col transition-colors ${
-              isActive ? "text-instaRed" : "text-ink-40"
+              isActive ? "text-brand" : "text-ink-40"
             }`}>
             <div className="relative">
               <Icon size={24} />
               {/* Show red dot only for cart route when there are items */}
               {isCartRoute && totalCartItems > 0 && (
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-instaRed border border-white rounded-full" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-brand border border-white rounded-full" />
               )}
             </div>
           </Link>

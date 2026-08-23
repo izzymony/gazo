@@ -15,7 +15,7 @@ export default function SearchField({ value, onChange, placeholder = "Search", c
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       className={cn(
-        "w-full p-2 border border-ink-10 rounded-field text-body text-ink-90 placeholder:text-ink-40 focus:outline-none focus:border-instaRed",
+        "w-full p-2 border border-ink-10 rounded-field text-body text-ink-90 placeholder:text-ink-40 focus:outline-none focus:border-brand",
         className
       )}
     />
