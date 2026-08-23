@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"insta-api/internal/helper"
+	"vibaar/backend/internal/helper"
 )
 
 type LogController struct{}

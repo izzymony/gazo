@@ -3,7 +3,7 @@ package ports
 import (
 	"time"
 
-	"insta-api/internal/core/domain"
+	"vibaar/backend/internal/core/domain"
 )
 
 type BusinessIface interface {

@@ -1,8 +1,8 @@
 package services
 
 import (
-	"insta-api/internal/adapter/api/requests"
-	"insta-api/internal/core/external_service/payments"
+	"vibaar/backend/internal/adapter/api/requests"
+	"vibaar/backend/internal/core/external_service/payments"
 )
 
 type BankService struct {

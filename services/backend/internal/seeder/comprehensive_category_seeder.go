@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"gorm.io/gorm"
-	"insta-api/internal/core/domain"
+	"vibaar/backend/internal/core/domain"
 )
 
 // CategoryData represents the complete category structure with Shipbubble mapping

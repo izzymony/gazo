@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"insta-api/internal/core/domain"
-	"insta-api/internal/ports"
+	"vibaar/backend/internal/core/domain"
+	"vibaar/backend/internal/ports"
 
 	"gorm.io/gorm"
 )

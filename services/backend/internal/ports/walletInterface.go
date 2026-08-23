@@ -2,7 +2,7 @@ package ports
 
 import (
 	"gorm.io/gorm"
-	"insta-api/internal/core/domain"
+	"vibaar/backend/internal/core/domain"
 )
 
 type WalletInterface interface {

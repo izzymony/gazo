@@ -1,7 +1,7 @@
 package response
 
 import (
-	"insta-api/internal/helper"
+	"vibaar/backend/internal/helper"
 )
 
 type Response struct {

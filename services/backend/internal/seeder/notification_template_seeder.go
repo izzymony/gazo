@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"gorm.io/gorm"
-	"insta-api/internal/core/domain"
-	"insta-api/internal/logger"
+	"vibaar/backend/internal/core/domain"
+	"vibaar/backend/internal/logger"
 )
 
 // SeedNotificationTemplates seeds the default notification templates

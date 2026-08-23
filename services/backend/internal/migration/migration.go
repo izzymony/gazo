@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"gorm.io/gorm"
-	"insta-api/internal/core/domain"
-	"insta-api/internal/database"
+	"vibaar/backend/internal/core/domain"
+	"vibaar/backend/internal/database"
 
 	log "github.com/sirupsen/logrus"
 )

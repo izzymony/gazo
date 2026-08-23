@@ -1,4 +1,4 @@
-module insta-api
+module vibaar/backend
 
 go 1.24.0
 

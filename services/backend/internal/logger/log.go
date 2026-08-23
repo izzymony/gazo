@@ -6,7 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
-	"insta-api/internal/helper"
+	"vibaar/backend/internal/helper"
 )
 
 func init() {

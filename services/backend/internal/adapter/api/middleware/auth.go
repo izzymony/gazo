@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"insta-api/internal/helper"
+	"vibaar/backend/internal/helper"
 
 	"github.com/gin-gonic/gin"
 )

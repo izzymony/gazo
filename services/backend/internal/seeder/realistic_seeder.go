@@ -2,8 +2,8 @@ package seeder
 
 import (
 	"log"
-	"insta-api/internal/core/domain"
-	"insta-api/internal/database"
+	"vibaar/backend/internal/core/domain"
+	"vibaar/backend/internal/database"
 	"golang.org/x/crypto/bcrypt"
 )
 

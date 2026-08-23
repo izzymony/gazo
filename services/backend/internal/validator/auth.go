@@ -2,8 +2,8 @@ package validators
 
 import (
 	"github.com/gin-gonic/gin"
-	"insta-api/internal/adapter/api/requests"
-	"insta-api/internal/helper"
+	"vibaar/backend/internal/adapter/api/requests"
+	"vibaar/backend/internal/helper"
 )
 
 type AuthValidator struct{}

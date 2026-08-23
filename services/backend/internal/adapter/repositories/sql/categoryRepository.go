@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"insta-api/internal/core/domain"
-	"insta-api/internal/helper"
-	"insta-api/internal/ports"
+	"vibaar/backend/internal/core/domain"
+	"vibaar/backend/internal/helper"
+	"vibaar/backend/internal/ports"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"

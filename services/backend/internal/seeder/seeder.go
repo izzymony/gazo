@@ -6,10 +6,10 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"insta-api/internal/core/domain"
-	"insta-api/internal/database"
-	"insta-api/internal/helper"
-	"insta-api/internal/logger"
+	"vibaar/backend/internal/core/domain"
+	"vibaar/backend/internal/database"
+	"vibaar/backend/internal/helper"
+	"vibaar/backend/internal/logger"
 )
 
 func SeedData() {

@@ -8,12 +8,12 @@ import (
 	"strings"
 	"time"
 
-	"insta-api/internal/adapter/api/requests"
-	mysql_repo "insta-api/internal/adapter/repositories/sql"
-	"insta-api/internal/core/domain"
-	"insta-api/internal/helper"
-	"insta-api/internal/logger"
-	"insta-api/internal/ports"
+	"vibaar/backend/internal/adapter/api/requests"
+	mysql_repo "vibaar/backend/internal/adapter/repositories/sql"
+	"vibaar/backend/internal/core/domain"
+	"vibaar/backend/internal/helper"
+	"vibaar/backend/internal/logger"
+	"vibaar/backend/internal/ports"
 
 	"gorm.io/gorm"
 )

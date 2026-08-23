@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"insta-api/internal/helper"
+	"vibaar/backend/internal/helper"
 
 	"github.com/go-playground/validator/v10"
 )

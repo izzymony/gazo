@@ -5,9 +5,9 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"insta-api/internal/adapter/api/requests"
-	"insta-api/internal/core/services"
-	"insta-api/internal/logger"
+	"vibaar/backend/internal/adapter/api/requests"
+	"vibaar/backend/internal/core/services"
+	"vibaar/backend/internal/logger"
 )
 
 type BankController struct {

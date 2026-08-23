@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"insta-api/internal/core/domain"
+	"vibaar/backend/internal/core/domain"
 )
 
 type ShipbubbleService struct {

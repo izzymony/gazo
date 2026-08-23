@@ -5,10 +5,10 @@ package main
 import (
 	"log"
 	"os"
-	"insta-api/internal/seeder"
+	"vibaar/backend/internal/seeder"
 	"github.com/joho/godotenv"
-	"insta-api/internal/database"
-	"insta-api/internal/migration"
+	"vibaar/backend/internal/database"
+	"vibaar/backend/internal/migration"
 )
 
 func main() {

@@ -2,8 +2,8 @@ package routes_v2
 
 import (
 	"github.com/gin-gonic/gin"
-	v2Controller "insta-api/internal/adapter/api/controller/v2"
-	"insta-api/internal/adapter/api/middleware"
+	v2Controller "vibaar/backend/internal/adapter/api/controller/v2"
+	"vibaar/backend/internal/adapter/api/middleware"
 )
 
 func ProductRoutes(router *gin.RouterGroup, productHandler *v2Controller.ProductController) {

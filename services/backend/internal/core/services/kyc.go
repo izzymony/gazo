@@ -7,10 +7,10 @@ import (
 	"io"
 
 	"gorm.io/gorm"
-	mysql_repo "insta-api/internal/adapter/repositories/sql"
-	"insta-api/internal/core/domain"
-	fileupload "insta-api/internal/core/external_service/file-upload"
-	"insta-api/internal/ports"
+	mysql_repo "vibaar/backend/internal/adapter/repositories/sql"
+	"vibaar/backend/internal/core/domain"
+	fileupload "vibaar/backend/internal/core/external_service/file-upload"
+	"vibaar/backend/internal/ports"
 )
 
 type KYCService struct {

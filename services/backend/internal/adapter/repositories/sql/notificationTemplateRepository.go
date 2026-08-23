@@ -2,8 +2,8 @@ package mysql_repo
 
 import (
 	"gorm.io/gorm"
-	"insta-api/internal/core/domain"
-	"insta-api/internal/ports"
+	"vibaar/backend/internal/core/domain"
+	"vibaar/backend/internal/ports"
 )
 
 type NotificationTemplateRepository struct {

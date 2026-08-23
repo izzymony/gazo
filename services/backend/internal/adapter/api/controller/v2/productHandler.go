@@ -8,9 +8,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"insta-api/internal/adapter/api/response"
-	"insta-api/internal/core/services"
-	"insta-api/internal/helper"
+	"vibaar/backend/internal/adapter/api/response"
+	"vibaar/backend/internal/core/services"
+	"vibaar/backend/internal/helper"
 )
 
 type ProductController struct {

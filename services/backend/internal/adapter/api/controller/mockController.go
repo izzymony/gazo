@@ -8,8 +8,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"insta-api/internal/adapter/api/requests"
-	"insta-api/internal/core/services"
+	"vibaar/backend/internal/adapter/api/requests"
+	"vibaar/backend/internal/core/services"
 )
 
 type MockController struct{}

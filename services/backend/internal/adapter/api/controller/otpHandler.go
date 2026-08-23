@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"insta-api/internal/adapter/api/response"
-	"insta-api/internal/core/domain"
-	"insta-api/internal/core/services"
-	"insta-api/internal/logger"
+	"vibaar/backend/internal/adapter/api/response"
+	"vibaar/backend/internal/core/domain"
+	"vibaar/backend/internal/core/services"
+	"vibaar/backend/internal/logger"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

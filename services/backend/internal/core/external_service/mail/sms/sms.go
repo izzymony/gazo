@@ -1,6 +1,6 @@
 package sms
 
-import "insta-api/internal/ports"
+import "vibaar/backend/internal/ports"
 
 type SMS interface {
 	Send(msg, recipients string) (*SMSResponse, error)

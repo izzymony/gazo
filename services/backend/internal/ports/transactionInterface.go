@@ -1,6 +1,6 @@
 package ports
 
-import "insta-api/internal/core/domain"
+import "vibaar/backend/internal/core/domain"
 
 type TransactionRepoInterface interface {
 	Create(data *domain.Transaction, isGuest bool) (*domain.Transaction, error)

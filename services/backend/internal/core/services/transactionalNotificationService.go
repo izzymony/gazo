@@ -16,10 +16,10 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-	mysql_repo "insta-api/internal/adapter/repositories/sql"
-	"insta-api/internal/core/domain"
-	"insta-api/internal/logger"
-	"insta-api/internal/ports"
+	mysql_repo "vibaar/backend/internal/adapter/repositories/sql"
+	"vibaar/backend/internal/core/domain"
+	"vibaar/backend/internal/logger"
+	"vibaar/backend/internal/ports"
 )
 
 // Timeout configuration for each channel

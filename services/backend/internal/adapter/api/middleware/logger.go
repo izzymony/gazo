@@ -4,8 +4,8 @@ import (
 	"strings"
 	"time"
 
-	"insta-api/internal/helper"
-	"insta-api/internal/logger"
+	"vibaar/backend/internal/helper"
+	"vibaar/backend/internal/logger"
 
 	"github.com/gin-gonic/gin"
 )

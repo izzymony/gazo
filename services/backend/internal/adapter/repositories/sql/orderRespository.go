@@ -1,9 +1,9 @@
 package mysql_repo
 
 import (
-	"insta-api/internal/core/domain"
-	"insta-api/internal/helper"
-	"insta-api/internal/ports"
+	"vibaar/backend/internal/core/domain"
+	"vibaar/backend/internal/helper"
+	"vibaar/backend/internal/ports"
 	"time"
 
 	"gorm.io/gorm"

@@ -1,7 +1,7 @@
 package ports
 
 import (
-	"insta-api/internal/core/domain"
+	"vibaar/backend/internal/core/domain"
 )
 
 // NotificationTemplateInterface defines methods for managing notification templates

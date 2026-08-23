@@ -2,9 +2,9 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"insta-api/internal/adapter/api/controller"
-	"insta-api/internal/adapter/api/middleware"
-	v2Route "insta-api/internal/adapter/api/routes/v2"
+	"vibaar/backend/internal/adapter/api/controller"
+	"vibaar/backend/internal/adapter/api/middleware"
+	v2Route "vibaar/backend/internal/adapter/api/routes/v2"
 )
 
 func RegisterRoutes(router *gin.Engine, handler *controller.HTTPHandler) {

@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"insta-api/internal/adapter/api/controller"
+	"vibaar/backend/internal/adapter/api/controller"
 )
 
 func MockRoutes(router *gin.Engine, mockHandler *controller.MockController) {

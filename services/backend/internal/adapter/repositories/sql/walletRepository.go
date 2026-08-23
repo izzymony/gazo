@@ -6,8 +6,8 @@ import (
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"insta-api/internal/core/domain"
-	"insta-api/internal/ports"
+	"vibaar/backend/internal/core/domain"
+	"vibaar/backend/internal/ports"
 )
 
 type WalletRepository struct {

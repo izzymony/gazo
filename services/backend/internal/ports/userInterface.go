@@ -1,6 +1,6 @@
 package ports
 
-import "insta-api/internal/core/domain"
+import "vibaar/backend/internal/core/domain"
 
 type UserRepoInterface interface {
 	Create(data *domain.User) (domain.User, error)

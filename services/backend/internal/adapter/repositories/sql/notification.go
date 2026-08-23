@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"gorm.io/gorm"
-	"insta-api/internal/core/domain"
-	"insta-api/internal/ports"
+	"vibaar/backend/internal/core/domain"
+	"vibaar/backend/internal/ports"
 )
 
 type NotificationRepository struct {

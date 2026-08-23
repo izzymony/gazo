@@ -1,6 +1,6 @@
 package ports
 
-import "insta-api/internal/core/domain"
+import "vibaar/backend/internal/core/domain"
 
 type OtpRepoIface interface {
 	Create(data *domain.OTP) (domain.OTP, error)

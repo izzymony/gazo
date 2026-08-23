@@ -5,7 +5,7 @@ import (
 
 	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
-	"insta-api/internal/ports"
+	"vibaar/backend/internal/ports"
 )
 
 func StartCron(db *gorm.DB, walletRepo ports.WalletInterface, productRepo ports.ProductRepoIface, orderRepo ports.OrderRepoInterface) {

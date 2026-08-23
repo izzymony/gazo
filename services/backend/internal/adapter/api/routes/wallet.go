@@ -2,8 +2,8 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"insta-api/internal/adapter/api/controller"
-	"insta-api/internal/adapter/api/middleware"
+	"vibaar/backend/internal/adapter/api/controller"
+	"vibaar/backend/internal/adapter/api/middleware"
 )
 
 func WalletRoutes(router *gin.RouterGroup, walletHandler *controller.WalletController) {

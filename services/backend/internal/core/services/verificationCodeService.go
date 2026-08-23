@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-	mysql_repo "insta-api/internal/adapter/repositories/sql"
-	"insta-api/internal/core/domain"
-	"insta-api/internal/logger"
-	"insta-api/internal/core/external_service/smtp"
-	"insta-api/internal/helper"
-	"insta-api/internal/ports"
+	mysql_repo "vibaar/backend/internal/adapter/repositories/sql"
+	"vibaar/backend/internal/core/domain"
+	"vibaar/backend/internal/logger"
+	"vibaar/backend/internal/core/external_service/smtp"
+	"vibaar/backend/internal/helper"
+	"vibaar/backend/internal/ports"
 )
 
 type VerificationCodeService struct {

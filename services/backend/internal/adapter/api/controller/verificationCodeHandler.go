@@ -5,10 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"insta-api/internal/adapter/api/response"
-	"insta-api/internal/core/services"
-	"insta-api/internal/helper"
-	"insta-api/internal/logger"
+	"vibaar/backend/internal/adapter/api/response"
+	"vibaar/backend/internal/core/services"
+	"vibaar/backend/internal/helper"
+	"vibaar/backend/internal/logger"
 )
 
 type VerificationCodeController struct {

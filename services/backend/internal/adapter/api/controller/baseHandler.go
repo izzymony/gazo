@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"insta-api/internal/logger"
+	"vibaar/backend/internal/logger"
 
 	"github.com/gin-gonic/gin"
 )

@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 
-	"insta-api/internal/adapter/api/requests"
-	mysql_repo "insta-api/internal/adapter/repositories/sql"
-	"insta-api/internal/core/domain"
-	fileupload "insta-api/internal/core/external_service/file-upload"
-	"insta-api/internal/helper"
-	"insta-api/internal/ports"
+	"vibaar/backend/internal/adapter/api/requests"
+	mysql_repo "vibaar/backend/internal/adapter/repositories/sql"
+	"vibaar/backend/internal/core/domain"
+	fileupload "vibaar/backend/internal/core/external_service/file-upload"
+	"vibaar/backend/internal/helper"
+	"vibaar/backend/internal/ports"
 
 	"gorm.io/gorm"
 )

@@ -1,6 +1,6 @@
 package ports
 
-import "insta-api/internal/core/domain"
+import "vibaar/backend/internal/core/domain"
 
 type ReferralRepoInterface interface {
 	// User lookups

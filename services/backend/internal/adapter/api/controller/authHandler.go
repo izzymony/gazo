@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"net/url"
 
-	"insta-api/internal/adapter/api/requests"
-	"insta-api/internal/adapter/api/response"
-	"insta-api/internal/core/services"
-	"insta-api/internal/logger"
+	"vibaar/backend/internal/adapter/api/requests"
+	"vibaar/backend/internal/adapter/api/response"
+	"vibaar/backend/internal/core/services"
+	"vibaar/backend/internal/logger"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

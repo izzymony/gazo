@@ -6,10 +6,10 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
-	"insta-api/internal/adapter/api/requests"
-	"insta-api/internal/core/domain"
-	"insta-api/internal/core/services"
-	"insta-api/internal/helper"
+	"vibaar/backend/internal/adapter/api/requests"
+	"vibaar/backend/internal/core/domain"
+	"vibaar/backend/internal/core/services"
+	"vibaar/backend/internal/helper"
 )
 
 // pendingSweepAfter: a pending transaction is only re-checked once its checkout

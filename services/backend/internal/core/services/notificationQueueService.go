@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"insta-api/internal/core/domain"
-	"insta-api/internal/logger"
+	"vibaar/backend/internal/core/domain"
+	"vibaar/backend/internal/logger"
 )
 
 // NotificationJob represents a notification to be processed

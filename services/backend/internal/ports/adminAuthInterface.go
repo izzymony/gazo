@@ -2,7 +2,7 @@ package ports
 
 import (
 	"time"
-	"insta-api/internal/core/domain"
+	"vibaar/backend/internal/core/domain"
 )
 
 // AdminAuthInterface defines the contract for admin authentication operations
