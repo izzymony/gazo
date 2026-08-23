@@ -253,6 +253,9 @@ importers:
       '@types/canvas-confetti':
         specifier: ^1.9.0
         version: 1.9.0
+      '@vibaar/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       axios:
         specifier: ^1.7.7
         version: 1.19.0
@@ -346,6 +349,8 @@ importers:
         version: 5.7.2
 
   packages/config: {}
+
+  packages/types: {}
 
   packages/utils:
     dependencies:
