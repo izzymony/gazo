@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    /* InstaShop Admin Light Theme */
+    /* Vibaar Admin Light Theme */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     
@@ -44,7 +44,7 @@
   }
 
   .dark {
-    /* InstaShop Admin Dark Theme */
+    /* Vibaar Admin Dark Theme */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
     
