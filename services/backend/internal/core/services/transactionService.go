@@ -343,7 +343,9 @@ func (s *TransactionService) Verify(input requests.VerifyTransaction, isGuest bo
 
 			newUpdatedItem.Status = string(helper.OrderStatusPaymentConfirmed)
 			newUpdatedItem.StatusUpdatedAt = time.Now()
-			_, err = s.orderRepo.UpdateOrderItem(newUpdatedItem.ID, *newUpdatedItem, false)
+			// R7: guest items live in order_items_guest — pass isGuest so a guest
+			// checkout's item actually flips to payment_confirmed (was hardcoded false).
+			_, err = s.orderRepo.UpdateOrderItem(newUpdatedItem.ID, *newUpdatedItem, isGuest)
 			if err != nil {
 				return nil, fmt.Errorf("something went wrong")
 			}

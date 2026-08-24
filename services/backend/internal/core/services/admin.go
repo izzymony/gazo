@@ -669,10 +669,19 @@ func (s *AdminService) UpdateShippingStatus(orderItemID, status, reason, notes s
 		})
 
 	case "completed":
-		// CRITICAL: Only credit seller wallet if not already credited (idempotency check)
-		if !item.VendorCredited {
+		// R4 idempotency: guard on an ATOMIC claim, not vendor_credited (which is
+		// only set later by the release cron, so it is always false here — the old
+		// guard was cosmetic and a repeat "completed" double-credited).
+		prevStatus, prevStatusAt := item.Status, item.StatusUpdatedAt
+		claimed, cerr := s.orderRepo.ClaimOrderItemDelivered(item.ID, false)
+		if cerr != nil {
+			return nil, fmt.Errorf("something went wrong")
+		}
+		if claimed {
 			// Admin shipping-status path is non-guest (item/order fetched authed).
 			if err := s.walletService.MoveToClearingFromOrders(item, float64(item.Quantity)*item.Price, false); err != nil {
+				// Roll the claim back so funds are never left delivered-without-credit.
+				_, _ = s.orderRepo.UpdateOrderItemStatus(item.ID, prevStatus, prevStatusAt, false)
 				logger.Error(fmt.Sprintf("Failed to credit seller wallet: %v", err))
 				return nil, fmt.Errorf("failed to credit seller wallet: %w", err)
 			}

@@ -233,7 +233,21 @@ func (s *WebhookService) ShipbubbleWebhook(payload requests.ShipbubbleWebhookReq
 		for _, item := range items {
 			// Shipbubble webhook is a non-guest path (shipment/items/order all
 			// looked up in the authed tables above).
+			//
+			// R3 idempotency: webhooks are at-least-once. Atomically claim the
+			// delivered transition so a redelivered "completed" event is a no-op —
+			// only the winning call credits the seller.
+			prevStatus, prevStatusAt := item.Status, item.StatusUpdatedAt
+			claimed, cerr := s.orderRepo.ClaimOrderItemDelivered(item.ID, false)
+			if cerr != nil {
+				return fmt.Errorf("something went wrong")
+			}
+			if !claimed {
+				continue // already delivered — skip credit + duplicate activities
+			}
 			if err := s.walletService.MoveToClearingFromOrders(&item, float64(item.Quantity)*item.Price, false); err != nil {
+				// Roll the claim back so funds are never left delivered-without-credit.
+				_, _ = s.orderRepo.UpdateOrderItemStatus(item.ID, prevStatus, prevStatusAt, false)
 				return fmt.Errorf("something went wrong")
 			}
 			_, err = s.orderRepo.AppendActivity(item.ID, domain.OrderActivity{

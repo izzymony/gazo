@@ -36,14 +36,12 @@ func CORS() gin.HandlerFunc {
 			} else {
 				// Default allowed origins for production
 				allowedOrigins = map[string]bool{
-					"http://localhost:3000":                              true,
-					"http://localhost:3001":                              true,
-					"http://127.0.0.1:3000":                              true,
-					"http://127.0.0.1:3001":                              true,
-					"https://instashop-web.vercel.app":                   true,
-					"https://instashop-web-git-main-instashop.vercel.app": true,
-					"https://vibaar.com":                             true,
-					"https://www.vibaar.com":                         true,
+					"http://localhost:3000":  true,
+					"http://localhost:3001":  true,
+					"http://127.0.0.1:3000":  true,
+					"http://127.0.0.1:3001":  true,
+					"https://vibaar.com":     true,
+					"https://www.vibaar.com": true,
 				}
 			}
 
@@ -54,7 +52,7 @@ func CORS() gin.HandlerFunc {
 				c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 			} else {
 				// In production, be restrictive - only allow known origins
-				c.Writer.Header().Set("Access-Control-Allow-Origin", "https://instashop-web.vercel.app")
+				c.Writer.Header().Set("Access-Control-Allow-Origin", "https://vibaar.com")
 			}
 		}
 

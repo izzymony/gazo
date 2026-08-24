@@ -30,12 +30,8 @@ const nextConfig = {
         port: '8088',
         pathname: '/uploads/**',
       },
-      {
-        protocol: 'https',
-        hostname: 'instashop-backend.onrender.com',
-        port: '',
-        pathname: '/uploads/**',
-      },
+      // TODO(deploy): add the production vibaar backend image host here
+      // (was 'instashop-backend.onrender.com' — removed during rebrand).
     ],
   },
 
