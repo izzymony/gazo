@@ -178,6 +178,9 @@ importers:
       '@vibaar/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@vibaar/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
       axios:
         specifier: ^1.7.7
         version: 1.19.0

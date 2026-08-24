@@ -13,6 +13,7 @@
   "dependencies": {
     "@vibaar/types": "workspace:*",
     "@vibaar/api-client": "workspace:*",
+    "@vibaar/utils": "workspace:*",
     "@vibaar/design-tokens": "workspace:*",
     "@vibaar/ui": "workspace:*",
     "@heroicons/react": "^2.2.0",

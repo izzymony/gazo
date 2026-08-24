@@ -2,8 +2,8 @@
   "name": "@vibaar/admin",
   "version": "1.0.0",
   "private": true,
-  "description": "myInstaShop Admin Portal - Comprehensive backoffice administration system",
-  "author": "myInstaShop Development Team",
+  "description": "Vibaar Admin Portal - Comprehensive backoffice administration system",
+  "author": "Vibaar Development Team",
   "license": "MIT",
   "scripts": {
     "dev": "next dev -p 3001",
@@ -112,18 +112,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/myinstashop/instashop-admin.git"
+    "url": "git+https://github.com/vibaar/vibaar-admin.git"
   },
   "bugs": {
-    "url": "https://github.com/myinstashop/instashop-admin/issues"
+    "url": "https://github.com/vibaar/vibaar-admin/issues"
   },
-  "homepage": "https://admin.instashop.com",
+  "homepage": "https://admin.vibaar.com",
   "keywords": [
     "admin",
     "backoffice",
     "ecommerce",
     "nigeria",
-    "instashop",
+    "vibaar",
     "management",
     "nextjs",
     "typescript"
