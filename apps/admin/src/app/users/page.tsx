@@ -55,7 +55,7 @@ export default function UsersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [users, setUsers] = useState<User[]>([]);
   const [pagination, setPagination] = useState<any>(null);
-  const { loading, error, getUsers, updateUser, deleteUser } = useUsers();
+  const { loading, error, getUsers, deleteUser } = useUsers();
   const router = useRouter();
   const { isOpen, type, id, openPanel, closePanel } = useDetailPanel();
 
@@ -140,22 +140,18 @@ export default function UsersPage() {
   };
 
   // Action handlers
-  const handleToggleUserStatus = async (user: User) => {
-    const newStatus = user.business ? 'suspend' : 'disable'; // This is a placeholder
-    toast.promise(
-      updateUser(user.id, { status: newStatus }),
-      {
-        loading: `${newStatus === 'suspend' ? 'Suspending' : 'Disabling'} user...`,
-        success: `User ${newStatus === 'suspend' ? 'suspended' : 'disabled'} successfully`,
-        error: 'Failed to update user status'
-      }
-    );
-    fetchUsers(currentPage, searchTerm);
+  // R9: enable/disable user is not backed — the User model has no status column,
+  // so the old call (updateUser({status})) hit a non-existent column and always
+  // 500'd while showing a "Suspending…" spinner. The control is disabled in the
+  // UI; this stays an honest no-op (no fake success, no guaranteed-500 call).
+  const handleToggleUserStatus = (_user: User) => {
+    toast('User enable/disable is not available yet');
   };
 
-  const handleResetPassword = async (user: User) => {
-    // API call to send reset password email
-    toast.success(`Password reset email sent to ${user.email}`);
+  // R9: no reset-password backend — control is disabled. Honest no-op (was a
+  // fake "Password reset email sent" success toast).
+  const handleResetPassword = (_user: User) => {
+    toast('Password reset is not available yet');
   };
 
   const handleEditUser = (userId: string) => {
@@ -386,11 +382,12 @@ export default function UsersPage() {
                         </td>
                         <td className="py-4 px-6" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center space-x-2">
-                            {/* Primary Action: Enable/Disable */}
-                            <button 
-                              onClick={() => handleToggleUserStatus(user)}
-                              className="w-8 h-8 flex items-center justify-center rounded-full border border-yellow-200 text-yellow-600 hover:bg-yellow-50 transition-colors"
-                              title="Enable/Disable User"
+                            {/* Primary Action: Enable/Disable — disabled (no backend:
+                                the User model has no status column, so the call 500s). R9 */}
+                            <button
+                              disabled
+                              className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-300 cursor-not-allowed"
+                              title="Not available yet"
                             >
                               {user.business ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
                             </button>

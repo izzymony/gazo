@@ -30,12 +30,19 @@ class ApiClient {
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     
+    // R10: read the token fresh per request. This client is a module singleton
+    // constructed before login writes the token, so the constructor-cached value
+    // goes stale — a first login in a fresh browser fired unauthenticated.
+    const token =
+      typeof window !== 'undefined' ? localStorage.getItem('admin_token') : this.token;
+    this.token = token;
+
     const config: RequestInit = {
       ...options,
       headers: {
         'Content-Type': 'application/json',
         ...options.headers,
-        ...(this.token && { 'Authorization': `Bearer ${this.token}` }),
+        ...(token && { 'Authorization': `Bearer ${token}` }),
       },
     };
 
