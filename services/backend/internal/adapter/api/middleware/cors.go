@@ -42,8 +42,8 @@ func CORS() gin.HandlerFunc {
 					"http://127.0.0.1:3001":                              true,
 					"https://instashop-web.vercel.app":                   true,
 					"https://instashop-web-git-main-instashop.vercel.app": true,
-					"https://myinstashop.co":                             true,
-					"https://www.myinstashop.co":                         true,
+					"https://vibaar.com":                             true,
+					"https://www.vibaar.com":                         true,
 				}
 			}
 

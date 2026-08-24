@@ -179,7 +179,7 @@ func (s *AdminService) ApproveWithdrawal(requestID string) error {
 			BalanceBefore:   wallet.AvailableBalance,
 			BalanceAfter:    wallet.AvailableBalance - withdrawalRequest.Amount,
 			Beneficiary:     bankAccountDetails.AccountName,
-			From:            "InstaShop Wallet",
+			From:            "Vibaar Wallet",
 			To:              fmt.Sprintf("%s - %s", bankAccountDetails.Bank, bankAccountDetails.AccountNumber),
 		}
 		if err := tx.Create(transaction).Error; err != nil {

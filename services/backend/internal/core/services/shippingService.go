@@ -390,7 +390,7 @@ func (s *ShippingService) fetchCourierOptions(product *domain.Product, business 
 			Width:  productWidth,
 			Height: productHeight,
 		},
-		DeliveryInstructions: "delivery from InstaShop",
+		DeliveryInstructions: "delivery from Vibaar",
 	}
 	shipBubbleResponse, err := s.shipbubbleService.FetchShippingRates(req)
 	if err != nil {

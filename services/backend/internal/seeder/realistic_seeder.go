@@ -152,7 +152,7 @@ func SeedRealisticData() error {
 	adminUser := domain.User{
 		Firstname:    "Admin",
 		Lastname:     "User", 
-		Email:        "admin@instashop.local",
+		Email:        "admin@vibaar.local",
 		UserName:     "admin",
 		Phone:        "+1234567890",
 		Password:     string(hashedPassword),
@@ -167,7 +167,7 @@ func SeedRealisticData() error {
 	log.Println("✅ Realistic data seeding completed!")
 	log.Println("")
 	log.Println("📝 Admin Credentials:")
-	log.Println("  Email: admin@instashop.local")
+	log.Println("  Email: admin@vibaar.local")
 	log.Println("  Password: admin123")
 	log.Println("")
 	log.Println("🎯 Ready for realistic testing!")

@@ -97,7 +97,7 @@ var notifRegistry = map[string]NotifDef{
 	"buyer.chat.message": {Key: "buyer.chat.message", Tier: TierStandard, Badge: true, WhatsApp: false, Type: notifTypeOrder,
 		Title: "New message · {{from}}", Body: "You have a new reply. Tap to read.", Route: "/chat/{{chatId}}"},
 	"buyer.account.welcome": {Key: "buyer.account.welcome", Tier: TierAmbient, Badge: false, WhatsApp: false, Type: notifTypeSystem,
-		Title: "Welcome to myInstaShop", Body: "Start discovering stores and creators you'll love.", Route: "/shop", TxEvent: domain.EventWelcome},
+		Title: "Welcome to Vibaar", Body: "Start discovering stores and creators you'll love.", Route: "/shop", TxEvent: domain.EventWelcome},
 	"buyer.account.new_login": {Key: "buyer.account.new_login", Tier: TierCritical, Badge: true, WhatsApp: true, Type: notifTypeSystem,
 		Title: "New login · new device", Body: "Signed in from {{location}} just now. Wasn't you? Secure your account.", Route: "/profile/security", TxEvent: domain.EventSellerLoginAlert},
 

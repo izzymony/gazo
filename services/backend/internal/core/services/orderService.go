@@ -263,8 +263,8 @@ func (o *OrderService) sendOrderPlacedNotifications(order *domain.Order, item do
 
 	// Calculate order amount
 	amount := fmt.Sprintf("₦%.2f", order.Total)
-	trackingURL := fmt.Sprintf("https://myinstashop.com/orders/%s", item.ID)
-	orderURL := fmt.Sprintf("https://myinstashop.com/seller/orders/%s", item.ID)
+	trackingURL := fmt.Sprintf("https://vibaar.com/orders/%s", item.ID)
+	orderURL := fmt.Sprintf("https://vibaar.com/seller/orders/%s", item.ID)
 
 	// Send order confirmation to buyer (async, don't block order creation)
 	go func() {

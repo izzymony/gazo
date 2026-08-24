@@ -273,7 +273,7 @@ func SeedSubCategoryDefaults(db *gorm.DB) {
 func seedAdminUsers(db *gorm.DB) {
 	// Check if admin user already exists
 	var existingAdmin domain.AdminUser
-	result := db.Where("email = ?", "admin@instashop.com").First(&existingAdmin)
+	result := db.Where("email = ?", "admin@vibaar.com").First(&existingAdmin)
 	
 	if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		logger.Error(fmt.Sprintf("Error checking for existing admin: %v", result.Error))
@@ -290,7 +290,7 @@ func seedAdminUsers(db *gorm.DB) {
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		// Create new admin user
 		adminUser := domain.AdminUser{
-			Email:        "admin@instashop.com",
+			Email:        "admin@vibaar.com",
 			PasswordHash: string(hashedPassword),
 			Name:         "System Administrator",
 			Role:         "super_admin",
@@ -303,7 +303,7 @@ func seedAdminUsers(db *gorm.DB) {
 			return
 		}
 		
-		logger.Info("✅ Created admin user: admin@instashop.com with password: admin123456")
+		logger.Info("✅ Created admin user: admin@vibaar.com with password: admin123456")
 	} else {
 		// Update existing admin user with known password
 		existingAdmin.PasswordHash = string(hashedPassword)
@@ -317,6 +317,6 @@ func seedAdminUsers(db *gorm.DB) {
 			return
 		}
 		
-		logger.Info("✅ Updated admin user: admin@instashop.com with password: admin123456")
+		logger.Info("✅ Updated admin user: admin@vibaar.com with password: admin123456")
 	}
 }

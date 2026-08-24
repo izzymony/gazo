@@ -4,7 +4,7 @@ import "time"
 
 // AdminLoginRequest represents the request payload for admin login
 type AdminLoginRequest struct {
-	Email    string `json:"email" binding:"required,email" example:"admin@instashop.com"`
+	Email    string `json:"email" binding:"required,email" example:"admin@vibaar.com"`
 	Password string `json:"password" binding:"required,min=6" example:"password123"`
 	Remember bool   `json:"remember" example:"false"`
 }
@@ -12,7 +12,7 @@ type AdminLoginRequest struct {
 // UpdateAdminProfileRequest represents the request payload for updating admin profile
 type UpdateAdminProfileRequest struct {
 	Name  string `json:"name,omitempty" binding:"omitempty,min=2,max=255" example:"John Doe"`
-	Email string `json:"email,omitempty" binding:"omitempty,email" example:"admin@instashop.com"`
+	Email string `json:"email,omitempty" binding:"omitempty,email" example:"admin@vibaar.com"`
 }
 
 // ChangeAdminPasswordRequest represents the request payload for changing admin password
@@ -24,7 +24,7 @@ type ChangeAdminPasswordRequest struct {
 
 // AdminUserCreateRequest represents the request payload for creating new admin user
 type AdminUserCreateRequest struct {
-	Email       string                 `json:"email" binding:"required,email" example:"admin@instashop.com"`
+	Email       string                 `json:"email" binding:"required,email" example:"admin@vibaar.com"`
 	Name        string                 `json:"name" binding:"required,min=2,max=255" example:"John Doe"`
 	Role        string                 `json:"role" binding:"required,oneof=super_admin admin operations support financial" example:"operations"`
 	Permissions map[string]interface{} `json:"permissions,omitempty" example:"{}"`

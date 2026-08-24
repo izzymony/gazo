@@ -23,7 +23,7 @@ func SeedNotificationTemplates(db *gorm.DB) error {
 			EventType:          string(domain.EventOrderPlaced),
 			Channel:            string(domain.ChannelWhatsApp),
 			Subject:            "",
-			Body:               "Hi {{buyer_name}}! 🎉\n\nYour order #{{order_id}} from {{store_name}} is confirmed!\n\n💰 Total: {{amount}}\n📦 Track your order: {{tracking_url}}\n\nThank you for shopping with myINSTASHOP!",
+			Body:               "Hi {{buyer_name}}! 🎉\n\nYour order #{{order_id}} from {{store_name}} is confirmed!\n\n💰 Total: {{amount}}\n📦 Track your order: {{tracking_url}}\n\nThank you for shopping with Vibaar!",
 			WhatsAppTemplateID: "", // To be filled when Meta approves template
 			Variables:          domain.Map{"buyer_name": "string", "order_id": "string", "store_name": "string", "amount": "string", "tracking_url": "string"},
 			IsActive:           true,
@@ -45,7 +45,7 @@ func SeedNotificationTemplates(db *gorm.DB) error {
 <p>Your order <strong>#{{order_id}}</strong> from <strong>{{store_name}}</strong> has been confirmed!</p>
 <p><strong>Total:</strong> {{amount}}</p>
 <p><a href="{{tracking_url}}" class="btn">Track Your Order</a></p>
-<p>Thank you for shopping with myINSTASHOP!</p>
+<p>Thank you for shopping with Vibaar!</p>
 </div>
 </body>
 </html>`,
@@ -59,7 +59,7 @@ func SeedNotificationTemplates(db *gorm.DB) error {
 			EventType: string(domain.EventOrderPlaced),
 			Channel:   string(domain.ChannelSMS),
 			Subject:   "",
-			Body:      "myINSTASHOP: Order #{{order_id}} confirmed! Total: {{amount}}. Track: {{tracking_url}}",
+			Body:      "Vibaar: Order #{{order_id}} confirmed! Total: {{amount}}. Track: {{tracking_url}}",
 			Variables: domain.Map{"order_id": "string", "amount": "string", "tracking_url": "string"},
 			IsActive:  true,
 			Priority:  3,
@@ -105,7 +105,7 @@ func SeedNotificationTemplates(db *gorm.DB) error {
 			EventType: string(domain.EventOrderShipped),
 			Channel:   string(domain.ChannelSMS),
 			Subject:   "",
-			Body:      "myINSTASHOP: Order #{{order_id}} shipped! Est. delivery: {{delivery_date}}. Track: {{tracking_url}}",
+			Body:      "Vibaar: Order #{{order_id}} shipped! Est. delivery: {{delivery_date}}. Track: {{tracking_url}}",
 			Variables: domain.Map{"order_id": "string", "delivery_date": "string", "tracking_url": "string"},
 			IsActive:  true,
 			Priority:  3,
@@ -158,7 +158,7 @@ func SeedNotificationTemplates(db *gorm.DB) error {
 			EventType: string(domain.EventNewOrderSeller),
 			Channel:   string(domain.ChannelSMS),
 			Subject:   "",
-			Body:      "myINSTASHOP: New order from {{buyer_name}}! Amount: {{amount}}. View: {{order_url}}",
+			Body:      "Vibaar: New order from {{buyer_name}}! Amount: {{amount}}. View: {{order_url}}",
 			Variables: domain.Map{"buyer_name": "string", "amount": "string", "order_url": "string"},
 			IsActive:  true,
 			Priority:  3,
@@ -185,7 +185,7 @@ func SeedNotificationTemplates(db *gorm.DB) error {
 			Name:      "password_reset_otp_email",
 			EventType: string(domain.EventPasswordResetOTP),
 			Channel:   string(domain.ChannelEmail),
-			Subject:   "Password Reset Code - myINSTASHOP",
+			Subject:   "Password Reset Code - Vibaar",
 			Body: `<!DOCTYPE html>
 <html>
 <head><style>body{font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px}.header{background:#dc3545;color:white;padding:20px;text-align:center}.content{padding:20px;text-align:center}.code{font-size:32px;font-weight:bold;letter-spacing:8px;background:#f8f9fa;padding:20px;border-radius:8px;margin:20px 0}</style></head>
@@ -209,7 +209,7 @@ func SeedNotificationTemplates(db *gorm.DB) error {
 			EventType: string(domain.EventPasswordResetOTP),
 			Channel:   string(domain.ChannelSMS),
 			Subject:   "",
-			Body:      "myINSTASHOP: Your password reset code is {{otp_code}}. Expires in 10 mins.",
+			Body:      "Vibaar: Your password reset code is {{otp_code}}. Expires in 10 mins.",
 			Variables: domain.Map{"otp_code": "string"},
 			IsActive:  true,
 			Priority:  3,
@@ -232,7 +232,7 @@ func SeedNotificationTemplates(db *gorm.DB) error {
 			Name:      "withdrawal_otp_email",
 			EventType: string(domain.EventWithdrawalOTP),
 			Channel:   string(domain.ChannelEmail),
-			Subject:   "Withdrawal Verification Code - myINSTASHOP",
+			Subject:   "Withdrawal Verification Code - Vibaar",
 			Body: `<!DOCTYPE html>
 <html>
 <head><style>body{font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px}.header{background:#28a745;color:white;padding:20px;text-align:center}.content{padding:20px;text-align:center}.code{font-size:32px;font-weight:bold;letter-spacing:8px;background:#f8f9fa;padding:20px;border-radius:8px;margin:20px 0}</style></head>
@@ -256,7 +256,7 @@ func SeedNotificationTemplates(db *gorm.DB) error {
 			EventType: string(domain.EventWithdrawalOTP),
 			Channel:   string(domain.ChannelSMS),
 			Subject:   "",
-			Body:      "myINSTASHOP: Withdrawal code {{otp_code}} for {{amount}}. Expires in 10 mins.",
+			Body:      "Vibaar: Withdrawal code {{otp_code}} for {{amount}}. Expires in 10 mins.",
 			Variables: domain.Map{"otp_code": "string", "amount": "string"},
 			IsActive:  true,
 			Priority:  3,
@@ -279,7 +279,7 @@ func SeedNotificationTemplates(db *gorm.DB) error {
 			Name:      "seller_login_alert_email",
 			EventType: string(domain.EventSellerLoginAlert),
 			Channel:   string(domain.ChannelEmail),
-			Subject:   "⚠️ New Login to Your myINSTASHOP Account",
+			Subject:   "⚠️ New Login to Your Vibaar Account",
 			Body: `<!DOCTYPE html>
 <html>
 <head><style>body{font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px}.header{background:#ffc107;padding:20px;text-align:center}.content{padding:20px}.alert{background:#fff3cd;border:1px solid #ffeeba;padding:15px;border-radius:4px;margin:15px 0}</style></head>
@@ -305,7 +305,7 @@ func SeedNotificationTemplates(db *gorm.DB) error {
 			EventType: string(domain.EventSellerLoginAlert),
 			Channel:   string(domain.ChannelSMS),
 			Subject:   "",
-			Body:      "myINSTASHOP: New login from {{device_info}} at {{time}}. Not you? Secure your account now.",
+			Body:      "Vibaar: New login from {{device_info}} at {{time}}. Not you? Secure your account now.",
 			Variables: domain.Map{"device_info": "string", "time": "string"},
 			IsActive:  true,
 			Priority:  3,

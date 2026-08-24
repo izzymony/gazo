@@ -150,7 +150,7 @@ func (s *WalletService) CreditForOrderInProgress(orderItem *domain.OrderItem, am
 		BalanceAfter:    wallet.OrdersInProgress + amount,
 		Status:          "completed",
 		Beneficiary:     business.Name,
-		From:            "Instashop",
+		From:            "Vibaar",
 		To:              string(helper.OrdersInProgressTransactionType),
 		Metadata: domain.MapArray{
 			{"order_item_id": orderItem.ID},

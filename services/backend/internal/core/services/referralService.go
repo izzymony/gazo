@@ -46,7 +46,7 @@ func (s *ReferralService) CreditSignupBonus(userID string) error {
 			Remaining:   domain.SignupBonusAmount,
 			Type:        domain.CreditTypeSignupBonus,
 			Source:      domain.CreditSourceSignup,
-			Description: "₦1,000 welcome bonus - thank you for joining myInstaShop!",
+			Description: "₦1,000 welcome bonus - thank you for joining Vibaar!",
 		}
 		if err := txRepo.CreateCreditEntry(entry); err != nil {
 			return fmt.Errorf("failed to create signup bonus credit entry: %w", err)
@@ -397,7 +397,7 @@ func (s *ReferralService) GetReferralInfo(userID string) (*domain.ReferralInfo, 
 
 	info := &domain.ReferralInfo{
 		ReferralID:             "@" + user.UserName,
-		ReferralLink:           fmt.Sprintf("https://myinstashop.co/signup?ref=%s", user.UserName),
+		ReferralLink:           fmt.Sprintf("https://vibaar.com/signup?ref=%s", user.UserName),
 		ShoppingCredit:         user.ShoppingCredit,
 		WithdrawableCredit:     user.WithdrawableCredit,
 		TotalCredit:            user.ShoppingCredit + user.WithdrawableCredit,

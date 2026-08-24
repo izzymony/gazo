@@ -75,14 +75,14 @@ func (s *TwilioService) SendEmailOTP(to, otp, templateId string) error {
 	form.Set("Channel", "email")
 	if templateId != "" {
 		channelConfig := map[string]interface{}{
-			"from":        "hello@getinstashop.co",
-			"from_name":   "InstaShop",
+			"from":        "hello@vibaar.com",
+			"from_name":   "Vibaar",
 			"template_id": templateId,
 			"template_parameters": map[string]string{
 				"twilio_code": otp,
 				"year":        strconv.Itoa(time.Now().Year()),
 			},
-			"subject": "Your OTP Code for Instashop",
+			"subject": "Your OTP Code for Vibaar",
 		}
 		configJSON, err := json.Marshal(channelConfig)
 		if err != nil {
@@ -164,7 +164,7 @@ func (s *TwilioService) SendWhatsAppOTP(to, code string) error {
 
 func (s *TwilioService) SendSMSOTP(to, code string) error {
 	twilioURL := fmt.Sprintf("https://api.twilio.com/2010-04-01/Accounts/%s/Messages.json", s.AccountSID)
-	body := fmt.Sprintf("Your Instashop verification code is %s. This code will expire in 10 minutes.", code)
+	body := fmt.Sprintf("Your Vibaar verification code is %s. This code will expire in 10 minutes.", code)
 	form := url.Values{}
 	form.Set("To", to)
 	form.Set("Body", body)

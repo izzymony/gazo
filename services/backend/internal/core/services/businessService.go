@@ -788,7 +788,7 @@ func (s *BusinessService) sendShippingNotification(order *domain.Order, item dom
 		return
 	}
 
-	trackingURL := fmt.Sprintf("https://myinstashop.com/orders/%s", item.ID)
+	trackingURL := fmt.Sprintf("https://vibaar.com/orders/%s", item.ID)
 	deliveryDate := time.Now().AddDate(0, 0, 3).Format("January 2, 2006") // Estimated 3 days
 
 	// Send async to not block the main flow
