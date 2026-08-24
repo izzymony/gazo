@@ -20,6 +20,7 @@ import (
 )
 
 type TransactionService struct {
+	db                  *gorm.DB
 	transactionRepo     ports.TransactionRepoInterface
 	orderRepo           ports.OrderRepoInterface
 	userRepo            ports.UserRepoInterface
@@ -35,6 +36,7 @@ type TransactionService struct {
 
 func NewTransactionService(db *gorm.DB) *TransactionService {
 	return &TransactionService{
+		db:                  db,
 		transactionRepo:     mysql_repo.NewTransactionRepository(db),
 		orderRepo:           mysql_repo.NewOrderRepository(db),
 		userRepo:            mysql_repo.NewUserRepository(db),
@@ -267,103 +269,105 @@ func (s *TransactionService) Verify(input requests.VerifyTransaction, isGuest bo
 	// fmt.Println("paymentResponse.Data.Status; ", paymentResponse.Data.Status)
 
 	if paymentResponse.Data.Status == string(helper.PaymentSuccessful) {
+		// R6: run the confirm->credit sequence in ONE DB transaction so a mid-loop
+		// failure can't leave some items credited and others not. Any error rolls
+		// the whole thing back (including the payment claim), so the reconcile cron
+		// or a client retry re-processes cleanly. Paystack verify (above) and the
+		// best-effort notifications + referral (below) stay outside the tx.
+		var alreadyProcessed bool
+		txErr := s.db.Transaction(func(tx *gorm.DB) error {
+			txTxnRepo := mysql_repo.NewTransactionRepository(tx)
+			txOrderRepo := mysql_repo.NewOrderRepository(tx)
+			txProductRepo := mysql_repo.NewProductRepository(tx)
+			txOrderService := NewOrderService(tx)
+			txWallet := NewWalletService(tx)
 
-		if len(transaction.Payload) > 0 {
-			// Order-on-success: the order does not exist yet. Atomically claim the
-			// transaction (pending->success) so exactly ONE of the racing client-verify
-			// / Paystack-webhook creates the order — the idempotency gate.
-			claimed, err := s.transactionRepo.ClaimPending(transaction.ID, isGuest)
-			if err != nil {
-				return nil, fmt.Errorf("failed to update transaction")
+			if len(transaction.Payload) > 0 {
+				// Order-on-success: atomically claim the transaction (pending->success)
+				// so exactly ONE racing verify/webhook creates the order.
+				claimed, err := txTxnRepo.ClaimPending(transaction.ID, isGuest)
+				if err != nil {
+					return fmt.Errorf("failed to update transaction")
+				}
+				if !claimed {
+					alreadyProcessed = true
+					return nil
+				}
+				orderInput, err := mapToOrder(transaction.Payload)
+				if err != nil {
+					return err
+				}
+				order, err = txOrderService.CreateFromValidated(&orderInput, isGuest)
+				if err != nil {
+					return err
+				}
+				if _, err := txOrderRepo.ClaimPaymentReceived(order.ID, isGuest); err != nil {
+					return fmt.Errorf("failed to update order")
+				}
+			} else {
+				// Legacy order-first: the order-claim is the idempotency gate.
+				claimed, err := txOrderRepo.ClaimPaymentReceived(order.ID, isGuest)
+				if err != nil {
+					return fmt.Errorf("failed to update order")
+				}
+				if !claimed {
+					alreadyProcessed = true
+					return nil
+				}
 			}
-			if !claimed {
-				// Another verify already created the order for this payment (idempotent).
-				return nil, nil
+			order.PaymentReceived = true
+
+			for _, item := range order.Items {
+				if err := txWallet.CreditForOrderInProgress(&item, float64(item.Quantity)*item.Price, isGuest); err != nil {
+					return err
+				}
+				if _, err := txOrderRepo.AppendActivity(item.ID, domain.OrderActivity{
+					Title:    string(helper.OrderActivityPaymentConfirmed),
+					Subtitle: string(helper.OrderActivityPaymentConfirmed),
+					Details:  "Payment has been confirmed.",
+					Time:     time.Now().String(),
+				}, "buyer", isGuest); err != nil {
+					return fmt.Errorf("something went wrong")
+				}
+				newUpdatedItem, err := txOrderRepo.AppendActivity(item.ID, domain.OrderActivity{
+					Title:    string(helper.OrderActivityPaymentConfirmed),
+					Subtitle: string(helper.OrderActivityPaymentConfirmed),
+					Details:  "Payment has been confirmed.",
+					Time:     time.Now().String(),
+				}, "seller", isGuest)
+				if err != nil {
+					return fmt.Errorf("something went wrong")
+				}
+				newUpdatedItem.Status = string(helper.OrderStatusPaymentConfirmed)
+				newUpdatedItem.StatusUpdatedAt = time.Now()
+				// R7: guest items live in order_items_guest — pass isGuest so a guest
+				// checkout's item actually flips to payment_confirmed.
+				if _, err := txOrderRepo.UpdateOrderItem(newUpdatedItem.ID, *newUpdatedItem, isGuest); err != nil {
+					return fmt.Errorf("something went wrong")
+				}
+				if err := txProductRepo.IncrementProductSales(item.ProductID, item.Quantity); err != nil {
+					return fmt.Errorf("something went wrong")
+				}
+				if err := txProductRepo.DecrementProductStock(item.ProductID, item.Quantity); err != nil {
+					return fmt.Errorf("something went wrong")
+				}
 			}
-			orderInput, err := mapToOrder(transaction.Payload)
-			if err != nil {
-				_ = s.transactionRepo.SetStatus(transaction.ID, string(helper.PaymentPending), isGuest)
-				return nil, err
-			}
-			// Persist the locked payload as-is (no live re-validation) so a paid
-			// order is never rejected by a mid-window price/product change.
-			order, err = s.orderService.CreateFromValidated(&orderInput, isGuest)
-			if err != nil {
-				// Revert the claim so a retry / the pending-GC can re-attempt.
-				_ = s.transactionRepo.SetStatus(transaction.ID, string(helper.PaymentPending), isGuest)
-				return nil, err
-			}
-			// Mark the freshly-created order paid (idempotent flip on a new order).
-			if _, err := s.orderRepo.ClaimPaymentReceived(order.ID, isGuest); err != nil {
-				return nil, fmt.Errorf("failed to update order")
-			}
-		} else {
-			// Legacy order-first: the order-claim is the idempotency gate — flip
-			// payment_received false->true in a single conditional UPDATE, so exactly
-			// one of the racing client-verify / Paystack-webhook credits (E0.3).
-			claimed, err := s.orderRepo.ClaimPaymentReceived(order.ID, isGuest)
-			if err != nil {
-				return nil, fmt.Errorf("failed to update order")
-			}
-			if !claimed {
-				// Another verify already processed this payment — skip (idempotent).
-				return nil, nil
-			}
+			return nil
+		})
+		if txErr != nil {
+			return nil, txErr
 		}
-		order.PaymentReceived = true
+		if alreadyProcessed {
+			// Another verify / the webhook already settled this payment (idempotent).
+			return nil, nil
+		}
 
+		// Best-effort, post-commit: per-item seller notifications + stock alerts.
 		for _, item := range order.Items {
-			fmt.Println("updating item")
-			// update balance
-			if err := s.walletService.CreditForOrderInProgress(&item, float64(item.Quantity)*item.Price, isGuest); err != nil {
-				return nil, err
+			product, perr := s.productRepo.GetOne(map[string]interface{}{"id": item.ProductID})
+			if perr != nil || product == nil {
+				continue
 			}
-			// update activities
-			_, err = s.orderRepo.AppendActivity(item.ID, domain.OrderActivity{
-				Title:    string(helper.OrderActivityPaymentConfirmed),
-				Subtitle: string(helper.OrderActivityPaymentConfirmed),
-				Details:  "Payment has been confirmed.",
-				Time:     time.Now().String(),
-			}, "buyer", isGuest)
-
-			if err != nil {
-				return nil, fmt.Errorf("something went wrong")
-			}
-
-			newUpdatedItem, err := s.orderRepo.AppendActivity(item.ID, domain.OrderActivity{
-				Title:    string(helper.OrderActivityPaymentConfirmed),
-				Subtitle: string(helper.OrderActivityPaymentConfirmed),
-				Details:  "Payment has been confirmed.",
-				Time:     time.Now().String(),
-			}, "seller", isGuest)
-
-			if err != nil {
-				return nil, fmt.Errorf("something went wrong")
-			}
-
-			newUpdatedItem.Status = string(helper.OrderStatusPaymentConfirmed)
-			newUpdatedItem.StatusUpdatedAt = time.Now()
-			// R7: guest items live in order_items_guest — pass isGuest so a guest
-			// checkout's item actually flips to payment_confirmed (was hardcoded false).
-			_, err = s.orderRepo.UpdateOrderItem(newUpdatedItem.ID, *newUpdatedItem, isGuest)
-			if err != nil {
-				return nil, fmt.Errorf("something went wrong")
-			}
-			if err = s.productRepo.IncrementProductSales(item.ProductID, item.Quantity); err != nil {
-				return nil, fmt.Errorf("something went wrong")
-			}
-			if err = s.productRepo.DecrementProductStock(item.ProductID, item.Quantity); err != nil {
-				return nil, fmt.Errorf("something went wrong")
-			}
-
-			product, err := s.productRepo.GetOne(map[string]interface{}{"id": item.ProductID})
-			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-				return nil, fmt.Errorf("something went wrong")
-			}
-
-			// NS2 seller notifications (per item, in-app only for now). new_order
-			// + payment.confirmed co-fire in this post-payment loop; both were
-			// seller-side activity-log rows before (Mailbox A, kept above).
 			_ = s.dispatcher.EmitToBusiness(context.Background(), item.BusinessID, EmitInput{
 				Event: "seller.sale.new_order",
 				Vars: map[string]string{
@@ -377,9 +381,6 @@ func (s *TransactionService) Verify(input requests.VerifyTransaction, isGuest bo
 				Event: "seller.payment.confirmed",
 				Vars:  map[string]string{"item": product.Title, "itemId": item.ID},
 			})
-
-			// Stock is a *int (nil when unset) — guard the deref (B2). Check sold-out
-			// before low-stock, since `< 3` otherwise shadows the `== 0` branch.
 			if product.Stock != nil {
 				if *product.Stock == 0 {
 					_ = s.dispatcher.EmitToBusiness(context.Background(), product.BusinessID, EmitInput{
@@ -393,30 +394,20 @@ func (s *TransactionService) Verify(input requests.VerifyTransaction, isGuest bo
 					})
 				}
 			}
-
 		}
 
-		// NS2 buyer.payment.confirmed is order-level (one per checkout), kept
-		// distinct from buyer.order.placed. In-app only for now: the off-app
-		// confirmation still rides sendOrderPlacedNotifications (order.placed), so
-		// we don't double-send WhatsApp. Reconcile the transactional receipt onto
-		// this event in a later slice (drop it from order.placed, add phone/email
-		// here).
 		_ = s.dispatcher.Emit(context.Background(), EmitInput{
 			Event:  "buyer.payment.confirmed",
 			UserID: order.UserID,
 			Vars:   map[string]string{"total": FormatNaira(order.Total)},
 		})
 
-		// Activate referral if this is user's first order and they have a referrer
-		// This credits both the referee and referrer with their respective bonuses
+		// Activate referral (best-effort, its own tx) after the money is committed.
 		if !isGuest && user != nil && user.ReferredByUsername != "" && !user.ReferralActivated {
 			if err := s.referralService.ActivateReferral(user.ID, order.ID); err != nil {
-				// Log error but don't fail the transaction - referral is not critical
 				log.Printf("Referral activation failed for user %s: %v", user.ID, err)
 			}
 		}
-
 	}
 
 	transaction.Status = paymentResponse.Data.Status
