@@ -247,7 +247,10 @@ func (s *ProductService) UpdateProduct(productId, userId string, input requests.
 		Barcode:            input.Barcode,
 		Title:              input.Title,
 		Description:        input.Description,
-		Slug:               input.Slug,
+		// Slug is title-derived (URL-rework): keep it in sync with the title on
+		// update instead of trusting a possibly-empty/stale input.Slug. The product
+		// URL resolves by id, so a changed slug is corrected by the canonical redirect.
+		Slug:               helper.GenerateSlug(input.Title),
 		Image:              domain.StrArray(urls),
 		Stock:              input.Stock,
 		Sales:              input.Sales,
