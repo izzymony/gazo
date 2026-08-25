@@ -1,6 +1,6 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
+import { reportError } from "@/lib/reportError";
 import { useEffect } from "react";
 import ErrorState from "@vibaar/ui/common/ErrorState";
 
@@ -17,7 +17,7 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    Sentry.captureException(error);
+    reportError(error);
   }, [error]);
 
   return <ErrorState onRetry={() => reset()} />;
