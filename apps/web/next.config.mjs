@@ -101,5 +101,11 @@ const pwaConfig = withPWA({
 // Wrap with Sentry (only active when NEXT_PUBLIC_SENTRY_DSN is set)
 export default withSentryConfig(pwaConfig, {
   silent: true,
-  disableLogger: true,
+  // Tier4: `disableLogger` is deprecated in @sentry/nextjs v10 → moved to
+  // webpack.treeshake.removeDebugLogging (strips the SDK's debug logger).
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
+  },
 });

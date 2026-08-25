@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import RootLayoutClient from "./rootLayoutClient";
 import "../styles/globals.css";
@@ -42,14 +42,17 @@ export const metadata: Metadata = {
     description: "Create your free online store in minutes. Accept payments, manage orders, and grow your business on social media.",
     images: ['/og-image.png'],
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1.2,
-    minimumScale: 1,
-    userScalable: false,
-    viewportFit: "cover",
-  },
+};
+
+// P/Tier4: Next 14 wants viewport in its own export, not inside `metadata`
+// (the build warned on this). Behaviour is identical.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1.2,
+  minimumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
