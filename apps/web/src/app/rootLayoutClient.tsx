@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { DM_Sans } from "next/font/google";
 import { useEffect, Suspense } from "react";
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
@@ -11,12 +10,6 @@ import { paginatedFetcher } from "./(auth)/welcome/pagination";
 import { emergencyStorageCleanup, getStorageStats } from "@/utils/quotaSafeStorage";
 import PageViewTracker from "@/components/analytics/PageViewTracker";
 import QueryProvider from "./providers";
-
-const dm_Sans = DM_Sans({
-  weight: "500",
-  subsets: ["latin", "latin-ext"],
-  display: "swap",
-});
 
 export default function RootLayoutClient({
   children,
@@ -98,7 +91,7 @@ export default function RootLayoutClient({
   return (
     <QueryProvider>
       <div
-        className={`${dm_Sans.className} antialiased h-dvh overflow-hidden bg-white`}>
+        className={`antialiased h-dvh overflow-hidden bg-white`}>
         {/* Google Analytics page view tracking */}
         <Suspense fallback={null}>
           <PageViewTracker />

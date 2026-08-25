@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
-import { DM_Sans } from "next/font/google";
 import Script from "next/script";
 import RootLayoutClient from "./rootLayoutClient";
 import "../styles/globals.css";
 import { Toaster } from "sonner";
+import { dmSans } from "./fonts";
 
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-  variable: "--font-dm-sans",
-});
-
-// Note: Switzer font is loaded via CDN in the head section below
+// DM Sans is self-hosted (see ./fonts). Switzer is loaded via CDN in the head below.
 
 export const metadata: Metadata = {
   title: "Vibaar - Sell Smarter on Instagram & TikTok",
