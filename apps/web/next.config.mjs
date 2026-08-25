@@ -85,6 +85,17 @@ const pwaConfig = withPWA({
   disable: process.env.NODE_ENV === "development",
   register: true,
   skipWaiting: true,
+  // P4: keep the service-worker precache lean. It was precaching ALL of public/
+  // (~49 MB) to every install. Drop source maps, cap per-file size, and skip the
+  // heavy Figma/hero/splash image dirs — those load on demand, not needed offline.
+  buildExcludes: [/\.map$/],
+  maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+  publicExcludes: [
+    "!noprecache/**/*",
+    "!figma-assets/**/*",
+    "!images/landing/**/*",
+    "!images/splash/**/*",
+  ],
 })(withBundleAnalyzer(nextConfig));
 
 // Wrap with Sentry (only active when NEXT_PUBLIC_SENTRY_DSN is set)
