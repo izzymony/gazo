@@ -10,6 +10,7 @@ import (
 	mysql_repo "vibaar/backend/internal/adapter/repositories/sql"
 	"vibaar/backend/internal/core/domain"
 	fileupload "vibaar/backend/internal/core/external_service/file-upload"
+	"vibaar/backend/internal/helper"
 	"vibaar/backend/internal/ports"
 )
 
@@ -57,13 +58,19 @@ func (s *KYCService) SubmitKYC(userId string, isGuest bool, doc io.Reader, selfi
 		return nil, fmt.Errorf("KYC already pending")
 	}
 
+	// R8: encrypt the BVN at rest — never store the raw number.
+	encBVN, err := helper.EncryptBVN(bvn)
+	if err != nil {
+		return nil, fmt.Errorf("failed to secure BVN: %w", err)
+	}
+
 	kyc = &domain.KYC{
 		UserID:       userId,
 		Document:     docURL,
 		DocumentType: docType,
 		Selfie:       selfieURL,
 		LegalName:    legalName,
-		BVN:          bvn, // TODO(security): encrypt-at-rest before launch (see KYC1 §13, deferred)
+		BVN:          encBVN,
 		Status:       "pending",
 	}
 
@@ -95,6 +102,10 @@ func (s *KYCService) GetKYCStatus(userId string, isGuest bool) (*domain.KYC, err
 	kyc, err := s.kycRepo.GetUserKYC(userId)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, fmt.Errorf("failed to fetch KYC status: %w", err)
+	}
+	// R8: decrypt the BVN for the caller (stored encrypted at rest).
+	if kyc != nil {
+		kyc.BVN, _ = helper.DecryptBVN(kyc.BVN)
 	}
 	return kyc, nil
 }

@@ -535,12 +535,25 @@ func (s *AdminService) ReviewKYC(id string, status string, reason string) (*doma
 		}
 	}
 
+	// R8: decrypt the BVN for the admin's view. This runs AFTER Update above, so
+	// the stored column keeps its ciphertext — only the returned copy is decrypted.
+	kyc.BVN, _ = helper.DecryptBVN(kyc.BVN)
 	return kyc, nil
 }
 
 func (s *AdminService) GetAllKYC(page, limit int, search string) ([]*domain.KYC, int64, error) {
 	offset := (page - 1) * limit
-	return s.kycRepo.FindAllKYC(limit, offset, search)
+	items, total, err := s.kycRepo.FindAllKYC(limit, offset, search)
+	if err != nil {
+		return nil, 0, err
+	}
+	// R8: BVN is stored encrypted at rest; decrypt for the reviewer's view.
+	for _, k := range items {
+		if k != nil {
+			k.BVN, _ = helper.DecryptBVN(k.BVN)
+		}
+	}
+	return items, total, nil
 }
 
 // Admin Shipping Methods - Safe admin-only endpoints that don't affect main app
