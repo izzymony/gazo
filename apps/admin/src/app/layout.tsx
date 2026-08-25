@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
-
-const dmSans = DM_Sans({ subsets: ["latin"] });
+import { dmSans } from "./fonts";
 
 export const metadata: Metadata = {
   title: "Vibaar Admin Portal",
