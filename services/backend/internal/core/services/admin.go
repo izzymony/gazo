@@ -12,6 +12,7 @@ import (
 	"vibaar/backend/internal/adapter/api/requests"
 	mysql_repo "vibaar/backend/internal/adapter/repositories/sql"
 	"vibaar/backend/internal/core/domain"
+	fileupload "vibaar/backend/internal/core/external_service/file-upload"
 	"vibaar/backend/internal/core/external_service/payments"
 	"vibaar/backend/internal/helper"
 	"vibaar/backend/internal/logger"
@@ -537,7 +538,10 @@ func (s *AdminService) ReviewKYC(id string, status string, reason string) (*doma
 
 	// R8: decrypt the BVN for the admin's view. This runs AFTER Update above, so
 	// the stored column keeps its ciphertext — only the returned copy is decrypted.
+	// R5: sign the private KYC file URLs for display.
 	kyc.BVN, _ = helper.DecryptBVN(kyc.BVN)
+	kyc.Document, _ = fileupload.SignedKYCURL(kyc.Document)
+	kyc.Selfie, _ = fileupload.SignedKYCURL(kyc.Selfie)
 	return kyc, nil
 }
 
@@ -547,10 +551,12 @@ func (s *AdminService) GetAllKYC(page, limit int, search string) ([]*domain.KYC,
 	if err != nil {
 		return nil, 0, err
 	}
-	// R8: BVN is stored encrypted at rest; decrypt for the reviewer's view.
+	// R8: decrypt BVN + R5: sign the private KYC file URLs for the reviewer's view.
 	for _, k := range items {
 		if k != nil {
 			k.BVN, _ = helper.DecryptBVN(k.BVN)
+			k.Document, _ = fileupload.SignedKYCURL(k.Document)
+			k.Selfie, _ = fileupload.SignedKYCURL(k.Selfie)
 		}
 	}
 	return items, total, nil

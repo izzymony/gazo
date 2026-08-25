@@ -39,12 +39,13 @@ func (s *KYCService) SubmitKYC(userId string, isGuest bool, doc io.Reader, selfi
 	if user == nil && !isGuest {
 		return nil, fmt.Errorf("invalid user/guest")
 	}
-	docURL, err := fileupload.UploadFileWithFallback(doc)
+	// R5: private (authenticated) storage for KYC docs when KYC_PRIVATE_STORAGE=true.
+	docURL, err := fileupload.UploadKYCFile(doc)
 	if err != nil {
 		return nil, fmt.Errorf("failed to upload document: %w", err)
 	}
 
-	selfieURL, err := fileupload.UploadFileWithFallback(selfie)
+	selfieURL, err := fileupload.UploadKYCFile(selfie)
 	if err != nil {
 		return nil, fmt.Errorf("failed to upload selfie: %w", err)
 	}
@@ -85,6 +86,9 @@ func (s *KYCService) SubmitKYC(userId string, isGuest bool, doc io.Reader, selfi
 		UserID: userId,
 	})
 
+	// R5: return viewable (signed) URLs; the stored refs stay private.
+	kyc.Document, _ = fileupload.SignedKYCURL(kyc.Document)
+	kyc.Selfie, _ = fileupload.SignedKYCURL(kyc.Selfie)
 	return kyc, nil
 }
 
@@ -103,9 +107,11 @@ func (s *KYCService) GetKYCStatus(userId string, isGuest bool) (*domain.KYC, err
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, fmt.Errorf("failed to fetch KYC status: %w", err)
 	}
-	// R8: decrypt the BVN for the caller (stored encrypted at rest).
+	// R8: decrypt the BVN + R5: sign the private KYC file URLs for the caller.
 	if kyc != nil {
 		kyc.BVN, _ = helper.DecryptBVN(kyc.BVN)
+		kyc.Document, _ = fileupload.SignedKYCURL(kyc.Document)
+		kyc.Selfie, _ = fileupload.SignedKYCURL(kyc.Selfie)
 	}
 	return kyc, nil
 }
