@@ -498,7 +498,10 @@ const Page = () => {
     enableReinitialize: true, // Add this line
     validationSchema: Yup.object({
       storeName: Yup.string().required("Store name is required"),
-      storeTag: Yup.string(),
+      storeTag: Yup.string().matches(
+        /^[a-z0-9-]*$/,
+        "Use lowercase letters, numbers and hyphens only"
+      ),
       storeEmail: Yup.string()
         .email("Invalid email")
         .required("Email is required"),
@@ -818,12 +821,18 @@ const Page = () => {
               />
               <InputField
                 name="storeTag"
-                placeholder="Store tag name"
+                placeholder="Store tag (your public store link)"
                 type="text"
                 value={formik.values.storeTag}
                 onChange={formik.handleChange}
                 error={formik.errors.storeTag}
+                disabled={!!store?.tag}
               />
+              <p className="text-xs text-gray-500 mt-1">
+                {store?.tag
+                  ? `Your store link: vibaar.com/store/${store.tag} · locked once set`
+                  : "Lowercase letters, numbers and hyphens. This becomes your public store link and can't be changed later."}
+              </p>
               <InputField
                 name="storeEmail"
                 placeholder="Store email"

@@ -139,6 +139,28 @@ func (s *BusinessService) UpdateBusiness(id, userId string, input domain.Busines
 		return nil, fmt.Errorf("business not found: %v", err)
 	}
 
+	// Store tag is the public URL identity (STOREFRONT-URL-REWORK): validate it on
+	// first assignment, and treat it as IMMUTABLE in v1 — reject a change once a tag
+	// exists, since a public-identity change would break every shared /store/{tag}
+	// link. Server-authoritative — the seller UI cannot be trusted to enforce this.
+	incomingTag := strings.ToLower(strings.TrimSpace(input.Tag))
+	currentTag := strings.ToLower(strings.TrimSpace(currentBusiness.Tag))
+	switch {
+	case incomingTag == "":
+		// Form omitted/blanked the tag — never wipe the existing identity.
+		input.Tag = currentBusiness.Tag
+	case currentTag == "":
+		// First-time tag assignment — enforce format / reserved / uniqueness.
+		if err := s.ValidateTag(incomingTag, id); err != nil {
+			return nil, err
+		}
+		input.Tag = incomingTag
+	case incomingTag != currentTag:
+		return nil, fmt.Errorf("store tag cannot be changed")
+	default:
+		input.Tag = currentTag
+	}
+
 	// Only check for duplicate name if the name is actually changing
 	if currentBusiness.Name != input.Name {
 		fmt.Printf("🔍 DEBUG: Name is changing from '%s' to '%s'\n", currentBusiness.Name, input.Name)
