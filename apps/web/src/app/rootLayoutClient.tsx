@@ -2,12 +2,8 @@
 "use client";
 
 import { useEffect, Suspense } from "react";
-import useBusinessStore from "@/store/businessStore";
-import useProductStore from "@/store/productStore";
 import useAuthStore from "@/store/authStore";
 import Cookies from "js-cookie";
-import { paginatedFetcher } from "./(auth)/welcome/pagination";
-import { emergencyStorageCleanup, getStorageStats } from "@/utils/quotaSafeStorage";
 import PageViewTracker from "@/components/analytics/PageViewTracker";
 import QueryProvider from "./providers";
 
@@ -16,37 +12,13 @@ export default function RootLayoutClient({
 }: {
   children: React.ReactNode;
 }) {
-  const { getStoreMetrics } = useBusinessStore();
-  const { setAllProducts, fetchAllProduct } = useProductStore();
-  const token = Cookies.get("accessToken");
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
 
   // Initialize auth state on app load - sync cookies with store
   useEffect(() => {
-    // EMERGENCY: Clean up localStorage to prevent QuotaExceededError crashes
-    if (typeof window !== 'undefined') {
-      try {
-        console.log('[RootLayoutClient] Starting emergency localStorage cleanup...');
-        const statsBefore = getStorageStats();
-        if (statsBefore) {
-          console.log('[RootLayoutClient] Storage before cleanup:', statsBefore);
-        }
-
-        emergencyStorageCleanup();
-
-        const statsAfter = getStorageStats();
-        if (statsAfter) {
-          console.log('[RootLayoutClient] Storage after cleanup:', statsAfter);
-        }
-      } catch (error) {
-        console.warn('[RootLayoutClient] Emergency cleanup failed:', error);
-      }
-
-      // Wake up backend immediately to avoid cold start delays
-      fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '')}/api/v1/healthcheck`)
-        .catch(() => {}); // Fire and forget - just wake up the backend
-    }
-
+    // P2: removed the vestigial localStorage cleanup (it scanned all storage ×3
+    // on every cold start to remove keys that no longer exist — the stores now
+    // partialize to near-nothing) and the always-on-backend healthcheck ping.
     const initializeAuth = async () => {
       const storedToken = Cookies.get("accessToken");
 
@@ -72,21 +44,10 @@ export default function RootLayoutClient({
   // (W2.7) The seller store/theme is now hydrated by getMe() in initializeAuth
   // above — no separate getAuthenticatedUserStore effect needed.
 
-  // Fetch store metrics and products when token is available and user is authenticated
-  useEffect(() => {
-    if (token && isAuthenticated) {
-      // getStoreMetrics(user?.business?.id);
-      paginatedFetcher(fetchAllProduct, setAllProducts, user);
-    }
-  }, [
-    isAuthenticated,
-    fetchAllProduct,
-    setAllProducts,
-    user,
-    getStoreMetrics,
-    token,
-    user?.business?.id,
-  ]);
+  // P3: removed the app-wide product prefetch (was paginatedFetcher = 4 parallel
+  // /products requests fired from the root shell on every authed route) — and P10,
+  // the eager businessStore/productStore imports it required. Product data is now
+  // fetched only by the routes that render it (shop / dashboard).
 
   return (
     <QueryProvider>
