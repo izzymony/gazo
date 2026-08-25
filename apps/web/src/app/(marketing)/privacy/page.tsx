@@ -1,16 +1,15 @@
 /* eslint-disable react/no-unescaped-entities */
-"use client";
-
-import { useRouter } from "next/navigation";
+// P7: server component — static legal page; the only interactive bit (the back
+// button) is isolated in the BackOnClick client island.
 import React from "react";
+import BackOnClick from "@/components/BackOnClick";
 
 const Page = () => {
-  const router = useRouter();
   return (
     <div className="flex bg-white justify-center w-full h-full overflow-y-scroll scrollbar-hide">
       <div className="border sm:w-[450px] w-full flex flex-col gap-6 p-4 ">
         <div className="flex items-center gap-2 -ml-2">
-          <div className=" cursor-pointer" onClick={() => router.back()}>
+          <BackOnClick className=" cursor-pointer">
             <svg
               width="36"
               height="36"
@@ -42,7 +41,7 @@ const Page = () => {
                 />
               </g>
             </svg>
-          </div>
+          </BackOnClick>
           <p className="text-base text-black font-medium tracking-wider leading-[20px]">
             Privacy policy
           </p>

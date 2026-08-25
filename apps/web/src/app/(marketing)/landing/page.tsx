@@ -1,5 +1,5 @@
-'use client';
-import React from 'react';
+// P7: server component — the page shell holds no client state; the interactive
+// bits live inside HeroSection (its own client island).
 import HeroSection from './components/HeroSection';
 
 export default function LandingPage() {
