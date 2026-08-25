@@ -3,13 +3,13 @@
 import { useRouter } from 'next/navigation';
 import ComingSoonPill from '@vibaar/ui/common/ComingSoonPill';
 import svgPaths from "./svg-paths";
-const imgFrame1618869089 = "/figma-assets/ece298d0ec2c16f10310d45724b276a6035cb503.png";
-const imgImage372 = "/figma-assets/3db0124c8b3188d64f4e920263c8e40ef0b3a781.png";
-const imgImage373 = "/figma-assets/e10466aa107cf0712f5d3c9a89cd8dd1cab184c9.png";
-const img3DiconsBoyDynamicColor = "/figma-assets/f65ab2d5894158b53471b5bc6e0c03d861589d69.png";
-const imgInstagram = "/figma-assets/36efb20a23d7339668b6601992a80fb720ae409f.png";
-const imgFrame2147207502 = "/figma-assets/e68d8c91044a988854628b57592eb32a7bba9a45.png";
-const imgThumbUpDynamicColor1 = "/figma-assets/9fb92e104d82f0228ae5b12077e64bf035a4afd6.png";
+const imgFrame1618869089 = "/figma-assets/ece298d0ec2c16f10310d45724b276a6035cb503.webp";
+const imgImage372 = "/figma-assets/3db0124c8b3188d64f4e920263c8e40ef0b3a781.webp";
+const imgImage373 = "/figma-assets/e10466aa107cf0712f5d3c9a89cd8dd1cab184c9.webp";
+const img3DiconsBoyDynamicColor = "/figma-assets/f65ab2d5894158b53471b5bc6e0c03d861589d69.webp";
+const imgInstagram = "/figma-assets/36efb20a23d7339668b6601992a80fb720ae409f.webp";
+const imgFrame2147207502 = "/figma-assets/e68d8c91044a988854628b57592eb32a7bba9a45.webp";
+const imgThumbUpDynamicColor1 = "/figma-assets/9fb92e104d82f0228ae5b12077e64bf035a4afd6.webp";
 import { imgGroup, imgThumbUpDynamicColor } from "./svg-pq90h";
 
 function Elements() {

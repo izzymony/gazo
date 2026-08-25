@@ -151,7 +151,7 @@ export default function Welcome() {
       <div className="h-[38vh] sm:h-[42vh] md:h-[45vh] relative flex-shrink-0">
         {/* Background Image */}
         <Image
-          src="/images/welcome-bg.png"
+          src="/images/welcome-bg.webp"
           fill
           alt="Welcome background"
           priority
