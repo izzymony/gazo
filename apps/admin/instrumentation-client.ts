@@ -5,6 +5,6 @@ Sentry.init({
   environment: process.env.NEXT_PUBLIC_ENVIRONMENT || process.env.NODE_ENV,
   enabled: !!process.env.NEXT_PUBLIC_SENTRY_DSN && process.env.NEXT_PUBLIC_SENTRY_DSN !== "your-sentry-dsn-for-error-tracking",
   tracesSampleRate: 0.2,
-  replaysSessionSampleRate: 0,
-  replaysOnErrorSampleRate: 1.0,
+  // P1: Session Replay removed (see apps/web) — heavy rrweb bundle; admin is
+  // low-traffic internal. Error reporting + light tracing stay.
 });
