@@ -28,6 +28,7 @@ import useAdminAuthStore from "@/store/adminAuthStore";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { H1, H2, Text } from "@/components/common/Typography";
 import Logo from "@/components/common/Logo";
+import { apiClient } from "@/lib/api-client";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -50,6 +51,19 @@ const navigation = [
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [pendingKyc, setPendingKyc] = useState(0);
+
+  // KYC1 §8.3: pending-verification count for the nav badge.
+  useEffect(() => {
+    let active = true;
+    apiClient
+      .getDashboardStats()
+      .then((res) => { if (active) setPendingKyc(res?.data?.pending_kyc ?? 0); })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
   const pathname = usePathname();
   const router = useRouter();
   
@@ -212,7 +226,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     } group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors`}
                   >
                     <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-                    {item.name}
+                    <span className="flex-1">{item.name}</span>
+                    {item.href === "/kyc" && pendingKyc > 0 && (
+                      <span className="ml-2 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-white px-1.5 text-xs font-semibold text-red-600">
+                        {pendingKyc > 99 ? "99+" : pendingKyc}
+                      </span>
+                    )}
                   </Link>
                 </li>
               );
