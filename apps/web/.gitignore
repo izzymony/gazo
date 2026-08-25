@@ -45,5 +45,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
+# next-env.d.ts is committed (declares *.svg/*.png module types) so CI type-check
+# resolves image imports on a fresh clone — matching apps/admin.
 .idea
