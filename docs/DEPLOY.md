@@ -1,6 +1,6 @@
 # vibaar — Deploy Guide (M4)
 
-Turnkey steps to take the local `vibaar` monorepo live under the new brand. Everything below is the **owner-gated** path; the code side (M1–M3 + rebrand + CI) is done and green.
+Turnkey steps to take the local `vibaar` monorepo live under the new brand. Everything below is the **owner-gated** path; the code side (M1–M3 + rebrand) is done, and CI runs its **static gates** green (type-check, lint, `go build`/`go vet`). **Caveat:** CI has **no test or build job yet** — no `go test`, no Jest (admin's Jest config is currently broken), no `next build` — so the money-safety + rollback tests don't run in CI. Closing that is audit item **F2**.
 
 Repo layout: `apps/web` (Next), `apps/admin` (Next), `services/backend` (Go). pnpm + turbo. CI at `.github/workflows/ci.yml` runs on push.
 
