@@ -28,8 +28,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm type-check
       - run: pnpm lint
+      - run: pnpm test
       # Full `next build` is intentionally left to the deploy platform (Vercel),
       # which supplies the runtime env. CI keeps the fast, env-free correctness gates.
+      # (Add a `next build` smoke here once fonts are self-hosted — F3.)
 
   backend:
     name: backend — build + vet + test
