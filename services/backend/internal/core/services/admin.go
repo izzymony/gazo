@@ -6,9 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
 	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
@@ -17,6 +14,9 @@ import (
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type AdminService struct {
@@ -490,7 +490,7 @@ func (s *AdminService) GetWalletBalances(businessId string) (*domain.Wallet, err
 	return wallet, nil
 }
 
-func (s *AdminService) ReviewKYC(id string, status string, reason string) (*domain.KYC, error) {
+func (s *AdminService) ReviewKYC(id string, status string, reason string, reviewedBy string) (*domain.KYC, error) {
 	kyc, err := s.kycRepo.Find(id)
 	if err != nil {
 		return nil, fmt.Errorf("kyc not found: %w", err)
@@ -503,6 +503,7 @@ func (s *AdminService) ReviewKYC(id string, status string, reason string) (*doma
 	now := time.Now()
 	kyc.Status = status
 	kyc.ReviewedAt = &now
+	kyc.ReviewedBy = reviewedBy // audit: which admin reviewed (was never written)
 	if status == "rejected" {
 		kyc.Reason = reason
 	} else {

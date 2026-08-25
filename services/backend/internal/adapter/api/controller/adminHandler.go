@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/response"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/services"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type AdminController struct {
@@ -412,7 +412,8 @@ func (s *AdminController) ReviewKYC(c *gin.Context) {
 		return
 	}
 
-	kyc, err := s.service.ReviewKYC(id, req.Status, req.Reason)
+	reviewedBy := c.GetString("user_id") // reviewing admin's id (from JWT) — audit trail
+	kyc, err := s.service.ReviewKYC(id, req.Status, req.Reason, reviewedBy)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

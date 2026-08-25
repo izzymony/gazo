@@ -1,17 +1,18 @@
 package controller
 
 import (
+	"errors"
 	"math"
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/response"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/services"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type WalletController struct {
@@ -113,6 +114,13 @@ func (s *WalletController) Withdraw(c *gin.Context) {
 
 	resp, err := s.service.RequestWithdrawal(userIdentifier, req)
 	if err != nil {
+		// KYC1: surface a stable code so the web can show the verify modal
+		// without string-matching the message.
+		var coded *helper.CodedError
+		if errors.As(err, &coded) {
+			c.JSON(http.StatusForbidden, gin.H{"error": coded.Message, "error_code": coded.Code})
+			return
+		}
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

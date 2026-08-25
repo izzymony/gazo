@@ -8,13 +8,13 @@ import (
 	"strconv"
 	"time"
 
-	"gorm.io/gorm"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
 	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
+	"gorm.io/gorm"
 )
 
 type WalletService struct {
@@ -260,7 +260,8 @@ func (s *WalletService) RequestWithdrawal(userId string, req requests.Withdrawal
 	// never blocked — only cash-out. Server-authoritative; web pre-checks only to
 	// surface the verify CTA early.
 	if business.LifetimeSales >= kycWithdrawalGateNGN() && !business.IsVerified {
-		return nil, fmt.Errorf("verify your identity to withdraw — you've earned over ₦%.0f. Verification takes about 2 minutes", kycWithdrawalGateNGN())
+		return nil, helper.NewCodedError(helper.CodeKYCRequired,
+			fmt.Sprintf("verify your identity to withdraw — you've earned over ₦%.0f. Verification takes about 2 minutes", kycWithdrawalGateNGN()))
 	}
 
 	var verificationCode *domain.VerificationCode
