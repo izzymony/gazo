@@ -32,7 +32,7 @@ jobs:
       # which supplies the runtime env. CI keeps the fast, env-free correctness gates.
 
   backend:
-    name: backend — build + vet
+    name: backend — build + vet + test
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -45,3 +45,8 @@ jobs:
           cache-dependency-path: services/backend/go.sum
       - run: go build ./...
       - run: go vet ./...
+      - run: go test ./...
+      # The money-safety guard harness (source-level claim-before-settlement +
+      # CORS behaviour) is behind a build tag so it stays out of the default
+      # suite — run it explicitly so those guards gate every push (F2).
+      - run: go test -tags money_safety_repro ./...
