@@ -22,7 +22,7 @@ export const slidesData: Slide[] = [
     background: "/Frame 1618869220.png",
     images: [
       {
-        src: "/Frame 1618869207.svg",
+        src: "/Frame 1618869207.webp",
         width: 217,
         height: 61.5,
         position: { x: -110, y: -40 },
@@ -73,14 +73,14 @@ export const slidesData: Slide[] = [
         desktopPosition: { x: 165, y: 127 },
       },
       {
-        src: "/Frame 1618869216.svg",
+        src: "/Frame 1618869216.webp",
         width: 232,
         height: 41,
         position: { x: -110, y: 20 },
         desktopPosition: { x: -165, y: 30 },
       },
       {
-        src: "/Frame 1618869214.svg",
+        src: "/Frame 1618869214.webp",
         width: 195,
         height: 41,
         position: { x: 110, y: -40 },
@@ -96,7 +96,7 @@ export const slidesData: Slide[] = [
     ),
   },
   {
-    background: "/Frame 1618869222.svg",
+    background: "/Frame 1618869222.webp",
     images: [
       {
         src: "/Frame 1618869023.svg",

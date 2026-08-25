@@ -36,7 +36,7 @@ export default function AnimatedHeader() {
       background: "/Frame 1618869220.png",
       images: [
         {
-          src: "/Frame 1618869207.svg",
+          src: "/Frame 1618869207.webp",
           width: 145,
           height: 41,
           position: { x: -110, y: -40 },
@@ -82,13 +82,13 @@ export default function AnimatedHeader() {
           position: { x: 110, y: 85 },
         },
         {
-          src: "/Frame 1618869216.svg",
+          src: "/Frame 1618869216.webp",
           width: 155,
           height: 41,
           position: { x: -110, y: 20 },
         },
         {
-          src: "/Frame 1618869214.svg",
+          src: "/Frame 1618869214.webp",
           width: 130,
           height: 41,
           position: { x: 110, y: -40 },
@@ -103,7 +103,7 @@ export default function AnimatedHeader() {
       ),
     },
     {
-      background: "/Frame 1618869222.svg",
+      background: "/Frame 1618869222.webp",
       images: [
         {
           src: "/Frame 1618869023.svg",
