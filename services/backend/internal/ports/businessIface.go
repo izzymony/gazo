@@ -9,6 +9,8 @@ import (
 type BusinessIface interface {
 	Create(data *domain.Business) (domain.Business, error)
 	Find(id string) (domain.Business, error)
+	FindByTag(tag string) (domain.Business, error)
+	CountByTag(tag string, excludeID string) (int64, error)
 	GetAll(param map[string]interface{}) ([]domain.Business, error)
 	GetAllPaginated(search string, page, limit int) ([]domain.Business, int64, error)
 	Update(id string, data interface{}) (*domain.Business, error)

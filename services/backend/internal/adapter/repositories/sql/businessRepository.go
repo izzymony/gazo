@@ -217,6 +217,29 @@ func (repo *BusinessRepository) Find(id string) (domain.Business, error) {
 	return model, q.Error
 }
 
+// FindByTag resolves a store by its public tag — one indexed, case-insensitive
+// lookup (STOREFRONT-URL-REWORK). Replaces the old name-search / 500-row pull as
+// the storefront/product URL resolver.
+func (repo *BusinessRepository) FindByTag(tag string) (domain.Business, error) {
+	model := repo.Model()
+	q := repo.db.Preload(clause.Associations).Where("LOWER(tag) = LOWER(?)", tag).First(&model)
+
+	return model, q.Error
+}
+
+// CountByTag counts businesses holding a tag (case-insensitive), optionally
+// excluding one id (so a seller validating their own store's tag isn't blocked
+// by themselves). Backs tag-uniqueness validation.
+func (repo *BusinessRepository) CountByTag(tag string, excludeID string) (int64, error) {
+	var count int64
+	q := repo.db.Model(&domain.Business{}).Where("LOWER(tag) = LOWER(?)", tag)
+	if excludeID != "" {
+		q = q.Where("id != ?", excludeID)
+	}
+	err := q.Count(&count).Error
+	return count, err
+}
+
 func (repo *BusinessRepository) Create(data *domain.Business) (domain.Business, error) {
 	tx := repo.db.Begin()
 

@@ -54,6 +54,11 @@ func BusinessRoutes(router *gin.RouterGroup, businessHandler *controller.Busines
 	businesses := router.Group("/businesses")
 	{
 		businesses.GET("", businessHandler.GetAllBusiness)
+		// STOREFRONT-URL-REWORK: resolve a vendor by its public tag (one indexed
+		// lookup — replaces the name-search / 500-row pull) + tag availability for
+		// seller setup. Distinct static/param paths — no `/business/:id` ambiguity.
+		businesses.GET("/by-tag/:tag", businessHandler.GetBusinessByTag)
+		businesses.GET("/check-tag", businessHandler.CheckTagAvailability)
 	}
 
 	// Debug/test endpoint for order marking — bypasses auth, so LOCAL ONLY (E0.2).

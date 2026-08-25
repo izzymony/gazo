@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"regexp"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
@@ -242,14 +244,34 @@ func (s *BusinessService) GetBusiness(id string) (*domain.Business, error) {
 		}
 		return nil, fmt.Errorf("something went wrong")
 	}
+	return publicBusinessView(b), nil
+}
+
+// GetBusinessByTag resolves a public storefront by its tag (STOREFRONT-URL-REWORK)
+// — one indexed lookup, the same owner-only stripping as GetBusiness. Replaces the
+// old name-search / 500-row-pull vendor resolution.
+func (s *BusinessService) GetBusinessByTag(tag string) (*domain.Business, error) {
+	b, err := s.businessRepo.FindByTag(strings.TrimSpace(tag))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("store not found")
+		}
+		return nil, fmt.Errorf("something went wrong")
+	}
+	return publicBusinessView(b), nil
+}
+
+// publicBusinessView strips owner-only fields from a business for public display.
+// Shared by GetBusiness and GetBusinessByTag so both surfaces mask identically —
+// a new sensitive field only has to be masked here once.
+func publicBusinessView(b domain.Business) *domain.Business {
 	b.Email = ""
 	b.Address = nil
 	b.BankAccountDetails = nil
 
-	// Keep only theme-related settings for public display, remove sensitive settings
+	// Keep only theme-related settings for public display, remove sensitive settings.
 	if b.BusinessSetting != nil {
-		// Create a new BusinessSetting with only theme data
-		themeOnlySetting := &domain.BusinessSetting{
+		b.BusinessSetting = &domain.BusinessSetting{
 			Model: domain.Model{
 				ID:        b.BusinessSetting.ID,
 				CreatedAt: b.BusinessSetting.CreatedAt,
@@ -258,9 +280,47 @@ func (s *BusinessService) GetBusiness(id string) (*domain.Business, error) {
 			BusinessID:           b.BusinessSetting.BusinessID,
 			PersonalisedSettings: b.BusinessSetting.PersonalisedSettings,
 		}
-		b.BusinessSetting = themeOnlySetting
 	}
-	return &b, nil
+	return &b
+}
+
+// reservedTags may not be claimed as a store tag (STOREFRONT-URL-REWORK §5) — they
+// collide with app/marketing routes or the /store & /shop namespaces.
+var reservedTags = map[string]bool{
+	"api": true, "auth": true, "admin": true, "seller": true, "store": true,
+	"shop": true, "p": true, "products": true, "cart": true, "checkout": true,
+	"orders": true, "account": true, "profile": true, "dashboard": true,
+	"signin": true, "signup": true, "welcome": true, "notifications": true,
+	"inbox": true, "messages": true, "wallet": true, "payout": true,
+	"withdraw": true, "settings": true, "legal": true, "privacy": true,
+	"terms": true, "new": true, "recently-viewed": true, "spotlights": true,
+	"static": true, "assets": true,
+}
+
+var tagFormatRe = regexp.MustCompile(`^[a-z0-9-]+$`)
+
+// ValidateTag enforces the store-tag rules (STOREFRONT-URL-REWORK §7): lowercase
+// [a-z0-9-], 3–30 chars, not reserved, globally unique. excludeID lets a seller
+// re-validate their own store's current tag without matching themselves.
+func (s *BusinessService) ValidateTag(tag string, excludeID string) error {
+	tag = strings.ToLower(strings.TrimSpace(tag))
+	if len(tag) < 3 || len(tag) > 30 {
+		return fmt.Errorf("tag must be between 3 and 30 characters")
+	}
+	if !tagFormatRe.MatchString(tag) {
+		return fmt.Errorf("tag may only contain lowercase letters, numbers, and hyphens")
+	}
+	if reservedTags[tag] {
+		return fmt.Errorf("tag is reserved")
+	}
+	count, err := s.businessRepo.CountByTag(tag, excludeID)
+	if err != nil {
+		return fmt.Errorf("something went wrong")
+	}
+	if count > 0 {
+		return fmt.Errorf("tag is already taken")
+	}
+	return nil
 }
 
 func (s *BusinessService) BusinessMetric(id string) (interface{}, error) {

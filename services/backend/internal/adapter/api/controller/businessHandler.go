@@ -143,6 +143,38 @@ func (s *BusinessController) GetBusiness(c *gin.Context) {
 	c.JSON(http.StatusOK, response.NewCustomResponse(resp, err))
 }
 
+// GetBusinessByTag resolves a public storefront by its tag (STOREFRONT-URL-REWORK).
+func (s *BusinessController) GetBusinessByTag(c *gin.Context) {
+	logger.Info("GetBusinessByTag")
+
+	tag := c.Param("tag")
+
+	resp, err := s.service.GetBusinessByTag(tag)
+	if err != nil {
+		logger.Error("Error finding business by tag " + err.Error())
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.NewCustomResponse(resp, err))
+}
+
+// CheckTagAvailability validates a candidate store tag for the seller setup flow.
+// `business_id` (optional) excludes the caller's own store from the uniqueness check.
+func (s *BusinessController) CheckTagAvailability(c *gin.Context) {
+	logger.Info("CheckTagAvailability")
+
+	tag := c.Query("tag")
+	excludeID := c.Query("business_id")
+
+	if err := s.service.ValidateTag(tag, excludeID); err != nil {
+		c.JSON(http.StatusConflict, gin.H{"available": false, "error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"available": true})
+}
+
 func (s *BusinessController) GetBusinessMetric(c *gin.Context) {
 	logger.Info("FindBusiness")
 
