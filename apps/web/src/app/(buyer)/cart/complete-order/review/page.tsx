@@ -641,12 +641,9 @@ const ReviewOrder = () => {
               </div>
             )}
 
-            <button
-              type="button"
-              className="border border-ink-10 text-brand rounded-3xl px-10 md:px-24 py-2 font-[12px] mx-auto block  mt-5 w-full">
-              Add Coupon
-            </button>
-
+            {/* F5: "Add Coupon" affordance removed — there is no coupon feature
+                yet and the button had no behaviour attached (misleading). Restore
+                a real control when server-side coupons/discounts land (see R1/R2). */}
 
             <div className="mt-4">
               <p className="mb-3 text-body-sm font-normal">Shipping method</p>

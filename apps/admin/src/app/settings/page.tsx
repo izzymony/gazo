@@ -45,10 +45,10 @@ const systemSettings = {
   },
   payments: {
     paystack: {
-      enabled: true,
-      publicKey: "pk_test_xxxxxxxxxxxxx",
-      secretKey: "sk_test_xxxxxxxxxxxxx",
-      webhookUrl: "https://admin.vibaar.com/webhooks/paystack"
+      enabled: false,
+      publicKey: "",
+      secretKey: "",
+      webhookUrl: ""
     },
     flutterwave: {
       enabled: false,
@@ -56,9 +56,9 @@ const systemSettings = {
       secretKey: "",
       webhookUrl: ""
     },
-    commissionRate: 10.0,
-    withdrawalMinimum: 5000,
-    withdrawalFee: 100
+    commissionRate: 0,
+    withdrawalMinimum: 0,
+    withdrawalFee: 0
   },
   notifications: {
     emailNotifications: true,
@@ -71,28 +71,28 @@ const systemSettings = {
     systemAlerts: true
   },
   security: {
-    twoFactorAuth: true,
+    twoFactorAuth: false,
     sessionTimeout: 30,
     passwordPolicy: "strong",
-    ipWhitelist: ["192.168.1.1", "10.0.0.1"],
+    ipWhitelist: [],
     apiKeyRotation: 90,
     encryptionEnabled: true,
     auditLogging: true
   },
   integrations: {
     shipping: {
-      gigLogistics: { enabled: true, apiKey: "gig_xxxxxxxxxxxxx" },
-      dhl: { enabled: true, apiKey: "dhl_xxxxxxxxxxxxx" },
+      gigLogistics: { enabled: false, apiKey: "" },
+      dhl: { enabled: false, apiKey: "" },
       fedex: { enabled: false, apiKey: "" }
     },
     analytics: {
-      googleAnalytics: { enabled: true, trackingId: "GA-XXXXXXXXX" },
-      facebookPixel: { enabled: true, pixelId: "123456789" },
+      googleAnalytics: { enabled: false, trackingId: "" },
+      facebookPixel: { enabled: false, pixelId: "" },
       customAnalytics: { enabled: false, endpoint: "" }
     },
     social: {
-      instagram: { enabled: true, clientId: "ig_xxxxxxxxxxxxx" },
-      facebook: { enabled: true, appId: "fb_xxxxxxxxxxxxx" },
+      instagram: { enabled: false, clientId: "" },
+      facebook: { enabled: false, appId: "" },
       tiktok: { enabled: false, appId: "" }
     }
   },
