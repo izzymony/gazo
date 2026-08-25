@@ -2,8 +2,8 @@ package validators
 
 import (
 	"github.com/gin-gonic/gin"
-	"vibaar/backend/internal/adapter/api/requests"
-	"vibaar/backend/internal/helper"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 )
 
 type AuthValidator struct{}

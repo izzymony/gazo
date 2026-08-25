@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	"vibaar/backend/internal/adapter/api/requests"
-	"vibaar/backend/internal/adapter/api/response"
-	"vibaar/backend/internal/core/services"
-	"vibaar/backend/internal/logger"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/response"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/services"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

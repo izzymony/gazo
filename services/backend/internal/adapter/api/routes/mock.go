@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"vibaar/backend/internal/adapter/api/controller"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/controller"
 )
 
 func MockRoutes(router *gin.Engine, mockHandler *controller.MockController) {

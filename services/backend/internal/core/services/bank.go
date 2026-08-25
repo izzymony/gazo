@@ -1,8 +1,8 @@
 package services
 
 import (
-	"vibaar/backend/internal/adapter/api/requests"
-	"vibaar/backend/internal/core/external_service/payments"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/payments"
 )
 
 type BankService struct {

@@ -8,13 +8,13 @@ import (
 	"sort"
 	"time"
 
-	"vibaar/backend/internal/adapter/api/requests"
-	mysql_repo "vibaar/backend/internal/adapter/repositories/sql"
-	"vibaar/backend/internal/core/domain"
-	fileupload "vibaar/backend/internal/core/external_service/file-upload"
-	"vibaar/backend/internal/helper"
-	"vibaar/backend/internal/logger"
-	"vibaar/backend/internal/ports"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
+	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	fileupload "github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/file-upload"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 
 	"gorm.io/gorm"
 )

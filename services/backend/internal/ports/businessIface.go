@@ -3,7 +3,7 @@ package ports
 import (
 	"time"
 
-	"vibaar/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 )
 
 type BusinessIface interface {

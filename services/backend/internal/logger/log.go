@@ -6,7 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
-	"vibaar/backend/internal/helper"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 )
 
 func init() {

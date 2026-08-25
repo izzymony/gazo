@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"vibaar/backend/internal/adapter/api/requests"
-	"vibaar/backend/internal/helper"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 )
 
 var validate = validator.New()

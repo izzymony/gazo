@@ -2,7 +2,7 @@ package ports
 
 import (
 	"gorm.io/gorm"
-	"vibaar/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 )
 
 type WalletInterface interface {

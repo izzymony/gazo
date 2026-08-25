@@ -1,7 +1,7 @@
 package response
 
 import (
-	"vibaar/backend/internal/helper"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 )
 
 type Response struct {

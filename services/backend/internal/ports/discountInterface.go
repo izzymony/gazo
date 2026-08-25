@@ -1,7 +1,7 @@
 package ports
 
 import (
-	"vibaar/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 )
 
 type DiscountInterface interface {

@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"gorm.io/gorm"
-	"vibaar/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 )
 
 // CategoryData represents the complete category structure with Shipbubble mapping

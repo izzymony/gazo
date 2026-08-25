@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"vibaar/backend/internal/adapter/api/controller"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/controller"
 )
 
 // WhatsAppWebhookRoutes registers WhatsApp webhook endpoints

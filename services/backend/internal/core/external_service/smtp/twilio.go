@@ -13,11 +13,11 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-	mysql_repo "vibaar/backend/internal/adapter/repositories/sql"
-	"vibaar/backend/internal/core/domain"
+	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 
-	"vibaar/backend/internal/logger"
-	"vibaar/backend/internal/ports"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 )
 
 type TwilioService struct {

@@ -1,4 +1,4 @@
-module vibaar/backend
+module github.com/Tinovalabs/vibaar/services/backend
 
 go 1.24.0
 

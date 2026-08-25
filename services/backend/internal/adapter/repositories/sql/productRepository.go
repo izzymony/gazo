@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"vibaar/backend/internal/core/domain"
-	"vibaar/backend/internal/helper"
-	"vibaar/backend/internal/ports"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 
 	"gorm.io/gorm"
 )

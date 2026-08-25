@@ -1,6 +1,6 @@
 package services
 
-import "vibaar/backend/internal/core/domain"
+import "github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 
 // NotifTier is the NS2 importance tier. It decides the channels and whether the
 // notification touches the unread badge. See

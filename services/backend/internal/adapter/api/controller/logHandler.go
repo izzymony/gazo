@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"vibaar/backend/internal/helper"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 )
 
 type LogController struct{}

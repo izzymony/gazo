@@ -9,9 +9,9 @@ import (
 
 	"gorm.io/gorm"
 
-	mysql_repo "vibaar/backend/internal/adapter/repositories/sql"
-	"vibaar/backend/internal/core/domain"
-	"vibaar/backend/internal/ports"
+	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 )
 
 // NotificationDispatcher is the NS2 orchestration layer. It turns a catalog

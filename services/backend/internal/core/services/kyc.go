@@ -7,11 +7,11 @@ import (
 	"io"
 
 	"gorm.io/gorm"
-	mysql_repo "vibaar/backend/internal/adapter/repositories/sql"
-	"vibaar/backend/internal/core/domain"
-	fileupload "vibaar/backend/internal/core/external_service/file-upload"
-	"vibaar/backend/internal/helper"
-	"vibaar/backend/internal/ports"
+	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	fileupload "github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/file-upload"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 )
 
 type KYCService struct {

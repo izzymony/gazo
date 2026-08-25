@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"vibaar/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 )
 
 type ShipbubbleService struct {

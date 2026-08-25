@@ -5,10 +5,10 @@ package main
 import (
 	"log"
 	"os"
-	"vibaar/backend/internal/seeder"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/seeder"
 	"github.com/joho/godotenv"
-	"vibaar/backend/internal/database"
-	"vibaar/backend/internal/migration"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/migration"
 )
 
 func main() {

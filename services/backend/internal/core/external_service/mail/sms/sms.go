@@ -1,6 +1,6 @@
 package sms
 
-import "vibaar/backend/internal/ports"
+import "github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 
 type SMS interface {
 	Send(msg, recipients string) (*SMSResponse, error)

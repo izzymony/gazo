@@ -5,10 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"vibaar/backend/internal/adapter/api/requests"
-	"vibaar/backend/internal/adapter/api/response"
-	"vibaar/backend/internal/core/services"
-	"vibaar/backend/internal/helper"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/response"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/services"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 )
 
 type ChatController struct {

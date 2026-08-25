@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	mysql_repo "vibaar/backend/internal/adapter/repositories/sql"
-	"vibaar/backend/internal/core/domain"
-	"vibaar/backend/internal/ports"
+	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 
 	"gorm.io/gorm"
 )

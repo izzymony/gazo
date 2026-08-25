@@ -2,9 +2,9 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"vibaar/backend/internal/adapter/api/controller"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/controller"
 
-	"vibaar/backend/internal/adapter/api/middleware"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/middleware"
 )
 
 func UserRoutes(router *gin.RouterGroup, userHandler *controller.UserController, authHandler *controller.AuthController) {

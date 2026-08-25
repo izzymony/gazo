@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"gorm.io/gorm"
-	"vibaar/backend/internal/core/domain"
-	"vibaar/backend/internal/database"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 
 	log "github.com/sirupsen/logrus"
 )

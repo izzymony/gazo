@@ -2,8 +2,8 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"vibaar/backend/internal/adapter/api/controller"
-	"vibaar/backend/internal/adapter/api/middleware"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/controller"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/middleware"
 )
 
 func NotificationRoutes(router *gin.RouterGroup, controller *controller.NotificationController) {

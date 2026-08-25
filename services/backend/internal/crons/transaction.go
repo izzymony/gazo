@@ -6,10 +6,10 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
-	"vibaar/backend/internal/adapter/api/requests"
-	"vibaar/backend/internal/core/domain"
-	"vibaar/backend/internal/core/services"
-	"vibaar/backend/internal/helper"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/services"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 )
 
 // pendingSweepAfter: a pending transaction is only re-checked once its checkout

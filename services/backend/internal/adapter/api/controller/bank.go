@@ -5,9 +5,9 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"vibaar/backend/internal/adapter/api/requests"
-	"vibaar/backend/internal/core/services"
-	"vibaar/backend/internal/logger"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/services"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 )
 
 type BankController struct {

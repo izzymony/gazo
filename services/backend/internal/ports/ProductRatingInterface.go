@@ -1,6 +1,6 @@
 package ports
 
-import "vibaar/backend/internal/core/domain"
+import "github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 
 type ProductRatingRatingRepoIface interface {
 	Create(data *domain.ProductRating) (domain.ProductRating, error)

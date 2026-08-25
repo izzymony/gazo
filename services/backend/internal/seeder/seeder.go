@@ -6,10 +6,10 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"vibaar/backend/internal/core/domain"
-	"vibaar/backend/internal/database"
-	"vibaar/backend/internal/helper"
-	"vibaar/backend/internal/logger"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 )
 
 func SeedData() {

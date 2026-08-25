@@ -2,9 +2,9 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"vibaar/backend/internal/adapter/api/controller"
-	"vibaar/backend/internal/adapter/api/middleware"
-	"vibaar/backend/internal/validators"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/controller"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/middleware"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/validators"
 )
 
 func ProductRoutes(router *gin.RouterGroup, productHandler *controller.ProductController, ratingHandler *controller.ProductRatingController) {

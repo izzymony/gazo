@@ -7,11 +7,11 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"vibaar/backend/internal/adapter/api/requests"
-	mysql_repo "vibaar/backend/internal/adapter/repositories/sql"
-	"vibaar/backend/internal/core/domain"
-	"vibaar/backend/internal/helper"
-	"vibaar/backend/internal/ports"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
+	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 )
 
 const (

@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"vibaar/backend/internal/adapter/api/response"
-	"vibaar/backend/internal/core/domain"
-	"vibaar/backend/internal/core/services"
-	"vibaar/backend/internal/logger"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/response"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/services"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-	mysql_repo "vibaar/backend/internal/adapter/repositories/sql"
-	"vibaar/backend/internal/core/domain"
-	"vibaar/backend/internal/logger"
-	"vibaar/backend/internal/core/external_service/smtp"
-	"vibaar/backend/internal/helper"
-	"vibaar/backend/internal/ports"
+	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/smtp"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 )
 
 type VerificationCodeService struct {

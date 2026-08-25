@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"vibaar/backend/internal/helper"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 
 	"github.com/gin-gonic/gin"
 )

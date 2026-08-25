@@ -2,7 +2,7 @@ package controller
 
 import (
 	"gorm.io/gorm"
-	v2Controller "vibaar/backend/internal/adapter/api/controller/v2"
+	v2Controller "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/controller/v2"
 )
 
 type HTTPHandler struct {

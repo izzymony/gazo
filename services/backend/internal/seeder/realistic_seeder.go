@@ -2,8 +2,8 @@ package seeder
 
 import (
 	"log"
-	"vibaar/backend/internal/core/domain"
-	"vibaar/backend/internal/database"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 	"golang.org/x/crypto/bcrypt"
 )
 

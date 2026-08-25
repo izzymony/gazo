@@ -1,6 +1,6 @@
 package ports
 
-import "vibaar/backend/internal/core/domain"
+import "github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 
 type CategoryRepoIface interface {
 	CreateCategory(data *domain.Category) (domain.Category, error)

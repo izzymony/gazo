@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"vibaar/backend/internal/core/domain"
-	"vibaar/backend/internal/logger"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 )
 
 // NotificationJob represents a notification to be processed

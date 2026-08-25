@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"gorm.io/gorm"
-	"vibaar/backend/internal/core/domain"
-	"vibaar/backend/internal/logger"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 )
 
 // SeedNotificationTemplates seeds the default notification templates

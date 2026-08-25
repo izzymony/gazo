@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"vibaar/backend/internal/logger"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 
 	"github.com/gin-gonic/gin"
 )
