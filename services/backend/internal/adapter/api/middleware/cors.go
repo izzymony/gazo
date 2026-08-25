@@ -36,12 +36,13 @@ func CORS() gin.HandlerFunc {
 			} else {
 				// Default allowed origins for production
 				allowedOrigins = map[string]bool{
-					"http://localhost:3000":  true,
-					"http://localhost:3001":  true,
-					"http://127.0.0.1:3000":  true,
-					"http://127.0.0.1:3001":  true,
-					"https://vibaar.com":     true,
-					"https://www.vibaar.com": true,
+					"http://localhost:3000":    true,
+					"http://localhost:3001":    true,
+					"http://127.0.0.1:3000":    true,
+					"http://127.0.0.1:3001":    true,
+					"https://vibaar.com":       true,
+					"https://www.vibaar.com":   true,
+					"https://admin.vibaar.com": true,
 				}
 			}
 

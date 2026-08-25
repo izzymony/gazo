@@ -6,17 +6,15 @@ Repo layout: `apps/web` (Next), `apps/admin` (Next), `services/backend` (Go). pn
 
 ---
 
-## 1. New GitHub org + push
+## 1. GitHub repo + push
+
+Repo **[`Tinovalabs/vibaar`](https://github.com/Tinovalabs/vibaar)** (private, empty) is created and the `origin` remote is wired. The Go module is already repathed to `github.com/Tinovalabs/vibaar/services/backend`. To push:
 
 ```bash
-# create the org + an EMPTY repo (no README/license) at github.com, e.g. "vibaar/vibaar"
 cd "…/myInstaShop/vibaar"
-git remote add origin git@github.com:<ORG>/<REPO>.git
-git push -u origin main
+git push -u origin main   # origin already set to Tinovalabs/vibaar
 ```
-CI (`ci.yml`) runs automatically on push: **js** job (`pnpm install --frozen-lockfile` + `pnpm type-check` + `pnpm lint`) and **backend** job (`go build ./...` + `go vet`). Both are verified green locally.
-
-*(Optional but recommended: re-path the Go module from the interim `vibaar/backend` to `github.com/<ORG>/<REPO>/services/backend` — one sweep: `cd services/backend && go mod edit -module <path> && grep -rl '"vibaar/backend/' --include='*.go' . | xargs sed -i '' 's|"vibaar/backend/|"<path>/|g' && go build ./...`)*
+CI (`ci.yml`) runs automatically on push: **js** job (`pnpm install --frozen-lockfile` + `pnpm type-check` + `pnpm lint` + `pnpm test`) and **backend** job (`go build ./...` + `go vet` + `go test ./...` + the tagged money-safety harness). All verified green locally.
 
 ## 2. Rotate secrets → new-brand provider accounts
 
@@ -50,9 +48,11 @@ Provision a Postgres under vibaar (Render/Neon/RDS). Then run migrations + seed.
 
 ## 6. Wire the CORS + callback URLs
 
-- **Backend CORS** (`services/backend/internal/adapter/api/middleware/cors.go`): replace the old `instashop-web*.vercel.app` allow-list entries with the new Vercel URLs + `https://vibaar.com`.
+- **Backend CORS** (`services/backend/internal/adapter/api/middleware/cors.go`): allow-list is now `vibaar.com` + `www.vibaar.com` + `admin.vibaar.com` (+ localhost); production fallback origin is `vibaar.com`. Old Instashop origins removed. Backend is served at **`api.vibaar.com`** (Render).
+- **Frontend API URL**: set `NEXT_PUBLIC_API_BASE_URL=https://api.vibaar.com/api/v1` in the Vercel projects (web + admin).
 - **OAuth callback URLs**: update Google/Instagram/TikTok console redirect URIs to the vibaar domains.
-- **Paystack/Shipbubble webhooks**: point at the new `admin.vibaar.com`/backend webhook routes.
+- **Paystack/Shipbubble webhooks**: point at the `api.vibaar.com` webhook routes.
+- **Transactional providers**: code currently uses Twilio (SMS) + SendGrid (email); the Tinova stack is **Termii** + **Resend** — swap keys/adapters as a follow-up.
 
 ## 7. Finish the brand (deferred owner items)
 
