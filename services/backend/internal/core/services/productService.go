@@ -377,7 +377,7 @@ func (s *ProductService) GetAll(param map[string]interface{}) (interface{}, erro
 	return s.repo.GetAll(param)
 }
 
-func (s *ProductService) GetAllProductsOrderedByOrders(page, limit int, search, categoryId, subCategoryId string) ([]domain.Product, int64, error) {
+func (s *ProductService) GetAllProductsOrderedByOrders(page, limit int, search, categoryId, subCategoryId, businessId string) ([]domain.Product, int64, error) {
 	param := map[string]interface{}{
 		"status": string(helper.ProductStatusActive),
 	}
@@ -386,6 +386,11 @@ func (s *ProductService) GetAllProductsOrderedByOrders(page, limit int, search, 
 	}
 	if subCategoryId != "" {
 		param["sub_category_id"] = subCategoryId
+	}
+	// STOREFRONT-URL-REWORK: filter a storefront to its own products (the storefront
+	// resolver was previously ignored, returning all vendors' products).
+	if businessId != "" {
+		param["business_id"] = businessId
 	}
 	products, totalItems, err := s.repo.GetAllPaginated(param, search, page, limit)
 	if err != nil {

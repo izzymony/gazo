@@ -10,6 +10,7 @@ import useScroll from "@/hooks/useScroll";
 import { usePathname, useSearchParams, useParams, useRouter } from "next/navigation";
 import Loader from "@vibaar/ui/common/Loader";
 import useBusinessStore from "@/store/businessStore";
+import useProductStore from "@/store/productStore";
 import { Modal } from "@vibaar/ui/modal/Modal";
 import Image from "next/image";
 import VendorNav from "./VendorNav";
@@ -147,10 +148,18 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     },
   ];
 
-  // Fetch analytics when store changes
+  const { fetchProducts } = useProductStore();
+
+  // Fetch analytics + the vendor's products when the store resolves.
   useEffect(() => {
     if (stor?.id) {
       fetchStoreStats(stor.id);
+      // Cold-deep-link fix (URL rework): on a direct /store/[tag] visit the global
+      // `products` is empty, so AllProducts has nothing to filter. Load THIS vendor's
+      // products (targeted /products?business_id, not the 250-row marketplace pull).
+      if (!pathname.includes("/dashboard")) {
+        fetchProducts(stor.id);
+      }
     }
   }, [stor?.id]);
 
