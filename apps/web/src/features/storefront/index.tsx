@@ -9,6 +9,7 @@ import SmallHeader from "@/design-system/common/SmallHeader";
 import useScroll from "@/hooks/useScroll";
 import { usePathname, useSearchParams, useParams, useRouter } from "next/navigation";
 import Loader from "@vibaar/ui/common/Loader";
+import StorefrontSkeleton from "./StorefrontSkeleton";
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import { Modal } from "@vibaar/ui/modal/Modal";
@@ -302,7 +303,8 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
   ];
 
   if (isSeller === null || (isLoadingVendor && !pathname.includes("/dashboard"))) {
-    return <Loader />;
+    // Rev-2 (R2e): a layout-matching skeleton instead of a full-page blank loader.
+    return <StorefrontSkeleton />;
   }
 
   // Handle store not found error
