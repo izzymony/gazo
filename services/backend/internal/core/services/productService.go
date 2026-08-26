@@ -163,9 +163,13 @@ func (s *ProductService) CreateProduct(input requests.Product, userId string) (*
 func (s *ProductService) uniquePublicID() string {
 	for i := 0; i < 5; i++ {
 		id := helper.GeneratePublicID()
-		if _, err := s.repo.GetOne(map[string]interface{}{"public_id": id}); err != nil {
-			return id // not found (or lookup error) → treat as available
+		_, err := s.repo.GetOne(map[string]interface{}{"public_id": id})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return id // definitively free
 		}
+		// err == nil → id already taken → regenerate.
+		// any other (transient DB) error → don't trust it as free, regenerate too;
+		// the UNIQUE index on products.public_id is the ultimate backstop at insert.
 	}
 	return helper.GeneratePublicID()
 }
