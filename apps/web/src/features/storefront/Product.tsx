@@ -513,8 +513,7 @@ const Product = () => {
   const handleShareClick = () => {
     if (typeof window === 'undefined') return;
 
-    const storeName = store?.name || stor?.name || '';
-    const publicUrl = getPublicProductUrl(productId as string, storeName);
+    const publicUrl = getPublicProductUrl(product, store || stor || {});
 
     // Only use Web Share API on mobile devices (desktop share sheets aren't useful)
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -847,7 +846,7 @@ const Product = () => {
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
         title="Share Product"
-        shareUrl={getPublicProductUrl(productId as string, store?.name || stor?.name || '')}
+        shareUrl={getPublicProductUrl(product, store || stor || {})}
         shareText={`Check out ${productPreview?.title || 'this product'} on Vibaar!`}
       />
 

@@ -1,5 +1,6 @@
 import { BusinessData } from "@/lib/types";
 import useBusinessStore from "@/store/businessStore";
+import { storePath } from "@/lib/urlHelpers";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
@@ -128,7 +129,7 @@ const SearchInput = ({
                     setLoading(true);
                     const firstStore = getBusinessDetail(stores, filteredData[0].id || "");
                     if (firstStore) {
-                      router.push(`/shop/${firstStore.name}`);
+                      router.push(storePath(firstStore));
                     }
                   }
                 }
@@ -169,7 +170,7 @@ const SearchInput = ({
                 <div
                   onClick={() => {
                     setLoading(true);
-                    router.push(`/shop/${businessDetails?.name}`);
+                    router.push(storePath(businessDetails));
                   }}
                   className="mb-4 px-0 rounded-lg"
                   key={index}>

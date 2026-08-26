@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
+import { productPath } from "@/lib/urlHelpers";
 import Button from "@vibaar/ui/common/Button";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import { useRouter } from "next/navigation";
@@ -22,8 +23,10 @@ const Wishlist = () => {
     return business || null;
   };
 
-  const handleProductClick = (businessName: string, id: string) =>
-    router.push(`/shop/${businessName}/products/${id}`);
+  const handleProductClick = (
+    business: { tag?: string } | null,
+    product: { id?: string; slug?: string; title?: string }
+  ) => router.push(productPath(business ?? undefined, product));
 
   //(products);
 
@@ -42,10 +45,7 @@ const Wishlist = () => {
               <WishlistComponent
                 item={item.product as any}
                 handleProductClick={() =>
-                  handleProductClick(
-                    businessDetails?.name + "",
-                    item.product_id + ""
-                  )
+                  handleProductClick(businessDetails, item.product)
                 }
                 index={index}
                 liked={true}

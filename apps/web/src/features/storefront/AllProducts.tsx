@@ -13,6 +13,7 @@ import { formatCurrency, getMobileCompatibleImageUrl } from "@/lib/utils";
 import { buildSimpleCartItem, productHasVariants, trackSimpleAddToCart } from "@/lib/cart";
 import { ProductData } from "@/lib/types";
 import useBusinessStore, { BusinessProduct } from "@/store/businessStore";
+import { productPath } from "@/lib/urlHelpers";
 
 export const truncateTextByLength = (
   text: string | undefined,
@@ -57,7 +58,8 @@ const AllProducts = ({
     if (path.includes("/dashboard")) {
       router.push(`/dashboard/catalog/product/${item.id}`);
     } else {
-      router.push(`/shop/${vendor}/products/${item.id}`);
+      // URL rework: /store/{tag}/products/{slug}--{id} (tag from the resolved store).
+      router.push(productPath(stor, item));
     }
   };
 

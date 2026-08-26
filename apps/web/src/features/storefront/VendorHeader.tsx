@@ -82,7 +82,7 @@ function VendorHeader({ isSeller }: HeaderProp) {
     : { title: "Follow", action: follow };
 
   // Share store URL and text
-  const storeUrl = getPublicStoreUrl({ name: store?.name });
+  const storeUrl = getPublicStoreUrl({ tag: store?.tag });
   const shareText = `Check out ${store?.name || "my store"} on Vibaar!`;
 
   // Share store handler

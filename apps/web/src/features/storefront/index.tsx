@@ -22,6 +22,7 @@ import { trackStoreViewed } from "@/lib/analytics";
 import { toast } from "sonner";
 import { Check, Copy, FaStar, Add } from "@vibaar/ui/icons";
 import IconButton from "@vibaar/ui/common/IconButton";
+import { getPublicProductUrl, getPublicStoreUrl } from "@/lib/shareUrls";
 
 // Move shareOptions inside component to access businessProduct
 
@@ -226,9 +227,10 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
 
   // Get the most recently created product for sharing
   const newestProduct = businessProduct && businessProduct.length > 0 ? businessProduct[0] : null;
-  const productUrl = newestProduct && currentStore?.name
-    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/shop/${encodeURIComponent(currentStore.name)}/products/${newestProduct.id}`
-    : `${typeof window !== 'undefined' ? window.location.origin : ''}/shop/${encodeURIComponent(currentStore?.name || '')}`;
+  // URL rework: share the canonical tag/slug--id product URL (or the store URL).
+  const productUrl = newestProduct && currentStore?.tag
+    ? getPublicProductUrl(newestProduct, currentStore)
+    : getPublicStoreUrl(currentStore || {});
 
   const shareText = newestProduct
     ? `Check out my new product: ${newestProduct.title} on Vibaar!`

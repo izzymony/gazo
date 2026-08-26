@@ -2,6 +2,7 @@
 /* eslint-disable jsx-a11y/alt-text */
 import React, { useEffect, useState } from "react";
 import Button from "@vibaar/ui/common/Button";
+import { storePath, productPath } from "@/lib/urlHelpers";
 import img1 from "../../../public/PRODUCT IMAGE (2).png";
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
@@ -127,7 +128,7 @@ const Vendor = () => {
                       backgroundImage: `url(/images/vendor/VendorBg.png)`,
                     }}
                     onClick={() => {
-                      router.push(`/shop/${businessDetails?.name}`);
+                      router.push(storePath(businessDetails));
                     }}>
                     {/* Store Name */}
                     <div className="mb-4">
@@ -178,9 +179,7 @@ const Vendor = () => {
                           onClick={(e) => {
                             e.stopPropagation();
                             if (businessDetails) {
-                              router.push(
-                                `/shop/${businessDetails.name}/products/${item.id}`
-                              );
+                              router.push(productPath(businessDetails, item));
                             }
                           }}
                           key={item.id}

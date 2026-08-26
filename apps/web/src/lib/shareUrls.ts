@@ -1,6 +1,8 @@
 /**
- * Centralized URL generation for sharing products and stores.
- * Always generates public-facing URLs (never /dashboard/ dashboard URLs).
+ * Centralized public URL generation for stores and products (STOREFRONT-URL-REWORK).
+ * Emits the tag/id scheme — /store/{tag} and /store/{tag}/products/{slug}--{id} —
+ * never the legacy name-based /shop/{name} links or /dashboard/ URLs. This is the
+ * single place link generation lives; every share/OG/email emitter goes through it.
  */
 
 const PRODUCTION_DOMAIN = 'https://vibaar.com';
@@ -11,22 +13,45 @@ interface StoreData {
   name?: string;
 }
 
-/**
- * Generate public store URL for sharing.
- * Uses /shop/{storeName} route (public marketplace).
- * @example getPublicStoreUrl({ name: 'My Store' }) => 'https://vibaar.com/shop/My%20Store'
- */
-export const getPublicStoreUrl = (store: StoreData): string => {
-  const encodedStoreName = encodeURIComponent(store?.name || '');
-  return `${PRODUCTION_DOMAIN}/shop/${encodedStoreName}`;
+interface ProductData {
+  id?: string;
+  slug?: string;
+  title?: string;
+}
+
+// Mirrors the backend GenerateSlug (lowercase → non-[a-z0-9_] → '-' → collapse →
+// trim); empty (emoji-only titles) → 'product'. The URL resolves by the id, so the
+// slug is cosmetic — but keeping it in sync avoids a canonical redirect on click.
+const slugify = (title?: string): string => {
+  const s = (title || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9_]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return s || 'product';
 };
 
 /**
- * Generate public product URL for sharing.
- * Always uses /shop/ route (public marketplace), never /dashboard/ (dashboard).
- * @example getPublicProductUrl('abc-123', 'My Store') => 'https://vibaar.com/shop/My%20Store/products/abc-123'
+ * Public store URL: /store/{tag}.
+ * @example getPublicStoreUrl({ tag: 'bukky-styles' }) => 'https://vibaar.com/store/bukky-styles'
  */
-export const getPublicProductUrl = (productId: string, storeName: string): string => {
-  const encodedStoreName = encodeURIComponent(storeName || '');
-  return `${PRODUCTION_DOMAIN}/shop/${encodedStoreName}/products/${productId}`;
+export const getPublicStoreUrl = (store: StoreData): string => {
+  return `${PRODUCTION_DOMAIN}/store/${store?.tag || ''}`;
+};
+
+/**
+ * Public product URL: /store/{tag}/products/{slug}--{id}.
+ * Accepts a product object (preferred) or a bare id string for back-compat.
+ * @example getPublicProductUrl({ id: 'abc', title: 'Nike Air' }, { tag: 'bukky-styles' })
+ *          => 'https://vibaar.com/store/bukky-styles/products/nike-air--abc'
+ */
+export const getPublicProductUrl = (
+  product: ProductData | string,
+  store: StoreData
+): string => {
+  const id = typeof product === 'string' ? product : product?.id || '';
+  const slug =
+    typeof product === 'string'
+      ? 'product'
+      : product?.slug || slugify(product?.title);
+  return `${PRODUCTION_DOMAIN}/store/${store?.tag || ''}/products/${slug}--${id}`;
 };
