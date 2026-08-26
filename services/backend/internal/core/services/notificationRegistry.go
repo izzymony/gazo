@@ -84,14 +84,17 @@ var notifRegistry = map[string]NotifDef{
 		Title: "Refund issued · {{item}}", Body: "{{amount}} sent back to the card you paid with — allow 3–5 days.", Route: "/orders/{{itemId}}", TxEvent: domain.EventRefundProcessed},
 
 	// ── Buyer · Wishlist & discovery (per product) ───────────────────
+	// Deep-links use the canonical storefront scheme (STOREFRONT-URL-REWORK §5):
+	// the dispatcher fills {{handle}} (business tag), {{slug}} (product slug),
+	// {{publicId}} (product public_id — NOT the internal UUID).
 	"buyer.wishlist.price_drop": {Key: "buyer.wishlist.price_drop", Tier: TierStandard, Badge: false, WhatsApp: false, Type: notifTypePromo,
-		Title: "Price drop · {{item}}", Body: "A wishlist item you saved is now {{price}}.", Route: "/shop/{{vendor}}/products/{{productId}}"},
+		Title: "Price drop · {{item}}", Body: "A wishlist item you saved is now {{price}}.", Route: "/@{{handle}}/p/{{slug}}-{{publicId}}"},
 	"buyer.wishlist.back_in_stock": {Key: "buyer.wishlist.back_in_stock", Tier: TierStandard, Badge: false, WhatsApp: false, Type: notifTypePromo,
-		Title: "Back in stock · {{item}}", Body: "The item you saved is available again.", Route: "/shop/{{vendor}}/products/{{productId}}"},
+		Title: "Back in stock · {{item}}", Body: "The item you saved is available again.", Route: "/@{{handle}}/p/{{slug}}-{{publicId}}"},
 	"buyer.wishlist.low_stock": {Key: "buyer.wishlist.low_stock", Tier: TierAmbient, Badge: false, WhatsApp: false, Type: notifTypePromo,
-		Title: "Almost gone · {{item}}", Body: "Only {{qty}} left of a wishlist item.", Route: "/shop/{{vendor}}/products/{{productId}}"},
+		Title: "Almost gone · {{item}}", Body: "Only {{qty}} left of a wishlist item.", Route: "/@{{handle}}/p/{{slug}}-{{publicId}}"},
 	"buyer.store.new_arrivals": {Key: "buyer.store.new_arrivals", Tier: TierAmbient, Badge: false, WhatsApp: false, Type: notifTypePromo,
-		Title: "New arrival · {{store}}", Body: "{{store}} just added {{item}}.", Route: "/shop/{{store}}"},
+		Title: "New arrival · {{store}}", Body: "{{store}} just added {{item}}.", Route: "/@{{handle}}"},
 
 	// ── Buyer · Messages & account ───────────────────────────────────
 	"buyer.chat.message": {Key: "buyer.chat.message", Tier: TierStandard, Badge: true, WhatsApp: false, Type: notifTypeOrder,
