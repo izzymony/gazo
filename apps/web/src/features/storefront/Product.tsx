@@ -62,21 +62,31 @@ const Product = () => {
   const router = useRouter();
   const path = usePathname();
   const params = useParams();
-  // URL rework: the new /store/[storeTag]/products/[slug--id] route carries the id
-  // in a combined `slug--id` segment (parse the trailing UUID after the `--`); the
-  // legacy /shop/[vendor]/products/[productId] route uses a bare id.
-  const rawProductParam = (params.productSlugAndId ?? params.productId) as
+  // URL rework Rev 2: the buyer route /@{handle}/p/{slug}-{publicId} carries the
+  // product's PUBLIC id as the token after the last '-'; the handle is @-prefixed.
+  const handleFromRoute = (params.handle as string | undefined)?.replace(/^@/, "");
+  const slugAndId = params.slugAndId as string | undefined;
+  const routePublicId = slugAndId
+    ? slugAndId.slice(slugAndId.lastIndexOf("-") + 1)
+    : undefined;
+  // Legacy /store/[storeTag]/products/[slug--uuid] + seller routes carry the
+  // INTERNAL id directly (bare, or after '--').
+  const rawLegacyParam = (params.productSlugAndId ?? params.productId) as
     | string
     | undefined;
-  const productId = rawProductParam?.includes("--")
-    ? rawProductParam.slice(rawProductParam.lastIndexOf("--") + 2)
-    : rawProductParam;
-  const storeTag = (params.storeTag as string | undefined) ?? "";
+  const legacyProductId = rawLegacyParam?.includes("--")
+    ? rawLegacyParam.slice(rawLegacyParam.lastIndexOf("--") + 2)
+    : rawLegacyParam;
+  const storeTag = handleFromRoute ?? ((params.storeTag as string | undefined) ?? "");
   const { stor, stores, getStoreById, singleStore, theme, fetchStores, fetchStoreByTag, getAuthenticatedUserStore } = useBusinessStore();
 
 
-  const { product, getProductById, spotlightProduct, products } =
+  const { product, getProductById, getProductByPublicId, spotlightProduct, products } =
     useProductStore();
+
+  // The internal product id used across the component. The Rev-2 route only carries a
+  // PUBLIC id, so fall back to the resolved product's id once it loads.
+  const productId = (product?.id as string | undefined) ?? legacyProductId;
   console.log(product);
   const vendorName = getFormattedVendorName(path);
   //("product => ", product);
@@ -383,16 +393,18 @@ const Product = () => {
   });
 
   useEffect(() => {
-    console.log('🔥 PRODUCT COMPONENT useEffect TRIGGERED:', { productId, getProductById: !!getProductById });
-    if (productId && getProductById) {
-      console.log('🚀 CALLING getProductById from component:', { productId, mode: rawVendorName === "seller" ? "sell" : "buy" });
-      getProductById(productId, rawVendorName === "seller" ? "sell" : "buy");
-    } else {
-      console.log('❌ CANNOT CALL getProductById:', { productId, getProductById: !!getProductById });
+    if (routePublicId && getProductByPublicId) {
+      // Rev-2 buyer route /@{handle}/p/{slug}-{publicId}: resolve by public id.
+      getProductByPublicId(routePublicId);
+    } else if (legacyProductId && getProductById) {
+      // Legacy /store buyer route + seller route: resolve by the internal id.
+      getProductById(legacyProductId, rawVendorName === "seller" ? "sell" : "buy");
     }
+    // Depend on the ROUTE ids (stable), not the derived `productId` (which becomes the
+    // resolved product's id and would re-trigger the fetch).
     // URL rework: removed the unmount cleanup that re-invoked getProductById on every
     // navigate-away (a wasted duplicate fetch the P11 trace flagged).
-  }, [productId, getProductById]);
+  }, [routePublicId, legacyProductId, getProductByPublicId, getProductById, rawVendorName]);
 
   // Track product view in Google Analytics (buyer mode only)
   useEffect(() => {

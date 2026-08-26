@@ -190,6 +190,7 @@ interface ProductState {
     id: string | string[],
     user?: "buy" | "sell"
   ) => Promise<void>;
+  getProductByPublicId: (publicId: string) => Promise<void>;
   getProductByIds: (id: string) => any;
   fetchProducts: (param?: string) => Promise<void>;
   fetchAllProducts: () => Promise<void>;
@@ -576,6 +577,28 @@ const useProductStore = create<ProductState>()(
           });
 
           set({ product: productWithCombinations });
+        } catch (error) {
+          const err = error as AxiosError<{ error: string }>;
+          set({ error: err.message });
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      // STOREFRONT-URL-REWORK Rev 2: resolve a product by its public id (buyer URL
+      // /@{handle}/p/{slug}-{publicId}). Same {data:{product,combinations}} shape as
+      // buy-mode getProductById; the internal UUID is never used in public URLs.
+      getProductByPublicId: async (publicId: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = (await Client({
+            path: `/p/${publicId}`,
+            method: "GET",
+          })) as AxiosResponse;
+          const responseData = response.data.data;
+          const productData = responseData.product ? responseData.product : responseData;
+          const combinations = responseData.combinations || [];
+          set({ product: { ...productData, variant_combinations: combinations } });
         } catch (error) {
           const err = error as AxiosError<{ error: string }>;
           set({ error: err.message });
