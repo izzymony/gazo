@@ -15,6 +15,7 @@ interface StoreData {
 
 interface ProductData {
   id?: string;
+  public_id?: string;
   slug?: string;
   title?: string;
 }
@@ -31,27 +32,22 @@ const slugify = (title?: string): string => {
 };
 
 /**
- * Public store URL: /store/{tag}.
- * @example getPublicStoreUrl({ tag: 'bukky-styles' }) => 'https://vibaar.com/store/bukky-styles'
+ * Public store URL: /@{handle}.
+ * @example getPublicStoreUrl({ tag: 'bukky-styles' }) => 'https://vibaar.com/@bukky-styles'
  */
 export const getPublicStoreUrl = (store: StoreData): string => {
-  return `${PRODUCTION_DOMAIN}/store/${store?.tag || ''}`;
+  return `${PRODUCTION_DOMAIN}/@${store?.tag || ''}`;
 };
 
 /**
- * Public product URL: /store/{tag}/products/{slug}--{id}.
- * Accepts a product object (preferred) or a bare id string for back-compat.
- * @example getPublicProductUrl({ id: 'abc', title: 'Nike Air' }, { tag: 'bukky-styles' })
- *          => 'https://vibaar.com/store/bukky-styles/products/nike-air--abc'
+ * Public product URL: /@{handle}/p/{slug}-{publicId} (Rev 2).
+ * @example getPublicProductUrl({ public_id: 'k7x9a2q1', title: 'Nike Air' }, { tag: 'bukky-styles' })
+ *          => 'https://vibaar.com/@bukky-styles/p/nike-air-k7x9a2q1'
  */
 export const getPublicProductUrl = (
-  product: ProductData | string,
+  product: ProductData,
   store: StoreData
 ): string => {
-  const id = typeof product === 'string' ? product : product?.id || '';
-  const slug =
-    typeof product === 'string'
-      ? 'product'
-      : product?.slug || slugify(product?.title);
-  return `${PRODUCTION_DOMAIN}/store/${store?.tag || ''}/products/${slug}--${id}`;
+  const slug = product?.slug || slugify(product?.title);
+  return `${PRODUCTION_DOMAIN}/@${store?.tag || ''}/p/${slug}-${product?.public_id || ''}`;
 };

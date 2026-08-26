@@ -9,6 +9,7 @@ interface StoreLike {
 }
 interface ProductLike {
   id?: string;
+  public_id?: string;
   slug?: string;
   title?: string;
 }
@@ -25,12 +26,12 @@ export const productSlug = (product?: ProductLike): string => {
   return s || 'product';
 };
 
-/** In-app path to a vendor storefront: /store/{tag}. */
-export const storePath = (store?: StoreLike | null): string => `/store/${store?.tag || ''}`;
+/** In-app path to a vendor storefront: /@{handle}. */
+export const storePath = (store?: StoreLike | null): string => `/@${store?.tag || ''}`;
 
-/** In-app path to a product: /store/{tag}/products/{slug}--{id}. */
+/** In-app path to a product: /@{handle}/p/{slug}-{publicId} (Rev 2). */
 export const productPath = (
   store: StoreLike | null | undefined,
   product: ProductLike
 ): string =>
-  `/store/${store?.tag || ''}/products/${productSlug(product)}--${product?.id || ''}`;
+  `/@${store?.tag || ''}/p/${productSlug(product)}-${product?.public_id || ''}`;

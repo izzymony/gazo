@@ -31,7 +31,7 @@ export default function SetupChecklist() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Share store URL and text
-  const storeUrl = `https://vibaar.com/store/${store?.tag || store?.id}`;
+  const storeUrl = `https://vibaar.com/@${store?.tag || store?.id}`;
   const shareText = `Check out ${store?.name || "my store"} on Vibaar!`;
 
   const handleShareStore = () => {
