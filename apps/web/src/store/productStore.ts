@@ -193,6 +193,7 @@ interface ProductState {
   getProductByPublicId: (publicId: string) => Promise<void>;
   getProductByIds: (id: string) => any;
   fetchProducts: (param?: string) => Promise<void>;
+  setProducts: (products: ProductData[]) => void;
   fetchAllProducts: () => Promise<void>;
   fetchRecentlyViewedBusiness: () => Promise<void>;
   fetchWishlist: () => Promise<void>;
@@ -427,6 +428,12 @@ const useProductStore = create<ProductState>()(
           set({ isLoading: false });
         }
       },
+
+      // Server-prime seed: the /@{handle} route server-fetches this vendor's products
+      // and hands them here so AllProducts (which filters `products` by business_id)
+      // renders on first paint without the client /products?business_id round-trip.
+      setProducts: (products: ProductData[]) =>
+        set({ products, sellerProducts: products }),
 
       fetchProducts: async (business_id: string = "") => {
         set({ isLoading: true, error: null });

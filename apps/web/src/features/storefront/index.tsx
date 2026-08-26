@@ -39,13 +39,16 @@ interface VendorStoreFrontProps {
   // passes it here so the client renders without a by-tag round-trip.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialStore?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  initialProducts?: any[];
 }
 
 const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
   isNewStore = false,
   storeName = "",
   storeTag = "",
-  initialStore
+  initialStore,
+  initialProducts
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -153,17 +156,26 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     },
   ];
 
-  const { fetchProducts } = useProductStore();
+  const { fetchProducts, setProducts } = useProductStore();
+
+  // Rev-2 server-prime: seed the vendor's products from the server-resolved initial
+  // data so AllProducts renders on first paint (before/instead of the client fetch).
+  useEffect(() => {
+    if (initialProducts?.length) setProducts(initialProducts);
+  }, [initialStore?.id]);
 
   // Fetch analytics + the vendor's products when the store resolves.
   useEffect(() => {
     if (stor?.id) {
       fetchStoreStats(stor.id);
-      // Cold-deep-link fix (URL rework): on a direct /store/[tag] visit the global
+      // Cold-deep-link fix (URL rework): on a direct /@{handle} visit the global
       // `products` is empty, so AllProducts has nothing to filter. Load THIS vendor's
-      // products (targeted /products?business_id, not the 250-row marketplace pull).
+      // products (targeted /products?business_id, not the 250-row marketplace pull) —
+      // UNLESS the server already primed them for this exact store.
       if (!pathname.includes("/dashboard")) {
-        fetchProducts(stor.id);
+        const productsPrimed =
+          !!initialProducts?.length && initialStore?.id === stor?.id;
+        if (!productsPrimed) fetchProducts(stor.id);
       }
     }
   }, [stor?.id]);

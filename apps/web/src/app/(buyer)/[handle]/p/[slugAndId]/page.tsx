@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { redirect, notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
 import { serverFetch } from "@/lib/api/serverFetch";
 import Product from "@/features/storefront/Product";
@@ -34,6 +34,7 @@ interface ProductData {
   description?: string;
   business_id?: string;
   public_id?: string;
+  price?: number;
   image?: string[];
   images?: string[];
   imageSrc?: string;
@@ -113,13 +114,48 @@ export default async function Page({
   if (!r?.product || !r.store?.tag) notFound();
 
   // Canonical-redirect (one rule): the public id resolves the product → derive the
-  // canonical URL from the product's ACTUAL store + current slug → 301 if the incoming
-  // handle/slug/case differs. Self-heals wrong-handle and stale-slug links.
+  // canonical URL from the product's ACTUAL store + current slug → permanent (308)
+  // redirect if the incoming handle/slug/case differs. Self-heals wrong-handle and
+  // stale-slug links. `incoming` uses the RAW handle (original case, pre-normalize) so
+  // a wrong-case handle (/@BukkyStyles) canonicalizes instead of silently serving 200.
   const canonical = canonicalPath(r.product, r.store);
-  const incoming = `/@${handle}/p/${decodeURIComponent(params.slugAndId)}`;
-  if (incoming !== canonical) redirect(canonical);
+  const rawHandle = decodeURIComponent(params.handle).replace(/^@/, "");
+  const incoming = `/@${rawHandle}/p/${decodeURIComponent(params.slugAndId)}`;
+  if (incoming !== canonical) permanentRedirect(canonical);
+
+  // SEO: JSON-LD Product structured data (brand = the store's brand name) + a single
+  // screen-reader h1 carrying the product title. Server-rendered so crawlers see it.
+  const img = r.product.image?.[0] || r.product.images?.[0] || r.product.imageSrc;
+  const canonicalUrl = `https://vibaar.com${canonical}`;
+  const productLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: r.product.title,
+    url: canonicalUrl,
+    brand: { "@type": "Brand", name: r.store.name || "Vibaar" },
+  };
+  if (r.product.description) productLd.description = r.product.description;
+  if (img) productLd.image = img;
+  if (typeof r.product.price === "number" && r.product.price > 0) {
+    productLd.offers = {
+      "@type": "Offer",
+      price: r.product.price,
+      priceCurrency: "NGN",
+      availability: "https://schema.org/InStock",
+      url: canonicalUrl,
+    };
+  }
 
   // Server-prime: hand the resolved product + store to the client so it renders on the
   // first paint without a duplicate fetch.
-  return <Product initialProduct={r.product} initialStore={r.store} />;
+  return (
+    <>
+      <h1 className="sr-only">{r.product.title}</h1>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }}
+      />
+      <Product initialProduct={r.product} initialStore={r.store} />
+    </>
+  );
 }
