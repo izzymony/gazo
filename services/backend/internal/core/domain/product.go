@@ -8,6 +8,11 @@ type Product struct {
 	Title         string          `json:"title"`
 	Description   string          `json:"description,omitempty"`
 	Slug          string          `json:"slug"`
+	// PublicID (STOREFRONT-URL-REWORK Rev 2) — the short, immutable, non-sequential
+	// public identifier used in buyer product URLs (/@{handle}/p/{slug}-{publicId}).
+	// The internal UUID (Model.ID) never appears in a public URL. Unique index +
+	// backfill via migration 011; generated on create.
+	PublicID      string          `json:"public_id"`
 	Category      Category        `json:"category"`
 	Collections   []Collection    `json:"collections" gorm:"many2many:product_collections;"`
 	SubCategory   SubCategory     `json:"sub_category"`

@@ -125,6 +125,32 @@ func (s *ProductController) FindProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, response.NewCustomResponse(resp, err))
 }
 
+// FindProductByPublicID resolves a product by its public id (STOREFRONT-URL-REWORK
+// Rev 2) — the buyer product-URL resolver. Same response shape as FindProduct.
+func (s *ProductController) FindProductByPublicID(c *gin.Context) {
+	logger.Info("GetProductByPublicID")
+
+	publicID := c.Param("publicId")
+
+	product, err := s.service.GetProductByPublicID(publicID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	var combinations []map[string]interface{}
+	if product != nil && len(product.Variants) > 0 {
+		combinations = s.service.CalculateCombinations(product)
+	}
+
+	resp := map[string]interface{}{
+		"product":      product,
+		"combinations": combinations,
+	}
+
+	c.JSON(http.StatusOK, response.NewCustomResponse(resp, err))
+}
+
 func (s *ProductController) CreteProduct(c *gin.Context) {
 	logger.Info("CreateProduct")
 

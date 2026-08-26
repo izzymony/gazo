@@ -121,6 +121,7 @@ func (s *ProductService) CreateProduct(input requests.Product, userId string) (*
 		Title:              input.Title,
 		Description:        input.Description,
 		Slug:               helper.GenerateSlug(input.Title),
+		PublicID:           s.uniquePublicID(),
 		Image:              domain.StrArray(urls),
 		Stock:              input.Stock,
 		Sales:              input.Sales,
@@ -154,6 +155,33 @@ func (s *ProductService) CreateProduct(input requests.Product, userId string) (*
 	s.notifyFollowersNewArrival(business, createdProduct.Title)
 
 	return &createdProduct, nil
+}
+
+// uniquePublicID returns a fresh public id not already taken (STOREFRONT-URL-REWORK
+// Rev 2). Collision at 36^10 is ~1e-15, so this pre-check almost never regenerates;
+// the DB unique index on products.public_id is the ultimate backstop.
+func (s *ProductService) uniquePublicID() string {
+	for i := 0; i < 5; i++ {
+		id := helper.GeneratePublicID()
+		if _, err := s.repo.GetOne(map[string]interface{}{"public_id": id}); err != nil {
+			return id // not found (or lookup error) → treat as available
+		}
+	}
+	return helper.GeneratePublicID()
+}
+
+// GetProductByPublicID resolves an active product by its public id — the buyer
+// product-URL resolver (/@{handle}/p/{slug}-{publicId}). The internal UUID is never
+// used in public URLs.
+func (s *ProductService) GetProductByPublicID(publicID string) (*domain.Product, error) {
+	product, err := s.repo.GetOneWithAssociations(map[string]interface{}{"public_id": publicID})
+	if err != nil {
+		return nil, errors.New("product not found")
+	}
+	if product.Status != string(helper.ProductStatusActive) {
+		return nil, errors.New("product not found")
+	}
+	return product, nil
 }
 
 func (s *ProductService) UpdateProduct(productId, userId string, input requests.Product) (*domain.Product, error) {

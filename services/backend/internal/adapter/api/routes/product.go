@@ -34,4 +34,9 @@ func ProductRoutes(router *gin.RouterGroup, productHandler *controller.ProductCo
 
 		product.GET("", productHandler.GetAllProducts)
 	}
+
+	// STOREFRONT-URL-REWORK Rev 2: resolve a product by its public id — the buyer
+	// product-URL resolver (/@{handle}/p/{slug}-{publicId}). Registered at root as
+	// /p/:publicId (a static child of /products would conflict with /products/:id).
+	router.GET("/p/:publicId", productHandler.FindProductByPublicID)
 }

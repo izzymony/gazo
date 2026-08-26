@@ -377,6 +377,29 @@ func GenerateSlug(input string) string {
 	return slug
 }
 
+const publicIDAlphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
+
+// GeneratePublicID returns a short, random, lowercase-alphanumeric (hyphen-free)
+// public identifier for buyer product URLs (STOREFRONT-URL-REWORK Rev 2):
+// /@{handle}/p/{slug}-{publicId}. 10 chars over a 36-symbol alphabet ≈ 3.6e15
+// space; callers retry on the rare unique-index collision. Non-sequential so the
+// catalog can't be enumerated. Hyphen-free so the URL's single-hyphen delimiter
+// stays unambiguous.
+func GeneratePublicID() string {
+	const n = 10
+	out := make([]byte, n)
+	max := big.NewInt(int64(len(publicIDAlphabet)))
+	for i := range out {
+		idx, err := cryptoRand.Int(cryptoRand.Reader, max)
+		if err != nil {
+			out[i] = publicIDAlphabet[0]
+			continue
+		}
+		out[i] = publicIDAlphabet[idx.Int64()]
+	}
+	return string(out)
+}
+
 func FormatValidationError(err error) []string {
 	var validationErrors []string
 
