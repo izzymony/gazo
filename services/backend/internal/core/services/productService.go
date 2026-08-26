@@ -320,7 +320,7 @@ func (s *ProductService) UpdateProduct(productId, userId string, input requests.
 	// nudge uses) — an urgency cue for people who saved it.
 	wishlistLow := oldStock >= 3 && newStock > 0 && newStock < 3
 	if priceDropped || backInStock || wishlistLow {
-		s.notifyWishlisters(productId, business.Name, updatedProductResult, priceDropped, backInStock, wishlistLow, newStock)
+		s.notifyWishlisters(productId, business.Tag, updatedProductResult, priceDropped, backInStock, wishlistLow, newStock)
 	}
 
 	// Handle variant deletion when product is no longer variable
@@ -357,7 +357,8 @@ func (s *ProductService) notifyFollowersNewArrival(business *domain.Business, ti
 		_ = s.dispatcher.Emit(context.Background(), EmitInput{
 			Event:  "buyer.store.new_arrivals",
 			UserID: f.UserID,
-			Vars:   map[string]string{"store": business.Name, "item": title},
+			// {{store}} = brand name (copy); {{handle}} = tag for the /@{handle} route.
+			Vars:   map[string]string{"store": business.Name, "item": title, "handle": business.Tag},
 		})
 	}
 }
@@ -365,7 +366,7 @@ func (s *ProductService) notifyFollowersNewArrival(business *domain.Business, ti
 // notifyWishlisters fans price-drop / back-in-stock notices out to everyone who
 // saved a product, when an update crosses one of those thresholds. In-app +
 // badge-silent + best-effort; capped like the new-arrivals fan-out.
-func (s *ProductService) notifyWishlisters(productId, vendor string, p *domain.Product, priceDrop, backInStock, lowStock bool, qty int) {
+func (s *ProductService) notifyWishlisters(productId, handle string, p *domain.Product, priceDrop, backInStock, lowStock bool, qty int) {
 	if p == nil {
 		return
 	}
@@ -373,6 +374,11 @@ func (s *ProductService) notifyWishlisters(productId, vendor string, p *domain.P
 	if err != nil {
 		return
 	}
+	// Deep-link vars for the canonical product URL /@{handle}/p/{slug}-{publicId}
+	// (STOREFRONT-URL-REWORK §5). slug is derived from the title exactly as the
+	// route's canonical is, so a tapped link resolves without a 301; publicId is the
+	// stable resolver (NOT the internal UUID).
+	slug, publicID := helper.GenerateSlug(p.Title), p.PublicID
 	for _, w := range saves {
 		if w.UserID == "" {
 			continue
@@ -381,21 +387,21 @@ func (s *ProductService) notifyWishlisters(productId, vendor string, p *domain.P
 			_ = s.dispatcher.Emit(context.Background(), EmitInput{
 				Event:  "buyer.wishlist.price_drop",
 				UserID: w.UserID,
-				Vars:   map[string]string{"item": p.Title, "price": FormatNaira(p.Price), "vendor": vendor, "productId": productId},
+				Vars:   map[string]string{"item": p.Title, "price": FormatNaira(p.Price), "handle": handle, "slug": slug, "publicId": publicID},
 			})
 		}
 		if backInStock {
 			_ = s.dispatcher.Emit(context.Background(), EmitInput{
 				Event:  "buyer.wishlist.back_in_stock",
 				UserID: w.UserID,
-				Vars:   map[string]string{"item": p.Title, "vendor": vendor, "productId": productId},
+				Vars:   map[string]string{"item": p.Title, "handle": handle, "slug": slug, "publicId": publicID},
 			})
 		}
 		if lowStock {
 			_ = s.dispatcher.Emit(context.Background(), EmitInput{
 				Event:  "buyer.wishlist.low_stock",
 				UserID: w.UserID,
-				Vars:   map[string]string{"item": p.Title, "qty": fmt.Sprintf("%d", qty), "vendor": vendor, "productId": productId},
+				Vars:   map[string]string{"item": p.Title, "qty": fmt.Sprintf("%d", qty), "handle": handle, "slug": slug, "publicId": publicID},
 			})
 		}
 	}
