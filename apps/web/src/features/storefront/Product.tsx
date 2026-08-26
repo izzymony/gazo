@@ -58,7 +58,13 @@ export function getFormattedVendorName(path: string): string {
   return formattedName;
 }
 
-const Product = () => {
+// URL rework Rev 2 — server-prime: the /@{handle}/p/{slug}-{publicId} route resolves
+// the product + store server-side and passes them here so the client renders on the
+// first paint without a duplicate fetch. Absent (seller/legacy) → normal client fetch.
+const Product = ({
+  initialProduct,
+  initialStore,
+}: { initialProduct?: any; initialStore?: any } = {}) => {
   const router = useRouter();
   const path = usePathname();
   const params = useParams();
@@ -78,10 +84,10 @@ const Product = () => {
     ? rawLegacyParam.slice(rawLegacyParam.lastIndexOf("--") + 2)
     : rawLegacyParam;
   const storeTag = handleFromRoute ?? ((params.storeTag as string | undefined) ?? "");
-  const { stor, stores, getStoreById, singleStore, theme, fetchStores, fetchStoreByTag, getAuthenticatedUserStore } = useBusinessStore();
+  const { stor, stores, getStoreById, singleStore, theme, fetchStores, fetchStoreByTag, setStore, getAuthenticatedUserStore } = useBusinessStore();
 
 
-  const { product, getProductById, getProductByPublicId, spotlightProduct, products } =
+  const { product, getProductById, getProductByPublicId, setProduct, spotlightProduct, products } =
     useProductStore();
 
   // The internal product id used across the component. The Rev-2 route only carries a
@@ -392,7 +398,20 @@ const Product = () => {
     userExists: !!user
   });
 
+  // Server-prime (Rev 2): seed the stores from the server-resolved initial data so
+  // the first paint has the product + vendor with no client round-trip.
   useEffect(() => {
+    if (initialProduct?.id) setProduct(initialProduct);
+    if (initialStore?.id) setStore(initialStore, true);
+  }, [initialProduct?.id, initialStore?.id]);
+
+  useEffect(() => {
+    // Skip the client fetch when the server already resolved THIS route's product
+    // (server-prime). On client-nav the RSC re-runs the page, so initialProduct is
+    // always fresh for the current route — the fetch below only covers seller/legacy.
+    const primed =
+      !!initialProduct?.public_id && initialProduct.public_id === routePublicId;
+    if (primed) return;
     if (routePublicId && getProductByPublicId) {
       // Rev-2 buyer route /@{handle}/p/{slug}-{publicId}: resolve by public id.
       getProductByPublicId(routePublicId);
@@ -402,9 +421,7 @@ const Product = () => {
     }
     // Depend on the ROUTE ids (stable), not the derived `productId` (which becomes the
     // resolved product's id and would re-trigger the fetch).
-    // URL rework: removed the unmount cleanup that re-invoked getProductById on every
-    // navigate-away (a wasted duplicate fetch the P11 trace flagged).
-  }, [routePublicId, legacyProductId, getProductByPublicId, getProductById, rawVendorName]);
+  }, [routePublicId, legacyProductId, getProductByPublicId, getProductById, rawVendorName, initialProduct?.public_id]);
 
   // Track product view in Google Analytics (buyer mode only)
   useEffect(() => {

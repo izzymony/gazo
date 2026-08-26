@@ -63,9 +63,13 @@ const resolve = cache(async (publicId: string) => {
   const pRes = await serverFetch<unknown>(`/p/${publicId}`);
   const product = pickProduct(pRes);
   if (!product?.id) return null;
+  // Merge variant combinations (from the same response) so the primed client has the
+  // exact shape getProductByPublicId would produce.
+  const combinations =
+    (pRes as { data?: { combinations?: unknown[] } })?.data?.combinations ?? [];
   const bRes = await serverFetch<unknown>(`/business/${product.business_id}`);
   const store = pickStore(bRes);
-  return { product, store };
+  return { product: { ...product, variant_combinations: combinations }, store };
 });
 
 function canonicalPath(product: ProductData, store: StoreData): string {
@@ -115,5 +119,7 @@ export default async function Page({
   const incoming = `/@${handle}/p/${decodeURIComponent(params.slugAndId)}`;
   if (incoming !== canonical) redirect(canonical);
 
-  return <Product />;
+  // Server-prime: hand the resolved product + store to the client so it renders on the
+  // first paint without a duplicate fetch.
+  return <Product initialProduct={r.product} initialStore={r.store} />;
 }

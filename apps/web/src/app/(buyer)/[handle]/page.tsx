@@ -60,5 +60,6 @@ export default async function Page({ params }: { params: { handle: string } }) {
   if (!handle) notFound(); // top-level path without '@' is not a store
   const store = await resolveStore(handle);
   if (!store?.tag) notFound(); // real 404 for an unknown store
-  return <VendorStoreFront storeTag={handle} />;
+  // Server-prime: hand the resolved store to the client (skips the by-tag round-trip).
+  return <VendorStoreFront storeTag={handle} initialStore={store} />;
 }

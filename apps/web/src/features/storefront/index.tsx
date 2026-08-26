@@ -31,16 +31,20 @@ import { getPublicProductUrl, getPublicStoreUrl } from "@/lib/shareUrls";
 interface VendorStoreFrontProps {
   isNewStore?: boolean;
   storeName?: string;
-  // STOREFRONT-URL-REWORK: when rendered by /store/[storeTag], the vendor is
-  // resolved by this stable tag (indexed by-tag lookup) instead of the legacy
-  // name-search from the /shop/[vendor] route param.
+  // STOREFRONT-URL-REWORK: when rendered by /@{handle}, the vendor is resolved by
+  // this stable tag (indexed by-tag lookup) instead of the legacy name-search.
   storeTag?: string;
+  // Rev-2 server-prime: the /@{handle} route resolves the store server-side and
+  // passes it here so the client renders without a by-tag round-trip.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  initialStore?: any;
 }
 
 const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
   isNewStore = false,
   storeName = "",
-  storeTag = ""
+  storeTag = "",
+  initialStore
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -170,6 +174,12 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     });
   }, [pathname]);
 
+  // Rev-2 server-prime: seed the store from the server-resolved initial data so the
+  // first paint has the vendor without a by-tag round-trip (runs before the loader).
+  useEffect(() => {
+    if (initialStore?.id) setStore(initialStore, true);
+  }, [initialStore?.id]);
+
   // CONSOLIDATED EFFECT: Load store and products based on mode (seller vs buyer)
   useEffect(() => {
     const loadStoreData = async () => {
@@ -184,9 +194,12 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
           await getAuthenticatedUserStore();
           await paginatedFetcher(fetchBusinessProduct, setBusinessProducts, user);
         } else if (storeTag) {
-          // Buyer mode, /store/[storeTag]: resolve by the stable tag — ONE indexed
-          // lookup, exact store, no name-search and no 500-row pull.
-          await fetchStoreByTag(storeTag);
+          // Buyer mode, /@{handle}: resolve by the stable tag — ONE indexed lookup.
+          // Rev-2 server-prime: skip the fetch when the server already resolved this
+          // exact store (initialStore seeded below).
+          const primed =
+            initialStore?.tag?.toLowerCase() === storeTag.toLowerCase();
+          if (!primed) await fetchStoreByTag(storeTag);
         } else if (vendorName) {
           // Legacy /shop/[vendor]: exact-match the marketplace store by name/tag.
           await fetchStoresBySearch(decodeURIComponent(vendorName));
