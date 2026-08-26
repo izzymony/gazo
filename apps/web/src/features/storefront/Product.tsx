@@ -61,8 +61,18 @@ export function getFormattedVendorName(path: string): string {
 const Product = () => {
   const router = useRouter();
   const path = usePathname();
-  const { productId } = useParams();
-  const { stor, stores, getStoreById, singleStore, theme, fetchStores, getAuthenticatedUserStore } = useBusinessStore();
+  const params = useParams();
+  // URL rework: the new /store/[storeTag]/products/[slug--id] route carries the id
+  // in a combined `slug--id` segment (parse the trailing UUID after the `--`); the
+  // legacy /shop/[vendor]/products/[productId] route uses a bare id.
+  const rawProductParam = (params.productSlugAndId ?? params.productId) as
+    | string
+    | undefined;
+  const productId = rawProductParam?.includes("--")
+    ? rawProductParam.slice(rawProductParam.lastIndexOf("--") + 2)
+    : rawProductParam;
+  const storeTag = (params.storeTag as string | undefined) ?? "";
+  const { stor, stores, getStoreById, singleStore, theme, fetchStores, fetchStoreByTag, getAuthenticatedUserStore } = useBusinessStore();
 
 
   const { product, getProductById, spotlightProduct, products } =
@@ -230,11 +240,15 @@ const Product = () => {
     seller: path.includes("/dashboard") ? true : false,
   });
 
-  // For buyer mode: find store by product.business_id from stores array (has proper StoreData structure)
-  // For seller mode: use stor (seller's own business)
+  // Seller mode: use stor (seller's own business).
+  // Buyer mode, URL rework: when the store tag is in the URL (/store/[storeTag]/...)
+  // the vendor is resolved by tag into `stor` (one indexed lookup). Legacy
+  // /shop/[vendor] still finds the vendor in the pulled `stores` by business_id.
   const store = isSeller?.seller
     ? stor
-    : stores?.find(s => s.id === product?.business_id) || null;
+    : storeTag
+      ? stor
+      : stores?.find(s => s.id === product?.business_id) || null;
 
   // Debug: Store selection (remove in production)
   if (process.env.NODE_ENV === 'development') {
@@ -376,11 +390,8 @@ const Product = () => {
     } else {
       console.log('❌ CANNOT CALL getProductById:', { productId, getProductById: !!getProductById });
     }
-    return () => {
-      if (productId && getProductById) {
-        getProductById(productId, rawVendorName === "seller" ? "sell" : "buy");
-      }
-    };
+    // URL rework: removed the unmount cleanup that re-invoked getProductById on every
+    // navigate-away (a wasted duplicate fetch the P11 trace flagged).
   }, [productId, getProductById]);
 
   // Track product view in Google Analytics (buyer mode only)
@@ -404,13 +415,20 @@ const Product = () => {
       if (typeof getAuthenticatedUserStore === 'function') {
         getAuthenticatedUserStore();
       }
+    } else if (storeTag) {
+      // Buyer view, URL rework: resolve the vendor by the stable tag in the URL —
+      // ONE indexed lookup, replacing the 500-row `fetchStores()` pull that existed
+      // only to find this one vendor by product.business_id.
+      if (typeof fetchStoreByTag === 'function') {
+        fetchStoreByTag(storeTag);
+      }
     } else {
-      // Fetch all stores for buyer view
+      // Legacy /shop/[vendor]: pull the store list to find the vendor by business_id.
       if (typeof fetchStores === 'function') {
         fetchStores();
       }
     }
-  }, [rawVendorName]);  // Simplified dependency array to prevent race conditions
+  }, [rawVendorName, storeTag]);  // re-resolve when the tag/mode changes
 
   const [selectedVariant, setSelectedVariant] = useState<
     Record<string, VariantOption>
