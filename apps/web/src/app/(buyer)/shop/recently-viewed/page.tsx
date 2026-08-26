@@ -3,6 +3,7 @@ import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import { BusinessData } from "@/lib/types";
+import { storePath, productPath } from "@/lib/urlHelpers";
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import { useRouter } from "next/navigation";
@@ -72,13 +73,13 @@ const Page = () => {
                   if (businessDetails) {
                     setStore(businessDetails);
                   }
-                  router.push(`/shop/${items.business.name}`);
+                  router.push(storePath(items.business));
                 }}
                 smallCardAction={(e, item) => {
                   e.stopPropagation();
                   if (items.business) {
                     router.push(
-                      `/shop/${items.business.name}/products/${item.id}`
+                      productPath(items.business, item)
                     );
                   }
                 }}

@@ -77,6 +77,16 @@ func (s *BusinessService) CreateBusiness(input requests.Business) (interface{}, 
 		return nil, fmt.Errorf("something went wrong")
 	}
 
+	// STOREFRONT-URL-REWORK: the store tag is the public URL identity — validate +
+	// normalize it on create (format / reserved / global-uniqueness), the same
+	// server-authoritative check the update path enforces. The request only marks
+	// tag `required`, so without this a new store could claim a reserved/invalid tag.
+	normalizedTag := strings.ToLower(strings.TrimSpace(input.Tag))
+	if err := s.ValidateTag(normalizedTag, ""); err != nil {
+		return nil, err
+	}
+	business.Tag = normalizedTag
+
 	// Validate business address with Shipbubble and get address code
 	if input.Address != nil {
 		// Fetch business owner's name for Shipbubble validation

@@ -32,8 +32,9 @@ export default function WishlistComponent({
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     // Variant products can't be priced/added from a card — open the detail page.
+    // Delegate to the parent's handler (it builds the canonical /store/{tag}/... URL).
     if (productHasVariants(item)) {
-      router.push(`/shop/${item.business_id}/products/${item.id}`);
+      handleProductClick();
       return;
     }
     addToCarts([buildSimpleCartItem(item), ...cart]);

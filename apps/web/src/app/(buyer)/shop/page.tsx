@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import React, { useCallback, useEffect, useRef, useState, useMemo } from "react";
+import { storePath, productPath } from "@/lib/urlHelpers";
 import { FaStar, Search, X, Heart, ShoppingCartAdd } from "@vibaar/ui/icons";
 import Button from "@vibaar/ui/common/Button";
 import useScroll from "@/hooks/useScroll";
@@ -65,7 +66,9 @@ const Page: React.FC = () => {
     const product = { ...item.product, id: item.id };
     // Variant products can't be priced/added from a card — open the detail page.
     if (productHasVariants(product)) {
-      router.push(`/shop/${item.product.business_id}/products/${item.id}`);
+      router.push(
+        productPath(getBusinessDetails(stores, item.product.business_id), product)
+      );
       return;
     }
     addToCarts([buildSimpleCartItem(product), ...cart]);
@@ -210,7 +213,12 @@ const Page: React.FC = () => {
     // Example navigation logic
     const selectedProduct = products[index];
     if (selectedProduct && selectedProduct.title) {
-      router.push(`/shop/${name}/products/${item.product_id}`);
+      router.push(
+        productPath(getBusinessDetails(stores, selectedProduct.business_id || ""), {
+          ...selectedProduct,
+          id: item.product_id,
+        })
+      );
     }
     setLoadings(false);
   };
@@ -391,14 +399,14 @@ const Page: React.FC = () => {
                                     setStore(businessDetails);
                                   }
 
-                                  const vendorPath = `/shop/${encodeURIComponent(businessDetails?.name || "")}`;
+                                  const vendorPath = storePath(businessDetails);
                                   router.push(vendorPath);
                                 }}
                                 smallCardAction={(e, item) => {
                                   setLoadings(true);
                                   e.stopPropagation();
                                   router.push(
-                                    `/shop/${businessDetails?.name}/products/${item.id}`
+                                    productPath(businessDetails, item)
                                   );
                                 }}
                                 likedItems={likedItems}
@@ -575,7 +583,7 @@ const Page: React.FC = () => {
                                   setStore(businessDetails);
 
                                   // Navigate immediately for better UX
-                                  const vendorPath = `/shop/${encodeURIComponent(businessDetails.name)}`;
+                                  const vendorPath = storePath(businessDetails);
                                   router.push(vendorPath);
 
                                   // Add to recent viewed in background (non-blocking)
@@ -595,7 +603,7 @@ const Page: React.FC = () => {
                                   e.stopPropagation();
                                   if (businessDetails) {
                                     router.push(
-                                      `/shop/${businessDetails.name}/products/${item.id}`
+                                      productPath(businessDetails, item)
                                     );
                                   }
                                   // setLoadings(false);
@@ -657,7 +665,7 @@ const Page: React.FC = () => {
                                 setStore(businessDetails);
 
                                 // Navigate immediately for better UX
-                                const vendorPath = `/shop/${encodeURIComponent(businessDetails.name)}`;
+                                const vendorPath = storePath(businessDetails);
                                 router.push(vendorPath);
 
                                 // Add to recent viewed in background (non-blocking)
@@ -677,7 +685,7 @@ const Page: React.FC = () => {
                                 e.stopPropagation();
                                 if (businessDetails) {
                                   router.push(
-                                    `/shop/${businessDetails.name}/products/${item.id}`
+                                    productPath(businessDetails, item)
                                   );
                                 }
                                 // setLoadings(false);

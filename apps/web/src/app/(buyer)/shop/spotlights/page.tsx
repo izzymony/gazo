@@ -3,6 +3,7 @@
 "use client";
 import MainLayout from "@/design-system/mainLayout";
 import { BusinessData, ProductData } from "@/lib/types";
+import { storePath, productPath } from "@/lib/urlHelpers";
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import { useRouter } from "next/navigation";
@@ -228,7 +229,12 @@ const Page = () => {
       // router.push(
       //   `/products/${selectedProduct.title.replace(/\s+/g, "-").toLowerCase()}`
       // );
-      router.push(`/shop/${businessName}/products/${id}`);
+      router.push(
+        productPath(
+          stores?.find((s) => s.id === selectedProduct.business_id),
+          { ...selectedProduct, id }
+        )
+      );
     }
   };
 
@@ -387,7 +393,7 @@ const Page = () => {
                           if (businessDetails) {
                             setStore(businessDetails);
                           }
-                          router.push(`/shop/${businessDetails?.name}`);
+                          router.push(storePath(businessDetails));
                         }}
                         type="button"
                         className="flex flex-row gap-1 justify-center items-center text-center py-3 rounded-full text-body-sm font-normal px-3 bg-brand text-white z-30 relative">
