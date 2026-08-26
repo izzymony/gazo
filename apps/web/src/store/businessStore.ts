@@ -292,6 +292,7 @@ interface BusinessState {
   ) => Promise<void>;
   fetchStores: () => Promise<void>;
   fetchStoresBySearch: (search: string) => Promise<void>;
+  fetchStoreByTag: (tag: string) => Promise<void>;
   updateStore: (
     id?: string | undefined,
     storePayload?: BusinessPayloadData,
@@ -1431,6 +1432,33 @@ const useBusinessStore = create<BusinessState>()(
         } catch (error) {
           const err = error as AxiosError<{ error: string }>;
           set({ error: err.message, stores: [], stor: null });
+          handleAxiosError(error);
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      // STOREFRONT-URL-REWORK: resolve a vendor storefront by its tag — ONE indexed
+      // lookup (GET /businesses/by-tag/:tag), replacing fetchStoresBySearch's
+      // name-search + the 500-row pull. Returns the exact store (no client-side
+      // find/collision), fixing the wrong-store-on-refresh bug at the source.
+      fetchStoreByTag: async (tag: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = (await Client({
+            path: `/businesses/by-tag/${encodeURIComponent(tag)}`,
+            method: "GET",
+          })) as AxiosResponse;
+
+          const store = unwrap<StoreData | null>(response.data, null);
+          if (store && (store as StoreData).id) {
+            get().setStore(store as StoreData, true); // marketplace/buyer mode
+          } else {
+            set({ stor: null, error: "Store not found" });
+          }
+        } catch (error) {
+          const err = error as AxiosError<{ error: string }>;
+          set({ error: err.message, stor: null });
           handleAxiosError(error);
         } finally {
           set({ isLoading: false });

@@ -29,11 +29,16 @@ import IconButton from "@vibaar/ui/common/IconButton";
 interface VendorStoreFrontProps {
   isNewStore?: boolean;
   storeName?: string;
+  // STOREFRONT-URL-REWORK: when rendered by /store/[storeTag], the vendor is
+  // resolved by this stable tag (indexed by-tag lookup) instead of the legacy
+  // name-search from the /shop/[vendor] route param.
+  storeTag?: string;
 }
 
 const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
   isNewStore = false,
-  storeName = ""
+  storeName = "",
+  storeTag = ""
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -49,7 +54,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
   const tab = ["Products", "Deals", "Reviews"];
   const { isScrolled, addScrollListener } = useScroll(20);
   const searchParams = useSearchParams();
-  const { stor, store, storeStats, fetchStoreStats, theme, stores, getStoreById, fetchStores, fetchStoresBySearch, setStore, businessProduct, getAuthenticatedUserStore, fetchBusinessProduct, setBusinessProducts } = useBusinessStore();
+  const { stor, store, storeStats, fetchStoreStats, theme, stores, getStoreById, fetchStores, fetchStoresBySearch, fetchStoreByTag, setStore, businessProduct, getAuthenticatedUserStore, fetchBusinessProduct, setBusinessProducts } = useBusinessStore();
   const { user } = useAuthStore();
   const [isPublishSuccessful, setIsPublishSuccessful] = useState(
     searchParams.get("status") === "new-product"
@@ -168,8 +173,12 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
           // Seller mode: load the authenticated user's store + all product pages.
           await getAuthenticatedUserStore();
           await paginatedFetcher(fetchBusinessProduct, setBusinessProducts, user);
+        } else if (storeTag) {
+          // Buyer mode, /store/[storeTag]: resolve by the stable tag — ONE indexed
+          // lookup, exact store, no name-search and no 500-row pull.
+          await fetchStoreByTag(storeTag);
         } else if (vendorName) {
-          // Buyer mode: exact-match the marketplace store by name/tag (sets stor).
+          // Legacy /shop/[vendor]: exact-match the marketplace store by name/tag.
           await fetchStoresBySearch(decodeURIComponent(vendorName));
         }
       } catch (error) {
@@ -179,9 +188,9 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
       }
     };
 
-    // Only run when vendor name or path changes
+    // Only run when the tag/vendor or path changes
     loadStoreData();
-  }, [params.vendor, pathname, getAuthenticatedUserStore, fetchStoresBySearch, fetchBusinessProduct, setBusinessProducts, user]);
+  }, [storeTag, params.vendor, pathname, getAuthenticatedUserStore, fetchStoreByTag, fetchStoresBySearch, fetchBusinessProduct, setBusinessProducts, user]);
 
   useEffect(() => {
     const cleanup = addScrollListener(scrollRef);
