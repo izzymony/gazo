@@ -62,9 +62,9 @@ const CreateStore = () => {
         .min(3, "Store name must be at least 3 characters")
         .max(100, "Store name must be less than 100 characters"),
       tag: Yup.string()
-        .required("Store tag is required")
-        .min(3, "Store tag must be at least 3 characters")
-        .max(50, "Store tag must be less than 50 characters"),
+        .required("Store handle is required")
+        .min(3, "Store handle must be at least 3 characters")
+        .max(50, "Store handle must be less than 50 characters"),
       phone: usePersonalContact
         ? Yup.string()
         : Yup.string()

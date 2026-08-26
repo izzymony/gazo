@@ -140,7 +140,7 @@ const StoreDetails = ({
           name="tag"
           value={data?.tag}
           onChange={handleInputChange}
-          placeholder="Store tag name"
+          placeholder="Store handle"
           error={error?.tag}
         />
 

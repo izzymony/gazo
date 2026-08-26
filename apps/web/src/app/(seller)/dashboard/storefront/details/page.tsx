@@ -821,7 +821,7 @@ const Page = () => {
               />
               <InputField
                 name="storeTag"
-                placeholder="Store tag (your public store link)"
+                placeholder="Store handle (your public store link)"
                 type="text"
                 value={formik.values.storeTag}
                 onChange={formik.handleChange}
