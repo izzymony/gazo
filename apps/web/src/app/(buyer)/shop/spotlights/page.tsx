@@ -20,6 +20,7 @@ const Page = () => {
     products,
     isLoading,
     spotlightProduct,
+    fetchAllProducts,
     fetchRecentlyViewedBusiness,
     fetchWishlist,
     addRecentViewed,
@@ -47,8 +48,13 @@ const Page = () => {
   } = useBusinessStore();
 
   useEffect(() => {
+    // Fetch this page's own data. /shop no longer populates the global product
+    // list (it moved to the paginated /shop/vendors feed), so spotlights must
+    // pull products itself or it renders empty. These are backend-filtered to
+    // active + in-stock. (Follow-up: rebuild spotlights on the vendor feed.)
     fetchStores();
-  }, [fetchStores, store?.id]);
+    fetchAllProducts();
+  }, [fetchStores, fetchAllProducts, store?.id]);
 
   const groupedData = Object.values(
     products.reduce(
