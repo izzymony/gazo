@@ -37,7 +37,7 @@ const resolveStore = cache(async (handle: string): Promise<StoreMeta | undefined
 async function resolveProducts(businessId: string): Promise<unknown[]> {
   try {
     const res = await serverFetch<{ data?: { data?: unknown[] } }>(
-      `/products?business_id=${encodeURIComponent(businessId)}`
+      `/products?business_id=${encodeURIComponent(businessId)}&page=1&limit=24`
     );
     return res?.data?.data ?? [];
   } catch {

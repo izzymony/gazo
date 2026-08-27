@@ -14,6 +14,7 @@ import { buildSimpleCartItem, productHasVariants, trackSimpleAddToCart } from "@
 import { ProductData } from "@/lib/types";
 import useBusinessStore, { BusinessProduct } from "@/store/businessStore";
 import { productPath } from "@/lib/urlHelpers";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 export const truncateTextByLength = (
   text: string | undefined,
@@ -45,14 +46,31 @@ const AllProducts = ({
   const router = useRouter();
   const path = usePathname();
   const { vendor } = useParams();
-  const { products, spotlightProduct, addWishlist } = useProductStore();
+  const {
+    products,
+    spotlightProduct,
+    addWishlist,
+    loadMoreProducts,
+    productsHasMore,
+    productsLoadingMore,
+  } = useProductStore();
   const { cart, addToCarts } = useOrderStore();
   const { businessProduct, isLoading: isLoadingBusinessProducts, stor } =
     useBusinessStore();
 
-  const sellerProduct = path.includes("/dashboard")
+  const isDashboard = path.includes("/dashboard");
+  const sellerProduct = isDashboard
     ? businessProduct
     : products.filter((item) => item.business_id === stor?.id);
+
+  // Infinite scroll on the buyer storefront grid — append this vendor's next page
+  // as the sentinel nears view. (Dashboard uses businessProduct, paginated elsewhere.)
+  const sentinelRef = useInfiniteScroll(
+    () => {
+      if (stor?.id) loadMoreProducts(stor.id);
+    },
+    !isDashboard && productsHasMore
+  );
 
   const handleProductClick = (item: ProductData | BusinessProduct) => {
     if (path.includes("/dashboard")) {
@@ -213,6 +231,15 @@ const AllProducts = ({
                 </div>
               );
             }
+          )}
+        </div>
+      )}
+      {!isDashboard && productsHasMore && (
+        <div
+          ref={sentinelRef}
+          className="flex h-12 w-full items-center justify-center">
+          {productsLoadingMore && (
+            <span className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-transparent" />
           )}
         </div>
       )}

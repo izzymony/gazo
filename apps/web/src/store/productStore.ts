@@ -9,6 +9,11 @@ import { toast } from "sonner";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import createQuotaSafeStorage from "@/utils/quotaSafeStorage";
+import { unwrapPaginated } from "@/lib/api/unwrap";
+
+// Storefront product-grid page size. The backend clamps `limit` to 100; 24 divides
+// the 2/3/4/6-column grid cleanly. Used by fetchProducts + loadMoreProducts.
+const STOREFRONT_PAGE_SIZE = 24;
 
 interface ProductResponse {
   data?: ProductData[];
@@ -194,6 +199,10 @@ interface ProductState {
   getProductByIds: (id: string) => any;
   fetchProducts: (param?: string) => Promise<void>;
   setProducts: (products: ProductData[]) => void;
+  loadMoreProducts: (businessId: string) => Promise<void>;
+  productsPage: number;
+  productsHasMore: boolean;
+  productsLoadingMore: boolean;
   fetchAllProducts: () => Promise<void>;
   fetchRecentlyViewedBusiness: () => Promise<void>;
   fetchWishlist: () => Promise<void>;
@@ -222,11 +231,14 @@ export interface VerifyOtpInterface {
 
 const useProductStore = create<ProductState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       isLoading: false,
       error: null,
       products: [],
       sellerProducts: [],
+      productsPage: 1,
+      productsHasMore: false,
+      productsLoadingMore: false,
       recent: [],
       recentProduct: [],
       spotlightProduct: [],
@@ -432,26 +444,61 @@ const useProductStore = create<ProductState>()(
       // Server-prime seed: the /@{handle} route server-fetches this vendor's products
       // and hands them here so AllProducts (which filters `products` by business_id)
       // renders on first paint without the client /products?business_id round-trip.
+      // productsHasMore is a heuristic off the primed page size — a full page implies
+      // more may exist; the first loadMoreProducts discovers the real end.
       setProducts: (products: ProductData[]) =>
-        set({ products, sellerProducts: products }),
+        set({
+          products,
+          sellerProducts: products,
+          productsPage: 1,
+          productsHasMore: products.length >= STOREFRONT_PAGE_SIZE,
+        }),
 
       fetchProducts: async (business_id: string = "") => {
         set({ isLoading: true, error: null });
         try {
           const response = (await Client({
-            path: `/products?business_id=${business_id}`,
+            path: `/products?business_id=${business_id}&page=1&limit=${STOREFRONT_PAGE_SIZE}`,
             method: "GET",
           })) as AxiosResponse;
 
+          const { items, totalPages } = unwrapPaginated<ProductData>(response.data);
           set({
-            products: response.data.data.data,
-            sellerProducts: response.data.data.data,
+            products: items,
+            sellerProducts: items,
+            productsPage: 1,
+            productsHasMore: 1 < totalPages,
             isLoading: false,
           });
         } catch (error) {
           set({ error: (error as Error).message });
         } finally {
           set({ isLoading: false });
+        }
+      },
+
+      // Infinite scroll: append the next page of THIS vendor's products. No-op while
+      // already loading or once the last page has been reached.
+      loadMoreProducts: async (businessId: string) => {
+        const { productsLoadingMore, productsHasMore, productsPage } = get();
+        if (productsLoadingMore || !productsHasMore || !businessId) return;
+        set({ productsLoadingMore: true });
+        try {
+          const nextPage = productsPage + 1;
+          const response = (await Client({
+            path: `/products?business_id=${businessId}&page=${nextPage}&limit=${STOREFRONT_PAGE_SIZE}`,
+            method: "GET",
+          })) as AxiosResponse;
+          const { items, totalPages } = unwrapPaginated<ProductData>(response.data);
+          set((s) => ({
+            products: [...s.products, ...items],
+            sellerProducts: [...s.sellerProducts, ...items],
+            productsPage: nextPage,
+            productsHasMore: nextPage < totalPages && items.length > 0,
+            productsLoadingMore: false,
+          }));
+        } catch {
+          set({ productsLoadingMore: false });
         }
       },
 
