@@ -336,10 +336,14 @@ const Product = ({
     });
   };
 
-  // Decrement Count and Update Cart
+  // Out of stock when the product's (top-level) stock is depleted — matches the
+  // server-side listing filter + checkout gate (COALESCE(stock,0) > 0).
+  const isOutOfStock = Number(product?.stock ?? 0) <= 0;
+
+  // Decrement Count and Update Cart (never below 1)
   const decrement = () => {
     setCount((prev) => {
-      if (prev > 0) {
+      if (prev > 1) {
         const newCount = prev - 1;
 
         // if (newCount > 0) {
@@ -644,6 +648,7 @@ const Product = ({
   };
 
   const handleBuyNow = () => {
+    if (isOutOfStock) return;
     if (!passesCheckoutGuards()) return;
     addToCarts([cartState, ...cart]);
     setCheckoutCart([]); // fresh checkout — a stale cart-page selection must not be read at review
@@ -664,6 +669,7 @@ const Product = ({
   };
 
   const handleAddToCart = () => {
+    if (isOutOfStock) return;
     if (!passesCheckoutGuards()) return;
     addToCarts([cartState, ...cart]);
     trackAddToCart({
@@ -862,6 +868,7 @@ const Product = ({
       <ProductCTA
         isSeller={isSeller.seller}
         count={count}
+        isOutOfStock={isOutOfStock}
         onIncrement={increment}
         onDecrement={decrement}
         onBuyNow={handleBuyNow}

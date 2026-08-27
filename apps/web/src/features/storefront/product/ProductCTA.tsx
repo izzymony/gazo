@@ -14,6 +14,7 @@ import { PiShareFatThin, Minus, Plus, ShoppingCartAdd } from "@vibaar/ui/icons";
 export default function ProductCTA({
   isSeller,
   count,
+  isOutOfStock = false,
   onIncrement,
   onDecrement,
   onBuyNow,
@@ -23,6 +24,7 @@ export default function ProductCTA({
 }: {
   isSeller: boolean;
   count: number;
+  isOutOfStock?: boolean;
   onIncrement: () => void;
   onDecrement: () => void;
   onBuyNow: () => void;
@@ -52,6 +54,7 @@ export default function ProductCTA({
               onClick={onDecrement}
               size="lg"
               className="bg-ink-3"
+              disabled={isOutOfStock}
             />
             <span className="text-sm font-normal">{count}</span>
             <IconButton
@@ -60,11 +63,15 @@ export default function ProductCTA({
               onClick={onIncrement}
               size="lg"
               className="bg-ink-3"
+              disabled={isOutOfStock}
             />
           </div>
 
-          <Button onClick={onBuyNow} className="!m-0 !mx-auto">
-            Buy now
+          <Button
+            onClick={onBuyNow}
+            disabled={isOutOfStock}
+            className="!m-0 !mx-auto">
+            {isOutOfStock ? "Out of stock" : "Buy now"}
           </Button>
 
           <IconButton
@@ -73,6 +80,7 @@ export default function ProductCTA({
             onClick={onAddToCart}
             size="lg"
             className="bg-ink-3"
+            disabled={isOutOfStock}
           />
         </>
       )}
