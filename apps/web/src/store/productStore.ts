@@ -197,13 +197,14 @@ interface ProductState {
   ) => Promise<void>;
   getProductByPublicId: (publicId: string) => Promise<void>;
   getProductByIds: (id: string) => any;
-  fetchProducts: (businessId?: string, search?: string) => Promise<void>;
+  fetchProducts: (businessId?: string, search?: string, tag?: string) => Promise<void>;
   setProducts: (products: ProductData[]) => void;
   loadMoreProducts: (businessId: string) => Promise<void>;
   productsPage: number;
   productsHasMore: boolean;
   productsLoadingMore: boolean;
   productsSearch: string;
+  productsTag: string;
   fetchAllProducts: () => Promise<void>;
   fetchRecentlyViewedBusiness: () => Promise<void>;
   fetchWishlist: () => Promise<void>;
@@ -241,6 +242,7 @@ const useProductStore = create<ProductState>()(
       productsHasMore: false,
       productsLoadingMore: false,
       productsSearch: "",
+      productsTag: "",
       recent: [],
       recentProduct: [],
       spotlightProduct: [],
@@ -455,15 +457,20 @@ const useProductStore = create<ProductState>()(
           productsPage: 1,
           productsHasMore: products.length >= STOREFRONT_PAGE_SIZE,
           productsSearch: "",
+          productsTag: "",
         }),
 
-      fetchProducts: async (business_id: string = "", search: string = "") => {
+      fetchProducts: async (
+        business_id: string = "",
+        search: string = "",
+        tag: string = ""
+      ) => {
         set({ isLoading: true, error: null });
         try {
           const response = (await Client({
             path: `/products?business_id=${business_id}&page=1&limit=${STOREFRONT_PAGE_SIZE}${
               search ? `&search=${encodeURIComponent(search)}` : ""
-            }`,
+            }${tag ? `&tag=${encodeURIComponent(tag)}` : ""}`,
             method: "GET",
           })) as AxiosResponse;
 
@@ -474,6 +481,7 @@ const useProductStore = create<ProductState>()(
             productsPage: 1,
             productsHasMore: 1 < totalPages,
             productsSearch: search,
+            productsTag: tag,
             isLoading: false,
           });
         } catch (error) {
@@ -486,8 +494,13 @@ const useProductStore = create<ProductState>()(
       // Infinite scroll: append the next page of THIS vendor's products (carrying the
       // active search). No-op while already loading or once the last page is reached.
       loadMoreProducts: async (businessId: string) => {
-        const { productsLoadingMore, productsHasMore, productsPage, productsSearch } =
-          get();
+        const {
+          productsLoadingMore,
+          productsHasMore,
+          productsPage,
+          productsSearch,
+          productsTag,
+        } = get();
         if (productsLoadingMore || !productsHasMore || !businessId) return;
         set({ productsLoadingMore: true });
         try {
@@ -495,7 +508,7 @@ const useProductStore = create<ProductState>()(
           const response = (await Client({
             path: `/products?business_id=${businessId}&page=${nextPage}&limit=${STOREFRONT_PAGE_SIZE}${
               productsSearch ? `&search=${encodeURIComponent(productsSearch)}` : ""
-            }`,
+            }${productsTag ? `&tag=${encodeURIComponent(productsTag)}` : ""}`,
             method: "GET",
           })) as AxiosResponse;
           const { items, totalPages } = unwrapPaginated<ProductData>(response.data);

@@ -104,10 +104,10 @@ const AllProducts = ({
 
   const filteredProducts = sellerProduct
     .filter((product: ProductData | BusinessProduct) => {
+      // Buyer storefront search + tag filters are server-side (P16) — only the
+      // dashboard preview still filters client-side over the loaded businessProduct list.
       const matchesCategory =
-        filter === "All" || product?.tag?.includes(filter ?? "");
-      // Buyer storefront search is server-side (P16) — only the dashboard preview
-      // still filters by search client-side over the loaded businessProduct list.
+        !isDashboard || filter === "All" || product?.tag?.includes(filter ?? "");
       const matchesSearch =
         !isDashboard ||
         product?.title

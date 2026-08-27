@@ -1,6 +1,7 @@
 package mysql_repo
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -121,9 +122,16 @@ func (repo *ProductRepository) GetAllPaginated(params map[string]interface{}, se
 	}
 
 	for field, value := range params {
-		if helper.NotEmpty(value) && field != "page" && field != "limit" {
-			query = query.Where("products."+field+" = ?", value)
+		if !helper.NotEmpty(value) || field == "page" || field == "limit" {
+			continue
 		}
+		if field == "tag" {
+			// tag is a jsonb array — match products whose array CONTAINS the value.
+			tagJSON, _ := json.Marshal([]interface{}{value})
+			query = query.Where("products.tag @> ?::jsonb", string(tagJSON))
+			continue
+		}
+		query = query.Where("products."+field+" = ?", value)
 	}
 
 	countQuery := repo.db.Model(&domain.Product{})
@@ -140,9 +148,15 @@ func (repo *ProductRepository) GetAllPaginated(params map[string]interface{}, se
 	}
 
 	for field, value := range params {
-		if helper.NotEmpty(value) && field != "page" && field != "limit" {
-			countQuery = countQuery.Where("products."+field+" = ?", value)
+		if !helper.NotEmpty(value) || field == "page" || field == "limit" {
+			continue
 		}
+		if field == "tag" {
+			tagJSON, _ := json.Marshal([]interface{}{value})
+			countQuery = countQuery.Where("products.tag @> ?::jsonb", string(tagJSON))
+			continue
+		}
+		countQuery = countQuery.Where("products."+field+" = ?", value)
 	}
 
 	if err := countQuery.Count(&total).Error; err != nil {
@@ -198,9 +212,15 @@ func (repo *ProductRepository) GetAllPaginatedWithContext(
 	}
 
 	for field, value := range params {
-		if helper.NotEmpty(value) && field != "page" && field != "limit" {
-			query = query.Where("products."+field+" = ?", value)
+		if !helper.NotEmpty(value) || field == "page" || field == "limit" {
+			continue
 		}
+		if field == "tag" {
+			tagJSON, _ := json.Marshal([]interface{}{value})
+			query = query.Where("products.tag @> ?::jsonb", string(tagJSON))
+			continue
+		}
+		query = query.Where("products."+field+" = ?", value)
 	}
 	countQuery := repo.db.Model(&domain.Product{})
 
@@ -257,9 +277,15 @@ func (repo *ProductRepository) GetAllPaginatedWithContext(
 	}
 
 	for field, value := range params {
-		if helper.NotEmpty(value) && field != "page" && field != "limit" {
-			countQuery = countQuery.Where("products."+field+" = ?", value)
+		if !helper.NotEmpty(value) || field == "page" || field == "limit" {
+			continue
 		}
+		if field == "tag" {
+			tagJSON, _ := json.Marshal([]interface{}{value})
+			countQuery = countQuery.Where("products.tag @> ?::jsonb", string(tagJSON))
+			continue
+		}
+		countQuery = countQuery.Where("products."+field+" = ?", value)
 	}
 
 	if err := countQuery.Count(&total).Error; err != nil {

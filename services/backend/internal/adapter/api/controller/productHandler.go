@@ -34,7 +34,8 @@ func (s *ProductController) GetAllProducts(c *gin.Context) {
 	categoryId := c.DefaultQuery("category_id", "")
 	subCategoryId := c.DefaultQuery("sub_category_id", "")
 	businessId := c.DefaultQuery("business_id", "")
-	resp, total, err := s.service.GetAllProductsOrderedByOrders(page, limit, search, categoryId, subCategoryId, businessId)
+	tag := c.DefaultQuery("tag", "")
+	resp, total, err := s.service.GetAllProductsOrderedByOrders(page, limit, search, categoryId, subCategoryId, businessId, tag)
 	if err != nil {
 		logger.Error("Error fetching business " + err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

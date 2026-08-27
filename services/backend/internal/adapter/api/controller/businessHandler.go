@@ -731,7 +731,7 @@ func (s *BusinessController) GetDashboardSummary(c *gin.Context) {
 	var productCount int64
 	if biz, bErr := s.businessRepo.GetOne(map[string]interface{}{"user_id": userID}); bErr == nil && biz != nil {
 		bankAccounts, _, _ = s.businessRepo.GetBankAccounts(biz.ID, 100, 0)
-		_, productCount, _ = s.product.GetAllProductsOrderedByOrders(1, 1, "", "", "", biz.ID)
+		_, productCount, _ = s.product.GetAllProductsOrderedByOrders(1, 1, "", "", "", biz.ID, "")
 	}
 
 	c.JSON(http.StatusOK, response.NewCustomResponse(gin.H{
