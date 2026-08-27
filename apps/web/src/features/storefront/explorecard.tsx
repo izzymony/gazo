@@ -12,6 +12,8 @@ import StoreLogo from "@vibaar/ui/common/StoreLogo";
 
 export default function ExploreCard({
   cardAction,
+  onPrefetch,
+  onPrefetchProduct,
   bussinessName,
   id,
   store,
@@ -25,6 +27,8 @@ export default function ExploreCard({
   dynamicBackgroundImage,
 }: {
   cardAction: () => void;
+  onPrefetch?: () => void;
+  onPrefetchProduct?: (item: any) => void;
   bussinessName: string;
   id: string;
   store: Products[] | ProductData[];
@@ -98,7 +102,9 @@ export default function ExploreCard({
         backgroundRepeat: "no-repeat",
         background: cardBackground,
       }}
-      onClick={cardAction}>
+      onClick={cardAction}
+      onMouseEnter={onPrefetch}
+      onTouchStart={onPrefetch}>
       {/* Overlay for text contrast */}
       <div
         className="absolute inset-0 bg-black/70 rounded-[20px] lg:rounded-[24px]"
@@ -209,6 +215,8 @@ export default function ExploreCard({
             return (
               <div
                 onClick={(e) => smallCardAction(e, item)}
+                onMouseEnter={() => onPrefetchProduct?.(item)}
+                onTouchStart={() => onPrefetchProduct?.(item)}
                 key={item.id}
                 className="p-2 rounded-field lg:rounded-card flex gap-2 items-center cursor-pointer bg-white/10 backdrop-blur-md min-w-[200px] w-[200px] border border-white/20 shadow-sm flex-shrink-0">
                 <img

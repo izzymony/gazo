@@ -12,6 +12,7 @@ import VendorNav from "@/features/storefront/VendorNav";
 import img1 from "../../../../public/PRODUCT IMAGE (2).png";
 import useBusinessStore from "@/store/businessStore";
 import { useCategories } from "@/hooks/useCategories";
+import { useRoutePrefetch } from "@/hooks/useRoutePrefetch";
 import useProductStore from "@/store/productStore";
 import { useRouter } from "next/navigation";
 import SearchInput from "@/features/storefront/SearchInput";
@@ -45,6 +46,7 @@ const truncateTextByLength = (text: string | undefined, charLimit: number) => {
 
 const Page: React.FC = () => {
   const router = useRouter();
+  const prefetch = useRoutePrefetch();
   const { isScrolled, addScrollListener } = useScroll(20);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -402,6 +404,10 @@ const Page: React.FC = () => {
                                   const vendorPath = storePath(businessDetails);
                                   router.push(vendorPath);
                                 }}
+                                onPrefetch={() => prefetch(storePath(businessDetails))}
+                                onPrefetchProduct={(item) =>
+                                  prefetch(productPath(businessDetails, item))
+                                }
                                 smallCardAction={(e, item) => {
                                   setLoadings(true);
                                   e.stopPropagation();
@@ -594,6 +600,10 @@ const Page: React.FC = () => {
                                     console.error("Error adding to recent viewed:", error);
                                   });
                                 }}
+                                onPrefetch={() => prefetch(storePath(businessDetails))}
+                                onPrefetchProduct={(item) =>
+                                  prefetch(productPath(businessDetails, item))
+                                }
                                 smallCardAction={(e, item) => {
                                   addRecentViewed(
                                     { business_ids: [store.id] },
@@ -676,6 +686,10 @@ const Page: React.FC = () => {
                                   console.error("Error adding to recent viewed:", error);
                                 });
                               }}
+                              onPrefetch={() => prefetch(storePath(businessDetails))}
+                              onPrefetchProduct={(item) =>
+                                prefetch(productPath(businessDetails, item))
+                              }
                               smallCardAction={(e, item) => {
                                 addRecentViewed(
                                   { business_ids: [store.id] },
