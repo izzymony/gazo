@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/response"
@@ -743,6 +744,59 @@ func (s *BusinessController) GetDashboardSummary(c *gin.Context) {
 		"bank_accounts":        bankAccounts,
 		"product_count":        productCount,
 	}, nil))
+}
+
+// GetShopVendors (P16) is the marketplace discovery feed: paginated vendor cards, each
+// with a few preview products + product count, replacing the old broad-pull + client
+// grouping. Ranking, search, and category are all server-side.
+func (s *BusinessController) GetShopVendors(c *gin.Context) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	search := c.DefaultQuery("search", "")
+	category := c.DefaultQuery("category", "")
+
+	businesses, total, err := s.service.GetShopVendors(search, category, page, limit)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Fetch each vendor's preview strip + product count concurrently (page is small,
+	// ~10, so this is O(limit) bounded queries, not O(all products)).
+	const previewN = 4
+	vendors := make([]gin.H, len(businesses))
+	var wg sync.WaitGroup
+	for i := range businesses {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			biz := businesses[i]
+			// limit=previewN → items are the preview strip, total is the exact count.
+			previews, count, _ := s.product.GetAllProductsOrderedByOrders(1, previewN, "", "", "", biz.ID, "")
+			vendors[i] = gin.H{
+				"id":               biz.ID,
+				"name":             biz.Name,
+				"category":         biz.Category,
+				"tag":              biz.Tag,
+				"logo":             biz.Logo,
+				"is_verified":      biz.IsVerified,
+				"followers_count":  0,
+				"average_rating":   0.0,
+				"business_setting": biz.BusinessSetting,
+				"product_count":    count,
+				"preview_products": previews,
+			}
+		}(i)
+	}
+	wg.Wait()
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":       vendors,
+		"page":       page,
+		"limit":      limit,
+		"total":      total,
+		"totalPages": int(math.Ceil(float64(total) / float64(limit))),
+	})
 }
 
 func (s *BusinessController) GetDashboardAnalytics(c *gin.Context) {

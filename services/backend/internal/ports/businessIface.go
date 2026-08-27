@@ -12,7 +12,7 @@ type BusinessIface interface {
 	FindByTag(tag string) (domain.Business, error)
 	CountByTag(tag string, excludeID string) (int64, error)
 	GetAll(param map[string]interface{}) ([]domain.Business, error)
-	GetAllPaginated(search string, page, limit int) ([]domain.Business, int64, error)
+	GetAllPaginated(search, category string, page, limit int) ([]domain.Business, int64, error)
 	Update(id string, data interface{}) (*domain.Business, error)
 	Delete(id string) (domain.Business, error)
 	GetOne(param map[string]interface{}) (*domain.Business, error)

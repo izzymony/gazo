@@ -89,7 +89,7 @@ func (repo *BusinessRepository) GetAll(param map[string]interface{}) ([]domain.B
 }
 
 // GetAllPaginated orders by business with most order items
-func (repo *BusinessRepository) GetAllPaginated(search string, page, limit int) ([]domain.Business, int64, error) {
+func (repo *BusinessRepository) GetAllPaginated(search, category string, page, limit int) ([]domain.Business, int64, error) {
 	var data []domain.Business
 	var total int64
 
@@ -109,32 +109,43 @@ func (repo *BusinessRepository) GetAllPaginated(search string, page, limit int) 
 
 	if search != "" {
 		searchPattern := "%" + strings.ToLower(search) + "%"
-		query = query.Where(`
+		// Parenthesise the OR so it ANDs with the EXISTS-products guard. Without the
+		// outer parens, SQL precedence makes it `EXISTS AND name OR tag OR category`,
+		// i.e. `(EXISTS AND name) OR tag OR category`, which leaks vendors that have no
+		// products (pre-existing bug — also affected /businesses?search=).
+		query = query.Where(`(
 			LOWER(businesses.name) ILIKE ? OR
 			LOWER(businesses.tag) ILIKE ? OR
-			LOWER(businesses.category) ILIKE ?`,
+			LOWER(businesses.category) ILIKE ?)`,
 			searchPattern, searchPattern, searchPattern,
 		)
+	}
+	if category != "" {
+		query = query.Where("LOWER(businesses.category) = LOWER(?)", category)
 	}
 
 	countQuery := repo.db.Model(&domain.Business{}).
 		Where("EXISTS (SELECT 1 FROM products WHERE products.business_id = businesses.id)")
 	if search != "" {
 		searchPattern := "%" + strings.ToLower(search) + "%"
-		countQuery = countQuery.Where(`
+		countQuery = countQuery.Where(`(
 			LOWER(name) ILIKE ? OR
 			LOWER(tag) ILIKE ? OR
-			LOWER(category) ILIKE ?`,
+			LOWER(category) ILIKE ?)`,
 			searchPattern, searchPattern, searchPattern,
 		)
+	}
+	if category != "" {
+		countQuery = countQuery.Where("LOWER(category) = LOWER(?)", category)
 	}
 	if err := countQuery.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
 	offset := (page - 1) * limit
+	// Stable, deterministic ordering so pages don't overlap/skip under equal order counts.
 	if err := query.
-		Order("order_count DESC").
+		Order("order_count DESC, businesses.created_at DESC, businesses.id").
 		Limit(limit).
 		Offset(offset).
 		Find(&data).Error; err != nil {

@@ -62,6 +62,13 @@ func BusinessRoutes(router *gin.RouterGroup, businessHandler *controller.Busines
 		businesses.GET("/check-tag", businessHandler.CheckTagAvailability)
 	}
 
+	// P16 marketplace discovery feed (public): paginated vendor cards, each with a few
+	// preview products + product count — replaces the /shop broad-pull + client grouping.
+	shop := router.Group("/shop")
+	{
+		shop.GET("/vendors", businessHandler.GetShopVendors)
+	}
+
 	// Debug/test endpoint for order marking — bypasses auth, so LOCAL ONLY (E0.2).
 	// Never register it in staging/production.
 	if isLocalEnv() {

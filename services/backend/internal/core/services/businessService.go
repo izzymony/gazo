@@ -228,7 +228,7 @@ func (s *BusinessService) UpdateBusiness(id, userId string, input domain.Busines
 
 // GetAllBusinesses Ordered by orders
 func (s *BusinessService) GetAllBusinesses(search string, page, limit int) ([]domain.Business, int64, error) {
-	businesses, totalItems, err := s.businessRepo.GetAllPaginated(search, page, limit)
+	businesses, totalItems, err := s.businessRepo.GetAllPaginated(search, "", page, limit)
 	if err != nil {
 		return nil, 0, errors.New("error fetching businesses")
 	}
@@ -251,6 +251,29 @@ func (s *BusinessService) GetAllBusinesses(search string, page, limit int) ([]do
 				PersonalisedSettings: businesses[i].BusinessSetting.PersonalisedSettings,
 			}
 			businesses[i].BusinessSetting = themeOnlySetting
+		}
+	}
+	return businesses, totalItems, nil
+}
+
+// GetShopVendors returns the public marketplace vendor list — same ranking / has-products
+// guard / public field-stripping as GetAllBusinesses, plus an optional category filter —
+// for the /shop/vendors discovery feed (P16).
+func (s *BusinessService) GetShopVendors(search, category string, page, limit int) ([]domain.Business, int64, error) {
+	businesses, totalItems, err := s.businessRepo.GetAllPaginated(search, category, page, limit)
+	if err != nil {
+		return nil, 0, errors.New("error fetching vendors")
+	}
+	for i := range businesses {
+		businesses[i].Email = ""
+		businesses[i].BankAccountDetails = nil
+		if businesses[i].BusinessSetting != nil {
+			// Strip to theme-only for public display (drop sensitive settings).
+			businesses[i].BusinessSetting = &domain.BusinessSetting{
+				Model:                businesses[i].BusinessSetting.Model,
+				BusinessID:           businesses[i].BusinessSetting.BusinessID,
+				PersonalisedSettings: businesses[i].BusinessSetting.PersonalisedSettings,
+			}
 		}
 	}
 	return businesses, totalItems, nil
