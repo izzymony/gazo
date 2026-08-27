@@ -175,6 +175,24 @@ func (repo *ProductRepository) GetAllPaginated(params map[string]interface{}, se
 	return data, total, nil
 }
 
+// GetDistinctTags returns the distinct tags across a business's ACTIVE products — the
+// source for the storefront's filter chips, so chips reflect ALL of the vendor's tags
+// rather than only those found on the loaded page (P16).
+func (repo *ProductRepository) GetDistinctTags(businessId string) ([]string, error) {
+	var tags []string
+	err := repo.db.Raw(
+		`SELECT DISTINCT jsonb_array_elements_text(tag) AS t
+		 FROM products
+		 WHERE business_id = ? AND status = ? AND tag IS NOT NULL AND jsonb_typeof(tag) = 'array'
+		 ORDER BY t`,
+		businessId, string(helper.ProductStatusActive),
+	).Scan(&tags).Error
+	if err != nil {
+		return nil, err
+	}
+	return tags, nil
+}
+
 func (repo *ProductRepository) GetAllPaginatedWithContext(
 	userId string,
 	isGuest bool,

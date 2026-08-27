@@ -443,6 +443,11 @@ func (s *ProductService) GetAllProductsOrderedByOrders(page, limit int, search, 
 	return products, totalItems, nil
 }
 
+// GetStoreTags returns a storefront's distinct product tags (for the filter chips).
+func (s *ProductService) GetStoreTags(businessId string) ([]string, error) {
+	return s.repo.GetDistinctTags(businessId)
+}
+
 func (s *ProductService) Find(id string) (*domain.Product, error) {
 	product, err := s.repo.GetOneWithAssociations(map[string]interface{}{"id": id})
 	if err != nil {

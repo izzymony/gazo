@@ -198,6 +198,7 @@ interface ProductState {
   getProductByPublicId: (publicId: string) => Promise<void>;
   getProductByIds: (id: string) => any;
   fetchProducts: (businessId?: string, search?: string, tag?: string) => Promise<void>;
+  fetchStoreTags: (businessId: string) => Promise<string[]>;
   setProducts: (products: ProductData[]) => void;
   loadMoreProducts: (businessId: string) => Promise<void>;
   productsPage: number;
@@ -459,6 +460,21 @@ const useProductStore = create<ProductState>()(
           productsSearch: "",
           productsTag: "",
         }),
+
+      // P16: a storefront's DISTINCT tags for the filter chips (server-side, so chips
+      // reflect all of a vendor's products, not just the loaded page).
+      fetchStoreTags: async (businessId: string) => {
+        try {
+          const response = (await Client({
+            path: `/products/tags?business_id=${encodeURIComponent(businessId)}`,
+            method: "GET",
+          })) as AxiosResponse;
+          const tags = response.data?.data;
+          return Array.isArray(tags) ? tags : [];
+        } catch {
+          return [];
+        }
+      },
 
       fetchProducts: async (
         business_id: string = "",

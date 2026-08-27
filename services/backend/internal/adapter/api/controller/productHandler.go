@@ -25,6 +25,21 @@ func NewProductController(db *gorm.DB) *ProductController {
 	}
 }
 
+// GetStoreTags returns a storefront's distinct product tags for the filter chips (P16).
+func (s *ProductController) GetStoreTags(c *gin.Context) {
+	businessId := c.Query("business_id")
+	if businessId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "business_id is required"})
+		return
+	}
+	tags, err := s.service.GetStoreTags(businessId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": tags})
+}
+
 func (s *ProductController) GetAllProducts(c *gin.Context) {
 	logger.Info("GetAllProduct")
 

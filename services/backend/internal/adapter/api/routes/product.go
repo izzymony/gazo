@@ -30,6 +30,7 @@ func ProductRoutes(router *gin.RouterGroup, productHandler *controller.ProductCo
 		}
 
 		product.GET("/get-top-vendors", productHandler.GetTopVendors)
+		product.GET("/tags", productHandler.GetStoreTags)
 		product.GET("/:id", productHandler.FindProduct)
 
 		product.GET("", productHandler.GetAllProducts)

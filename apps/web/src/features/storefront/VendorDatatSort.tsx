@@ -20,8 +20,8 @@ const VendorDataSort: React.FC<VendorDataSortProps> = ({
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
   const [productTags, setProductTags] = useState<string[]>([]);
-  const { fetchExistingTags, stor, businessProduct } = useBusinessStore();
-  const { products } = useProductStore();
+  const { stor, businessProduct } = useBusinessStore();
+  const { fetchStoreTags } = useProductStore();
   const pathname = usePathname();
 
   // Fetch product tags instead of collections
@@ -41,22 +41,15 @@ const VendorDataSort: React.FC<VendorDataSortProps> = ({
         console.log("🏷️ Seller mode - extracted tags from businessProduct:", uniqueTags);
         setProductTags(uniqueTags);
       } else if (!isSellerPath && stor?.id) {
-        // In marketplace mode, use products filtered by stor.id
-        const storeProducts = products.filter(p => p.business_id === stor.id);
-        const tags = new Set<string>();
-        storeProducts.forEach(product => {
-          if (product.tag && Array.isArray(product.tag)) {
-            product.tag.forEach(t => tags.add(t));
-          }
-        });
-        const uniqueTags = Array.from(tags);
-        console.log("🏷️ Marketplace mode - extracted tags from store products:", uniqueTags);
+        // Buyer storefront: fetch the vendor's DISTINCT tags server-side (P16) so chips
+        // reflect ALL of the vendor's products, not just the loaded page.
+        const uniqueTags = await fetchStoreTags(stor.id);
         setProductTags(uniqueTags);
       }
     };
 
     loadProductTags();
-  }, [stor?.id, businessProduct, products, pathname]);
+  }, [stor?.id, businessProduct, pathname]);
 
   console.log("🔍 VendorDataSort Debug:", {
     storId: stor?.id,
