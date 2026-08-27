@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Client } from "@/lib/client";
 import { getQueryClient } from "@/lib/api/queryClient";
-import { unwrap } from "@/lib/api/unwrap";
+import { unwrap, unwrapPaginated } from "@/lib/api/unwrap";
 import {
   BusinessData,
   BusinessPayloadData,
   BusinessStatsResponse,
+  ProductData,
   SelfZones,
   StoreData,
 } from "@/lib/types";
@@ -17,6 +18,34 @@ import Cookies from "js-cookie";
 import { persist } from "zustand/middleware";
 import { createJSONStorage } from "zustand/middleware";
 import createQuotaSafeStorage from "@/utils/quotaSafeStorage";
+
+// P16 marketplace discovery feed. One card per vendor from GET /shop/vendors —
+// server-paginated + server-ranked, each carrying a small preview strip + exact
+// product count. Replaces the old /shop broad-pull (250 products + 500 stores)
+// + client-side grouping.
+export interface ShopVendor {
+  id: string;
+  name: string;
+  category: string;
+  tag: string;
+  logo?: string;
+  is_verified: boolean;
+  followers_count: number;
+  average_rating: number;
+  business_setting?: {
+    personalised_settings?: {
+      background_color?: string;
+      background_image?: string;
+      background_state?: string;
+    };
+  };
+  product_count: number;
+  preview_products: ProductData[];
+}
+
+// 2-column grid; keep the page (and thus the backend's per-vendor preview
+// fan-out) small so each infinite-scroll fetch stays cheap on 3G.
+export const SHOP_VENDORS_PAGE_SIZE = 12;
 
 export interface CustomerAnalytics {
   percent_change: {
@@ -267,6 +296,18 @@ interface BusinessState {
   stor: StoreData | null;
   storeMetrics: BusinessStatsResponse | null;
   stores: StoreData[];
+  // P16 marketplace feed state
+  shopVendors: ShopVendor[];
+  shopVendorsPage: number;
+  shopVendorsHasMore: boolean;
+  shopVendorsLoading: boolean; // initial / filter-reset load
+  shopVendorsLoadingMore: boolean; // append (infinite scroll)
+  shopVendorsError: boolean;
+  shopVendorsCategory: string;
+  shopVendorsSearch: string;
+  // Monotonic request id: only the latest fetchShopVendors result is applied, so a
+  // slow earlier response can't clobber a newer filter (stale-query protection).
+  _shopVendorsReqId: number;
   sales: SaleAnalytics;
   customer: CustomerAnalytics;
   productrakings: ProductRanking[];
@@ -291,6 +332,11 @@ interface BusinessState {
     callback?: () => void
   ) => Promise<void>;
   fetchStores: () => Promise<void>;
+  // P16 marketplace feed. fetchShopVendors resets to page 1 for the given
+  // filters; loadMoreShopVendors appends the next page (self-guards while
+  // loading / when exhausted).
+  fetchShopVendors: (opts?: { category?: string; search?: string }) => Promise<void>;
+  loadMoreShopVendors: () => Promise<void>;
   fetchStoresBySearch: (search: string) => Promise<void>;
   fetchStoreByTag: (tag: string) => Promise<void>;
   updateStore: (
@@ -527,6 +573,15 @@ const useBusinessStore = create<BusinessState>()(
       isLoadingTheme: false,
       error: null,
       stores: [],
+      shopVendors: [],
+      shopVendorsPage: 1,
+      shopVendorsHasMore: false,
+      shopVendorsLoading: false,
+      shopVendorsLoadingMore: false,
+      shopVendorsError: false,
+      shopVendorsCategory: "",
+      shopVendorsSearch: "",
+      _shopVendorsReqId: 0,
       sales: {
         percent_change: {
           active_orders: 0,
@@ -1429,6 +1484,108 @@ const useBusinessStore = create<BusinessState>()(
           handleAxiosError(error);
         } finally {
           set({ isLoading: false });
+        }
+      },
+
+      // P16 marketplace feed — reset to page 1 for the given filters. The
+      // monotonic _shopVendorsReqId guards against out-of-order responses: if a
+      // newer fetch has started by the time this one resolves, its result is
+      // dropped rather than clobbering the newer filter's data.
+      fetchShopVendors: async (opts) => {
+        const category = opts?.category ?? "";
+        const search = opts?.search ?? "";
+        const reqId = get()._shopVendorsReqId + 1;
+        set({
+          _shopVendorsReqId: reqId,
+          shopVendorsLoading: true,
+          shopVendorsError: false,
+          shopVendorsCategory: category,
+          shopVendorsSearch: search,
+        });
+        try {
+          const params = new URLSearchParams({
+            page: "1",
+            limit: String(SHOP_VENDORS_PAGE_SIZE),
+          });
+          if (category) params.set("category", category);
+          if (search) params.set("search", search);
+          const response = (await Client({
+            path: `/shop/vendors?${params.toString()}`,
+            method: "GET",
+          })) as AxiosResponse;
+          // A newer fetch superseded this one — discard the stale result.
+          if (get()._shopVendorsReqId !== reqId) return;
+          const { items, page, totalPages } = unwrapPaginated<ShopVendor>(
+            response.data
+          );
+          set({
+            shopVendors: items,
+            shopVendorsPage: page,
+            shopVendorsHasMore: page < totalPages,
+            shopVendorsLoading: false,
+          });
+        } catch (error) {
+          if (get()._shopVendorsReqId !== reqId) return;
+          set({
+            shopVendorsLoading: false,
+            shopVendorsError: true,
+            shopVendors: [],
+            shopVendorsHasMore: false,
+          });
+          handleAxiosError(error);
+        }
+      },
+
+      // Append the next feed page. Self-guards while already loading / exhausted
+      // (the infinite-scroll sentinel fires this repeatedly). If a filter reset
+      // (fetchShopVendors) bumps the reqId mid-flight, the page is discarded so a
+      // stale page can't be appended onto a freshly-filtered list.
+      loadMoreShopVendors: async () => {
+        const {
+          shopVendorsLoading,
+          shopVendorsLoadingMore,
+          shopVendorsHasMore,
+          shopVendorsPage,
+          shopVendorsCategory,
+          shopVendorsSearch,
+          _shopVendorsReqId: reqId,
+        } = get();
+        if (shopVendorsLoading || shopVendorsLoadingMore || !shopVendorsHasMore)
+          return;
+        const nextPage = shopVendorsPage + 1;
+        set({ shopVendorsLoadingMore: true });
+        try {
+          const params = new URLSearchParams({
+            page: String(nextPage),
+            limit: String(SHOP_VENDORS_PAGE_SIZE),
+          });
+          if (shopVendorsCategory) params.set("category", shopVendorsCategory);
+          if (shopVendorsSearch) params.set("search", shopVendorsSearch);
+          const response = (await Client({
+            path: `/shop/vendors?${params.toString()}`,
+            method: "GET",
+          })) as AxiosResponse;
+          // Filters changed while this page was in flight — drop it.
+          if (get()._shopVendorsReqId !== reqId) {
+            set({ shopVendorsLoadingMore: false });
+            return;
+          }
+          const { items, page, totalPages } = unwrapPaginated<ShopVendor>(
+            response.data
+          );
+          set((state) => {
+            const seen = new Set(state.shopVendors.map((v) => v.id));
+            const fresh = items.filter((v) => !seen.has(v.id));
+            return {
+              shopVendors: [...state.shopVendors, ...fresh],
+              shopVendorsPage: page,
+              shopVendorsHasMore: page < totalPages,
+              shopVendorsLoadingMore: false,
+            };
+          });
+        } catch (error) {
+          set({ shopVendorsLoadingMore: false });
+          handleAxiosError(error);
         }
       },
 

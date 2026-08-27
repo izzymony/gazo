@@ -13,15 +13,14 @@ import img1 from "../../../../public/PRODUCT IMAGE (2).png";
 import useBusinessStore from "@/store/businessStore";
 import { useCategories } from "@/hooks/useCategories";
 import { useRoutePrefetch } from "@/hooks/useRoutePrefetch";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import useProductStore from "@/store/productStore";
 import { useRouter } from "next/navigation";
 import SearchInput from "@/features/storefront/SearchInput";
-// import logo from "../../../../public/images/vendor/logo1.png";
 import HeaderSlides from "@vibaar/ui/common/HeaderSlides";
-import { BusinessData, ProductData } from "@/lib/types";
+import { BusinessData } from "@/lib/types";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import ExploreCard from "@/features/storefront/explorecard";
-//import useScroll from "@/hooks/useScroll";
 import useShippingStore from "@/store/shippingStore";
 import useAuthStore from "@/store/authStore";
 import useOrderStore from "@/store/orderStore";
@@ -52,16 +51,43 @@ const Page: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [likedItems] = useState<number[]>([]);
   const {
-    products,
     spotlightProduct,
     fetchRecentlyViewedBusiness,
     fetchWishlist,
-    fetchAllProducts,
     addRecentViewed,
     addWishlist,
     recent,
   } = useProductStore();
   const { cart, addToCarts } = useOrderStore();
+
+  const [loading, setLoadings] = useState(false);
+  const [search, setSearch] = useState(false);
+  const [selected, setSelected] = useState<any>({});
+
+  const { fetchGuestShippings, ensureGuestId } = useShippingStore();
+  const { user } = useAuthStore();
+
+  const {
+    // Vendor directory — kept ONLY for the wishlist + recently-viewed
+    // business-detail lookups (logo / rating) via getBusinessDetails below.
+    // Now bounded (backend PaginationGuard clamps limit to 100). The P16
+    // marketplace grid itself no longer touches this (it uses the /shop/vendors
+    // feed). (P16 EXCEPTION — tracked: enrich wishlist items server-side to drop it.)
+    fetchStores,
+    stores,
+    setStore,
+    // P16 marketplace discovery feed (server search + category, infinite scroll).
+    shopVendors,
+    shopVendorsLoading,
+    shopVendorsLoadingMore,
+    shopVendorsHasMore,
+    shopVendorsError,
+    fetchShopVendors,
+    loadMoreShopVendors,
+  } = useBusinessStore();
+  const { categories } = useCategories(); // W2.5: single ["categories"] cache
+
+  const selectedName: string = selected?.name || "";
 
   const handleAddToCart = (e: React.MouseEvent, item: any) => {
     e.stopPropagation();
@@ -77,21 +103,6 @@ const Page: React.FC = () => {
     trackSimpleAddToCart(product);
     toast.success("Added to cart");
   };
-  const [loading, setLoadings] = useState(false);
-  const [fetchStatus, setFetchStatus] = useState<"loading" | "error" | "ready">("loading");
-  const [search, setSearch] = useState(false);
-  const [selected, setSelected] = useState<any>({});
-
-  const { fetchGuestShippings, ensureGuestId } = useShippingStore();
-  const { user } = useAuthStore();
-
-  const {
-    fetchStores,
-    stores,
-    store,
-    setStore,
-  } = useBusinessStore();
-  const { categories } = useCategories(); // W2.5: single ["categories"] cache
 
   useEffect(() => {
     // Reuse the persisted guest-id (get-or-create); never regenerate it, or the
@@ -99,7 +110,6 @@ const Page: React.FC = () => {
     if (!user?.id) {
       fetchGuestShippings(ensureGuestId());
     }
-    // W2.4: no cleanup-refetch
   }, [user]);
 
   useEffect(() => {
@@ -108,89 +118,58 @@ const Page: React.FC = () => {
     };
   }, [addScrollListener]);
 
-  const fetchAllData = useCallback(async () => {
-    setLoadings(true);
-    setFetchStatus("loading");
-    try {
-      await Promise.all([
-        fetchStores(),
-        fetchAllProducts(),
-        // Per-user reads — only for signed-in buyers. For a guest these 401,
-        // and (before the interceptor fix) that 401 hard-redirected them to
-        // login, which is why guests couldn't even open /shop.
-        ...(user ? [fetchRecentlyViewedBusiness(), fetchWishlist()] : []),
-      ]);
-      setFetchStatus("ready");
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setFetchStatus("error");
-    } finally {
-      setLoadings(false);
+  // Secondary sections' data: the vendor directory (for wishlist/recently-viewed
+  // logo lookups) + the per-user wishlist & recently-viewed lists. The marketplace
+  // grid is fetched separately by the debounced feed effect below.
+  useEffect(() => {
+    fetchStores();
+    if (user) {
+      fetchWishlist();
+      fetchRecentlyViewedBusiness();
     }
-    // store actions are stable refs
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
+  // Marketplace feed: (re)fetch page 1 whenever the category chip or search term
+  // changes. Typing is debounced; category selection / initial mount fire
+  // immediately. The store's request-id guard drops any out-of-order response.
   useEffect(() => {
-    fetchAllData();
-  }, [fetchAllData]);
+    const term = searchTerm.trim();
+    const t = setTimeout(
+      () => {
+        fetchShopVendors({ category: selectedName, search: term });
+      },
+      term ? 300 : 0
+    );
+    return () => clearTimeout(t);
+  }, [searchTerm, selectedName]);
 
   const handleLikeClick = useCallback(async (id: string) => {
-    //("ids clicked", id);
     await addWishlist(id);
   }, []);
-
-  // Guard: Only group data when BOTH stores AND products are loaded
-  // This prevents the race condition where products load before stores
-  const isDataReady = stores.length > 0 && products.length > 0;
-
-  const groupedData =
-    isDataReady
-      ? Object.values(
-          products.reduce(
-            (
-              acc: Record<
-                string,
-                { business: string; products: ProductData[]; id: string }
-              >,
-              item
-            ) => {
-              const { business_id, ...productDetails } = item;
-              if (business_id && !acc[business_id]) {
-                acc[business_id] = {
-                  business: business_id,
-                  id: business_id,
-                  products: [],
-                };
-              }
-              if (business_id) {
-                acc[business_id].products.push(productDetails);
-              }
-              return acc;
-            },
-            {}
-          )
-        )
-      : [];
 
   // Generate session-consistent seed for stable background selection
   const sessionSeed = useMemo(() => generateSessionSeed(), []);
 
-  // Create dynamic background map for all vendors (used by both recently viewed and all vendors sections)
-  const allVendorsBackgroundMap = useMemo(() => {
-    if (groupedData.length === 0 || !stores || stores.length === 0) {
-      return new Map<string, string>();
-    }
-
-    const vendorsWithProducts = groupedData.map((store) => ({
-      id: store.business,
-      products: store.products || [],
+  // Dynamic card background per vendor, derived from that vendor's product images.
+  // Built from the feed's preview strips + the recently-viewed products (both carry
+  // products) so every rendered card resolves a stable image.
+  const backgroundMap = useMemo(() => {
+    const feed = shopVendors.map((v) => ({
+      id: v.id,
+      products: v.preview_products || [],
     }));
+    const rec = recent.map((r) => ({
+      id: r.business_id,
+      products: r.products || [],
+    }));
+    const combined = [...feed, ...rec];
+    if (combined.length === 0) return new Map<string, string>();
+    return createVendorBackgroundMap(
+      combined as unknown as Parameters<typeof createVendorBackgroundMap>[0],
+      sessionSeed
+    );
+  }, [shopVendors, recent, sessionSeed]);
 
-    return createVendorBackgroundMap(vendorsWithProducts as unknown as Parameters<typeof createVendorBackgroundMap>[0], sessionSeed);
-  }, [groupedData, stores, sessionSeed]);
-
-  // Check for ID mismatches and provide detailed comparison
   const getBusinessDetails: BusinessDetails = (
     data: BusinessData[],
     businessId: string
@@ -198,39 +177,32 @@ const Page: React.FC = () => {
     if (!Array.isArray(data) || !businessId) {
       return null;
     }
-
     const business = data.find((item) => item.id === businessId);
-    
     return business || null;
   };
 
-  const handleProductClick = (
-    e: any,
-    index: number,
-    item: any,
-    name: string
-  ) => {
+  // Wishlist / spotlight product click — navigates to the product detail page.
+  // Uses the item's own embedded product (no dependency on a broad product pull);
+  // resolves the vendor tag from the kept directory.
+  const handleProductClick = (e: any, item: any) => {
     e.stopPropagation();
-    setLoadings(true);
-    // Example navigation logic
-    const selectedProduct = products[index];
-    if (selectedProduct && selectedProduct.title) {
+    const p = item?.product;
+    if (p && p.title) {
       router.push(
-        productPath(getBusinessDetails(stores, selectedProduct.business_id || ""), {
-          ...selectedProduct,
+        productPath(getBusinessDetails(stores, p.business_id || ""), {
+          ...p,
           id: item.product_id,
         })
       );
     }
-    setLoadings(false);
   };
 
-  // Shell paints immediately; the vendor grid skeletons while the fetches land.
-  // (Was a full-page Loader gated on ALL 4 fetches — incl. the 500-business +
-  // 250-product pulls — so the slowest blocked the entire first paint.) (Perf P2.)
+  // Infinite-scroll sentinel for the marketplace grid. loadMoreShopVendors
+  // self-guards while loading / when exhausted.
+  const sentinelRef = useInfiniteScroll(loadMoreShopVendors, shopVendorsHasMore);
 
-  // Fetch failed — show a retryable error instead of an infinite spinner.
-  if (fetchStatus === "error") {
+  // Feed failed with nothing to show — retryable error instead of an empty page.
+  if (shopVendorsError && shopVendors.length === 0) {
     return (
       <div ref={scrollRef} className="w-full overflow-y-scroll scrollbar-hide">
         <div className="w-full flex flex-col mb-0">
@@ -242,29 +214,15 @@ const Page: React.FC = () => {
               subtitle="Something went wrong. Check your connection and try again."
             />
             <Button
-              onClick={() => fetchAllData()}
+              onClick={() =>
+                fetchShopVendors({
+                  category: selectedName,
+                  search: searchTerm.trim(),
+                })
+              }
               className="max-w-[max-content]">
               Try again
             </Button>
-          </div>
-        </div>
-        <VendorNav />
-      </div>
-    );
-  }
-
-  // Loaded but no vendors found
-  if (fetchStatus === "ready" && groupedData.length === 0) {
-    return (
-      <div ref={scrollRef} className="w-full overflow-y-scroll scrollbar-hide">
-        <div className="w-full flex flex-col mb-0">
-          <HeaderSlides />
-          <div className="rounded-t-2xl -mt-4 pb-10 z-20 bg-white shadow-lg px-4 pt-8 min-h-[50vh] flex items-center justify-center max-w-full lg:max-w-5xl lg:mx-auto">
-            <EmptyState
-              image="/images/emptystate/products_empty_state.svg"
-              title="No vendors found"
-              subtitle="Check back later for new vendors or try a different search"
-            />
           </div>
         </div>
         <VendorNav />
@@ -289,38 +247,7 @@ const Page: React.FC = () => {
             />
           )}
           <div className="gap-2 w-full pe-1 flex items-center bg-white sticky top-0 z-30 border-b border-ink-10">
-            {!search && !searchTerm ? (
-              <div className="gap-2 py-1 w-full flex items-center">
-                <div className="flex flex-1 gap-2 items-center my-2 overflow-x-scroll scrollbar-hide">
-                  {categories.map((it) => (
-                    <div
-                      onClick={() => setSelected(selected.id ? {} : it)}
-                      key={it.id}
-                      className={
-                        it.name === selected.name
-                          ? "py-2 px-4 bg-ink-90 rounded-full text-white text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
-                          : "py-2 px-4 bg-ink-3 rounded-full text-ink-90 text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
-                      }>
-                      <p className="whitespace-nowrap">{it.name}</p>
-                      {it.name === selected.name && (
-                        <div
-                          className="z-modal cursor-pointer"
-                          onClick={() => setSelected({})}>
-                          <X size={12} className="text-white" />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                {isScrolled && (
-                  <div
-                    className="py-2 px-2 bg-ink-3 rounded-full text-ink-90 text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
-                    onClick={() => setSearch(!search)}>
-                    <Search size={16} className="text-ink-90" />
-                  </div>
-                )}
-              </div>
-            ) : search && isScrolled ? (
+            {search && isScrolled ? (
               <SearchInput
                 showSearch={true}
                 searchTerm={searchTerm}
@@ -335,18 +262,23 @@ const Page: React.FC = () => {
                 <div className="flex flex-1 gap-2 items-center my-2 overflow-x-scroll scrollbar-hide">
                   {categories.map((it) => (
                     <div
-                      onClick={() => setSelected(selected.id ? {} : it)}
+                      onClick={() =>
+                        setSelected(selectedName === it.name ? {} : it)
+                      }
                       key={it.id}
                       className={
-                        it.name === selected.name
+                        it.name === selectedName
                           ? "py-2 px-4 bg-ink-90 rounded-full text-white text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
                           : "py-2 px-4 bg-ink-3 rounded-full text-ink-90 text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
                       }>
                       <p className="whitespace-nowrap">{it.name}</p>
-                      {it.name === selected.name && (
+                      {it.name === selectedName && (
                         <div
                           className="z-modal cursor-pointer"
-                          onClick={() => setSelected({})}>
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelected({});
+                          }}>
                           <X size={12} className="text-white" />
                         </div>
                       )}
@@ -366,85 +298,85 @@ const Page: React.FC = () => {
 
           <div className="h-full overflow-y-scroll scrollbar-hide">
             <div className=" ">
-              {/* Recently viewed vendors - using unified groupedData */}
-              {(() => {
-                // Get recently viewed business IDs from recent array
-                const recentlyViewedIds = new Set(recent.map(item => item.business_id));
+              {/* Recently viewed vendors — rendered from the per-user `recent`
+                  list (it carries { business, products }); no broad product pull. */}
+              {recent.length > 0 && (
+                <div className="mb-5 px-2">
+                  <div className="flex justify-between items-center my-4">
+                    <p className="font-medium text-body md:text-body-lg">
+                      Recently viewed vendors
+                    </p>
+                    <p
+                      onClick={() => router.push("/shop/recently-viewed")}
+                      className="text-caption md:text-body-sm font-medium text-brand cursor-pointer hover:underline">
+                      See all
+                    </p>
+                  </div>
+                  <div className="overflow-x-auto scrollbar-hide">
+                    <div className="flex gap-4 px-0">
+                      {recent.map((r) => {
+                        // Prefer the full directory record (logo / rating); fall back
+                        // to the business embedded in the recent entry.
+                        const details =
+                          getBusinessDetails(stores, r.business_id) ||
+                          (r.business as any);
 
-                // Filter groupedData to show only recently viewed vendors
-                const recentlyViewedVendors = groupedData.filter(store =>
-                  recentlyViewedIds.has(store.business)
-                );
-
-                return recentlyViewedVendors.length > 0 && (
-                  <div className="mb-5 px-2">
-                    <div className="flex justify-between items-center my-4">
-                      <p className="font-medium text-body md:text-body-lg">
-                        Recently viewed vendors
-                      </p>
-                      <p
-                        onClick={() => router.push("/shop/recently-viewed")}
-                        className="text-caption md:text-body-sm font-medium text-brand cursor-pointer hover:underline">
-                        See all
-                      </p>
-                    </div>
-                    <div className="overflow-x-auto scrollbar-hide">
-                      <div className="flex gap-4 px-0">
-                        {recentlyViewedVendors.map((store) => {
-                          const businessDetails = getBusinessDetails(stores, store.business);
-
-                          return (
-                            <div key={store.id} className="w-[340px] md:w-[400px] lg:w-[450px] flex-shrink-0">
-                              <ExploreCard
-                                cardAction={() => {
-                                  if (businessDetails) {
-                                    setStore(businessDetails);
-                                  }
-
-                                  const vendorPath = storePath(businessDetails);
-                                  router.push(vendorPath);
-                                }}
-                                onPrefetch={() => prefetch(storePath(businessDetails))}
-                                onPrefetchProduct={(item) =>
-                                  prefetch(productPath(businessDetails, item))
+                        return (
+                          <div
+                            key={r.id}
+                            className="w-[340px] md:w-[400px] lg:w-[450px] flex-shrink-0">
+                            <ExploreCard
+                              cardAction={() => {
+                                if (details) {
+                                  setStore(details);
                                 }
-                                smallCardAction={(e, item) => {
-                                  setLoadings(true);
-                                  e.stopPropagation();
-                                  router.push(
-                                    productPath(businessDetails, item)
-                                  );
-                                }}
-                                likedItems={likedItems}
-                                handleLikeClick={(ite) => handleLikeClick(ite)}
-                                image={img1.src}
-                                bussinessName={businessDetails?.name || ""}
-                                category={businessDetails?.category || ""}
-                                id={store.business}
-                                store={store.products}
-                                vendorTheme={{
-                                  backgroundColor: businessDetails?.business_setting?.personalised_settings?.background_color,
-                                  backgroundImage: businessDetails?.business_setting?.personalised_settings?.background_image,
-                                  backgroundType: businessDetails?.business_setting?.personalised_settings?.background_state,
-                                }}
-                                businessDetails={{
-                                  logo: businessDetails?.logo as string | undefined,
-                                  followers_count: businessDetails?.followers_count,
-                                  average_rating: businessDetails?.average_rating,
-                                }}
-                                dynamicBackgroundImage={allVendorsBackgroundMap.get(store.business)}
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
+                                router.push(storePath(details));
+                              }}
+                              onPrefetch={() => prefetch(storePath(details))}
+                              onPrefetchProduct={(item) =>
+                                prefetch(productPath(details, item))
+                              }
+                              smallCardAction={(e, item) => {
+                                setLoadings(true);
+                                e.stopPropagation();
+                                router.push(productPath(details, item));
+                              }}
+                              likedItems={likedItems}
+                              handleLikeClick={(ite) => handleLikeClick(ite)}
+                              image={img1.src}
+                              bussinessName={details?.name || ""}
+                              category={details?.category || ""}
+                              id={r.business_id}
+                              store={r.products || []}
+                              vendorTheme={{
+                                backgroundColor:
+                                  details?.business_setting?.personalised_settings
+                                    ?.background_color,
+                                backgroundImage:
+                                  details?.business_setting?.personalised_settings
+                                    ?.background_image,
+                                backgroundType:
+                                  details?.business_setting?.personalised_settings
+                                    ?.background_state,
+                              }}
+                              businessDetails={{
+                                logo: details?.logo as string | undefined,
+                                followers_count: details?.followers_count,
+                                average_rating: details?.average_rating,
+                              }}
+                              dynamicBackgroundImage={backgroundMap.get(
+                                r.business_id
+                              )}
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
-                );
-              })()}
+                </div>
+              )}
 
-              {/* All products spotlight */}
-
+              {/* My wishlists */}
               {spotlightProduct.length > 0 && (
                 <div className="mb-5 px-2">
                   <div className="flex justify-between items-center mb-4">
@@ -458,25 +390,13 @@ const Page: React.FC = () => {
                   <div className="overflow-x-auto md:overflow-visible scrollbar-hide">
                     <div className="flex md:grid md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-4">
                       {spotlightProduct.map((item, index) => {
-                        //("items=>>zz=> ", item);
                         if (!item.product) return null;
-                        
-                        const businessDetails = getBusinessDetails(
-                          stores,
-                          item.product.business_id
-                        );
+
                         return (
                           <div
                             key={index}
                             className="cursor-pointer relative min-w-[148px]"
-                            onClick={(e) =>
-                              handleProductClick(
-                                e,
-                                index,
-                                item,
-                                businessDetails?.name + ""
-                              )
-                            }>
+                            onClick={(e) => handleProductClick(e, item)}>
                             <img
                               src={
                                 item?.product.image
@@ -526,8 +446,7 @@ const Page: React.FC = () => {
                 </div>
               )}
 
-              {/* Explore vendors */}
-
+              {/* Explore vendors — P16 marketplace discovery feed */}
               <div className="mb-5 overflow-y-scroll scrollbar-hide">
                 <div className="flex justify-between items-center py-3 px-2">
                   <h1 className="font-medium text-body md:text-body-lg">
@@ -541,192 +460,105 @@ const Page: React.FC = () => {
                 </div>
 
                 <div className="gap-4 md:gap-6 px-2 overflow-y-scroll scrollbar-hide md:grid md:grid-cols-2 lg:grid-cols-2">
-                  {fetchStatus === "loading"
+                  {shopVendorsLoading
                     ? Array.from({ length: 4 }).map((_, i) => (
                         <div
                           key={i}
                           className="h-56 rounded-card bg-ink-3 animate-pulse"
                         />
                       ))
-                    : selected.id
-                    ? groupedData
-                        .filter((it) => {
-                          const businessDetails = getBusinessDetails(
-                            stores,
-                            it.business
-                          );
-                          return selected.name === businessDetails?.category;
-                        })
-                        // Remove duplicates based on business ID
-                        .filter((store, index, self) => 
-                          index === self.findIndex((s) => s.business === store.business)
-                        )
-                        .map(
-                          (store: {
-                            business: string;
-                            products: ProductData[];
-                            id: string;
-                          }) => {
-                            const businessDetails = getBusinessDetails(
-                              stores,
-                              store.business
-                            );
-                            
-                            // Skip stores with no business details for now
-                            if (!businessDetails) {
-                              return null;
-                            }
-
-                            return (
-                              <ExploreCard
-                                key={store.business}
-                                cardAction={async () => {
-                                  if (!businessDetails || !businessDetails.name) {
-                                    return;
-                                  }
-
-                                  // Set store immediately and ensure it's set
-                                  setStore(businessDetails);
-
-                                  // Navigate immediately for better UX
-                                  const vendorPath = storePath(businessDetails);
-                                  router.push(vendorPath);
-
-                                  // Add to recent viewed in background (non-blocking)
-                                  addRecentViewed(
-                                    { business_ids: [store.id] },
-                                    () => fetchRecentlyViewedBusiness()
-                                  ).catch(error => {
-                                    console.error("Error adding to recent viewed:", error);
-                                  });
-                                }}
-                                onPrefetch={() => prefetch(storePath(businessDetails))}
-                                onPrefetchProduct={(item) =>
-                                  prefetch(productPath(businessDetails, item))
-                                }
-                                smallCardAction={(e, item) => {
-                                  addRecentViewed(
-                                    { business_ids: [store.id] },
-                                    () => fetchRecentlyViewedBusiness()
-                                  );
-                                  setLoadings(true);
-                                  e.stopPropagation();
-                                  if (businessDetails) {
-                                    router.push(
-                                      productPath(businessDetails, item)
-                                    );
-                                  }
-                                  // setLoadings(false);
-                                }}
-                                likedItems={likedItems}
-                                handleLikeClick={(ite) => handleLikeClick(ite)}
-                                image={img1.src}
-                                bussinessName={businessDetails?.name as string}
-                                category={businessDetails?.category as string}
-                                id={
-                                  businessDetails?.id ? businessDetails.id : ""
-                                }
-                                store={store.products}
-                                vendorTheme={{
-                                  backgroundColor: businessDetails?.business_setting?.personalised_settings?.background_color,
-                                  backgroundImage: businessDetails?.business_setting?.personalised_settings?.background_image,
-                                  backgroundType: businessDetails?.business_setting?.personalised_settings?.background_state,
-                                }}
-                                businessDetails={{
-                                  logo: businessDetails?.logo as string | undefined,
-                                  followers_count: businessDetails?.followers_count,
-                                  average_rating: businessDetails?.average_rating,
-                                }}
-                                dynamicBackgroundImage={allVendorsBackgroundMap.get(store.business)}
-                              />
-                            );
+                    : shopVendors.map((v) => (
+                        <ExploreCard
+                          key={v.id}
+                          cardAction={() => {
+                            // Navigate by tag (storefront server-resolves it); record
+                            // the view in the background (non-blocking).
+                            router.push(storePath(v));
+                            addRecentViewed(
+                              { business_ids: [v.id] },
+                              () => fetchRecentlyViewedBusiness()
+                            ).catch((error) => {
+                              console.error(
+                                "Error adding to recent viewed:",
+                                error
+                              );
+                            });
+                          }}
+                          onPrefetch={() => prefetch(storePath(v))}
+                          onPrefetchProduct={(item) =>
+                            prefetch(productPath(v, item))
                           }
-                        )
-                    : groupedData
-                        // Remove duplicates based on business ID
-                        .filter((store, index, self) => 
-                          index === self.findIndex((s) => s.business === store.business)
-                        )
-                        .map(
-                        (store: {
-                          business: string;
-                          products: ProductData[];
-                          id: string;
-                        }) => {
-                          const businessDetails = getBusinessDetails(
-                            stores,
-                            store.business
-                          );
-                          
-                          // Skip stores with no business details for now
-                          if (!businessDetails) {
-                            return null;
-                          }
-
-                          return (
-                            <ExploreCard
-                              key={store.business}
-                              cardAction={async () => {
-                                if (!businessDetails || !businessDetails.name) {
-                                  return;
-                                }
-
-                                // Set store immediately and ensure it's set
-                                setStore(businessDetails);
-
-                                // Navigate immediately for better UX
-                                const vendorPath = storePath(businessDetails);
-                                router.push(vendorPath);
-
-                                // Add to recent viewed in background (non-blocking)
-                                addRecentViewed(
-                                  { business_ids: [store.id] },
-                                  () => fetchRecentlyViewedBusiness()
-                                ).catch(error => {
-                                  console.error("Error adding to recent viewed:", error);
-                                });
-                              }}
-                              onPrefetch={() => prefetch(storePath(businessDetails))}
-                              onPrefetchProduct={(item) =>
-                                prefetch(productPath(businessDetails, item))
-                              }
-                              smallCardAction={(e, item) => {
-                                addRecentViewed(
-                                  { business_ids: [store.id] },
-                                  () => fetchRecentlyViewedBusiness()
-                                );
-                                setLoadings(true);
-                                e.stopPropagation();
-                                if (businessDetails) {
-                                  router.push(
-                                    productPath(businessDetails, item)
-                                  );
-                                }
-                                // setLoadings(false);
-                              }}
-                              likedItems={likedItems}
-                              handleLikeClick={(ite) => handleLikeClick(ite)}
-                              image={img1.src}
-                              bussinessName={businessDetails?.name as string}
-                              category={businessDetails?.category as string}
-                              id={businessDetails?.id ? businessDetails.id : ""}
-                              store={store.products}
-                              vendorTheme={{
-                                backgroundColor: businessDetails?.business_setting?.personalised_settings?.background_color,
-                                backgroundImage: businessDetails?.business_setting?.personalised_settings?.background_image,
-                                backgroundType: businessDetails?.business_setting?.personalised_settings?.background_state,
-                              }}
-                              businessDetails={{
-                                logo: businessDetails?.logo as string | undefined,
-                                followers_count: businessDetails?.followers_count,
-                                average_rating: businessDetails?.average_rating,
-                              }}
-                              dynamicBackgroundImage={allVendorsBackgroundMap.get(store.business)}
-                            />
-                          );
-                        }
-                      )}
+                          smallCardAction={(e, item) => {
+                            addRecentViewed(
+                              { business_ids: [v.id] },
+                              () => fetchRecentlyViewedBusiness()
+                            );
+                            setLoadings(true);
+                            e.stopPropagation();
+                            router.push(productPath(v, item));
+                          }}
+                          likedItems={likedItems}
+                          handleLikeClick={(ite) => handleLikeClick(ite)}
+                          image={img1.src}
+                          bussinessName={v.name}
+                          category={v.category}
+                          id={v.id}
+                          store={v.preview_products || []}
+                          vendorTheme={{
+                            backgroundColor:
+                              v.business_setting?.personalised_settings
+                                ?.background_color,
+                            backgroundImage:
+                              v.business_setting?.personalised_settings
+                                ?.background_image,
+                            backgroundType:
+                              v.business_setting?.personalised_settings
+                                ?.background_state,
+                          }}
+                          businessDetails={{
+                            logo: v.logo,
+                            followers_count: v.followers_count,
+                            average_rating: v.average_rating,
+                          }}
+                          dynamicBackgroundImage={backgroundMap.get(v.id)}
+                        />
+                      ))}
                 </div>
+
+                {/* Loaded but nothing matched (empty catalog or a filtered search). */}
+                {!shopVendorsLoading &&
+                  !shopVendorsError &&
+                  shopVendors.length === 0 && (
+                    <div className="py-10 flex items-center justify-center">
+                      <EmptyState
+                        image="/images/emptystate/products_empty_state.svg"
+                        title="No vendors found"
+                        subtitle={
+                          searchTerm || selectedName
+                            ? "Try a different search or category"
+                            : "Check back later for new vendors"
+                        }
+                      />
+                    </div>
+                  )}
+
+                {/* Infinite-scroll sentinel + next-page loader */}
+                {shopVendorsHasMore && (
+                  <div
+                    ref={sentinelRef}
+                    className="py-6 flex items-center justify-center">
+                    {shopVendorsLoadingMore && (
+                      <div className="grid grid-cols-2 gap-4 md:gap-6 w-full px-2">
+                        {Array.from({ length: 2 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className="h-56 rounded-card bg-ink-3 animate-pulse"
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
