@@ -16,6 +16,11 @@ export interface KYCSubmission {
   reason?: string;
   created_at: string;
   reviewed_at?: string;
+  // Payout-account name-match aid (computed server-side; see helper.NameMatchLevel).
+  payout_account_name?: string;
+  payout_bank_name?: string;
+  payout_account_masked?: string;
+  name_match?: "match" | "partial" | "mismatch" | "no_account";
   user?: {
     first_name?: string;
     last_name?: string;
@@ -58,10 +63,34 @@ export default function KycDetailView({
           label="Submitted"
           value={submission.created_at ? new Date(submission.created_at).toLocaleString() : "—"}
         />
-        <p className="text-xs text-gray-500">
-          Confirm the legal name matches the ID document and the seller&apos;s
-          payout account name before approving.
-        </p>
+        {/* Payout-account name-match aid — compares the submitted legal name
+            against the name on the seller's payout account. */}
+        <div className="mt-1 rounded-lg border border-gray-200 bg-gray-50 p-3">
+          <div className="mb-1 flex items-center justify-between gap-3">
+            <span className="text-xs font-medium text-gray-500">Payout account</span>
+            <MatchBadge level={submission.name_match} />
+          </div>
+          {submission.name_match && submission.name_match !== "no_account" ? (
+            <>
+              <p className="text-sm font-medium text-gray-900">
+                {submission.payout_account_name || "—"}
+              </p>
+              <p className="text-xs text-gray-500">
+                {[submission.payout_bank_name, submission.payout_account_masked]
+                  .filter(Boolean)
+                  .join(" · ") || "—"}
+              </p>
+              <p className="mt-2 text-xs text-gray-500">
+                Confirm the legal name matches the ID document and this payout
+                account before approving.
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-gray-500">
+              No payout account on file yet — the seller must add one before withdrawing.
+            </p>
+          )}
+        </div>
       </div>
 
       {submission.status === "rejected" && submission.reason && (
@@ -110,6 +139,22 @@ function DocImage({ label, src }: { label: string; src?: string }) {
         </div>
       )}
     </div>
+  );
+}
+
+function MatchBadge({ level }: { level?: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
+    match: { label: "Name matches", cls: "bg-green-100 text-green-700" },
+    partial: { label: "Partial match — verify", cls: "bg-amber-100 text-amber-700" },
+    mismatch: { label: "Name mismatch — verify", cls: "bg-red-100 text-red-700" },
+    no_account: { label: "No account", cls: "bg-gray-100 text-gray-500" },
+  };
+  const m = map[level || "no_account"] || map.no_account;
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${m.cls}`}>
+      {m.label}
+    </span>
   );
 }
 

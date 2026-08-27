@@ -543,6 +543,7 @@ func (s *AdminService) ReviewKYC(id string, status string, reason string, review
 	kyc.BVN, _ = helper.DecryptBVN(kyc.BVN)
 	kyc.Document, _ = fileupload.SignedKYCURL(kyc.Document)
 	kyc.Selfie, _ = fileupload.SignedKYCURL(kyc.Selfie)
+	s.enrichKYCPayoutMatch(kyc)
 	return kyc, nil
 }
 
@@ -558,9 +559,39 @@ func (s *AdminService) GetAllKYC(page, limit int, search string) ([]*domain.KYC,
 			k.BVN, _ = helper.DecryptBVN(k.BVN)
 			k.Document, _ = fileupload.SignedKYCURL(k.Document)
 			k.Selfie, _ = fileupload.SignedKYCURL(k.Selfie)
+			s.enrichKYCPayoutMatch(k)
 		}
 	}
 	return items, total, nil
+}
+
+// enrichKYCPayoutMatch attaches the payout-account name-match aid to a KYC record
+// (computed, never persisted). It uses the STORED account name — itself
+// Paystack-resolved when the seller added the account — so the KYC list stays fast
+// with no per-row external call. NameMatch defaults to "no_account" when the seller
+// has no payout account on file. Best-effort: any lookup error leaves the fields blank.
+func (s *AdminService) enrichKYCPayoutMatch(k *domain.KYC) {
+	if k == nil {
+		return
+	}
+	k.NameMatch = "no_account"
+	business, err := s.businessRepo.GetOne(map[string]interface{}{"user_id": k.UserID})
+	if err != nil || business == nil {
+		return
+	}
+	// Prefer the default payout account; fall back to the most-recent one.
+	acct, err := s.businessRepo.FindBankAccount(map[string]interface{}{"business_id": business.ID, "is_default": true})
+	if err != nil || acct == nil {
+		accts, _, aErr := s.businessRepo.GetBankAccounts(business.ID, 1, 0)
+		if aErr != nil || len(accts) == 0 {
+			return
+		}
+		acct = &accts[0]
+	}
+	k.PayoutAccountName = acct.AccountName
+	k.PayoutBankName = acct.Bank
+	k.PayoutAccountMasked = helper.MaskAccountNumber(acct.AccountNumber)
+	k.NameMatch = helper.NameMatchLevel(k.LegalName, acct.AccountName)
 }
 
 // Admin Shipping Methods - Safe admin-only endpoints that don't affect main app

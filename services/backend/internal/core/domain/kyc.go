@@ -15,4 +15,12 @@ type KYC struct {
 	Reason       string     // optional rejection reason
 	ReviewedBy   string     // admin id (audit)
 	ReviewedAt   *time.Time // when reviewed (audit)
+
+	// Review aid (KYC1) — computed at admin request time, NEVER persisted (gorm:"-").
+	// Compares the submitted LegalName against the seller's payout account name so the
+	// admin can catch a mismatch before approving. See helper.NameMatchLevel.
+	PayoutAccountName   string `gorm:"-" json:"payout_account_name,omitempty"`
+	PayoutBankName      string `gorm:"-" json:"payout_bank_name,omitempty"`
+	PayoutAccountMasked string `gorm:"-" json:"payout_account_masked,omitempty"`
+	NameMatch           string `gorm:"-" json:"name_match,omitempty"` // match | partial | mismatch | no_account
 }
