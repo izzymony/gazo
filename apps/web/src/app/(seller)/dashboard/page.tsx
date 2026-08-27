@@ -21,11 +21,7 @@ const FirstTimeTour = dynamic(
 const Home = () => {
   const { user } = useAuthStore();
   const router = useRouter();
-  const {
-    fetchSalesDashboardAnalytics,
-    fetchWalletAnalytics,
-    isLoading,
-  } = useBusinessStore();
+  const { fetchDashboardSummary, isLoading } = useBusinessStore();
 
   // Initialize onboarding state for current user + fetch products
   const { initForUser } = useOnboardingStore();
@@ -41,14 +37,13 @@ const Home = () => {
   }, [user?.id, user?.business?.id, initForUser, fetchProducts]);
 
   useEffect(() => {
-    // Wallet balance + dashboard analytics for the home cards. NOTE: the
-    // /business/dashboard-summary aggregate exists but is NOT wired here yet — wiring
-    // it regressed these cards to zero (the aggregate errored for real seller data),
-    // so the home stays on the proven individual fetches until the endpoint is
-    // verified against a live seller. Store context is hydrated by getMe at bootstrap;
-    // getBankAccounts is covered by DetailFetcher (the dashboard layout).
-    fetchWalletAnalytics();
-    fetchSalesDashboardAnalytics();
+    // P12: ONE aggregate call (GET /business/dashboard-summary) fills the home cards
+    // (analytics + wallet + bank accounts) and primes the bell-badge cache, in place of
+    // the separate wallet + dashboard-analytics fetches. Verified against a live seller:
+    // returns real revenue/orders/wallet data (the earlier zeros were a stale backend
+    // missing the endpoint, not an endpoint bug). Store context is hydrated by getMe at
+    // bootstrap; getBankAccounts is also covered by DetailFetcher (the dashboard layout).
+    fetchDashboardSummary();
   }, [user?.business?.id]); // refetch when the business changes
 
   return isLoading ? (
