@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Home.js
 "use client";
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useBusinessStore from "@/store/businessStore";
 import Loader from "@vibaar/ui/common/Loader";
@@ -22,19 +22,15 @@ const Home = () => {
   const { user } = useAuthStore();
   const router = useRouter();
   const {
-    fetchDiscount,
-    setDiscount,
     fetchSalesDashboardAnalytics,
     fetchBanks,
     setBanks: setBank,
     fetchWalletAnalytics,
     fetchWalletTransactions,
-    fetchBusinessById,
     fetchStores,
     stores,
     setStore,
     isLoading,
-    getBankAccounts,
   } = useBusinessStore();
 
   const fetById = async () => {
@@ -86,33 +82,17 @@ const Home = () => {
     fetchWalletAnalytics();
     fetchWalletTransactions();
     fetById();
-    getBankAccounts(); // Fetch user's saved bank accounts for checklist
+    // getBankAccounts is already fetched by DetailFetcher (the dashboard layout),
+    // which runs on the home route too — the home-level call was a duplicate (P12).
     // W2.4: no cleanup-refetch — cleanups are for cancellation, not re-fetching
-    // (re-firing here doubled requests and let late responses clobber the next page)
   }, [user?.business?.id]); // Add dependency to refetch when business ID changes
 
-  const discountGetter = useCallback(async () => {
-    try {
-      const totalPages = 10; // Define the total number of pages
-      const requests = Array.from({ length: totalPages }, (_, i) =>
-        fetchDiscount(i + 1)
-      );
-      const responses: any = await Promise.all(requests);
-
-      const bank = responses.flat(); // Merge all responses into one array
-
-      //("discounts ", bank);
-      setDiscount(bank);
-    } catch (error) {
-      console.error("Error fetching bank details:", error);
-    }
-  }, [fetchDiscount, setDiscount]);
-
   useEffect(() => {
-    discountGetter();
+    // Discounts now load on the catalog/discounts page (their only render site) —
+    // the home fetched 10 pages on every visit but never displayed them (P12).
     fetchSalesDashboardAnalytics();
     // W2.4: no cleanup-refetch
-  }, [discountGetter, fetchSalesDashboardAnalytics]);
+  }, [fetchSalesDashboardAnalytics]);
 
   return isLoading ? (
     <Loader />

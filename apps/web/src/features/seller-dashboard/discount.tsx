@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoCubeOutline } from "@vibaar/ui/icons";
 import DataSort from "./datasort";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import Section from "@vibaar/ui/common/Section";
 import useBusinessStore from "@/store/businessStore";
+import { paginatedFetcher } from "@/app/(auth)/welcome/pagination";
 
 const Discount: React.FC<{ order: any }> = ({ order }) => {
   return (
@@ -44,9 +45,15 @@ const Page = () => {
     "ascending"
   );
   const [searchTerm, setSearchTerm] = useState("");
-  const { discounts } = useBusinessStore();
+  const { discounts, fetchDiscount, setDiscount } = useBusinessStore();
 
-  //("discount ", discounts);
+  // P12: discounts load HERE (their only render site) instead of on the dashboard
+  // home, which fetched them on every visit but never showed them. paginatedFetcher
+  // early-stops, so a seller with a few discounts costs 1-2 requests, not a fixed 10.
+  useEffect(() => {
+    paginatedFetcher(fetchDiscount, setDiscount, null, 10);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSortToggle = () => {
     setSortOrder((prevOrder) =>
