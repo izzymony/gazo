@@ -38,6 +38,7 @@ func BusinessRoutes(router *gin.RouterGroup, businessHandler *controller.Busines
 			businessAuth.GET("/get-followers", businessHandler.GetFollowers)
 			businessAuth.GET("/get-store-analytics/:business_id", businessHandler.GetStoreAnalytics)
 			businessAuth.GET("/get-dashboard-analytics", businessHandler.GetDashboardAnalytics)
+			businessAuth.GET("/dashboard-summary", businessHandler.GetDashboardSummary)
 			businessAuth.POST("/create-discount", businessHandler.CreateDiscount)
 			businessAuth.GET("/get-discounts", businessHandler.GetDiscounts)
 			businessAuth.POST("/add-bank-account", businessHandler.AddBankAccount)

@@ -21,11 +21,7 @@ const FirstTimeTour = dynamic(
 const Home = () => {
   const { user } = useAuthStore();
   const router = useRouter();
-  const {
-    fetchSalesDashboardAnalytics,
-    fetchWalletAnalytics,
-    isLoading,
-  } = useBusinessStore();
+  const { fetchDashboardSummary, isLoading } = useBusinessStore();
 
   // Initialize onboarding state for current user + fetch products
   const { initForUser } = useOnboardingStore();
@@ -41,21 +37,13 @@ const Home = () => {
   }, [user?.id, user?.business?.id, initForUser, fetchProducts]);
 
   useEffect(() => {
-    // Wallet balance feeds the home wallet card. The store context (stor/store/theme)
-    // is already hydrated by getMe (/users/me) at bootstrap, so the old fetById →
-    // fetchStores(500) primary-store pick was redundant and is gone (P12).
-    fetchWalletAnalytics();
-    // getBankAccounts is already fetched by DetailFetcher (the dashboard layout),
-    // which runs on the home route too — the home-level call was a duplicate (P12).
-    // W2.4: no cleanup-refetch — cleanups are for cancellation, not re-fetching
+    // P12: ONE aggregate call (GET /business/dashboard-summary) replaces the separate
+    // wallet-balances + dashboard-analytics fetches and primes the bell-badge cache.
+    // Store context (stor/store/theme) is already hydrated by getMe at bootstrap;
+    // getBankAccounts is covered by DetailFetcher (the dashboard layout).
+    // W2.4: no cleanup-refetch — cleanups are for cancellation, not re-fetching.
+    fetchDashboardSummary();
   }, [user?.business?.id]); // refetch when the business changes
-
-  useEffect(() => {
-    // Discounts now load on the catalog/discounts page (their only render site) —
-    // the home fetched 10 pages on every visit but never displayed them (P12).
-    fetchSalesDashboardAnalytics();
-    // W2.4: no cleanup-refetch
-  }, [fetchSalesDashboardAnalytics]);
 
   return isLoading ? (
     <Loader />

@@ -9,11 +9,13 @@ import (
 
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/response"
+	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	fileupload "github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/file-upload"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/services"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -21,11 +23,20 @@ import (
 
 type BusinessController struct {
 	service *services.BusinessService
+	// The P12 dashboard-summary aggregate pulls from a few domains.
+	wallet       *services.WalletService
+	notification *services.NotificationService
+	product      *services.ProductService
+	businessRepo ports.BusinessIface
 }
 
 func NewBusinessController(db *gorm.DB) *BusinessController {
 	return &BusinessController{
-		service: services.NewBusinessService(db),
+		service:      services.NewBusinessService(db),
+		wallet:       services.NewWalletService(db),
+		notification: services.NewNotificationService(db),
+		product:      services.NewProductService(db),
+		businessRepo: mysql_repo.NewBusinessRepository(db),
 	}
 }
 
@@ -696,6 +707,42 @@ func (s *BusinessController) GetStoreAnalytics(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response.NewCustomResponse(resp, err))
+}
+
+// GetDashboardSummary (P12) collapses the seller dashboard home's above-the-fold
+// requests into ONE call: dashboard analytics, wallet balances, unread message +
+// notification counts, recent activity (6), bank accounts, and product count. Each
+// sub-fetch is best-effort — one failure degrades that field to a zero value rather
+// than failing the whole dashboard, so the client can always render.
+func (s *BusinessController) GetDashboardSummary(c *gin.Context) {
+	logger.Info("GetDashboardSummary")
+	userID, _, err := helper.GetUserIdentifier(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	analytics, _ := s.service.GetDashboardAnalytics(userID)
+	wallet, _ := s.wallet.GetWalletBalances(userID)
+	unreadMessages, unreadNotifications, _ := s.notification.GetUnreadSummary(userID, false, "seller")
+	notifications, _, _ := s.notification.GetUserNotifications(userID, "", "seller", 1, 6)
+
+	var bankAccounts []domain.BusinessBankAccountDetail
+	var productCount int64
+	if biz, bErr := s.businessRepo.GetOne(map[string]interface{}{"user_id": userID}); bErr == nil && biz != nil {
+		bankAccounts, _, _ = s.businessRepo.GetBankAccounts(biz.ID, 100, 0)
+		_, productCount, _ = s.product.GetAllProductsOrderedByOrders(1, 1, "", "", "", biz.ID)
+	}
+
+	c.JSON(http.StatusOK, response.NewCustomResponse(gin.H{
+		"analytics":            analytics,
+		"wallet":               wallet,
+		"unread_messages":      unreadMessages,
+		"unread_notifications": unreadNotifications,
+		"notifications":        notifications,
+		"bank_accounts":        bankAccounts,
+		"product_count":        productCount,
+	}, nil))
 }
 
 func (s *BusinessController) GetDashboardAnalytics(c *gin.Context) {

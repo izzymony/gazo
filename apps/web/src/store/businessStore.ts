@@ -323,6 +323,7 @@ interface BusinessState {
   setDiscount: (val: any) => void;
   createDiscount: (data: CreateCoupon) => Promise<void>;
   fetchSalesDashboardAnalytics: () => Promise<void>;
+  fetchDashboardSummary: () => Promise<void>;
   setSelectedTransaction: (val: any) => void;
   walletAnalytics: WalletAnalytics;
   fetchWalletAnalytics: () => Promise<void>;
@@ -953,6 +954,39 @@ const useBusinessStore = create<BusinessState>()(
           set({ isLoading: false });
         }
       },
+      // P12: one aggregate call for the dashboard home — replaces the separate
+      // wallet + dashboard-analytics fetches and primes the bell-badge cache. Shapes
+      // match the individual endpoints (analytics = AnalyticsResponse, wallet = a
+      // Wallet superset of the flat balances). Best-effort + fail-safe: a null
+      // sub-field keeps the existing store value, and any error just leaves the
+      // individual fetches (still present) to be used elsewhere.
+      fetchDashboardSummary: async () => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = (await Client({
+            path: "/business/dashboard-summary",
+            method: "GET",
+          })) as AxiosResponse;
+          const d = response.data?.data ?? {};
+          set((s) => ({
+            salesDashboardAnalytics: d.analytics ?? s.salesDashboardAnalytics,
+            walletAnalytics: d.wallet ?? s.walletAnalytics,
+            bankAccounts: d.bank_accounts ?? s.bankAccounts,
+          }));
+          // Prime the bell-badge cache so useNotificationCount("seller") skips its
+          // initial fetch (it still polls on its own interval).
+          getQueryClient().setQueryData(
+            ["notifications", "unread", "seller"],
+            d.unread_notifications ?? 0
+          );
+        } catch (error) {
+          const err = error as AxiosError<{ error: string }>;
+          set({ error: err.message });
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
       fetchWalletAnalytics: async () => {
         set({ isLoading: true, error: null });
         try {
