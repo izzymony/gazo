@@ -175,6 +175,15 @@ func Migrate() {
 	)
 	WHERE self_zones IS NULL;
 `)
+
+	// B9 — versioned, run-once migrations (goose) for the additive changes
+	// AutoMigrate can't express (functional/unique indexes, backfills, NOT NULL).
+	// Runs LAST — after AutoMigrate created the tables and the idempotent ad-hoc
+	// SQL above ran. A failure here means a known-bad/partial schema, so halt the
+	// boot rather than serve the app on it.
+	if err := runVersionedMigrations(db); err != nil {
+		log.Fatalf("versioned migrations failed: %v", err)
+	}
 }
 
 func getTableName(db *gorm.DB, model interface{}) string {
