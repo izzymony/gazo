@@ -112,6 +112,11 @@ func (o *OrderService) ValidateOrder(input requests.Order, userId string, isGues
 			return nil, fmt.Errorf("mis-match price for %v", product.Title)
 		}
 
+		// Reject degenerate quantities (zero/negative) before the stock math below.
+		if item.Quantity < 1 {
+			return nil, fmt.Errorf("invalid quantity for %s", product.Title)
+		}
+
 		// Block checkout for products that shouldn't be sold — delisted or out of
 		// stock — so a buyer can't be charged for something that won't ship. This
 		// runs pre-charge (InitiateCheckout / legacy Create); the post-charge path
