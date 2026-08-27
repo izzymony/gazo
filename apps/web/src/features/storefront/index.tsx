@@ -180,6 +180,21 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     }
   }, [stor?.id]);
 
+  // P16: server-side storefront search — refetch page 1 with the search term when it
+  // changes (debounced), so search stays consistent with pagination instead of only
+  // filtering the loaded pages. Skips the first run (the initial/primed load covers "").
+  const searchInitRef = useRef(false);
+  useEffect(() => {
+    if (!stor?.id || pathname.includes("/dashboard")) return;
+    if (!searchInitRef.current) {
+      searchInitRef.current = true;
+      return;
+    }
+    const t = setTimeout(() => fetchProducts(stor.id, searchValue), 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchValue, stor?.id]);
+
   useEffect(() => {
     setIsSeller({
       seller: pathname.includes("/dashboard"),
