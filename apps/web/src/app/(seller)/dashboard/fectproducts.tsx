@@ -19,14 +19,9 @@ export default function DetailFetcher({ children }: { children: ReactNode }) {
     getBankAccounts,
     fetchBusinessProduct,
     setBusinessProducts,
-    fetchBusinessById,
     fetchCollection,
     setCollection,
   } = useBusinessStore();
-  const fetById = useCallback(
-    () => fetchBusinessById(user?.business?.id || ""),
-    [fetchBusinessById, user?.business?.id]
-  );
   const coll = useCallback(
     async (id: number) => {
       fetchCollection(id, user?.business?.id + "");
@@ -56,7 +51,6 @@ export default function DetailFetcher({ children }: { children: ReactNode }) {
     fetchFollowedBusiness();
     getBankAccounts();
     fetchBusinessProducts();
-    fetById();
     fetchBusinessCollection();
     // W2.4: no cleanup-refetch — cleanups are for cancellation, not re-fetching
   }, []);

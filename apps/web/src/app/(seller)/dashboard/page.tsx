@@ -24,25 +24,8 @@ const Home = () => {
   const {
     fetchSalesDashboardAnalytics,
     fetchWalletAnalytics,
-    fetchStores,
-    stores,
-    setStore,
     isLoading,
   } = useBusinessStore();
-
-  const fetById = async () => {
-    try {
-      await fetchStores(); // Use the same approach as storefront for consistency
-
-      // Set the primary store (same logic as auth store)
-      if (stores.length > 0) {
-        const primaryStore = stores.find(s => s.id === user?.business?.id) || stores[0];
-        setStore(primaryStore);
-      }
-    } catch (error) {
-      console.error("Dashboard fetchStores failed:", error);
-    }
-  };
 
   // Initialize onboarding state for current user + fetch products
   const { initForUser } = useOnboardingStore();
@@ -58,15 +41,14 @@ const Home = () => {
   }, [user?.id, user?.business?.id, initForUser, fetchProducts]);
 
   useEffect(() => {
-    // Wallet balance feeds the home wallet card, so keep it. The bank DIRECTORY moved
-    // to the add-account form and wallet TRANSACTIONS to the wallet/transactions pages
-    // (P12) — neither is rendered on home, and those pages now self-fetch.
+    // Wallet balance feeds the home wallet card. The store context (stor/store/theme)
+    // is already hydrated by getMe (/users/me) at bootstrap, so the old fetById →
+    // fetchStores(500) primary-store pick was redundant and is gone (P12).
     fetchWalletAnalytics();
-    fetById();
     // getBankAccounts is already fetched by DetailFetcher (the dashboard layout),
     // which runs on the home route too — the home-level call was a duplicate (P12).
     // W2.4: no cleanup-refetch — cleanups are for cancellation, not re-fetching
-  }, [user?.business?.id]); // Add dependency to refetch when business ID changes
+  }, [user?.business?.id]); // refetch when the business changes
 
   useEffect(() => {
     // Discounts now load on the catalog/discounts page (their only render site) —
