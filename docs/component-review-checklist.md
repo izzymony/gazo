@@ -2,7 +2,7 @@
 
 A guardrail for every PR that adds or changes UI. The goal: **reuse or extend before you create.** New primitives are the last resort — they fragment the design system and re-introduce the drift the revamp just removed.
 
-Run this before requesting review, and again when reviewing someone else's UI change.
+Run this before requesting review, and again when reviewing someone else's UI change. A condensed version is embedded in the PR template ([`.github/pull_request_template.md`](../.github/pull_request_template.md)), so every PR surfaces it automatically.
 
 ## 1. Before creating any component
 
