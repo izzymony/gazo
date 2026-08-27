@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import Loader from "@vibaar/ui/common/Loader";
 import PageShell from "@vibaar/ui/PageShell";
@@ -94,7 +94,20 @@ export default function WalletBody({ action }: { action: () => void }) {
   //   },
   // ];
 
-  const { walletAnalytics, walletTransactions } = useBusinessStore();
+  const {
+    walletAnalytics,
+    walletTransactions,
+    fetchWalletAnalytics,
+    fetchWalletTransactions,
+  } = useBusinessStore();
+
+  // P12: the wallet page self-fetches its data so it works on a cold deep-link — it
+  // previously relied on the dashboard home having prefetched wallet transactions.
+  useEffect(() => {
+    fetchWalletAnalytics();
+    fetchWalletTransactions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const transactions = walletTransactions.map((item) => ({
     type:

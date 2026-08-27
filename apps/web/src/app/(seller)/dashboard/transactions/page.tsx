@@ -9,12 +9,19 @@ import FilterBar from "@vibaar/ui/common/FilterBar";
 import { TransactionCard } from "@/design-system/selecticons";
 import useBusinessStore from "@/store/businessStore";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Page() {
   const router = useRouter();
   const [selected, setSelected] = useState("All");
-  const { walletTransactions } = useBusinessStore();
+  const { walletTransactions, fetchWalletTransactions } = useBusinessStore();
+
+  // P12: self-fetch so the transactions page works on a cold deep-link (it previously
+  // relied on the dashboard home having prefetched them).
+  useEffect(() => {
+    fetchWalletTransactions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const transactions = walletTransactions.map((item) => ({
     type:

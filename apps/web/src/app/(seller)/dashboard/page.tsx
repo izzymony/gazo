@@ -23,10 +23,7 @@ const Home = () => {
   const router = useRouter();
   const {
     fetchSalesDashboardAnalytics,
-    fetchBanks,
-    setBanks: setBank,
     fetchWalletAnalytics,
-    fetchWalletTransactions,
     fetchStores,
     stores,
     setStore,
@@ -36,7 +33,7 @@ const Home = () => {
   const fetById = async () => {
     try {
       await fetchStores(); // Use the same approach as storefront for consistency
-      
+
       // Set the primary store (same logic as auth store)
       if (stores.length > 0) {
         const primaryStore = stores.find(s => s.id === user?.business?.id) || stores[0];
@@ -44,23 +41,6 @@ const Home = () => {
       }
     } catch (error) {
       console.error("Dashboard fetchStores failed:", error);
-    }
-  };
-
-  const fetchBanksDetails = async () => {
-    try {
-      const totalPages = 3; // 3 pages x 100 banks = 300 banks (covers all Nigerian banks)
-      const requests = Array.from({ length: totalPages }, (_, i) =>
-        fetchBanks(i + 1)
-      );
-      const responses: any = await Promise.all(requests);
-
-      const bank = responses.flat(); // Merge all responses into one array
-
-      //("data10 ", bank);
-      setBank(bank);
-    } catch (error) {
-      console.error("Error fetching bank details:", error);
     }
   };
 
@@ -78,9 +58,10 @@ const Home = () => {
   }, [user?.id, user?.business?.id, initForUser, fetchProducts]);
 
   useEffect(() => {
-    fetchBanksDetails();
+    // Wallet balance feeds the home wallet card, so keep it. The bank DIRECTORY moved
+    // to the add-account form and wallet TRANSACTIONS to the wallet/transactions pages
+    // (P12) — neither is rendered on home, and those pages now self-fetch.
     fetchWalletAnalytics();
-    fetchWalletTransactions();
     fetById();
     // getBankAccounts is already fetched by DetailFetcher (the dashboard layout),
     // which runs on the home route too — the home-level call was a duplicate (P12).

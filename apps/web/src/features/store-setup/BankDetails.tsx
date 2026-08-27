@@ -5,6 +5,7 @@ import useBusinessStore from "@/store/businessStore";
 import { DropButton } from "./StoreDetails";
 import { Bank } from "@vibaar/ui/icons";
 import Dialog from "@vibaar/ui/common/Dialog";
+import { paginatedFetcher } from "@/app/(auth)/welcome/pagination";
 
 interface Props {
   data: {
@@ -91,16 +92,25 @@ const BankSelectorModal = ({
 
 const BankDetails = ({ data, handleInputChange, error, setBanks }: Props) => {
   const [show, setShow] = useState(false);
-  const { banks, selectedBank, validateBank, fetchBanks } = useBusinessStore();
+  const {
+    banks,
+    selectedBank,
+    validateBank,
+    fetchBanks,
+    setBanks: setBanksStore,
+  } = useBusinessStore();
   const [selectedBankName, setSelectedBankName] = useState("");
   const [bankCode, setBankCode] = useState("");
 
-  // Fetch banks on mount if not already loaded
+  // Fetch the bank directory on mount if not already loaded. P12: the dashboard home
+  // used to prefetch all 3 pages (~300 banks) on every visit; now the form that
+  // actually needs the directory loads it itself (all pages, early-stopping).
   useEffect(() => {
     if (!banks || banks.length === 0) {
-      fetchBanks(1);
+      paginatedFetcher(fetchBanks, setBanksStore, null, 3);
     }
-  }, [banks, fetchBanks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const validate = useCallback(async () => {
     await validateBank({
