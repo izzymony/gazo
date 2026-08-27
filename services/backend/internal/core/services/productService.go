@@ -435,7 +435,8 @@ func (s *ProductService) GetAllProductsOrderedByOrders(page, limit int, search, 
 	if tag != "" {
 		param["tag"] = tag
 	}
-	products, totalItems, err := s.repo.GetAllPaginated(param, search, page, limit)
+	// Buyer-facing storefront + marketplace previews: hide out-of-stock products.
+	products, totalItems, err := s.repo.GetAllPaginated(param, search, page, limit, true)
 	if err != nil {
 		return nil, 0, errors.New("error fetching products")
 	}

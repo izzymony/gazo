@@ -111,6 +111,27 @@ func (o *OrderService) ValidateOrder(input requests.Order, userId string, isGues
 		if product.Price != item.Price {
 			return nil, fmt.Errorf("mis-match price for %v", product.Title)
 		}
+
+		// Block checkout for products that shouldn't be sold — delisted or out of
+		// stock — so a buyer can't be charged for something that won't ship. This
+		// runs pre-charge (InitiateCheckout / legacy Create); the post-charge path
+		// (CreateFromValidated) intentionally skips re-validation to avoid a
+		// charged-but-no-order gap. Stock uses the top-level products.stock column
+		// (see productRepository.inStockClause).
+		if product.Status != string(helper.ProductStatusActive) {
+			return nil, fmt.Errorf("%s is no longer available", product.Title)
+		}
+		available := 0
+		if product.Stock != nil {
+			available = *product.Stock
+		}
+		if available <= 0 {
+			return nil, fmt.Errorf("%s is out of stock", product.Title)
+		}
+		if item.Quantity > available {
+			return nil, fmt.Errorf("only %d of %s left in stock", available, product.Title)
+		}
+
 		order.Items[i].BusinessID = product.BusinessID
 		totalPrice += product.Price * float64(item.Quantity)
 	}

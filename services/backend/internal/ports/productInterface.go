@@ -16,7 +16,9 @@ type ProductRepoIface interface {
 	FindProductWishlistByFields(filters map[string]interface{}, isGuest bool) (*domain.ProductWishlist, error)
 	GetAllProductWishlist(params map[string]interface{}, isGuest bool, page, limit int) ([]domain.ProductWishlist, int64, error)
 	DeleteProductWishlist(id string, isGuest bool) error
-	GetAllPaginated(params map[string]interface{}, search string, page, limit int) ([]domain.Product, int64, error)
+	// inStockOnly hides out-of-stock products (buyer-facing storefront + marketplace);
+	// admin / seller-catalog callers pass false so they still see everything.
+	GetAllPaginated(params map[string]interface{}, search string, page, limit int, inStockOnly bool) ([]domain.Product, int64, error)
 	GetDistinctTags(businessId string) ([]string, error)
 	AddRecentlyViewedProducts(input []*domain.RecentlyViewedProduct, isGuest bool) error
 	IncrementProductSales(productID string, incrementBy int) error

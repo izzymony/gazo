@@ -88,6 +88,13 @@ func (repo *BusinessRepository) GetAll(param map[string]interface{}) ([]domain.B
 	return model, q.Error
 }
 
+// vendorHasVisibleProduct restricts the marketplace/discovery vendor list to sellers
+// with at least one PUBLICLY-VISIBLE product — active AND in stock. This keeps vendor
+// visibility consistent with the product listing (which hides out-of-stock/draft) and
+// with the feed's product_count: a vendor whose only products are drafts or sold out
+// no longer surfaces with an empty/zero catalog. query + count must use the same clause.
+const vendorHasVisibleProduct = "EXISTS (SELECT 1 FROM products WHERE products.business_id = businesses.id AND products.status = 'active' AND COALESCE(products.stock, 0) > 0)"
+
 // GetAllPaginated orders by business with most order items
 func (repo *BusinessRepository) GetAllPaginated(search, category string, page, limit int) ([]domain.Business, int64, error) {
 	var data []domain.Business
@@ -105,7 +112,7 @@ func (repo *BusinessRepository) GetAllPaginated(search, category string, page, l
 		Preload("Address").
 		Preload("BusinessSetting").
 		Preload("BankAccountDetails").
-		Where("EXISTS (SELECT 1 FROM products WHERE products.business_id = businesses.id)")
+		Where(vendorHasVisibleProduct)
 
 	if search != "" {
 		searchPattern := "%" + strings.ToLower(search) + "%"
@@ -125,7 +132,7 @@ func (repo *BusinessRepository) GetAllPaginated(search, category string, page, l
 	}
 
 	countQuery := repo.db.Model(&domain.Business{}).
-		Where("EXISTS (SELECT 1 FROM products WHERE products.business_id = businesses.id)")
+		Where(vendorHasVisibleProduct)
 	if search != "" {
 		searchPattern := "%" + strings.ToLower(search) + "%"
 		countQuery = countQuery.Where(`(

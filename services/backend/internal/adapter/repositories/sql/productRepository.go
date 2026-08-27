@@ -90,7 +90,13 @@ func (repo *ProductRepository) GetOneWithAssociations(param map[string]interface
 
 // GetAllPaginated returns paginated products ordered by most sold (via order_items)
 // with optional search functionality
-func (repo *ProductRepository) GetAllPaginated(params map[string]interface{}, search string, page, limit int) ([]domain.Product, int64, error) {
+// inStockClause identifies a product with available stock. Uses the top-level
+// products.stock column: variant per-combination stock (variants.stock_values) is
+// currently unpopulated, and variant products carry their stock at the product level.
+// Revisit if/when per-combination stock is enabled.
+const inStockClause = "COALESCE(products.stock, 0) > 0"
+
+func (repo *ProductRepository) GetAllPaginated(params map[string]interface{}, search string, page, limit int, inStockOnly bool) ([]domain.Product, int64, error) {
 	var data []domain.Product
 	var total int64
 
@@ -134,7 +140,14 @@ func (repo *ProductRepository) GetAllPaginated(params map[string]interface{}, se
 		query = query.Where("products."+field+" = ?", value)
 	}
 
+	if inStockOnly {
+		query = query.Where(inStockClause)
+	}
+
 	countQuery := repo.db.Model(&domain.Product{})
+	if inStockOnly {
+		countQuery = countQuery.Where(inStockClause)
+	}
 
 	if search != "" {
 		searchTerm := "%" + strings.ToLower(search) + "%"
@@ -240,7 +253,9 @@ func (repo *ProductRepository) GetAllPaginatedWithContext(
 		}
 		query = query.Where("products."+field+" = ?", value)
 	}
-	countQuery := repo.db.Model(&domain.Product{})
+	// Buyer-facing (v2 context feed) — hide out-of-stock like the v1 storefront.
+	query = query.Where(inStockClause)
+	countQuery := repo.db.Model(&domain.Product{}).Where(inStockClause)
 
 	now := time.Now()
 
@@ -257,7 +272,7 @@ func (repo *ProductRepository) GetAllPaginatedWithContext(
 
 	case "personalized_directory":
 		if isGuest {
-			return repo.GetAllPaginated(params, search, page, limit)
+			return repo.GetAllPaginated(params, search, page, limit, true)
 		}
 
 		var preferredCategoryIDs []string
@@ -278,7 +293,7 @@ func (repo *ProductRepository) GetAllPaginatedWithContext(
 			query = query.Where("products.category_id IN ?", preferredCategoryIDs)
 			countQuery = countQuery.Where("products.category_id IN ?", preferredCategoryIDs)
 		} else {
-			return repo.GetAllPaginated(params, search, page, limit)
+			return repo.GetAllPaginated(params, search, page, limit, true)
 		}
 
 	}

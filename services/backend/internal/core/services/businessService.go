@@ -1136,7 +1136,8 @@ func (s *BusinessService) GetAllProducts(userId, search string, page, limit int)
 	if business == nil {
 		return nil, 0, fmt.Errorf("invalid business")
 	}
-	products, totalItems, err := s.productRepo.GetAllPaginated(map[string]interface{}{"business_id": business.ID}, search, page, limit)
+	// Seller managing their own catalog sees out-of-stock products too.
+	products, totalItems, err := s.productRepo.GetAllPaginated(map[string]interface{}{"business_id": business.ID}, search, page, limit, false)
 	if err != nil {
 		return nil, 0, errors.New("error fetching products")
 	}

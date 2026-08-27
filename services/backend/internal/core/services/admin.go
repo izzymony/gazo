@@ -350,7 +350,8 @@ func (s *AdminService) GetOrderItem(itemId string) (*domain.OrderItem, error) {
 }
 
 func (s *AdminService) GetAllProducts(search string, page, limit int) ([]domain.Product, int64, error) {
-	products, totalItems, err := s.productRepo.GetAllPaginated(nil, search, page, limit)
+	// Admin sees every product, including out-of-stock.
+	products, totalItems, err := s.productRepo.GetAllPaginated(nil, search, page, limit, false)
 	if err != nil {
 		return nil, 0, errors.New("error fetching products")
 	}
