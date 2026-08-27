@@ -15,6 +15,7 @@ import { ProductData } from "@/lib/types";
 import useBusinessStore, { BusinessProduct } from "@/store/businessStore";
 import { productPath } from "@/lib/urlHelpers";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+import { useRoutePrefetch } from "@/hooks/useRoutePrefetch";
 
 export const truncateTextByLength = (
   text: string | undefined,
@@ -71,6 +72,7 @@ const AllProducts = ({
     },
     !isDashboard && productsHasMore
   );
+  const prefetch = useRoutePrefetch();
 
   const handleProductClick = (item: ProductData | BusinessProduct) => {
     if (path.includes("/dashboard")) {
@@ -175,11 +177,16 @@ const AllProducts = ({
               const spotlighted = spotlightProduct.some(
                 (it) => it.product_id === item.id
               );
+              const href = isDashboard
+                ? `/dashboard/catalog/product/${item.id}`
+                : productPath(stor, item);
               return (
                 <div key={index} className="cursor-pointer group">
                   <div
                     className="gap-2 items-center flex flex-col transition-transform hover:scale-[1.02]"
-                    onClick={() => handleProductClick(item)}>
+                    onClick={() => handleProductClick(item)}
+                    onMouseEnter={() => prefetch(href)}
+                    onTouchStart={() => prefetch(href)}>
                     <div className="relative w-full aspect-square rounded-field lg:rounded-card overflow-hidden">
                       <img
                         src={
