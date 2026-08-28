@@ -3,13 +3,15 @@ package seeder
 import (
 	"errors"
 	"fmt"
+	"os"
+	"strings"
 
-	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 func SeedData() {
@@ -128,11 +130,11 @@ func SeedData() {
 			// Get Men's Fashion category from new comprehensive seeding
 			var mensFashionCategory domain.Category
 			db.Where("slug = ?", "mens-fashion").First(&mensFashionCategory)
-			
+
 			// Get a subcategory for Men's Fashion (shoes)
 			var shoesSubcategory domain.SubCategory
 			db.Where("category_id = ? AND name ILIKE ?", mensFashionCategory.ID, "%shoes%").First(&shoesSubcategory)
-			
+
 			productData := domain.Product{
 				Title:         fmt.Sprintf("Nike Shoe %v", i),
 				Description:   "Cool Nike Shoe",
@@ -163,10 +165,10 @@ func SeedData() {
 	} else {
 		logger.Info("Comprehensive category seeding completed successfully")
 	}
-	
+
 	// Keep the old seeding for external categories
 	seedCategories(db)
-	
+
 	// Seed admin users
 	seedAdminUsers(db)
 
@@ -271,52 +273,58 @@ func SeedSubCategoryDefaults(db *gorm.DB) {
 }
 
 func seedAdminUsers(db *gorm.DB) {
-	// Check if admin user already exists
+	// Bootstrap admin comes from the environment — NEVER a committed password.
+	//
+	// This used to hardcode a known password and, worse, RESET an existing admin's
+	// password to it on every run. Anyone who ran `seed` against a real database
+	// would have silently downgraded the live super-admin credential to a value
+	// published in this repo.
+	//
+	// Now: credentials must be supplied via ADMIN_BOOTSTRAP_EMAIL +
+	// ADMIN_BOOTSTRAP_PASSWORD, an existing admin is NEVER modified, and with no
+	// env set the seeder simply skips instead of inventing a known credential.
+	email := strings.TrimSpace(os.Getenv("ADMIN_BOOTSTRAP_EMAIL"))
+	password := os.Getenv("ADMIN_BOOTSTRAP_PASSWORD")
+
+	if email == "" || password == "" {
+		logger.Info("Skipping admin bootstrap: set ADMIN_BOOTSTRAP_EMAIL and ADMIN_BOOTSTRAP_PASSWORD to create the first admin")
+		return
+	}
+	if len(password) < 12 {
+		logger.Error("Refusing to bootstrap admin: ADMIN_BOOTSTRAP_PASSWORD must be at least 12 characters")
+		return
+	}
+
 	var existingAdmin domain.AdminUser
-	result := db.Where("email = ?", "admin@vibaar.com").First(&existingAdmin)
-	
+	result := db.Where("email = ?", email).First(&existingAdmin)
 	if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		logger.Error(fmt.Sprintf("Error checking for existing admin: %v", result.Error))
 		return
 	}
-	
-	// Generate password hash
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("admin123456"), bcrypt.DefaultCost)
+	if result.Error == nil {
+		// Never touch an existing admin — no password reset, no role escalation.
+		logger.Info(fmt.Sprintf("Admin %s already exists; leaving it untouched", email))
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Failed to hash admin password: %v", err))
 		return
 	}
-	
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		// Create new admin user
-		adminUser := domain.AdminUser{
-			Email:        "admin@vibaar.com",
-			PasswordHash: string(hashedPassword),
-			Name:         "System Administrator",
-			Role:         "super_admin",
-			Permissions:  domain.JSON{"all": true},
-			IsActive:     true,
-		}
-		
-		if err := db.Create(&adminUser).Error; err != nil {
-			logger.Error(fmt.Sprintf("Failed to create admin user: %v", err))
-			return
-		}
-		
-		logger.Info("✅ Created admin user: admin@vibaar.com with password: admin123456")
-	} else {
-		// Update existing admin user with known password
-		existingAdmin.PasswordHash = string(hashedPassword)
-		existingAdmin.Name = "System Administrator"
-		existingAdmin.Role = "super_admin"
-		existingAdmin.Permissions = domain.JSON{"all": true}
-		existingAdmin.IsActive = true
-		
-		if err := db.Save(&existingAdmin).Error; err != nil {
-			logger.Error(fmt.Sprintf("Failed to update admin user: %v", err))
-			return
-		}
-		
-		logger.Info("✅ Updated admin user: admin@vibaar.com with password: admin123456")
+
+	adminUser := domain.AdminUser{
+		Email:        email,
+		PasswordHash: string(hashedPassword),
+		Name:         "System Administrator",
+		Role:         "super_admin",
+		Permissions:  domain.JSON{"all": true},
+		IsActive:     true,
 	}
+	if err := db.Create(&adminUser).Error; err != nil {
+		logger.Error(fmt.Sprintf("Failed to create admin user: %v", err))
+		return
+	}
+	// Deliberately does NOT log the password.
+	logger.Info(fmt.Sprintf("Created bootstrap admin user: %s — change this password after first login", email))
 }

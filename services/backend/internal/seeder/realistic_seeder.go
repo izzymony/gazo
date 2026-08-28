@@ -1,7 +1,11 @@
 package seeder
 
 import (
+	"errors"
 	"log"
+	"os"
+	"strings"
+
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 	"golang.org/x/crypto/bcrypt"
@@ -10,14 +14,20 @@ import (
 // SeedRealisticData creates minimal realistic data for local testing
 // This creates only essential data to test the application realistically
 func SeedRealisticData() error {
+	// Local-only. This seeder mints a test login; running it against a shared or
+	// production database would plant a known credential there.
+	if !isLocalSeedEnv() {
+		return errors.New("SeedRealisticData is local-only: set APP_ENV/ENV to local, dev or development")
+	}
+
 	db := database.ConnectDB()
-	
+
 	log.Println("🌱 Starting realistic data seeding...")
-	
+
 	// Create essential categories first
 	desc1, desc2, desc3, desc4, desc5 := "Electronic devices and accessories", "Clothing and fashion items", "Home and garden supplies", "Books and educational materials", "Food and drink items"
 	icon1, icon2, icon3, icon4, icon5 := "📱", "👗", "🏠", "📚", "🍔"
-	
+
 	categories := []domain.Category{
 		{Name: "Electronics", Description: &desc1, Icon: &icon1, Status: "active"},
 		{Name: "Fashion", Description: &desc2, Icon: &icon2, Status: "active"},
@@ -25,7 +35,7 @@ func SeedRealisticData() error {
 		{Name: "Books", Description: &desc4, Icon: &icon4, Status: "active"},
 		{Name: "Food & Beverages", Description: &desc5, Icon: &icon5, Status: "active"},
 	}
-	
+
 	// Create categories and get their IDs for subcategories
 	var createdCategories []domain.Category
 	for _, cat := range categories {
@@ -46,7 +56,7 @@ func SeedRealisticData() error {
 
 	// Create comprehensive subcategories
 	subcategories := []domain.SubCategory{}
-	
+
 	// Find category IDs
 	var electronics, fashion, homeGarden, books, foodBeverages domain.Category
 	for _, cat := range createdCategories {
@@ -146,35 +156,52 @@ func SeedRealisticData() error {
 			log.Printf("Subcategory %s already exists", subcat.Name)
 		}
 	}
-	
-	// Create a single admin user for testing
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
-	adminUser := domain.User{
-		Firstname:    "Admin",
-		Lastname:     "User", 
-		Email:        "admin@vibaar.local",
-		UserName:     "admin",
-		Phone:        "+1234567890",
-		Password:     string(hashedPassword),
+
+	// Create a single test user. Password comes from SEED_TEST_PASSWORD when set;
+	// the fallback only ever runs behind the local-env guard above.
+	testPassword := os.Getenv("SEED_TEST_PASSWORD")
+	if testPassword == "" {
+		testPassword = "local-dev-only-password"
 	}
-	
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(testPassword), bcrypt.DefaultCost)
+	adminUser := domain.User{
+		Firstname: "Admin",
+		Lastname:  "User",
+		Email:     "admin@vibaar.local",
+		UserName:  "admin",
+		Phone:     "+1234567890",
+		Password:  string(hashedPassword),
+	}
+
 	if err := db.Create(&adminUser).Error; err != nil {
 		log.Printf("Admin user already exists: %v", err)
 	} else {
 		log.Printf("✅ Created admin user: %s", adminUser.Email)
 	}
-	
+
 	log.Println("✅ Realistic data seeding completed!")
 	log.Println("")
-	log.Println("📝 Admin Credentials:")
+	log.Println("📝 Test account (local only):")
 	log.Println("  Email: admin@vibaar.local")
-	log.Println("  Password: admin123")
+	log.Println("  Password: $SEED_TEST_PASSWORD (default: local-dev-only-password)")
 	log.Println("")
 	log.Println("🎯 Ready for realistic testing!")
 	log.Println("   - No hardcoded vendors or products")
 	log.Println("   - Users must register/create businesses")
 	log.Println("   - Products must be created through the app")
 	log.Println("   - Real data flow and validation")
-	
+
 	return nil
+}
+
+// isLocalSeedEnv mirrors routes.isLocalEnv — seeders that create logins must
+// never run outside a local/dev environment.
+func isLocalSeedEnv() bool {
+	for _, v := range []string{os.Getenv("APP_ENV"), os.Getenv("ENV")} {
+		switch strings.ToLower(strings.TrimSpace(v)) {
+		case "local", "dev", "development":
+			return true
+		}
+	}
+	return false
 }

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/jackc/pgx/v5/pgconn"
+
 	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
@@ -34,9 +36,12 @@ func (s *ReferralService) CreditSignupBonus(userID string) error {
 	err := s.db.Transaction(func(tx *gorm.DB) error {
 		txRepo := mysql_repo.NewReferralRepository(tx)
 
-		// Idempotency (RW1): one signup bonus per user. A retried signup must not
-		// grant ₦1,000 twice. (P1 hardening: a unique partial index on
-		// credit_entries(user_id) WHERE type='signup_bonus' for true-concurrency.)
+		// Idempotency (RW1): one signup bonus per user. This fast-path check stops
+		// the common retry cheaply; the AUTHORITATIVE guard is the partial unique
+		// index idx_credit_entries_one_signup_bonus_per_user (migration 013),
+		// because under READ COMMITTED two concurrent calls can both read zero
+		// rows here and both insert. The unique-violation branch below is what
+		// actually makes this safe.
 		if existing, _ := txRepo.GetCreditEntriesByType(userID, domain.CreditTypeSignupBonus); len(existing) > 0 {
 			logger.Info("Signup bonus already granted, skipping for user: " + userID)
 			return nil
@@ -64,6 +69,18 @@ func (s *ReferralService) CreditSignupBonus(userID string) error {
 		return nil
 	})
 	if err != nil {
+		// Lost a concurrency race: another call inserted this user's signup bonus
+		// between our check and our insert, and migration 013's partial unique
+		// index rejected ours. The whole transaction rolled back, so no credit was
+		// applied here — the winner granted it exactly once. Treat as success.
+		//
+		// This is deliberately handled OUTSIDE the transaction: returning nil from
+		// inside would make GORM COMMIT, persisting the UpdateShoppingCredit
+		// increment without its ledger entry — the exact double-credit this guards.
+		if isSignupBonusRaceLoss(err) {
+			logger.Info("Signup bonus already granted concurrently, skipping for user: " + userID)
+			return nil // no welcome emit — the winning call sends it
+		}
 		return err
 	}
 
@@ -74,6 +91,29 @@ func (s *ReferralService) CreditSignupBonus(userID string) error {
 		UserID: userID,
 	})
 	return nil
+}
+
+// isSignupBonusRaceLoss reports whether err is the unique-violation raised by
+// idx_credit_entries_one_signup_bonus_per_user (migration 013) — i.e. a
+// concurrent call already granted this user's signup bonus.
+//
+// Matched via the pgx PgError code (23505 = unique_violation) plus the index
+// name, so an unrelated unique violation elsewhere in the transaction is NOT
+// swallowed. Falls back to a string check because the error may arrive wrapped
+// by GORM rather than as a typed *pgconn.PgError.
+func isSignupBonusRaceLoss(err error) bool {
+	if err == nil {
+		return false
+	}
+	const idxName = "idx_credit_entries_one_signup_bonus_per_user"
+
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		return pgErr.Code == "23505" && strings.Contains(pgErr.ConstraintName, idxName)
+	}
+	msg := err.Error()
+	return strings.Contains(msg, idxName) &&
+		(strings.Contains(msg, "23505") || strings.Contains(msg, "duplicate key value"))
 }
 
 // ValidateReferralUsername checks if a username exists and is not the user's own

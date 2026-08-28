@@ -337,13 +337,27 @@ func (repo *ReferralRepository) GetReferralStats() (*domain.ReferralStats, error
 	}
 	stats.TotalCreditsIssued = totalIssued.Sum
 
-	// Calculate total credits used
+	// Calculate total credits used.
+	//
+	// Must span the RESERVATION ledger, not just legacy `usage` entries. RW1's
+	// checkout redemption writes a negative `reservation` hold that STAYS on the
+	// ledger when the order converts (UsedAt set) and is offset by a positive
+	// `reservation_release` when it does not. Counting only `usage` therefore
+	// under-reports every redemption made through checkout.
+	//
+	// Signs (verified against the writers): usage = -amount, reservation =
+	// -(shopping+withdrawable), reservation_release = +reserved. So negating the
+	// SUM across all three yields net credit actually consumed, with released
+	// holds cancelling themselves out. ABS() would wrongly ADD releases.
 	var totalUsed struct {
 		Sum float64
 	}
 	if err := repo.db.Model(&domain.CreditEntry{}).
-		Select("COALESCE(SUM(ABS(amount)), 0) as sum").
-		Where("type = ?", domain.CreditTypeUsage).
+		Select("COALESCE(-SUM(amount), 0) as sum").
+		Where("type IN (?, ?, ?)",
+			domain.CreditTypeUsage,
+			domain.CreditTypeReservation,
+			domain.CreditTypeReservationRelease).
 		Scan(&totalUsed).Error; err != nil {
 		return nil, err
 	}

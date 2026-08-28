@@ -162,18 +162,15 @@ ON CONFLICT (name) DO UPDATE SET
 -- CREATE DEFAULT SUPER ADMIN USER
 -- =====================================================
 
--- Default admin user (password: admin123456)
--- This should be changed immediately after first login
-INSERT INTO admin_users (email, password_hash, name, role, permissions, is_active) VALUES 
-(
-    'admin@instashop.com',
-    '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/uwLBXmEW.8aSrwO02', -- bcrypt hash of 'admin123456'
-    'System Administrator',
-    'super_admin',
-    '{"all": true}'::JSONB,
-    true
-)
-ON CONFLICT (email) DO NOTHING;
+-- Bootstrap admin is NOT seeded here.
+--
+-- This file used to INSERT a super_admin with a bcrypt hash of the publicly
+-- known, hardcoded password. Anyone who applied this migration got a
+-- working admin login whose credentials are in the repository.
+--
+-- The first admin is now created explicitly from the environment:
+--   ADMIN_BOOTSTRAP_EMAIL=... ADMIN_BOOTSTRAP_PASSWORD=... ./backend seed
+-- (see internal/seeder/seeder.go — it never modifies an existing admin).
 
 -- =====================================================
 -- COMMENTS AND DOCUMENTATION

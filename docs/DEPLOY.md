@@ -33,6 +33,8 @@ Two that are easy to miss because they are **user-visible or boot-blocking**:
 - **`SMS_ID` / `TERMII_SENDER_ID` / `SENDCHAMP_SENDER_NAME`** are the sender name on every OTP and alert SMS. They must be **registered with the provider** before they will send — Nigerian carriers silently reject or rewrite an unregistered sender ID. Register `Vibaar` when you open the accounts.
 - **`BVN_ENCRYPTION_KEY`** is a hard requirement: a base64-encoded 32-byte key (or a raw 32-char string). Missing it is a **hard error** on the KYC path, not a warning. Generate with `openssl rand -base64 32`. **Losing this key makes every stored BVN unreadable** — store it in the same vault as your DB credentials, and never rotate it without a re-encryption plan.
 
+- **`ADMIN_BOOTSTRAP_EMAIL` / `ADMIN_BOOTSTRAP_PASSWORD`** create the first admin, via an explicit `./backend seed` run. There is **no default admin** — the seeder used to hardcode a password published in this repo *and reset an existing admin's password to it on every run*, so a stray `seed` against production would have downgraded the live super-admin credential. It now refuses without these vars, requires 12+ characters, and never touches an existing admin. Create the admin once, then change the password after first login.
+
 See **[KYC-PRODUCTION-RUNBOOK.md](./KYC-PRODUCTION-RUNBOOK.md)** for the KYC-specific env + verification checklist. Do not go live on KYC without walking it.
 
 ---
