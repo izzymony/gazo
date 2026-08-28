@@ -267,30 +267,44 @@ func (repo *OrderRepository) Create(data *domain.Order, isGuest bool) (*domain.O
 		tableName += "_guest"
 	}
 
-	tx := repo.db.Begin()
+	// Persist through a GORM-managed transaction. When repo.db is already bound to a
+	// caller's transaction (e.g. Verify's order-on-success flow), GORM opens a
+	// SAVEPOINT instead of a real BEGIN — so this nests safely and never returns
+	// ErrInvalidTransaction (the manual Begin()/Commit() here was the same class of
+	// bug fixed for the transaction repo; it broke every order-on-success checkout).
+	err := repo.db.Transaction(func(tx *gorm.DB) error {
+		items := data.Items
+		data.Items = nil
 
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
+		// Insert the order row only, omitting associations: a validated-order payload
+		// round-trips through JSON carrying zero-value (empty-id) association structs
+		// (Business/Shipment/ShippingOption/Order), and GORM's default Create would try
+		// to upsert those empty-id rows and fail. FK ids on the scalar columns are all
+		// we need; associations are re-loaded on read.
+		if err := tx.Table(tableName).Omit(clause.Associations).Create(data).Error; err != nil {
+			return err
 		}
-	}()
 
-	if err := tx.Table(tableName).Create(data).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
+		for i := range items {
+			items[i].OrderID = data.ID
+			items[i].Status = string(helper.OrderStatusPending)
+			// Strip the reconstructed value-type associations so only scalar columns
+			// and FK ids are written (matches the order-row handling above).
+			items[i].Order = domain.Order{}
+			items[i].Business = domain.Business{}
+			items[i].ShippingOption = domain.ShippingOption{}
+			items[i].Shipment = domain.Shipment{}
+			items[i].Product = nil
 
-	for i := range data.Items {
-		data.Items[i].OrderID = data.ID
-		data.Items[i].Status = string(helper.OrderStatusPending)
-
-		if err := tx.Updates(&data.Items[i]).Error; err != nil {
-			tx.Rollback()
-			return nil, err
+			if err := tx.Omit(clause.Associations).Create(&items[i]).Error; err != nil {
+				return err
+			}
 		}
-	}
 
-	if err := tx.Commit().Error; err != nil {
+		data.Items = items
+		return nil
+	})
+	if err != nil {
 		return nil, err
 	}
 
@@ -378,28 +392,21 @@ func (repo *OrderRepository) UpdateOrderItem(id string, input domain.OrderItem, 
 		tableName += "_guest"
 	}
 
-	tx := repo.db.Table(tableName).Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
 	input.ID = id
 
-	q := tx.Model(&domain.OrderItem{}).Where("id = ?", id).Select("*").Updates(input)
-	if q.Error != nil {
-		tx.Rollback()
-		return nil, q.Error
-	}
-
 	var updatedOrder domain.OrderItem
-	if err := tx.Where("id = ?", id).First(&updatedOrder).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-
-	if err := tx.Commit().Error; err != nil {
+	// GORM-managed tx so this nests safely (SAVEPOINT) inside a caller's transaction
+	// (order-on-success Verify settles the item here) instead of the manual
+	// Begin()/Commit() that rolled the outer checkout tx back on a *sql.Tx. Same class
+	// as the Create/AppendActivity fixes. Omit associations so Select("*") only rewrites
+	// scalar columns and never upserts the item's (empty) value-type associations.
+	err := repo.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&domain.OrderItem{}).Where("id = ?", id).Select("*").Omit(clause.Associations).Updates(input).Error; err != nil {
+			return err
+		}
+		return tx.Table(tableName).Where("id = ?", id).First(&updatedOrder).Error
+	})
+	if err != nil {
 		return nil, err
 	}
 
@@ -476,48 +483,44 @@ func (repo *OrderRepository) AppendActivity(id string, newActivity domain.OrderA
 		tableName += "_guest"
 	}
 
-	tx := repo.db.Table(tableName).Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
 	var existingOrder domain.OrderItem
 	selectField := "buyer_activity"
 	if activityType == "seller" {
 		selectField = "seller_activity"
 	}
 
-	if err := tx.Table(tableName).Where("id = ?", id).Select(selectField).First(&existingOrder).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
+	// Use a GORM-managed transaction so this nests safely (SAVEPOINT) when repo.db is
+	// already bound to a caller's tx (e.g. order-on-success Verify). The old manual
+	// Begin()/Commit() rolled the OUTER transaction back here: repo.db.Begin() on a
+	// *sql.Tx sets ErrInvalidTransaction but leaves ConnPool pointing at the caller's
+	// tx, so the deferred/inline tx.Rollback() aborted the whole checkout tx and the
+	// just-created order vanished. (Same class as the Create fix above / 368a981.)
+	err := repo.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Table(tableName).Where("id = ?", id).Select(selectField).First(&existingOrder).Error; err != nil {
+			return err
+		}
 
-	newActivityEntry := map[string]interface{}{
-		"title":    newActivity.Title,
-		"details":  newActivity.Details,
-		"subtitle": newActivity.Subtitle,
-		"time":     newActivity.Time,
-	}
+		newActivityEntry := map[string]interface{}{
+			"title":    newActivity.Title,
+			"details":  newActivity.Details,
+			"subtitle": newActivity.Subtitle,
+			"time":     newActivity.Time,
+		}
 
-	if activityType == "seller" {
-		existingOrder.SellerActivity = append(existingOrder.SellerActivity, newActivityEntry)
-	} else {
-		existingOrder.BuyerActivity = append(existingOrder.BuyerActivity, newActivityEntry)
-	}
+		if activityType == "seller" {
+			existingOrder.SellerActivity = append(existingOrder.SellerActivity, newActivityEntry)
+		} else {
+			existingOrder.BuyerActivity = append(existingOrder.BuyerActivity, newActivityEntry)
+		}
 
-	updateField := map[string]interface{}{
-		"buyer_activity":  existingOrder.BuyerActivity,
-		"seller_activity": existingOrder.SellerActivity,
-	}[selectField]
+		updateField := map[string]interface{}{
+			"buyer_activity":  existingOrder.BuyerActivity,
+			"seller_activity": existingOrder.SellerActivity,
+		}[selectField]
 
-	if err := tx.Table(tableName).Where("id = ?", id).Updates(map[string]interface{}{selectField: updateField}).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-
-	if err := tx.Commit().Error; err != nil {
+		return tx.Table(tableName).Where("id = ?", id).Updates(map[string]interface{}{selectField: updateField}).Error
+	})
+	if err != nil {
 		return nil, err
 	}
 
