@@ -107,6 +107,13 @@ These are specific to what `apps/web` actually does. **None of this has been exe
 - Copy the **internal** connection string into the backend service (internal traffic avoids egress and is faster); keep the external one for `psql` access.
 - **Migrations run themselves.** On boot the backend runs GORM AutoMigrate for table structure, then the **B9 versioned runner** applies `services/backend/internal/migration/sql/*.sql` once each, in order, in a transaction, tracked in a `schema_migrations` ledger. A fresh DB comes up correct with no manual step — the old "run 009/010/011/012 by hand" instruction is **obsolete**.
 - A failure in the versioned runner **halts boot deliberately** rather than serving on a half-migrated schema. If the service won't start, read the logs before touching the DB.
+- **Pre-deploy data check (only matters for a DB that already has users).** Migration 013 adds a unique index guaranteeing one signup bonus per user. It is deliberately **additive** — if duplicates already exist it FAILS and halts boot rather than deleting rows, because those duplicate ledger entries have already been added to `users.shopping_credit`, and removing them silently would break the ledger-equals-balance invariant. Check first:
+  ```sql
+  SELECT user_id, COUNT(*), SUM(amount)
+  FROM credit_entries WHERE type = 'signup_bonus'
+  GROUP BY user_id HAVING COUNT(*) > 1;
+  ```
+  Zero rows (the expected case on a fresh DB) means nothing to do. If it returns rows, reconcile by hand — decide per user whether the excess was already spent, then adjust `users.shopping_credit` to match before removing ledger rows.
 - Verify after first boot:
   ```sql
   SELECT version, name, applied_at FROM schema_migrations ORDER BY version;

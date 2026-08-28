@@ -12,16 +12,29 @@
 -- Plain CREATE UNIQUE INDEX, not CONCURRENTLY: the boot runner wraps each file in
 -- a transaction, and CONCURRENTLY cannot run inside one. The table is small at
 -- launch scale, so the brief lock is fine.
-
--- Defensive de-duplication first: the index cannot be created while duplicates
--- exist. Keeps the EARLIEST entry per user (created_at, then id as tiebreak) and
--- removes later ones. A no-op where no duplicates exist.
-DELETE FROM credit_entries a
-USING credit_entries b
-WHERE a.type = 'signup_bonus'
-  AND b.type = 'signup_bonus'
-  AND a.user_id = b.user_id
-  AND (a.created_at > b.created_at OR (a.created_at = b.created_at AND a.id > b.id));
+--
+-- ON PRE-EXISTING DUPLICATES — deliberately NOT auto-repaired.
+--
+-- An earlier draft of this migration DELETEd duplicate signup_bonus rows before
+-- creating the index. That was wrong: the duplicate ledger rows have already been
+-- added to users.shopping_credit, so deleting them silently breaks the
+-- ledger-equals-balance invariant and leaves the user holding credit with no
+-- audit trail explaining it. Worse, it would do so quietly, on boot.
+--
+-- So this migration is now purely additive. If duplicates exist, CREATE UNIQUE
+-- INDEX fails on its own with a precise Postgres error naming the duplicated
+-- user_id, the boot runner halts the service (by design — see versioned.go), and
+-- a human reconciles before anything serves traffic. A money invariant should
+-- fail loudly, not self-heal.
+--
+-- To check BEFORE deploying:
+--
+--   SELECT user_id, COUNT(*), SUM(amount)
+--   FROM credit_entries WHERE type = 'signup_bonus'
+--   GROUP BY user_id HAVING COUNT(*) > 1;
+--
+-- If that returns rows, decide per user whether the excess credit was spent
+-- before removing ledger rows, and adjust users.shopping_credit to match.
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_credit_entries_one_signup_bonus_per_user
     ON credit_entries (user_id)
