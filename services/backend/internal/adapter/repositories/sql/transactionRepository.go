@@ -1,6 +1,8 @@
 package mysql_repo
 
 import (
+	"time"
+
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
@@ -83,6 +85,36 @@ func (repo *TransactionRepository) ClaimPending(id string, isGuest bool) (bool, 
 		return false, q.Error
 	}
 	return q.RowsAffected == 1, nil
+}
+
+// ClaimReservationRelease (RW1) atomically marks a transaction's rewards-credit
+// reservation as released — only if it has a live hold that was neither converted
+// nor already released. RowsAffected==1 means THIS caller won and must do the refund,
+// so the synchronous init-failure path, MarkFailed, and the reconcile cron can't
+// double-refund.
+func (repo *TransactionRepository) ClaimReservationRelease(id string, isGuest bool) (bool, error) {
+	tableName := "transactions"
+	if isGuest {
+		tableName += "_guest"
+	}
+	q := repo.db.Table(tableName).
+		Where("id = ? AND credit_released_at IS NULL AND credit_converted_at IS NULL AND (credit_reserved_shopping > 0 OR credit_reserved_withdrawable > 0)", id).
+		Update("credit_released_at", time.Now())
+	if q.Error != nil {
+		return false, q.Error
+	}
+	return q.RowsAffected == 1, nil
+}
+
+// MarkReservationConverted (RW1) stamps credit_converted_at, marking the reservation
+// consumed so it can never be released. Called inside Verify's ClaimPending-gated
+// order-creation tx, so it runs exactly once.
+func (repo *TransactionRepository) MarkReservationConverted(id string, isGuest bool) error {
+	tableName := "transactions"
+	if isGuest {
+		tableName += "_guest"
+	}
+	return repo.db.Table(tableName).Where("id = ?", id).Update("credit_converted_at", time.Now()).Error
 }
 
 // SetStatus updates only the status column (e.g. to revert a claim when the

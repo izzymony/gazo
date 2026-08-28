@@ -144,7 +144,9 @@ func (s *TransactionService) Initiate(input requests.InitiateTransaction, userId
 // is created from the payload on charge.success (Verify), so a failed/abandoned
 // payment leaves no order. Replaces the createOrders -> Initiate pair.
 func (s *TransactionService) InitiateCheckout(input requests.InitiateCheckout, userId string, isGuest bool) (*payments.InitiateResponse, error) {
-	// Validate + build the order (no persist). Mints the invoice.
+	// Validate + build the order (no persist). Mints the invoice. Clamps the rewards-
+	// credit intent (guest-reject, ≤50%, whole Naira) — the atomic reserve below is
+	// the authority for the real amount.
 	order, err := s.orderService.ValidateOrder(input.Order, userId, isGuest)
 	if err != nil {
 		return nil, err
@@ -162,28 +164,71 @@ func (s *TransactionService) InitiateCheckout(input requests.InitiateCheckout, u
 		return nil, errors.New("please provide a valid email")
 	}
 
-	// Store the fully-validated order (resolved business IDs + locked prices,
-	// carrying the minted invoice) as the payload — the order is created FROM
-	// this at charge.success WITHOUT re-validating live product state, so a price
-	// change or product removal in the payment window can't reject a paid order.
-	payloadMap, err := orderToMap(*order)
-	if err != nil {
-		return nil, err
+	gross := math.Round(input.Total) // whole Naira; the value the seller fulfils
+	creditIntent := 0.0
+	if !isGuest && order.CreditApplied > 0 {
+		creditIntent = order.CreditApplied // whole-Naira clamped in ValidateOrder
 	}
 
-	transaction, err := s.transactionRepo.Create(&domain.Transaction{
-		Reference: order.Invoice,
-		UserId:    userId,
-		Amount:    input.Total,
-		Status:    string(helper.PaymentPending),
-		Payload:   payloadMap,
-	}, isGuest)
-	if err != nil {
-		return nil, err
+	// RW1: reserve the credit + create the pending transaction in ONE short DB tx
+	// that COMMITS before the Paystack call — never hold a DB tx open across the
+	// network round-trip. The transaction's Amount is the CASH charged (gross minus
+	// the actual reserved credit); the payload keeps the gross order + the
+	// authoritative CreditApplied.
+	var transaction *domain.Transaction
+	txErr := s.db.Transaction(func(tx *gorm.DB) error {
+		var sUsed, wUsed float64
+		if creditIntent > 0 {
+			refRepo := mysql_repo.NewReferralRepository(tx)
+			s2, w2, rerr := refRepo.ReserveCredit(userId, creditIntent)
+			if rerr != nil {
+				if errors.Is(rerr, mysql_repo.ErrInsufficientCredit) {
+					// Never silently under-apply — reject so the buyer is never charged
+					// more than the "You pay" they saw.
+					return fmt.Errorf("your rewards balance changed — please refresh and try again")
+				}
+				return rerr
+			}
+			sUsed, wUsed = s2, w2
+			if err := refRepo.CreateCreditEntry(&domain.CreditEntry{
+				UserID: userId, Amount: -(sUsed + wUsed),
+				Type: domain.CreditTypeReservation, Source: domain.CreditSourceCheckout,
+				OrderID:     order.Invoice,
+				Description: fmt.Sprintf("Reserved ₦%.0f rewards credit at checkout", sUsed+wUsed),
+			}); err != nil {
+				return err
+			}
+		}
+		order.CreditApplied = sUsed + wUsed // authoritative = actual reserved
+		payloadMap, perr := orderToMap(*order)
+		if perr != nil {
+			return perr
+		}
+		created, cerr := mysql_repo.NewTransactionRepository(tx).Create(&domain.Transaction{
+			Reference:                  order.Invoice,
+			UserId:                     userId,
+			Amount:                     gross - (sUsed + wUsed),
+			Status:                     string(helper.PaymentPending),
+			Payload:                    payloadMap,
+			CreditReservedShopping:     sUsed,
+			CreditReservedWithdrawable: wUsed,
+		}, isGuest)
+		if cerr != nil {
+			return cerr
+		}
+		transaction = created
+		return nil
+	})
+	if txErr != nil {
+		return nil, txErr
 	}
 
-	paymentResponse, err := s.payments.Initiate(email, order.Invoice, int32(math.Round(input.Total)), input.RedirectURL)
+	// Paystack — OUTSIDE any DB tx.
+	paymentResponse, err := s.payments.Initiate(email, order.Invoice, int32(transaction.Amount), input.RedirectURL)
 	if err != nil {
+		// Synchronous release: refund the held credit immediately (new short tx) so
+		// the buyer's balance is restored now, not after the reconcile cron.
+		s.releaseReservation(transaction.ID, isGuest)
 		return nil, err
 	}
 
@@ -197,6 +242,42 @@ func (s *TransactionService) InitiateCheckout(input requests.InitiateCheckout, u
 	helper.Copy(paymentResponse.Data, &initData)
 	initData.TransactionId = transaction.ID
 	return &initData, nil
+}
+
+// releaseReservation refunds a transaction's held rewards credit EXACTLY ONCE
+// (payment init-failed / failed / expired). Concurrency-safe + idempotent via
+// ClaimReservationRelease, and it never touches a converted reservation. Runs in its
+// own short tx, so it is safe from the synchronous init-failure path, MarkFailed, and
+// the reconcile cron.
+func (s *TransactionService) releaseReservation(txnID string, isGuest bool) {
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		txTxnRepo := mysql_repo.NewTransactionRepository(tx)
+		won, cerr := txTxnRepo.ClaimReservationRelease(txnID, isGuest)
+		if cerr != nil {
+			return cerr
+		}
+		if !won {
+			return nil // no live hold, or already converted/released
+		}
+		t, gerr := txTxnRepo.GetOne(map[string]interface{}{"id": txnID}, isGuest)
+		if gerr != nil || t == nil {
+			return gerr
+		}
+		refRepo := mysql_repo.NewReferralRepository(tx)
+		if rerr := refRepo.RefundCredit(t.UserId, t.CreditReservedShopping, t.CreditReservedWithdrawable); rerr != nil {
+			return rerr
+		}
+		reserved := t.CreditReservedShopping + t.CreditReservedWithdrawable
+		return refRepo.CreateCreditEntry(&domain.CreditEntry{
+			UserID: t.UserId, Amount: reserved,
+			Type: domain.CreditTypeReservationRelease, Source: domain.CreditSourceCheckout,
+			OrderID:     t.Reference,
+			Description: fmt.Sprintf("Released ₦%.0f reserved rewards credit (payment not completed)", reserved),
+		})
+	})
+	if err != nil {
+		log.Printf("releaseReservation failed for txn %s: %v", txnID, err)
+	}
 }
 
 // orderToMap serialises a fully-validated order (resolved business IDs + locked
@@ -269,6 +350,17 @@ func (s *TransactionService) Verify(input requests.VerifyTransaction, isGuest bo
 	// fmt.Println("paymentResponse.Data.Status; ", paymentResponse.Data.Status)
 
 	if paymentResponse.Data.Status == string(helper.PaymentSuccessful) {
+		// RW1: verify Paystack actually charged the EXPECTED cash (gross minus
+		// reserved credit), in kobo, before creating the order — guards against an
+		// amount that doesn't match what we asked to charge. On mismatch: create no
+		// order, release any held credit, and fail.
+		expectedKobo := int(math.Round(transaction.Amount)) * 100
+		if paymentResponse.Data.Amount != expectedKobo {
+			s.releaseReservation(transaction.ID, isGuest)
+			_ = s.transactionRepo.SetStatus(transaction.ID, string(helper.PaymentFailed), isGuest)
+			return nil, fmt.Errorf("payment amount mismatch")
+		}
+
 		// R6: run the confirm->credit sequence in ONE DB transaction so a mid-loop
 		// failure can't leave some items credited and others not. Any error rolls
 		// the whole thing back (including the payment claim), so the reconcile cron
@@ -316,6 +408,18 @@ func (s *TransactionService) Verify(input requests.VerifyTransaction, isGuest bo
 				}
 			}
 			order.PaymentReceived = true
+
+			// RW1: convert the rewards-credit reservation atomically with the order.
+			// The balance was decremented at reserve; stamp converted so it can never
+			// be released. No-op when nothing was reserved (guest / no credit / legacy).
+			// Exactly-once via the ClaimPending gate above. NOTE: the seller is settled
+			// on the FULL item price below (CreditForOrderInProgress uses item.Price) —
+			// credit is a platform-funded discount to the buyer, not to the seller.
+			if transaction.CreditReservedShopping > 0 || transaction.CreditReservedWithdrawable > 0 {
+				if err := txTxnRepo.MarkReservationConverted(transaction.ID, isGuest); err != nil {
+					return err
+				}
+			}
 
 			for _, item := range order.Items {
 				if err := txWallet.CreditForOrderInProgress(&item, float64(item.Quantity)*item.Price, isGuest); err != nil {
@@ -443,7 +547,12 @@ func (s *TransactionService) MarkFailed(reference string) error {
 		if transaction.Status == string(helper.PaymentSuccessful) {
 			return nil // already settled — do not override a success
 		}
-		return s.transactionRepo.SetStatus(transaction.ID, string(helper.PaymentFailed), isGuest)
+		if err := s.transactionRepo.SetStatus(transaction.ID, string(helper.PaymentFailed), isGuest); err != nil {
+			return err
+		}
+		// RW1: a failed payment releases any held rewards credit (idempotent).
+		s.releaseReservation(transaction.ID, isGuest)
+		return nil
 	}
 	return nil // unknown reference — nothing to fail
 }
@@ -452,5 +561,12 @@ func (s *TransactionService) MarkFailed(reference string) error {
 // backstop for payments the customer abandoned before paying). Conditional at
 // the SQL layer, so it never overrides a status a concurrent verify just settled.
 func (s *TransactionService) ExpireIfPending(id string, isGuest bool) error {
-	return s.transactionRepo.ExpireIfPending(id, isGuest)
+	if err := s.transactionRepo.ExpireIfPending(id, isGuest); err != nil {
+		return err
+	}
+	// RW1: an expired (abandoned) checkout releases any held rewards credit. Idempotent
+	// + guards against a converted reservation, so this is a no-op if a concurrent
+	// verify already settled + converted it.
+	s.releaseReservation(id, isGuest)
+	return nil
 }

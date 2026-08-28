@@ -12,4 +12,7 @@ type TransactionRepoInterface interface {
 	ClaimPending(id string, isGuest bool) (bool, error)
 	SetStatus(id, status string, isGuest bool) error
 	ExpireIfPending(id string, isGuest bool) error
+	// RW1 rewards-credit reservation lifecycle (idempotent claims).
+	ClaimReservationRelease(id string, isGuest bool) (bool, error)
+	MarkReservationConverted(id string, isGuest bool) error
 }

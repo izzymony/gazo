@@ -1,75 +1,147 @@
-# vibaar — Deploy Guide (M4)
+# vibaar — Deploy Guide
 
-Turnkey steps to take the local `vibaar` monorepo live under the new brand. Everything below is the **owner-gated** path; the code side (M1–M3 + rebrand) is done, and CI runs its **static gates** green (type-check, lint, `go build`/`go vet`). **Caveat:** CI has **no test or build job yet** — no `go test`, no Jest (admin's Jest config is currently broken), no `next build` — so the money-safety + rollback tests don't run in CI. Closing that is audit item **F2**.
+Turnkey steps to take the `vibaar` monorepo live. **Target stack: Cloudflare for the two frontends, Render for the backend and Postgres.**
 
-Repo layout: `apps/web` (Next), `apps/admin` (Next), `services/backend` (Go). pnpm + turbo. CI at `.github/workflows/ci.yml` runs on push.
+Repo layout: `apps/web` (Next 14), `apps/admin` (Next 14), `services/backend` (Go + Gin). pnpm + turbo. CI at `.github/workflows/ci.yml`.
+
+**CI status:** green on `main`. The **js** job runs `pnpm type-check`, `pnpm lint`, `pnpm test`; the **backend** job runs `go build`, `go vet`, `go test ./...` and the tagged `money_safety_repro` harness. Note the honest limit: the JS tests are still smoke-level, so CI protects the Go money paths far better than the frontend.
+
+> **Read before you start.** Steps 1–2 are done. Steps 3–7 need owner accounts. Where something below has *not* been executed and verified end-to-end, it says so — nothing here is written as if it has been proven in production when it hasn't.
 
 ---
 
-## 1. GitHub repo + push
+## 1. GitHub repo + push — ✅ done
 
-Repo **[`Tinovalabs/vibaar`](https://github.com/Tinovalabs/vibaar)** (private, empty) is created and the `origin` remote is wired. The Go module is already repathed to `github.com/Tinovalabs/vibaar/services/backend`. To push:
+Repo **[`Tinovalabs/vibaar`](https://github.com/Tinovalabs/vibaar)** (private). Go module is `github.com/Tinovalabs/vibaar/services/backend`. CI runs on every push.
 
-```bash
-cd "…/myInstaShop/vibaar"
-git push -u origin main   # origin already set to Tinovalabs/vibaar
-```
-CI (`ci.yml`) runs automatically on push: **js** job (`pnpm install --frozen-lockfile` + `pnpm type-check` + `pnpm lint` + `pnpm test`) and **backend** job (`go build ./...` + `go vet` + `go test ./...` + the tagged money-safety harness). All verified green locally.
+> History was rewritten on 2026-08-28 to purge a committed DB dump and ~45 MB of dead assets. If you have an old clone anywhere, **re-clone it** — don't merge or pull.
 
 ## 2. Rotate secrets → new-brand provider accounts
 
-Open fresh accounts/keys under vibaar and fill new `.env` files (real ones were intentionally NOT committed). Providers in use:
+Open fresh accounts/keys under vibaar and fill real `.env` files (templates are committed; real values never are).
 
 | Env area | Keys |
 |---|---|
-| **Backend** (`services/backend/.env`) | DB (`DB_HOST/PORT/USER/PASSWORD/NAME`), Paystack, Cloudinary, Shipbubble, mail/SMS, WhatsApp (`instashop_webhook_verify_token` → set a real one), Sentry DSN, Google/Instagram/TikTok OAuth |
-| **Web** (`apps/web/.env.local`) | `NEXT_PUBLIC_API_BASE_URL`, Sentry, Mapbox/Google Maps, any OAuth client IDs |
-| **Admin** (`apps/admin/.env.local`) | `NEXT_PUBLIC_API_BASE_URL` (defaults to `:8088/api/v1`), Sentry |
+| **Backend** (`services/backend/.env`) | DB (`DB_HOST/PORT/USER/PASSWORD/NAME` or `DB_DSN`), Paystack, Cloudinary, Shipbubble, mail/SMS, `WHATSAPP_WEBHOOK_VERIFY_TOKEN`, `BVN_ENCRYPTION_KEY`, `KYC_PRIVATE_STORAGE`, Sentry DSN, Google/Instagram/TikTok OAuth |
+| **Web** (`apps/web/.env.local`) | `NEXT_PUBLIC_API_BASE_URL`, Sentry, Google Maps, OAuth client IDs |
+| **Admin** (`apps/admin/.env.local`) | `NEXT_PUBLIC_API_*`, Sentry |
 
-Templates: `services/backend/.env.example` + `sample.env`, `apps/admin/.env.example`. This closes **E0.1** (old committed secrets become dead keys once rotated).
+Templates: `services/backend/.env.example`, `services/backend/sample.env`, `apps/admin/.env.example`.
 
-## 3. Vercel — web + admin
+Two that are easy to miss because they are **user-visible or boot-blocking**:
 
-Two projects, same repo, different **Root Directory**:
-- **web** → Root `apps/web`, Framework Next.js, Build `pnpm build` (Vercel detects turbo/pnpm), add web env vars.
-- **admin** → Root `apps/admin`, same, add admin env vars.
+- **`SMS_ID` / `TERMII_SENDER_ID` / `SENDCHAMP_SENDER_NAME`** are the sender name on every OTP and alert SMS. They must be **registered with the provider** before they will send — Nigerian carriers silently reject or rewrite an unregistered sender ID. Register `Vibaar` when you open the accounts.
+- **`BVN_ENCRYPTION_KEY`** is a hard requirement: a base64-encoded 32-byte key (or a raw 32-char string). Missing it is a **hard error** on the KYC path, not a warning. Generate with `openssl rand -base64 32`. **Losing this key makes every stored BVN unreadable** — store it in the same vault as your DB credentials, and never rotate it without a re-encryption plan.
 
-Vercel monorepo auto-detects pnpm workspaces; set the Root Directory and it builds only that app. Add the production domains (`vibaar.com`, `admin.vibaar.com`).
+See **[KYC-PRODUCTION-RUNBOOK.md](./KYC-PRODUCTION-RUNBOOK.md)** for the KYC-specific env + verification checklist. Do not go live on KYC without walking it.
+
+---
+
+## 3. Cloudflare — web + admin
+
+Two Workers, one per app, from the same repo.
+
+### 3.1 Which Cloudflare product
+
+Use **Cloudflare Workers via [`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare)** — *not* `@cloudflare/next-on-pages`.
+
+The reason is concrete: `next-on-pages` requires every SSR route to opt into the **edge runtime**, and this app has none — there is not a single `export const runtime = 'edge'` in `apps/web/src`. The three server-rendered routes (`sitemap.ts`, `/@{handle}`, `/@{handle}/p/{slugAndId}`) plus `src/middleware.ts` all run on the Node runtime today. OpenNext supports the Node runtime; `next-on-pages` would mean rewriting them.
+
+### 3.2 Setup, per app
+
+```bash
+cd apps/web            # then repeat for apps/admin
+pnpm add -D @opennextjs/cloudflare wrangler
+```
+
+Add a `wrangler.jsonc` in the app directory:
+
+```jsonc
+{
+  "name": "vibaar-web",                    // "vibaar-admin" for the admin app
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat"], // required — the app uses Node APIs
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" }
+}
+```
+
+Add scripts to that app's `package.json`:
+
+```jsonc
+"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+"deploy":  "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
+```
+
+Set env vars in the Cloudflare dashboard (Workers → Settings → Variables), or `wrangler secret put` for secrets. `NEXT_PUBLIC_*` values are inlined **at build time**, so they must be present when the build runs, not only at runtime.
+
+Then attach custom domains: `vibaar.com` + `www.vibaar.com` → web worker; `admin.vibaar.com` → admin worker.
+
+### 3.3 Known friction in *this* app — check these, don't assume
+
+These are specific to what `apps/web` actually does. **None of this has been executed against a live Cloudflare account yet** — budget a session for the first deploy.
+
+| Area | What to expect |
+|---|---|
+| **`next/image`** (28 files) | The default Next image optimizer needs a Node server with `sharp`. On Workers you need Cloudflare Images, or a custom loader, or `images.unoptimized: true`. **Decide this before launch** — getting it wrong degrades every product image on 3G, which is the exact audience. |
+| **`next-pwa`** | Generates `public/sw.js` via a webpack plugin at build time. It should ride along as a static asset, but **verify the service worker registers and the precache manifest resolves** on the deployed origin — a broken SW silently breaks installability and offline. |
+| **Sentry** | `@sentry/nextjs` server-side instrumentation has known friction on Workers. Client-side reporting (already lazy-loaded, P1b) is the part that matters most here; if the server SDK fights the adapter, ship with client-only rather than blocking the deploy. |
+| **`src/middleware.ts`** | Supported, and runs on every request. It is 34 kB — keep an eye on Worker startup time. |
+| **Node APIs** | `nodejs_compat` is required. If the build complains about an unsupported API, find it before assuming the adapter is at fault. |
+
+**Fallback:** if Cloudflare fights the PWA/image/Sentry combination harder than the launch timeline allows, Vercel deploys this app as-is with Root Directory `apps/web` / `apps/admin` and no code changes. That is a legitimate call to make on the day — not a failure.
 
 ## 4. Render — backend
 
-- New **Web Service** from the repo, Root `services/backend` (a `Dockerfile` is present), or a Go environment with `go build ./... && ./<bin>`.
-- Add all backend env vars; point at the production DB.
-- Health check path → an existing GET route.
+- New **Web Service** from the repo, Root Directory `services/backend` (a `Dockerfile` is present).
+- Set a **build filter** on `services/backend/**` so frontend-only commits don't redeploy the API.
+- Add all backend env vars, pointed at the production DB.
+- **Health check path:** an existing `GET` route.
+- Serve it at **`api.vibaar.com`** — the backend CORS allow-list and the frontend `NEXT_PUBLIC_API_BASE_URL` both already assume that hostname.
 
-## 5. Production DB
+## 5. Render — production Postgres
 
-Provision a Postgres under vibaar (Render/Neon/RDS). Then run migrations + seed. **Today the backend uses GORM AutoMigrate on startup** (see B9 below for the migration-tooling upgrade). Verify with a smoke query after first boot.
+- Provision Postgres under the vibaar account; put it in the **same region** as the web service.
+- Copy the **internal** connection string into the backend service (internal traffic avoids egress and is faster); keep the external one for `psql` access.
+- **Migrations run themselves.** On boot the backend runs GORM AutoMigrate for table structure, then the **B9 versioned runner** applies `services/backend/internal/migration/sql/*.sql` once each, in order, in a transaction, tracked in a `schema_migrations` ledger. A fresh DB comes up correct with no manual step — the old "run 009/010/011/012 by hand" instruction is **obsolete**.
+- A failure in the versioned runner **halts boot deliberately** rather than serving on a half-migrated schema. If the service won't start, read the logs before touching the DB.
+- Verify after first boot:
+  ```sql
+  SELECT version, name, applied_at FROM schema_migrations ORDER BY version;
+  ```
+- Take a backup snapshot before the first real traffic. **Never commit a dump** — `.gitignore` now blocks the common shapes, but the rule is the point, not the pattern.
 
-## 6. Wire the CORS + callback URLs
+## 6. Production env audit — the misconfiguration checklist
 
-- **Backend CORS** (`services/backend/internal/adapter/api/middleware/cors.go`): allow-list is now `vibaar.com` + `www.vibaar.com` + `admin.vibaar.com` (+ localhost); production fallback origin is `vibaar.com`. Old Instashop origins removed. Backend is served at **`api.vibaar.com`** (Render).
-- **Frontend API URL**: set `NEXT_PUBLIC_API_BASE_URL=https://api.vibaar.com/api/v1` in the Vercel projects (web + admin).
-- **OAuth callback URLs**: update Google/Instagram/TikTok console redirect URIs to the vibaar domains.
-- **Paystack/Shipbubble webhooks**: point at the `api.vibaar.com` webhook routes.
-- **Transactional providers**: code currently uses Twilio (SMS) + SendGrid (email); the Tinova stack is **Termii** + **Resend** — swap keys/adapters as a follow-up.
+Most launch-day failures are here, not in the code.
 
-## 7. Finish the brand (deferred owner items)
+- **Backend CORS** (`internal/adapter/api/middleware/cors.go`): allow-list is `vibaar.com`, `www.vibaar.com`, `admin.vibaar.com` (+ localhost); production fallback origin is `vibaar.com`. Old Instashop origins are gone and a test asserts they stay gone.
+- **Frontend API URL:** `NEXT_PUBLIC_API_BASE_URL=https://api.vibaar.com/api/v1` in **both** Workers — at build time.
+- **OAuth redirect URIs:** update Google / Instagram / TikTok consoles to the vibaar domains. A stale redirect URI fails only in production, only at login.
+- **Paystack webhook** → `https://api.vibaar.com/...`. Payment confirmation depends on it; test with Paystack's webhook replay before announcing.
+- **Shipbubble webhook** → same host. Note that **guest courier orders are deliberately gated off** (guests get self-delivery only) because the courier lifecycle is not guest-aware — see `GetShippingOptions`.
+- **WhatsApp webhook:** `WHATSAPP_WEBHOOK_VERIFY_TOKEN` must be set. Outside local the handshake now **fails closed** if it's missing.
+- **Transactional providers:** code currently uses Twilio (SMS) + SendGrid (email); the Tinova stack is **Termii** + **Resend** — swap keys/adapters as a follow-up.
 
-- Drop the new **logo** at `apps/web/public/images/` and update the one reference in `apps/web/src/features/seller-shell/DesktopNav.tsx` (`/images/instashop_logo_black.svg`).
-- **Brand color**: keep `#FE2C55` or change the single line `--brand-rgb` in `apps/web/src/styles/globals.css`.
-- Confirm the vibaar-default **emails/social handles** I set (search `@vibaar.com`, `tiktok.com/@vibaar`, etc.).
+## 7. Finish the brand
+
+- **Logo** — drop the asset in `apps/web/public/images/` and update the one reference in `apps/web/src/features/seller-shell/DesktopNav.tsx`, which still points at `/images/instashop_logo_black.svg`. It renders on **every seller dashboard route**, so it is the most visible remaining old-brand artifact.
+- **Favicon / OG images** — `apps/web/src/app/favicon.ico` + the manifest icons.
+- **Brand colour** — one line: `--brand-rgb` in `apps/web/src/styles/globals.css` (currently `254 44 85` = `#FE2C55`). Admin mirrors it as `brand` in `apps/admin/tailwind.config.js` — change both.
+- Confirm the vibaar-default emails/social handles (search `@vibaar.com`, `tiktok.com/@vibaar`).
 
 ## 8. Cutover
 
-- End-to-end smoke: signup → store → product → order → payment → payout.
-- Sign off the two pending web QA items (W3.7 type-scale, W4.6 reorg) + a visual pass on `@vibaar/ui`.
+- End-to-end smoke against production keys: signup → store → product → order → payment → payout.
+- Walk **[KYC-PRODUCTION-RUNBOOK.md](./KYC-PRODUCTION-RUNBOOK.md)**.
+- Device QA on real Nigerian mobile + 3G: W3.7 type-scale, W4.6 reorg, `@vibaar/ui` visual pass.
 - **Archive** the old `Getinstashop-co` repos read-only (they hold the only pre-vibaar git history).
 
 ---
 
-## Non-blocking backend follow-ups (post-launch, engineering)
+## Non-blocking follow-ups
 
-- **B9 — migration tooling.** Replace fragile GORM AutoMigrate with **goose** (or golang-migrate) + a `schema_migrations` ledger. Recommended safe path: adopt goose on the *existing* DB by marking the current schema as a no-op baseline (`00001_baseline`), then all future schema changes are versioned migrations; keep AutoMigrate behind a dev-only flag during transition. **Needs a design sign-off + a test pass against a throwaway DB — it changes ops, so do it deliberately, not on launch day.**
-- **B1 — tx-wrap** the payment-confirmation sequence (needs tx-aware repos / DI refactor + tests; acute double-credit already closed by E0.3).
-- **M5 — admin adopts the shared packages** (`@vibaar/types`, `api-client`, `ui`). Large reconciliation — admin's data layer + UI diverge from web's; plan it as its own effort.
+- **B1 — tx-wrap** the payment-confirmation sequence (needs tx-aware repos / DI refactor + tests; the acute double-credit is already closed).
+- **M5 — admin adopts the shared packages** (`@vibaar/types`, `api-client`, `ui`). Admin currently has no `@vibaar/*` dependency at all.
+- **Guest courier** — lifting the gate means threading `isGuest` through `MarkOrderReady` → `CreateShipment` → `ShipbubbleWebhook` → the wallet ops. A money-path change; give it its own staging QA.
+- **Rewards redemption** — accrual works and is idempotent; **redemption is disabled** (`{false && …}` in checkout, `UseCredit` has no call sites) while `/profile/referrals` still displays a balance and promises "₦1,000 instant shopping credit". Either hide the UI or ship a server-authoritative burn path before launch.

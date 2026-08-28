@@ -29,9 +29,13 @@ jobs:
       - run: pnpm type-check
       - run: pnpm lint
       - run: pnpm test
-      # Full `next build` is intentionally left to the deploy platform (Vercel),
-      # which supplies the runtime env. CI keeps the fast, env-free correctness gates.
-      # (Add a `next build` smoke here once fonts are self-hosted — F3.)
+      # Build smoke. Verified env-safe: both apps compile with NO .env files
+      # present. Fonts are self-hosted (F3) so there is no build-time Google
+      # fetch, Sentry is inert without a DSN, and the statically-generated
+      # sitemap catches its data fetch and falls back to an empty list. Missing
+      # NEXT_PUBLIC_* values only affect runtime behaviour, not compilation —
+      # so this catches build breakage here instead of at deploy time.
+      - run: pnpm build
 
   backend:
     name: backend — build + vet + test
