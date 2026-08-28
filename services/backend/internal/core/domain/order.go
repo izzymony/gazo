@@ -24,7 +24,11 @@ type Order struct {
 	Invoice           string           `json:"invoice,omitempty"`
 	SubTotal          float64          `json:"sub_total"`
 	ShippingCost      float64          `json:"shipping_cost"`
-	Total             float64          `json:"total"`
+	Total             float64          `json:"total"` // RW1: gross (product + shipping); NOT reduced by credit
+	// RW1: platform-funded rewards-credit discount applied to this order (buyer
+	// pays Total - CreditApplied; the seller still settles on full item price).
+	// Set from the server-validated reserved amount, never the raw client value.
+	CreditApplied     float64          `json:"credit_applied" gorm:"default:0"`
 	PaymentMethod     string           `json:"payment_method" default:"cash"`
 	PaymentReceipt    string           `json:"payment_receipt"`
 	PaymentReceived   bool             `json:"payment_received" default:"false"`

@@ -950,6 +950,17 @@ func (s *BusinessService) CancelOrder(id, userId string) (*domain.OrderItem, err
 	if existing == nil {
 		return nil, fmt.Errorf("invalid order")
 	}
+
+	// Terminal states are not cancellable. Delivered items have already moved
+	// money (clearing → wallet release), and re-cancelling an already-cancelled
+	// item would re-notify the buyer. Reject before writing anything.
+	switch existing.Status {
+	case string(helper.OrderStatusDelivered):
+		return nil, fmt.Errorf("a delivered order can no longer be cancelled")
+	case string(helper.OrderStatusCancelled):
+		return nil, fmt.Errorf("order is already cancelled")
+	}
+
 	_, err = s.orderRepo.AppendActivity(existing.ID, domain.OrderActivity{
 		Title:    string(helper.OrderActivityCancelled),
 		Subtitle: string(helper.OrderActivityCancelled),
@@ -983,7 +994,16 @@ func (s *BusinessService) CancelOrder(id, userId string) (*domain.OrderItem, err
 		})
 	}
 
-	updated, err := s.orderRepo.UpdateOrderItem(id, *existing, false)
+	// Actually cancel it. Two bugs were fixed here:
+	//   1. Status was never set — the buyer got a "your order has been canceled"
+	//      activity + notification while the item stayed in its previous status.
+	//   2. UpdateOrderItem does `.Select("*").Updates(input)` with `existing`,
+	//      which was read BEFORE the AppendActivity calls above — so it wrote the
+	//      stale buyer_activity/seller_activity jsonb back and erased the very
+	//      cancellation entries it had just appended.
+	// UpdateOrderItemStatus touches only status + status_updated_at, which is what
+	// the other two cancel paths (admin.go, webhook.go) already use.
+	updated, err := s.orderRepo.UpdateOrderItemStatus(existing.ID, string(helper.OrderStatusCancelled), time.Now(), false)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update order")
 	}

@@ -24,6 +24,14 @@ const (
 	CreditTypeWithdrawal                = "withdrawal"
 	CreditTypeUsage                     = "usage"
 	CreditTypeManualAdjustment          = "manual_adjustment"
+	// RW1 checkout credit reservation. CreditTypeReservation is the balance-
+	// decrementing hold written at InitiateCheckout (Amount = -reserved); it stays
+	// on convert (UsedAt set) and is offset by CreditTypeReservationRelease
+	// (Amount = +reserved) on release. Both AFFECT balance — unlike
+	// CreditTypePendingReferralBonus, the only non-balance-affecting entry (excluded
+	// from the ledger==balance invariant).
+	CreditTypeReservation        = "reservation"
+	CreditTypeReservationRelease = "reservation_release"
 )
 
 // Credit entry sources

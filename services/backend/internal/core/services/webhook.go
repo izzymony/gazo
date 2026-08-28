@@ -82,6 +82,19 @@ func (s *WebhookService) ShipbubbleWebhook(payload requests.ShipbubbleWebhookReq
 	logger.Info(fmt.Sprintf("Received Shipbubble Webhook: %v", payload.Event))
 	shipment, err := s.shippingRepo.GetOneShipment(map[string]interface{}{"provider_id": payload.OrderID}, false)
 	if err != nil {
+		// Everything below this point reads order_items/orders/users as NON-guest.
+		// Guest checkout is gated to self-delivery (see GetShippingOptions) so a
+		// guest courier shipment should not exist — but if one predates the gate,
+		// fail LOUDLY and identifiably rather than as an opaque "record not found",
+		// because the buyer has paid and the funds are sitting in orders_in_progress.
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			if guestShipment, gErr := s.shippingRepo.GetOneShipment(map[string]interface{}{"provider_id": payload.OrderID}, true); gErr == nil && guestShipment != nil {
+				logger.Error(fmt.Errorf(
+					"shipbubble webhook: GUEST courier shipment %v (provider_id %v) cannot be settled — the courier lifecycle is not guest-aware; funds remain in orders_in_progress and need manual settlement",
+					guestShipment.ID, payload.OrderID).Error())
+				return fmt.Errorf("guest courier shipments are not supported")
+			}
+		}
 		logger.Error(err.Error())
 		return err
 	}

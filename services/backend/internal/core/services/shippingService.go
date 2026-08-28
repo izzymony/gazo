@@ -237,6 +237,29 @@ func (s *ShippingService) GetShippingOptions(request requests.ShippingOptionRequ
 	partnerEnabled := business.BusinessSetting == nil || business.BusinessSetting.PartnerEnabled
 	selfOpt := s.buildSelfOption(business, request)
 
+	// GUEST COURIER GATE — guests get self-delivery only.
+	//
+	// The partner-courier lifecycle is not guest-aware end to end: MarkOrderReady
+	// (businessService.go) reads the order item, the payment gate and the order
+	// from the NON-guest tables and calls CreateShipment(id, false), and
+	// ShipbubbleWebhook likewise only reads `shipments`/`order_items`/`orders`.
+	// A guest who picked a courier would therefore pay, land in
+	// orders_in_progress, and then STRAND: the seller cannot mark the order ready
+	// (the item is in order_items_guest, so the lookup 404s) so no shipment is
+	// ever booked and no webhook can settle the funds.
+	//
+	// Gating here — before payment — turns a silent post-payment dead end into an
+	// honest checkout-time option list, and reuses the same self-only degradation
+	// the A2b courier-outage path already takes. Lifting this gate means threading
+	// isGuest through MarkOrderReady → CreateShipment → ShipbubbleWebhook → the
+	// wallet ops, which is a money-path change that needs its own staging QA.
+	if isGuest {
+		if selfOpt == nil {
+			return nil, fmt.Errorf("this seller has no delivery option for your address yet — please sign in to use a courier")
+		}
+		return s.shippingRepo.CreateShippingRates([]domain.ShippingOption{*selfOpt}, isGuest)
+	}
+
 	if !partnerEnabled {
 		if selfOpt == nil {
 			return nil, fmt.Errorf("this seller has no delivery option for your address yet")
