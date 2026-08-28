@@ -260,7 +260,7 @@ export default function AnalyticsPage() {
                     {businesses.slice(0, 5).map((business, index) => (
                       <div key={business.id} className="px-6 py-4 flex items-center justify-between border-b border-gray-100 last:border-b-0 hover:bg-gray-50">
                         <div className="flex items-center">
-                          <div className="flex items-center justify-center w-8 h-8 bg-instaRed text-white rounded-full text-sm font-bold mr-4">
+                          <div className="flex items-center justify-center w-8 h-8 bg-brand text-white rounded-full text-sm font-bold mr-4">
                             {index + 1}
                           </div>
                           <div>
@@ -340,7 +340,7 @@ export default function AnalyticsPage() {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
-                            className="bg-instaRed h-2 rounded-full transition-all duration-300"
+                            className="bg-brand h-2 rounded-full transition-all duration-300"
                             style={{ width: `${category.percentage}%` }}
                           ></div>
                         </div>

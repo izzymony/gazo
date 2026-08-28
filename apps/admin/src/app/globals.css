@@ -107,7 +107,7 @@
   }
   
   .admin-button-danger {
-    @apply inline-flex items-center justify-center rounded-md bg-instaRed px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-instaRedDark focus:outline-none focus:ring-2 focus:ring-instaRed focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center rounded-md bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brandDark focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
   }
   
   .admin-badge {

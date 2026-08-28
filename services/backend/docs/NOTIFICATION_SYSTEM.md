@@ -2,7 +2,7 @@
 
 ## Overview
 
-The myINSTASHOP transactional notification system provides multi-channel notifications (WhatsApp, Email, SMS) with automatic fallback logic for cost optimization.
+The vibaar transactional notification system provides multi-channel notifications (WhatsApp, Email, SMS) with automatic fallback logic for cost optimization.
 
 **Channel Priority:** WhatsApp → Email → SMS
 
@@ -138,11 +138,11 @@ MESSAGING_SERVICE_SID=your_messaging_service_sid
 
 # SendGrid (Email)
 SENDGRID_API_KEY=your_api_key
-SENDGRID_FROM_EMAIL=noreply@myinstashop.com
-SENDGRID_FROM_NAME=myINSTASHOP
+SENDGRID_FROM_EMAIL=noreply@vibaar.com
+SENDGRID_FROM_NAME=Vibaar
 
 # WhatsApp Webhook Verification
-WHATSAPP_WEBHOOK_VERIFY_TOKEN=instashop_webhook_verify_token
+WHATSAPP_WEBHOOK_VERIFY_TOKEN=<generate a random secret; required outside local>
 ```
 
 ---

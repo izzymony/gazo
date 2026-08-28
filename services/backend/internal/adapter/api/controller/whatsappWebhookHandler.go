@@ -3,14 +3,15 @@ package controller
 import (
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // WhatsAppWebhookController handles WhatsApp status webhooks from Meta/Twilio
@@ -75,9 +76,17 @@ func (h *WhatsAppWebhookController) VerifyWebhook(c *gin.Context) {
 	token := c.Query("hub.verify_token")
 	challenge := c.Query("hub.challenge")
 
+	// The verify token is a shared secret with Meta. A hardcoded default is only
+	// acceptable locally — in staging/production an unset variable must FAIL the
+	// handshake rather than fall back to a value that is public in this repo.
 	verifyToken := os.Getenv("WHATSAPP_WEBHOOK_VERIFY_TOKEN")
 	if verifyToken == "" {
-		verifyToken = "instashop_webhook_verify_token" // Default for development
+		if !isLocalWhatsAppEnv() {
+			logger.Error("WHATSAPP_WEBHOOK_VERIFY_TOKEN is not set; refusing webhook verification outside local")
+			c.JSON(http.StatusForbidden, gin.H{"error": "Verification failed"})
+			return
+		}
+		verifyToken = "vibaar_local_webhook_verify_token" // local development only
 	}
 
 	if mode == "subscribe" && token == verifyToken {
@@ -208,4 +217,17 @@ func (h *WhatsAppWebhookController) TwilioStatusCallback(c *gin.Context) {
 	}
 
 	c.Status(http.StatusOK)
+}
+
+// isLocalWhatsAppEnv mirrors routes.isLocalEnv (APP_ENV / ENV in {local, dev,
+// development}), which is unexported in its own package. Kept local to this file
+// so the WhatsApp verify-token fallback can never apply in staging/production.
+func isLocalWhatsAppEnv() bool {
+	for _, v := range []string{os.Getenv("APP_ENV"), os.Getenv("ENV")} {
+		switch strings.ToLower(strings.TrimSpace(v)) {
+		case "local", "dev", "development":
+			return true
+		}
+	}
+	return false
 }

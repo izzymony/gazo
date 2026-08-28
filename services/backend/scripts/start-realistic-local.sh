@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # ===================================================================
-# InstaShop Backend - Realistic Local Development Startup Script
+# Vibaar Backend - Realistic Local Development Startup Script
 # ===================================================================
 
-echo "🚀 Starting InstaShop Backend in Realistic Local Mode"
+echo "🚀 Starting Vibaar Backend in Realistic Local Mode"
 echo "======================================================="
 
 # Check if Docker is running for PostgreSQL
@@ -15,17 +15,17 @@ fi
 
 # Start PostgreSQL container if not running
 echo "🐘 Setting up PostgreSQL database..."
-if [ ! "$(docker ps -q -f name=instashop-postgres)" ]; then
-    if [ "$(docker ps -aq -f status=exited -f name=instashop-postgres)" ]; then
+if [ ! "$(docker ps -q -f name=vibaar-postgres)" ]; then
+    if [ "$(docker ps -aq -f status=exited -f name=vibaar-postgres)" ]; then
         echo "   Starting existing PostgreSQL container..."
-        docker start instashop-postgres
+        docker start vibaar-postgres
     else
         echo "   Creating new PostgreSQL container..."
         docker run -d \
-            --name instashop-postgres \
+            --name vibaar-postgres \
             -e POSTGRES_USER=postgres \
             -e POSTGRES_PASSWORD=localpassword \
-            -e POSTGRES_DB=instashop_local \
+            -e POSTGRES_DB=vibaar_local \
             -p 5432:5432 \
             postgres:14
     fi
@@ -50,7 +50,7 @@ fi
 
 # Build the application
 echo "🔨 Building application..."
-go build -o ./bin/instashop-api ./main.go
+go build -o ./bin/vibaar-api ./main.go
 
 if [ $? -ne 0 ]; then
     echo "❌ Build failed!"
@@ -64,7 +64,7 @@ echo "🌱 Running realistic data seeding..."
 go run scripts/seed-realistic.go
 
 echo ""
-echo "🎯 InstaShop Backend is ready for realistic testing!"
+echo "🎯 Vibaar Backend is ready for realistic testing!"
 echo "======================================================="
 echo "📍 API URL: http://localhost:8088"
 echo "📍 Health: http://localhost:8088/health"
@@ -79,4 +79,4 @@ echo "   ✅ Real payment processing (test mode)"
 echo "   ✅ Proper user registration flow"
 echo ""
 echo "🚀 Starting server..."
-./bin/instashop-api
+./bin/vibaar-api

@@ -12,7 +12,7 @@ vibaar/
 │   ├── web/            # Next.js 14 storefront + seller dashboard  (was instashop-web)
 │   └── admin/          # Next.js 14 backoffice / admin portal      (was instashop-admin)
 ├── services/
-│   └── backend/        # Go + Gin API, module `insta-api`          (was instashop-backend)
+│   └── backend/        # Go + Gin API, module `github.com/Tinovalabs/vibaar/services/backend`
 ├── packages/
 │   ├── utils/          # @vibaar/utils — shared cn() (canonical, with the tailwind-merge font-size fix)
 │   └── config/         # @vibaar/config — shared tsconfig.base + tailwind-preset seed

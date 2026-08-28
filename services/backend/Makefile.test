@@ -1,5 +1,5 @@
 # ============================================
-# INSTASHOP BACKEND - TEST MAKEFILE
+# VIBAAR BACKEND - TEST MAKEFILE
 # ============================================
 
 .PHONY: help test test-unit test-integration test-coverage test-verbose clean-test setup-test

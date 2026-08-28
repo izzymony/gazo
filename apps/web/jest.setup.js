@@ -1,5 +1,5 @@
 // ============================================
-// INSTASHOP FRONTEND - JEST SETUP
+// VIBAAR WEB - JEST SETUP
 // ============================================
 
 import '@testing-library/jest-dom'

@@ -16,17 +16,17 @@ module.exports = {
     },
     extend: {
       colors: {
-        // InstaShop Brand Colors
-        instaRed: "#FE2C55",  // Primary brand red (correct InstaShop red)
-        instaRedDark: "#E21145",  // Darker red for hover states
-        instaRedLight: "#FF6B8A",  // Light red for backgrounds
+        // Vibaar brand colors — keep in sync with apps/web --brand-rgb
+        brand: "#FE2C55",  // Primary brand red
+        brandDark: "#E21145",  // Darker red for hover states
+        brandLight: "#FF6B8A",  // Light red for backgrounds
         
         // Admin Portal Specific Colors
         adminPrimary: "#1E40AF",  // Professional blue for admin
         adminSecondary: "#7C3AED",  // Purple accent
         adminSuccess: "#10B981",  // Green for success states
         adminWarning: "#F59E0B",  // Orange for warnings
-        adminError: "#EF4444",  // Red for errors (matches instaRed)
+        adminError: "#EF4444",  // Red for errors (matches brand)
         adminInfo: "#3B82F6",  // Blue for information
         
         // Additional utility colors

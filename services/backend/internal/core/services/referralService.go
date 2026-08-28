@@ -34,6 +34,14 @@ func (s *ReferralService) CreditSignupBonus(userID string) error {
 	err := s.db.Transaction(func(tx *gorm.DB) error {
 		txRepo := mysql_repo.NewReferralRepository(tx)
 
+		// Idempotency (RW1): one signup bonus per user. A retried signup must not
+		// grant ₦1,000 twice. (P1 hardening: a unique partial index on
+		// credit_entries(user_id) WHERE type='signup_bonus' for true-concurrency.)
+		if existing, _ := txRepo.GetCreditEntriesByType(userID, domain.CreditTypeSignupBonus); len(existing) > 0 {
+			logger.Info("Signup bonus already granted, skipping for user: " + userID)
+			return nil
+		}
+
 		// Credit ₦1,000 shopping credit
 		if err := txRepo.UpdateShoppingCredit(userID, domain.SignupBonusAmount); err != nil {
 			return fmt.Errorf("failed to credit signup bonus: %w", err)
@@ -190,6 +198,21 @@ func (s *ReferralService) ActivateReferral(refereeID, orderID string) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		txRepo := mysql_repo.NewReferralRepository(tx)
 
+		// Atomic winner-takes-all activation guard (RW1): flip referral_activated
+		// false->true. `Verify` can run more than once for a referee (payment retry,
+		// webhook redelivery, reconcile cron all funnel through it); the earlier
+		// `referee.ReferralActivated` check is only a cheap early-out, NOT the guard.
+		// If we didn't win the flip, a concurrent/retried pass already activated +
+		// credited — return without crediting so the referrer is never double-credited.
+		won, err := txRepo.MarkReferralActivatedIfNot(refereeID)
+		if err != nil {
+			return fmt.Errorf("failed to claim referral activation: %w", err)
+		}
+		if !won {
+			logger.Info("Referral activation already claimed (lost race) for user: " + refereeID)
+			return nil
+		}
+
 		// Note: Referee already received ₦1,000 signup bonus at registration (universal bonus)
 		// No additional credit for referee here
 
@@ -247,11 +270,7 @@ func (s *ReferralService) ActivateReferral(refereeID, orderID string) error {
 			}
 		}
 
-		// Mark referral as activated
-		if err := txRepo.MarkReferralActivated(refereeID); err != nil {
-			return fmt.Errorf("failed to mark referral activated: %w", err)
-		}
-
+		// (referral_activated was already set atomically at the top of this tx.)
 		logger.Info(fmt.Sprintf("Referral activated: referee=%s, referrer=%s, order=%s",
 			refereeID, referee.ReferredByUsername, orderID))
 

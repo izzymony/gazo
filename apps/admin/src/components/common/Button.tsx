@@ -57,9 +57,9 @@ export default function Button({
 
   // Color variants - maintaining exact brand colors and styles
   const variantClasses = {
-    filled: "bg-instaRed text-white hover:bg-red-600 active:bg-red-700",
-    bordered: "border border-instaRed text-instaRed bg-white hover:bg-red-50 active:bg-red-100",
-    ghost: "text-instaRed bg-transparent hover:bg-red-50 active:bg-red-100",
+    filled: "bg-brand text-white hover:bg-red-600 active:bg-red-700",
+    bordered: "border border-brand text-brand bg-white hover:bg-red-50 active:bg-red-100",
+    ghost: "text-brand bg-transparent hover:bg-red-50 active:bg-red-100",
     filter: "bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300"
   };
 

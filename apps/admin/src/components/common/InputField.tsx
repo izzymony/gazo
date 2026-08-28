@@ -106,7 +106,7 @@ export default function InputField({
         className={`peer flex flex-col relative w-full px-3 h-[52px] z-10 rounded-[12px] border border-[#00000033] focus-within:ring-1 ${
           error
             ? "border-red focus-within:ring-[red]"
-            : "focus-within:ring-instaRed"
+            : "focus-within:ring-brand"
         } ${className}`}>
         {/* Input Field */}
         {!drops && (
@@ -307,7 +307,7 @@ export default function InputField({
       </div>
 
       {/* Error Message */}
-      {error && <small className="text-instaRed">{error}</small>}
+      {error && <small className="text-brand">{error}</small>}
 
       {type === "password" && name === "password" && mode === "signup" && (
         <ul className="text-sm mt-2 ml-2 pl-10">

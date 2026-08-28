@@ -42,7 +42,7 @@ export default function DropdownButton({
           rounded-full
           border-0
           cursor-pointer
-          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-instaRed
+          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand
           transition-all duration-200
         `}
       >

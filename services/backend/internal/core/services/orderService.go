@@ -152,6 +152,27 @@ func (o *OrderService) ValidateOrder(input requests.Order, userId string, isGues
 	helper.Copy(input, &order)
 	order.UserID = userId
 
+	// RW1: rewards credit is buyer INTENT/MAX — do a cheap shape/cap pre-check and
+	// clamp here; the ACTUAL amount is decided by the atomic reserve at checkout
+	// (exact-or-reject), which is the only money authority. Total stays the gross
+	// (product + shipping); credit is a separate discount layered on the charge.
+	order.CreditApplied = 0
+	if input.CreditApplied > 0 {
+		if isGuest {
+			return nil, fmt.Errorf("rewards credit is not available for guest checkout")
+		}
+		if input.CreditApplied != float64(int64(input.CreditApplied)) {
+			return nil, fmt.Errorf("invalid rewards credit amount")
+		}
+		// 50% of gross, floored to whole Naira.
+		capAmount := float64(int64(input.Total * domain.MaxCreditUsagePercent))
+		clamped := input.CreditApplied
+		if clamped > capAmount {
+			clamped = capAmount
+		}
+		order.CreditApplied = clamped
+	}
+
 	return &order, nil
 }
 

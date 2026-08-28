@@ -19,7 +19,7 @@ export default function Logo({
   if (variant === 'icon') {
     // Return just the icon part
     return (
-      <div className={`inline-flex items-center justify-center bg-gradient-to-br from-instaRed to-instaRedDark rounded-xl shadow-soft ${className}`}>
+      <div className={`inline-flex items-center justify-center bg-gradient-to-br from-brand to-brandDark rounded-xl shadow-soft ${className}`}>
         <div className="text-white font-bold">
           mIS
         </div>

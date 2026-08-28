@@ -218,7 +218,7 @@ export default function SystemSettingsPage() {
           <button
             onClick={() => handleToggle('platform', 'maintenanceMode')}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              settings.platform.maintenanceMode ? 'bg-instaRed' : 'bg-gray-200'
+              settings.platform.maintenanceMode ? 'bg-brand' : 'bg-gray-200'
             }`}
           >
             <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -235,7 +235,7 @@ export default function SystemSettingsPage() {
           <button
             onClick={() => handleToggle('platform', 'debugMode')}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              settings.platform.debugMode ? 'bg-instaRed' : 'bg-gray-200'
+              settings.platform.debugMode ? 'bg-brand' : 'bg-gray-200'
             }`}
           >
             <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -549,7 +549,7 @@ export default function SystemSettingsPage() {
                   onClick={() => setActiveTab(tab.key)}
                   className={`w-full flex items-center px-4 py-3 rounded-xl text-left transition-colors ${
                     activeTab === tab.key
-                      ? "bg-instaRed text-white shadow-soft"
+                      ? "bg-brand text-white shadow-soft"
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >

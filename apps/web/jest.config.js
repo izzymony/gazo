@@ -1,5 +1,5 @@
 // ============================================
-// INSTASHOP FRONTEND - JEST CONFIGURATION
+// VIBAAR WEB - JEST CONFIGURATION
 // ============================================
 
 const nextJest = require('next/jest')

@@ -131,7 +131,7 @@ export default function SessionTimeout({
         <div className="flex space-x-3">
           <button
             onClick={extendSession}
-            className="flex-1 bg-instaRed text-white px-4 py-2 rounded-lg hover:bg-instaRedDark transition-colors font-medium"
+            className="flex-1 bg-brand text-white px-4 py-2 rounded-lg hover:bg-brandDark transition-colors font-medium"
           >
             Stay Logged In
           </button>

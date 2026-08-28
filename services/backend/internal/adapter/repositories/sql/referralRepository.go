@@ -10,6 +10,7 @@ import (
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type ReferralRepository struct {
@@ -70,6 +71,75 @@ func (repo *ReferralRepository) MarkReferralActivated(userID string) error {
 	return repo.db.Model(&domain.User{}).
 		Where("id = ?", userID).
 		Update("referral_activated", true).Error
+}
+
+// ErrInsufficientCredit is returned by ReserveCredit when the live balance can no
+// longer cover the requested amount (concurrent reserve or stale UI). The caller
+// must reject the checkout — never under-apply and charge more than displayed (RW1).
+var ErrInsufficientCredit = errors.New("insufficient credit")
+
+// MarkReferralActivatedIfNot atomically flips referral_activated false->true.
+// RowsAffected==1 means THIS call won — only then should the referrer be credited,
+// so concurrent post-payment Verify passes for the same referee can't double-credit.
+func (repo *ReferralRepository) MarkReferralActivatedIfNot(userID string) (bool, error) {
+	res := repo.db.Model(&domain.User{}).
+		Where("id = ? AND referral_activated = ?", userID, false).
+		Update("referral_activated", true)
+	if res.Error != nil {
+		return false, res.Error
+	}
+	return res.RowsAffected == 1, nil
+}
+
+// ReserveCredit atomically HOLDS `amount` of the user's credit (shopping-first,
+// then withdrawable) in one guarded conditional update, returning the per-bucket
+// split held. Row is SELECT ... FOR UPDATE locked so concurrent reserves serialise.
+// Holds the FULL amount or NOTHING: if the live balance can't cover it the update
+// affects 0 rows and ErrInsufficientCredit is returned — the caller rejects the
+// checkout (never silently under-applies). Must run inside the caller's tx.
+func (repo *ReferralRepository) ReserveCredit(userID string, amount float64) (shoppingUsed, withdrawableUsed float64, err error) {
+	if amount <= 0 {
+		return 0, 0, nil
+	}
+	var user domain.User
+	if err := repo.db.
+		Clauses(clause.Locking{Strength: "UPDATE"}).
+		Select("shopping_credit", "withdrawable_credit").
+		Where("id = ?", userID).First(&user).Error; err != nil {
+		return 0, 0, err
+	}
+	shoppingUsed = amount
+	if shoppingUsed > user.ShoppingCredit {
+		shoppingUsed = user.ShoppingCredit
+	}
+	withdrawableUsed = amount - shoppingUsed
+
+	res := repo.db.Model(&domain.User{}).
+		Where("id = ? AND shopping_credit >= ? AND withdrawable_credit >= ?", userID, shoppingUsed, withdrawableUsed).
+		Updates(map[string]interface{}{
+			"shopping_credit":     gorm.Expr("shopping_credit - ?", shoppingUsed),
+			"withdrawable_credit": gorm.Expr("withdrawable_credit - ?", withdrawableUsed),
+		})
+	if res.Error != nil {
+		return 0, 0, res.Error
+	}
+	if res.RowsAffected != 1 {
+		return 0, 0, ErrInsufficientCredit
+	}
+	return shoppingUsed, withdrawableUsed, nil
+}
+
+// RefundCredit restores a previously reserved per-bucket split (release path).
+func (repo *ReferralRepository) RefundCredit(userID string, shopping, withdrawable float64) error {
+	if shopping == 0 && withdrawable == 0 {
+		return nil
+	}
+	return repo.db.Model(&domain.User{}).
+		Where("id = ?", userID).
+		Updates(map[string]interface{}{
+			"shopping_credit":     gorm.Expr("shopping_credit + ?", shopping),
+			"withdrawable_credit": gorm.Expr("withdrawable_credit + ?", withdrawable),
+		}).Error
 }
 
 // IsReferralActivated checks if a user's referral has been activated

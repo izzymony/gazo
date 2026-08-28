@@ -128,7 +128,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="flex items-center flex-1 hover:bg-gray-800 rounded-lg p-2 -m-2 transition-colors"
             >
-              <div className="w-10 h-10 bg-instaRed rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-brand rounded-full flex items-center justify-center">
                 <span className="text-white font-medium text-sm">
                   {admin?.name.split(' ').map(n => n[0]).join('').toUpperCase() || 'A'}
                 </span>
@@ -152,7 +152,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   <p className="text-sm font-medium text-gray-900">{admin?.name}</p>
                   <p className="text-xs text-gray-500">{admin?.email}</p>
                   <div className="mt-1">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-instaRed/10 text-instaRed capitalize">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-brand/10 text-brand capitalize">
                       {admin?.role}
                     </span>
                   </div>
@@ -221,7 +221,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     href={item.href}
                     className={`${
                       isActive 
-                        ? 'bg-instaRed text-white' 
+                        ? 'bg-brand text-white' 
                         : 'text-gray-300 hover:bg-gray-800 hover:text-white'
                     } group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors`}
                   >
@@ -319,7 +319,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     <input
                       type="text"
                       placeholder="Search..."
-                      className="pl-10 pr-4 py-2 w-64 border border-gray-300 rounded-full text-sm focus:ring-2 focus:ring-instaRed focus:border-transparent transition-all"
+                      className="pl-10 pr-4 py-2 w-64 border border-gray-300 rounded-full text-sm focus:ring-2 focus:ring-brand focus:border-transparent transition-all"
                     />
                   </div>
                 </div>
@@ -329,8 +329,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   <button className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                     <Bell className="h-5 w-5" />
                     <span className="absolute top-1 right-1 flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-instaRed opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-instaRed"></span>
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-brand"></span>
                     </span>
                   </button>
                 </div>

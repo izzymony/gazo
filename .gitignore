@@ -13,7 +13,7 @@ build/
 # go (compiled binaries + runtime dirs live in services/backend)
 services/backend/main
 services/backend/insta-api
-services/backend/instashop-backend
+services/backend/vibaar-backend
 services/backend/temp_build
 services/backend/bin/
 services/backend/tmp/
