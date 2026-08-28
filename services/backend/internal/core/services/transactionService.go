@@ -204,7 +204,7 @@ func (s *TransactionService) InitiateCheckout(input requests.InitiateCheckout, u
 		if perr != nil {
 			return perr
 		}
-		created, cerr := mysql_repo.NewTransactionRepository(tx).Create(&domain.Transaction{
+		t := &domain.Transaction{
 			Reference:                  order.Invoice,
 			UserId:                     userId,
 			Amount:                     gross - (sUsed + wUsed),
@@ -212,11 +212,17 @@ func (s *TransactionService) InitiateCheckout(input requests.InitiateCheckout, u
 			Payload:                    payloadMap,
 			CreditReservedShopping:     sUsed,
 			CreditReservedWithdrawable: wUsed,
-		}, isGuest)
-		if cerr != nil {
-			return cerr
 		}
-		transaction = created
+		tableName := "transactions"
+		if isGuest {
+			tableName += "_guest"
+		}
+		// Insert on the OUTER tx handle directly: the repo's Create does its own
+		// Begin/Commit, which nested inside this tx returns gorm.ErrInvalidTransaction.
+		if err := tx.Table(tableName).Create(t).Error; err != nil {
+			return err
+		}
+		transaction = t
 		return nil
 	})
 	if txErr != nil {
