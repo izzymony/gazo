@@ -508,10 +508,16 @@ func (repo *ReferralRepository) ManualCreditAdjustment(userID string, amount flo
 			return errors.New("invalid credit type: must be 'shopping' or 'withdrawable'")
 		}
 
-		if err := tx.Model(&domain.User{}).
-			Where("id = ?", userID).
-			Update(updateField, gorm.Expr(updateField+" + ?", amount)).Error; err != nil {
-			return err
+		// RW1: allow deliberate negatives (clawback) but never drive the balance below
+		// zero — guard with a conditional update and require exactly one row affected.
+		res := tx.Model(&domain.User{}).
+			Where("id = ? AND "+updateField+" + ? >= 0", userID, amount).
+			Update(updateField, gorm.Expr(updateField+" + ?", amount))
+		if res.Error != nil {
+			return res.Error
+		}
+		if res.RowsAffected != 1 {
+			return errors.New("adjustment would make the balance negative")
 		}
 
 		// Create credit entry for audit

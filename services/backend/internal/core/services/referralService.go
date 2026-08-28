@@ -403,16 +403,12 @@ func (s *ReferralService) GetReferralInfo(userID string) (*domain.ReferralInfo, 
 		maxWithdrawable = 0
 	}
 
-	canWithdraw := user.TotalReferralEarned >= domain.MinWithdrawalThreshold && maxWithdrawable > 0
-	var withdrawalMessage string
-	if !canWithdraw {
-		if user.TotalReferralEarned < domain.MinWithdrawalThreshold {
-			remaining := domain.MinWithdrawalThreshold - user.TotalReferralEarned
-			withdrawalMessage = fmt.Sprintf("Earn ₦%.0f more to unlock withdrawals", remaining)
-		} else if maxWithdrawable <= 0 {
-			withdrawalMessage = "You've withdrawn the maximum available"
-		}
-	}
+	// RW1: bank withdrawal is disabled for launch (B3 — no valid buyer payout
+	// destination yet; withdrawable credit is still SPENDABLE at checkout). Report it
+	// honestly as unavailable rather than "earn ₦X more to unlock" (which implies it
+	// works at the threshold). Re-enable when the payout path ships (P1).
+	canWithdraw := false
+	withdrawalMessage := "Bank withdrawal is coming soon — your credit is spendable at checkout now."
 
 	info := &domain.ReferralInfo{
 		ReferralID:             "@" + user.UserName,

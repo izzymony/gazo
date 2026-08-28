@@ -6,6 +6,7 @@ import (
 
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/response"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/services"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
@@ -145,12 +146,16 @@ func (r *ReferralController) SetReferrer(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Referral code saved! You'll both earn rewards when you complete your first order.",
+		// You already have your ₦1,000 signup bonus; your referrer earns ₦500 once you
+		// complete your first order. pending_reward is the REFERRER's bonus (₦500), not
+		// ₦1,000 (which was the referee's signup bonus — the prior value conflated them).
+		"message": "Referral saved! " + referrerName + " earns ₦500 once you complete your first order.",
 		"data": gin.H{
-			"referred_by":              "@" + referrer.UserName,
-			"referrer_name":            referrerName,
-			"pending_reward":           1000.0,
-			"activation_requirement":   "Complete your first order to activate rewards",
+			"referred_by":            "@" + referrer.UserName,
+			"referrer_name":          referrerName,
+			"pending_reward":         domain.ReferralBonusAmount,
+			"signup_bonus":           domain.SignupBonusAmount,
+			"activation_requirement": "Complete your first order to activate rewards",
 		},
 	})
 }
