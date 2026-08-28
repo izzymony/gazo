@@ -32,3 +32,16 @@ services/backend/logs/
 # os / editor
 .DS_Store
 coverage/
+
+# database dumps — NEVER commit (PII + credential hashes). See the 2026-08-28
+# history purge: a local pg_dump with 22 users + bcrypt hashes had to be removed
+# from all history. Schema migrations are explicitly re-included below.
+*.dump
+*.sql.gz
+*_backup_*.sql
+backup_*.sql
+*_schema.sql
+pg_dump*.sql
+!services/backend/migrations/**/*.sql
+!services/backend/internal/migration/sql/*.sql
+!services/backend/scripts/*.sql
