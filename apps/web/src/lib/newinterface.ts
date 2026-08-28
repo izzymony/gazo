@@ -26,7 +26,8 @@ export interface CartsItems {
 
 export interface Carts {
   sub_total: number;
-  total: number;
+  total: number; // RW1: gross (product + shipping), NOT reduced by rewards credit
+  credit_applied?: number; // RW1: rewards-credit intent; server clamps + reserves the real amount
   cart: CartsItem[];
   shipping_profile_id: string;
 }

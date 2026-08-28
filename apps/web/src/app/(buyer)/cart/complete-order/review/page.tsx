@@ -225,7 +225,9 @@ const ReviewOrder = () => {
     ? rewardsInfo.total_credit
     : (user?.shopping_credit || 0) + (user?.withdrawable_credit || 0);
   const subtotalWithShipping = subTotal + shippingCost + serviceFee;
-  const maxUsableCredit = Math.min(totalCredit, subtotalWithShipping * 0.5); // 50% cap
+  // RW1: whole-Naira, ≤50% of the order — mirrors the server clamp so the displayed
+  // credit == the amount actually reserved (the backend floors to whole Naira too).
+  const maxUsableCredit = Math.floor(Math.min(totalCredit, subtotalWithShipping * 0.5));
   const creditApplied = useReferralCredit ? maxUsableCredit : 0;
 
   // For display purposes, show total with shipping and credit applied
@@ -443,9 +445,13 @@ const ReviewOrder = () => {
 
           // Order payload is identical across both flows; only WHEN the order is
           // created differs (order-on-success defers it to payment confirmation).
+          // RW1: send the GROSS total (product + shipping) + the rewards credit as
+          // INTENT — the backend clamps + atomically reserves the real amount and
+          // charges gross - reserved. Never send a pre-reduced total.
           const orderPayload = {
             sub_total: subTotal,
-            total: totals, // charge exactly what is displayed (W1.1)
+            total: subtotalWithShipping,
+            credit_applied: creditApplied,
             cart: cart.map((item) => ({
               product_id: item.product_id,
               price: item.price,
@@ -582,20 +588,30 @@ const ReviewOrder = () => {
                 <div className="text-body-sm">{formatCurrency(serviceFee)}</div>
               </div>
 
+              {creditApplied > 0 && (
+                <div className="flex justify-between items-center text-success-strong">
+                  <div>Rewards credit</div>
+                  <div className="text-body-sm">
+                    -{formatCurrency(creditApplied)}
+                  </div>
+                </div>
+              )}
+
               <div className=" flex justify-between items-center">
-                <div className="text-body-lg font-500">Total</div>
+                <div className="text-body-lg font-500">
+                  {creditApplied > 0 ? "You pay" : "Total"}
+                </div>
                 <div className="text-body-lg font-500">
                   {formatCurrency(totals)}
                 </div>
               </div>
             </div>
 
-            {/* Rewards Credit Toggle — DISABLED (W1.1): the backend does not deduct
-                rewards credit on order create, so applying it here charged the buyer
-                the full amount while showing a discount (and sending a discounted
-                total instead would grant credit that is never consumed). Re-enable
-                once the backend supports credit deduction. */}
-            {false && user && (
+            {/* Rewards Credit Toggle (RW1): the backend now atomically RESERVES the
+                credit at checkout and charges gross - reserved, so this applies a real
+                discount. Order-on-success only (the legacy order-first path has no
+                reserve/charge machinery); shown only when the buyer has credit. */}
+            {ORDER_ON_SUCCESS && user && totalCredit > 0 && (
               <div className="border border-ink-10 rounded-card p-4 mt-4 bg-red/5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">

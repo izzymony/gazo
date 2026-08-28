@@ -60,14 +60,8 @@ const RewardsAccessButton = ({
             <span>Referral earnings</span>
             <span>₦{totalEarned.toLocaleString()}</span>
           </div>
-          <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-white rounded-full transition-all duration-500"
-              style={{
-                width: `${Math.min((totalEarned / 20000) * 100, 100)}%`,
-              }}
-            />
-          </div>
+          {/* RW1: removed the progress bar toward an arbitrary, unlabelled ₦20,000
+              goal (no such milestone exists, and withdrawal is off for launch). */}
         </div>
       )}
     </div>
