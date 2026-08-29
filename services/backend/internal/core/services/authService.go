@@ -109,20 +109,13 @@ func (s *AuthService) Register(input requests.SignUpRequest) (interface{}, error
 		}
 		input.Phone = normalizePhoneNumber
 
-		// TEMPORARY: Accept dummy OTP "123456" for initial launch
-		// TODO: Remove this after OTP service is fully implemented
-		if input.OTP == "123456" {
-			// Accept dummy OTP for now
-			fmt.Printf("[LAUNCH] Accepting dummy OTP for registration - phone: %s, email: %s\n", input.Phone, input.Email)
-			// Set identifier based on what was used (prefer email)
-			if input.Email != "" {
-				otpIdentifier = "email"
-			} else {
-				otpIdentifier = "phone_number"
-			}
-		} else if os.Getenv("ENV") == "local" || os.Getenv("ENV") == "dev" || os.Getenv("ENV") == "staging" || os.Getenv("SKIP_SMS_VERIFICATION") == "true" {
-			// Also accept any OTP in local/dev/staging environments
-			fmt.Printf("[LOCAL] OTP validation skipped for registration - phone: %s, email: %s, otp: %s\n", input.Phone, input.Email, input.OTP)
+		// OTP verification. A dummy OTP or skipped verification is permitted ONLY
+		// outside production — helper.OTPBypassAllowed() is FALSE in production no
+		// matter what (ENV/APP_ENV/SKIP_SMS_VERIFICATION), so the old static
+		// "123456" launch backdoor can no longer authenticate a real account in
+		// production. Production always runs full OTP validation below.
+		if helper.OTPBypassAllowed() {
+			fmt.Printf("[NON-PROD] OTP validation skipped for registration - phone: %s, email: %s, otp: %s\n", input.Phone, input.Email, input.OTP)
 			if input.Email != "" {
 				otpIdentifier = "email"
 			} else {

@@ -3,7 +3,6 @@ package services
 import (
 	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"gorm.io/gorm"
@@ -85,9 +84,8 @@ func (s *VerificationCodeService) SendWithdrawalRequestOTP(userId string) error 
 		}
 		break
 	}
-	// Skip sending real SMS in dev, staging, or local environments
-	env := os.Getenv("ENV")
-	if env != "dev" && env != "staging" && env != "local" {
+	// Send the real WhatsApp OTP only in production; non-production skips it.
+	if helper.IsProduction() {
 		err = s.twilioService.SendOTP(helper.NormalizePhoneNumber(business.Phone), otp, "whatsapp", "")
 		if err != nil {
 			return fmt.Errorf("failed to send OTP: %w", err)
@@ -116,11 +114,9 @@ func (s *VerificationCodeService) SendRegisterOTP(identifier string) error {
 		code *domain.VerificationCode
 	)
 
-	// Use consistent OTP for local testing
-	env := os.Getenv("ENV")
-	skipSMSVerification := os.Getenv("SKIP_SMS_VERIFICATION") == "true"
-	
-	if env == "local" || env == "dev" || env == "staging" || skipSMSVerification {
+	// Use a consistent dummy OTP outside production; production generates a real
+	// random one below. helper.OTPBypassAllowed() is false in production.
+	if helper.OTPBypassAllowed() {
 		otp = "123456"
 		
 		// Generate a unique UUID for the verification code to avoid constraint violations
@@ -175,7 +171,7 @@ func (s *VerificationCodeService) SendRegisterOTP(identifier string) error {
 				logger.Error(fmt.Sprintf("failed to verify email: %v", err))
 				return fmt.Errorf("something went wrong")
 			} else {
-				if env != "dev" && env != "staging" && env != "local" {
+				if helper.IsProduction() {
 					return fmt.Errorf("invalid email address. please use a non-disposable email")
 				}
 			}
@@ -183,7 +179,7 @@ func (s *VerificationCodeService) SendRegisterOTP(identifier string) error {
 	}
 
 	// Skip sending real SMS/email in dev, staging, or local environments
-	if env != "dev" && env != "staging" && env != "local" {
+	if helper.IsProduction() {
 
 		if isPhoneNumber {
 			err = s.twilioService.SendOTP(helper.NormalizePhoneNumber(identifier), otp, "whatsapp", "")
@@ -204,10 +200,9 @@ func (s *VerificationCodeService) SendRegisterOTP(identifier string) error {
 }
 
 func (s *VerificationCodeService) ValidateCode(identifier, otp, verificationType string) error {
-	env := os.Getenv("ENV")
-	skipSMSVerification := os.Getenv("SKIP_SMS_VERIFICATION") == "true"
-	
-	if env != "dev" && env != "staging" && env != "local" && !skipSMSVerification {
+	// Skip validation only outside production; production always validates.
+	// helper.OTPBypassAllowed() is false in production.
+	if !helper.OTPBypassAllowed() {
 		isPhoneNumber, normalizedPhoneNumber, err := helper.IsPhoneOrEmail(identifier)
 		if err != nil {
 			return err

@@ -9,7 +9,6 @@ import (
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 	"log"
-	"os"
 	"time"
 
 	"gorm.io/gorm"
@@ -75,14 +74,17 @@ func (s *OTPService) Save(input domain.OTP) (interface{}, error) {
 		return nil, errors.New("invalid user")
 	}
 	
-	switch os.Getenv("ENV") {
-	case "prod":
+	// Production generates a real random OTP and sends it; every non-production
+	// environment uses the fixed "123456" for testing. Keyed on helper.IsProduction
+	// (APP_ENV OR ENV) — the old `case "prod"` matched only the literal string
+	// "prod", so APP_ENV=production with ENV unset silently emitted 123456.
+	if helper.IsProduction() {
 		input.Code = helper.GenerateOTP(6)
 		// Only send SMS if user exists and has a phone number
 		if found && user.Phone != "" {
 			s.smsService.Send(fmt.Sprintf("%v is your otp. Do not disclose to anyone", input.Code), user.Phone)
 		}
-	default:
+	} else {
 		input.Code = "123456"
 	}
 

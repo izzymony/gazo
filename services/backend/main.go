@@ -11,6 +11,7 @@ import (
 	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/crons"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/migration"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/seeder"
@@ -29,9 +30,20 @@ func main() {
 	}
 
 	// B6: refuse to start without a JWT signing secret — an empty JWT_SECRET
-	// would let anyone forge valid tokens.
+	// would let anyone forge valid tokens. (Enforced in every environment.)
 	if os.Getenv("JWT_SECRET") == "" {
 		logger.Error("JWT_SECRET is not set — refusing to start (authentication would be forgeable)")
+		os.Exit(1)
+	}
+
+	// Production environment guard: fail-fast rather than boot a misconfigured
+	// production deploy (test payment keys, public KYC storage, OTP bypasses,
+	// localhost URLs, inconsistent APP_ENV/ENV). Reports every problem at once.
+	if errs := helper.ValidateEnv(os.Getenv); len(errs) > 0 {
+		for _, e := range errs {
+			logger.Error("invalid environment configuration: " + e.Error())
+		}
+		logger.Error("refusing to start — fix the environment configuration above")
 		os.Exit(1)
 	}
 
