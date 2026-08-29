@@ -2,6 +2,7 @@ package mysql_repo
 
 import (
 	"testing"
+	"time"
 
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	"github.com/glebarez/sqlite"
@@ -31,43 +32,48 @@ func setupOrderTxDB(t *testing.T) *gorm.DB {
 	}
 	sqlDB.SetMaxOpenConns(1)
 
-	if err := db.Exec(`CREATE TABLE orders (
-		id TEXT PRIMARY KEY,
-		created_at DATETIME,
-		updated_at DATETIME,
-		user_id TEXT,
-		invoice TEXT,
-		sub_total REAL,
-		shipping_cost REAL,
-		total REAL,
-		credit_applied REAL DEFAULT 0,
-		payment_method TEXT,
-		payment_receipt TEXT,
-		payment_received INTEGER DEFAULT 0,
-		shipping_profile_id TEXT
-	)`).Error; err != nil {
-		t.Fatalf("create orders: %v", err)
-	}
-	if err := db.Exec(`CREATE TABLE order_items (
-		id TEXT PRIMARY KEY,
-		created_at DATETIME,
-		updated_at DATETIME,
-		order_id TEXT,
-		product_id TEXT,
-		business_id TEXT,
-		price REAL,
-		quantity INTEGER,
-		shipping_option_id TEXT,
-		shipment_id TEXT,
-		status TEXT,
-		buyer_activity TEXT,
-		seller_activity TEXT,
-		vendor_credited INTEGER DEFAULT 0,
-		status_updated_at DATETIME,
-		variant_selection TEXT,
-		variant_data TEXT
-	)`).Error; err != nil {
-		t.Fatalf("create order_items: %v", err)
+	// orders + order_items and their guest twins share one schema. Guest orders live
+	// in the *_guest tables — the guest read path, updaters and wallet cron all resolve
+	// items there, so Create/Update must write there too.
+	for _, suffix := range []string{"", "_guest"} {
+		if err := db.Exec(`CREATE TABLE orders` + suffix + ` (
+			id TEXT PRIMARY KEY,
+			created_at DATETIME,
+			updated_at DATETIME,
+			user_id TEXT,
+			invoice TEXT,
+			sub_total REAL,
+			shipping_cost REAL,
+			total REAL,
+			credit_applied REAL DEFAULT 0,
+			payment_method TEXT,
+			payment_receipt TEXT,
+			payment_received INTEGER DEFAULT 0,
+			shipping_profile_id TEXT
+		)`).Error; err != nil {
+			t.Fatalf("create orders%s: %v", suffix, err)
+		}
+		if err := db.Exec(`CREATE TABLE order_items` + suffix + ` (
+			id TEXT PRIMARY KEY,
+			created_at DATETIME,
+			updated_at DATETIME,
+			order_id TEXT,
+			product_id TEXT,
+			business_id TEXT,
+			price REAL,
+			quantity INTEGER,
+			shipping_option_id TEXT,
+			shipment_id TEXT,
+			status TEXT,
+			buyer_activity TEXT,
+			seller_activity TEXT,
+			vendor_credited INTEGER DEFAULT 0,
+			status_updated_at DATETIME,
+			variant_selection TEXT,
+			variant_data TEXT
+		)`).Error; err != nil {
+			t.Fatalf("create order_items%s: %v", suffix, err)
+		}
 	}
 	return db
 }
@@ -176,5 +182,88 @@ func TestOrderCreate_OuterRollback_LeavesNothing(t *testing.T) {
 	db.Table("order_items").Where("order_id = ?", created.ID).Count(&items)
 	if orders != 0 || items != 0 {
 		t.Fatalf("expected outer rollback to discard the order; orders=%d items=%d", orders, items)
+	}
+}
+
+// Guest orders must be written to and mutated in the *_guest tables. Before the fix,
+// Create wrote items to the default order_items and the two Model()-based updaters
+// hit order_items too, while every guest READ path (+ the wallet clearing cron) looks
+// in order_items_guest — so guest items were orphaned and guest checkout would fail at
+// the first activity/status write.
+func TestGuestOrder_TargetsGuestItemTable(t *testing.T) {
+	db := setupOrderTxDB(t)
+	repo := &OrderRepository{db: db}
+
+	created, err := repo.Create(validatedOrder(), true) // isGuest = true
+	if err != nil {
+		t.Fatalf("guest Create: %v", err)
+	}
+	itemID := created.Items[0].ID
+
+	var orderGuest, itemGuest, itemDefault int64
+	db.Table("orders_guest").Where("id = ?", created.ID).Count(&orderGuest)
+	db.Table("order_items_guest").Where("id = ?", itemID).Count(&itemGuest)
+	db.Table("order_items").Where("id = ?", itemID).Count(&itemDefault)
+	if orderGuest != 1 || itemGuest != 1 || itemDefault != 0 {
+		t.Fatalf("guest order/item mis-tabled: orders_guest=%d order_items_guest=%d order_items=%d",
+			orderGuest, itemGuest, itemDefault)
+	}
+
+	// Each guest mutator must resolve the item in order_items_guest — if any still
+	// targeted order_items it would error (row not found) or affect zero rows.
+	if _, err := repo.AppendActivity(itemID, domain.OrderActivity{
+		Title: "Order Placed", Subtitle: "Order Placed", Details: "placed", Time: "t",
+	}, "buyer", true); err != nil {
+		t.Fatalf("guest AppendActivity did not find the guest item: %v", err)
+	}
+	if _, err := repo.UpdateOrderItem(itemID, created.Items[0], true); err != nil {
+		t.Fatalf("guest UpdateOrderItem did not find the guest item: %v", err)
+	}
+	if _, err := repo.UpdateOrderItemStatus(itemID, "shipped", time.Unix(0, 0), true); err != nil {
+		t.Fatalf("guest UpdateOrderItemStatus did not find the guest item: %v", err)
+	}
+
+	var status string
+	db.Table("order_items_guest").Select("status").Where("id = ?", itemID).Scan(&status)
+	if status != "shipped" {
+		t.Fatalf("UpdateOrderItemStatus did not persist to order_items_guest, status=%q", status)
+	}
+}
+
+// DecrementProductStock must subtract from stock, not sales (a copy-paste from
+// IncrementProductSales that would corrupt inventory after every paid order).
+func TestDecrementProductStock_SubtractsFromStock(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		t.Fatalf("open sqlite: %v", err)
+	}
+	if err := db.Exec(`CREATE TABLE products (
+		id TEXT PRIMARY KEY,
+		created_at DATETIME,
+		updated_at DATETIME,
+		stock INTEGER DEFAULT 0,
+		sales INTEGER DEFAULT 0
+	)`).Error; err != nil {
+		t.Fatalf("create products: %v", err)
+	}
+	// stock=10, sales=3: a correct decrement of 2 yields stock=8; the old `sales`-based
+	// expression would have yielded 1.
+	if err := db.Exec(`INSERT INTO products (id, stock, sales) VALUES ('p1', 10, 3)`).Error; err != nil {
+		t.Fatalf("seed product: %v", err)
+	}
+
+	repo := &ProductRepository{db: db}
+	if err := repo.DecrementProductStock("p1", 2); err != nil {
+		t.Fatalf("DecrementProductStock: %v", err)
+	}
+
+	var stock, sales int
+	db.Table("products").Select("stock").Where("id = ?", "p1").Scan(&stock)
+	db.Table("products").Select("sales").Where("id = ?", "p1").Scan(&sales)
+	if stock != 8 {
+		t.Fatalf("expected stock 10-2=8, got %d (regressed to sales-based decrement?)", stock)
+	}
+	if sales != 3 {
+		t.Fatalf("expected sales untouched at 3, got %d", sales)
 	}
 }

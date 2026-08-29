@@ -263,8 +263,10 @@ func (repo *OrderRepository) Find(id string, isGuest bool) (*domain.Order, error
 
 func (repo *OrderRepository) Create(data *domain.Order, isGuest bool) (*domain.Order, error) {
 	tableName := "orders"
+	itemTable := "order_items"
 	if isGuest {
 		tableName += "_guest"
+		itemTable += "_guest"
 	}
 
 	// Persist through a GORM-managed transaction. When repo.db is already bound to a
@@ -296,7 +298,11 @@ func (repo *OrderRepository) Create(data *domain.Order, isGuest bool) (*domain.O
 			items[i].Shipment = domain.Shipment{}
 			items[i].Product = nil
 
-			if err := tx.Omit(clause.Associations).Create(&items[i]).Error; err != nil {
+			// Guest items belong in order_items_guest — the guest read path, the
+			// activity/status updaters and the wallet clearing cron all resolve items
+			// there (see releaseFromTable("order_items_guest", true)). Writing them to
+			// the default order_items would orphan every guest order.
+			if err := tx.Table(itemTable).Omit(clause.Associations).Create(&items[i]).Error; err != nil {
 				return err
 			}
 		}
@@ -401,7 +407,11 @@ func (repo *OrderRepository) UpdateOrderItem(id string, input domain.OrderItem, 
 	// as the Create/AppendActivity fixes. Omit associations so Select("*") only rewrites
 	// scalar columns and never upserts the item's (empty) value-type associations.
 	err := repo.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Model(&domain.OrderItem{}).Where("id = ?", id).Select("*").Omit(clause.Associations).Updates(input).Error; err != nil {
+		// Table(tableName) targets order_items_guest for guests; Model(&OrderItem{})
+		// keeps the schema so Select("*") + the jsonb Valuers map correctly. Read-back
+		// uses the same table — before this both used Model() and silently updated
+		// order_items while reading order_items_guest for guest orders.
+		if err := tx.Table(tableName).Model(&domain.OrderItem{}).Where("id = ?", id).Select("*").Omit(clause.Associations).Updates(input).Error; err != nil {
 			return err
 		}
 		return tx.Table(tableName).Where("id = ?", id).First(&updatedOrder).Error
@@ -420,30 +430,23 @@ func (repo *OrderRepository) UpdateOrderItemStatus(id string, status string, sta
 		tableName += "_guest"
 	}
 
-	tx := repo.db.Table(tableName).Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
-	// Only update status and status_updated_at fields - NOT activity arrays
-	q := tx.Model(&domain.OrderItem{}).Where("id = ?", id).Updates(map[string]interface{}{
-		"status":            status,
-		"status_updated_at": statusUpdatedAt,
-	})
-	if q.Error != nil {
-		tx.Rollback()
-		return nil, q.Error
-	}
-
 	var updatedOrder domain.OrderItem
-	if err := tx.Where("id = ?", id).First(&updatedOrder).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-
-	if err := tx.Commit().Error; err != nil {
+	// GORM-managed tx so this nests safely (SAVEPOINT) inside a caller's transaction
+	// instead of the manual Begin()/Commit() that aborted the outer tx on a *sql.Tx
+	// (same class as the Create/AppendActivity/UpdateOrderItem fixes). Table(tableName)
+	// targets order_items_guest for guests — the Update previously used Model() and
+	// always hit order_items, silently missing guest items (webhook/admin fulfillment).
+	err := repo.db.Transaction(func(tx *gorm.DB) error {
+		// Only update status and status_updated_at fields - NOT activity arrays
+		if err := tx.Table(tableName).Where("id = ?", id).Updates(map[string]interface{}{
+			"status":            status,
+			"status_updated_at": statusUpdatedAt,
+		}).Error; err != nil {
+			return err
+		}
+		return tx.Table(tableName).Where("id = ?", id).First(&updatedOrder).Error
+	})
+	if err != nil {
 		return nil, err
 	}
 

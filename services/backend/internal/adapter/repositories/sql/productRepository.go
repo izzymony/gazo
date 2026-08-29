@@ -691,9 +691,9 @@ func (repo *ProductRepository) DecrementProductStock(productID string, decrement
 
 		if err := tx.Model(&domain.Product{}).
 			Where("id = ?", productID).
-			Update("stock", gorm.Expr("COALESCE(sales, 0) - ?", decrementBy)).
+			Update("stock", gorm.Expr("COALESCE(stock, 0) - ?", decrementBy)).
 			Error; err != nil {
-			return fmt.Errorf("failed to increment sales: %w", err)
+			return fmt.Errorf("failed to decrement stock: %w", err)
 		}
 
 		return nil
