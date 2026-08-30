@@ -120,18 +120,19 @@ NEXT_PUBLIC_ENVIRONMENT=staging
 | **next-pwa** (web only) | ✅ **Works** — the OpenNext build ships `sw.js` + `workbox-*.js` + the precache manifest as static assets. Confirm registration on the deployed origin (§4). |
 | **Sentry server SDK** | Handled — `withSentryConfig` is **skipped for the CF build** (`CF_BUILD=1`); its server auto-instrumentation broke the Workers bundler. Client-side reporting is lazy-loaded (P1b) and unaffected. |
 | **middleware.ts** (web) | Builds; runs every request on Workers. |
-| **pnpm-monorepo standalone tracing** | Needs `experimental.outputFileTracingRoot` = repo root (set in `apps/web/next.config.mjs`) so `@vercel/nft` copies the full Next server. **See §6 for the remaining OpenNext monorepo blocker.** |
+| **pnpm-monorepo root detection** | ✅ Resolved — a stray `apps/web/package-lock.json` was making both Next's tracing and OpenNext detect `apps/web` as the monorepo root. Deleting it fixed everything; no `outputFileTracingRoot` or linker change needed. See §6. |
 
 ---
 
 ## 6. Local build verification (2026-08-30)
 
-- **`apps/admin` → ✅ builds clean** under OpenNext (`pnpm -C apps/admin cf:build`, exit 0, ~52 MB `.open-next`, proper worker). Ready to deploy once the CF account/token/DNS exist.
-- **`apps/web` → ⚠ blocked on an OpenNext 1.20.4 + pnpm-monorepo issue** (two layers, first solved):
-  1. **Solved:** `next build`'s standalone tracing was copying an *incomplete* Next server (5 of 139 `dist/server` files) → OpenNext's esbuild failed with 51 "Could not resolve" errors. Fixed with `experimental.outputFileTracingRoot` = repo root (full trace restored, 0 resolve errors).
-  2. **Blocked:** with the tracing root at the repo root, Next nests the standalone output under `apps/web/` (`.next/standalone/apps/web/.next/server/…`), but OpenNext 1.20.4 reads the manifest from the un-nested `.next/standalone/.next/server/…` → `ENOENT pages-manifest.json`. OpenNext's own monorepo `packagePath` isn't applied to that read. `apps/admin` dodges this because its server is trivial (static) and never needed the full trace / tracing root.
+**Both apps build clean under OpenNext** with the normal pnpm (isolated) linker — `resolve-errors: 0`, valid worker + assets, "OpenNext build complete":
+- **`apps/web`** → ✅ `pnpm -C apps/web cf:build`, exit 0, **~57 MB** `.open-next`.
+- **`apps/admin`** → ✅ `pnpm -C apps/admin cf:build`, exit 0, **~52 MB** `.open-next`.
 
-**Options for `apps/web` (owner decision — not forcing a workaround):**
-- **(a) pnpm `node-linker=hoisted`** — add `.npmrc` with hoisted linking so `nft` traces correctly *without* `outputFileTracingRoot`; the standalone stays un-nested and OpenNext works. This is the documented OpenNext-pnpm fix, but it's **repo-wide** (relayouts all `node_modules`, needs a full reinstall + regression pass). Recommended to try first.
-- **(b) OpenNext version change** — try a newer/older `@opennextjs/cloudflare` where the monorepo `packagePath` read is fixed.
-- **(c) Vercel fallback for web** — DEPLOY.md §3.3-sanctioned; deploys `apps/web` as-is, zero code changes. Admin can still go on Cloudflare.
+### Root cause (and the one-line fix)
+Web initially failed with 51 esbuild "Could not resolve" errors, and — with a tracing-root workaround — an `ENOENT pages-manifest.json`. Both symptoms traced to a **single stray `apps/web/package-lock.json`** committed into a pnpm workspace:
+- OpenNext's `findPackagerAndRoot` walks up from the app looking for a lockfile and returns the first hit. It found `apps/web/package-lock.json` *before* the root `pnpm-lock.yaml` → decided the monorepo root was `apps/web`, packager `npm` → empty `packagePath` → wrong manifest path.
+- Next's own `@vercel/nft` tracing inferred the same wrong workspace root → copied an **incomplete** Next server (5 of 139 `dist/server` files) into the standalone → the 51 resolve errors.
+
+**Fix: delete `apps/web/package-lock.json`.** No `outputFileTracingRoot`, no `node-linker=hoisted`, no OpenNext version change — those were workarounds for the mis-detected root. The repo keeps its deliberate pnpm-isolated linker (`.npmrc`). Both apps are now **deployable** once the CF account/token/DNS exist.

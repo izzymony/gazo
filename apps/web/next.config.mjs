@@ -2,10 +2,6 @@
 import { withSentryConfig } from '@sentry/nextjs';
 import withPWA from 'next-pwa';
 import bundleAnalyzer from '@next/bundle-analyzer';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Wire the (already-installed) analyzer behind ANALYZE=true for the perf baseline.
 const withBundleAnalyzer = bundleAnalyzer({ enabled: process.env.ANALYZE === 'true' });
@@ -70,12 +66,6 @@ const nextConfig = {
   },
   // Performance optimizations
   experimental: {
-    // Monorepo standalone tracing: point @vercel/nft at the repo root so it
-    // follows pnpm's symlinked node_modules and copies the FULL Next server into
-    // the standalone output that OpenNext bundles. Without this, tracing misses
-    // Next's server internals (node-environment, request-meta, shared/lib/*) and
-    // the OpenNext esbuild step fails with dozens of "Could not resolve" errors.
-    outputFileTracingRoot: path.join(__dirname, '../../'),
     // Per-icon imports instead of full barrels. The old ['react-icons'] was a
     // no-op (react-icons isn't installed); the heavy libs are HugeIcons.
     optimizePackageImports: ['@hugeicons/react', '@hugeicons/core-free-icons', '@heroicons/react'],
