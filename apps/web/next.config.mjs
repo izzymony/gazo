@@ -2,6 +2,10 @@
 import { withSentryConfig } from '@sentry/nextjs';
 import withPWA from 'next-pwa';
 import bundleAnalyzer from '@next/bundle-analyzer';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Wire the (already-installed) analyzer behind ANALYZE=true for the perf baseline.
 const withBundleAnalyzer = bundleAnalyzer({ enabled: process.env.ANALYZE === 'true' });
@@ -13,6 +17,12 @@ const nextConfig = {
   // Allow mobile devices to access dev server
   allowedDevOrigins: ['192.168.221.10', '192.168.1.157', 'michaels-macbook-pro-2.local'],
   images: {
+    // On Cloudflare Workers the default Next image optimizer (needs sharp/Node)
+    // is unavailable, so the OpenNext/CF build serves images unoptimized (set
+    // CF_BUILD=1 in the Cloudflare build env). Vercel/other builds keep
+    // optimization. For a production CF launch, revisit this (Cloudflare Images
+    // or a custom loader) — unoptimized ships full-size images to 3G users.
+    unoptimized: process.env.CF_BUILD === '1',
     remotePatterns: [
       {
         protocol: 'https',
@@ -60,6 +70,12 @@ const nextConfig = {
   },
   // Performance optimizations
   experimental: {
+    // Monorepo standalone tracing: point @vercel/nft at the repo root so it
+    // follows pnpm's symlinked node_modules and copies the FULL Next server into
+    // the standalone output that OpenNext bundles. Without this, tracing misses
+    // Next's server internals (node-environment, request-meta, shared/lib/*) and
+    // the OpenNext esbuild step fails with dozens of "Could not resolve" errors.
+    outputFileTracingRoot: path.join(__dirname, '../../'),
     // Per-icon imports instead of full barrels. The old ['react-icons'] was a
     // no-op (react-icons isn't installed); the heavy libs are HugeIcons.
     optimizePackageImports: ['@hugeicons/react', '@hugeicons/core-free-icons', '@heroicons/react'],
@@ -98,14 +114,20 @@ const pwaConfig = withPWA({
   ],
 })(withBundleAnalyzer(nextConfig));
 
-// Wrap with Sentry (only active when NEXT_PUBLIC_SENTRY_DSN is set)
-export default withSentryConfig(pwaConfig, {
-  silent: true,
-  // Tier4: `disableLogger` is deprecated in @sentry/nextjs v10 → moved to
-  // webpack.treeshake.removeDebugLogging (strips the SDK's debug logger).
-  webpack: {
-    treeshake: {
-      removeDebugLogging: true,
-    },
-  },
-});
+// Wrap with Sentry (only active when NEXT_PUBLIC_SENTRY_DSN is set). SKIPPED for
+// the Cloudflare/OpenNext build (CF_BUILD=1): the Sentry server SDK's auto-
+// instrumentation (experimental.instrumentationHook) makes OpenNext's Workers
+// server bundler fail to resolve Next's internal server modules (DEPLOY.md §3.3).
+// Client-side error reporting is lazy-loaded (P1b) and works without this wrapper.
+export default process.env.CF_BUILD === '1'
+  ? pwaConfig
+  : withSentryConfig(pwaConfig, {
+      silent: true,
+      // Tier4: `disableLogger` is deprecated in @sentry/nextjs v10 → moved to
+      // webpack.treeshake.removeDebugLogging (strips the SDK's debug logger).
+      webpack: {
+        treeshake: {
+          removeDebugLogging: true,
+        },
+      },
+    });

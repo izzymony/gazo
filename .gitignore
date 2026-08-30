@@ -10,6 +10,10 @@ build/
 .turbo/
 *.tsbuildinfo
 
+# Cloudflare / OpenNext build output
+.open-next/
+.wrangler/
+
 # go (compiled binaries + runtime dirs live in services/backend)
 services/backend/main
 services/backend/insta-api

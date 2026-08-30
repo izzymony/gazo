@@ -1,0 +1,23 @@
+{
+  // Cloudflare Worker config for the vibaar web app, built with @opennextjs/cloudflare.
+  // STAGING worker. A production worker would be a second config (name vibaar-web,
+  // domain vibaar.com) — keep them as separate Workers, never one that switches.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "vibaar-web-staging",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-08-01",
+  // Required — the Next server + app use Node built-ins (Buffer, crypto, streams).
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  }
+  // NEXT_PUBLIC_* values are INLINED AT BUILD TIME, not read here at runtime — set
+  // them as Build environment variables in the Cloudflare dashboard (or export
+  // them before `pnpm cf:deploy`). See docs/CLOUDFLARE-STAGING.md.
+  // Custom domain staging.vibaar.com is attached in the dashboard (Workers →
+  // Settings → Domains & Routes), not in this file.
+}

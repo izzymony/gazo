@@ -1,0 +1,20 @@
+{
+  // Cloudflare Worker config for the vibaar admin app, built with @opennextjs/cloudflare.
+  // STAGING worker. Production admin would be a separate Worker (name vibaar-admin,
+  // domain admin.vibaar.com) — keep them separate, never a runtime toggle.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "vibaar-admin-staging",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  }
+  // NEXT_PUBLIC_* are inlined at BUILD time — set as Build env vars in the
+  // Cloudflare dashboard. Custom domain admin-staging.vibaar.com attached in the
+  // dashboard. See docs/CLOUDFLARE-STAGING.md.
+}
