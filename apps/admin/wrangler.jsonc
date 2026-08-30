@@ -13,8 +13,12 @@
   },
   "observability": {
     "enabled": true
-  }
-  // NEXT_PUBLIC_* are inlined at BUILD time — set as Build env vars in the
-  // Cloudflare dashboard. Custom domain admin-staging.vibaar.com attached in the
-  // dashboard. See docs/CLOUDFLARE-STAGING.md.
+  },
+  // Custom domain — wrangler provisions the DNS record + cert on the vibaar.com
+  // zone during deploy (requires the zone on this Cloudflare account).
+  "routes": [
+    { "pattern": "admin-staging.vibaar.com", "custom_domain": true }
+  ]
+  // NEXT_PUBLIC_* are inlined at BUILD time — passed as env vars to `cf:deploy`.
+  // See docs/CLOUDFLARE-STAGING.md.
 }

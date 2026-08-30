@@ -14,10 +14,12 @@
   },
   "observability": {
     "enabled": true
-  }
-  // NEXT_PUBLIC_* values are INLINED AT BUILD TIME, not read here at runtime — set
-  // them as Build environment variables in the Cloudflare dashboard (or export
-  // them before `pnpm cf:deploy`). See docs/CLOUDFLARE-STAGING.md.
-  // Custom domain staging.vibaar.com is attached in the dashboard (Workers →
-  // Settings → Domains & Routes), not in this file.
+  },
+  // Custom domain — wrangler provisions the DNS record + cert on the vibaar.com
+  // zone during deploy (requires the zone on this Cloudflare account).
+  "routes": [
+    { "pattern": "staging.vibaar.com", "custom_domain": true }
+  ]
+  // NEXT_PUBLIC_* values are INLINED AT BUILD TIME — passed as env vars to
+  // `pnpm cf:deploy`. See docs/CLOUDFLARE-STAGING.md.
 }
