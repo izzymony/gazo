@@ -246,7 +246,7 @@ const Page = () => {
             alt="Vibaar"
             width={0}
             height={0}
-            src="/Logo (6).svg"
+            src="/brand/logo-black.svg"
             className="max-w-[160px] w-full h-auto mx-auto"
           />
           <div className="text-center mt-5 flex flex-col gap-2">

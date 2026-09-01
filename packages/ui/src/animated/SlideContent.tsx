@@ -12,10 +12,10 @@ export default function SlideContent({ currentSlide, onSlideChange }: SlideConte
     <div className="relative -mt-18">
       {/* Desktop Logo (hidden on mobile) */}
       <Image
-        src="/Logo (6).svg"
+        src="/brand/logo-black.svg"
         alt="Company Logo"
         width={180}
-        height={55}
+              height={52}
         className="hidden md:block mx-auto mb-12"
         priority
       />

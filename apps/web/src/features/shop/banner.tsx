@@ -1,11 +1,11 @@
 export default function Banner() {
   return (
     <div className="flex justify-between items-center w-full bg-brand rounded-2xl ps-3 h-[60px] overflow-hidden relative">
-      <div className="w-[110px] my-3 text-start text-sm text-white font-sans font-semibold tracking-wider">
+      <div className="w-[110px] my-3 text-start text-sm text-brandInk font-sans font-semibold tracking-wider">
         What you see is what you get
       </div>
       <div className="flex gap-1 items-center absolute bottom-[2px] right-0 left-0 justify-center w-full">
-        <div className="w-1 h-1 rounded-full bg-white"></div>
+        <div className="w-1 h-1 rounded-full bg-brandInk"></div>
         <div className="w-3 h-1 rounded-full bg-white"></div>
         <div className="w-1 h-1 rounded-full bg-white"></div>
       </div>

@@ -23,7 +23,7 @@ export default function NotFound() {
         href="/"
         className="inline-flex items-center justify-center gap-2 rounded-full bg-brand text-brandInk text-body font-medium py-3 px-6 touch-manipulation active:bg-brandHover"
       >
-        <HugeiconsIcon icon={Home01Icon} size={18} color="white" />
+        <HugeiconsIcon icon={Home01Icon} size={18} color="currentColor" />
         Back home
       </Link>
     </div>

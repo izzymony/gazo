@@ -148,10 +148,10 @@ Enter "${username}" in the Referral ID field when signing up.`;
         <div className="bg-brand rounded-card p-5 text-brandInk relative overflow-hidden">
           {/* Decorative sparkle elements */}
           <div className="absolute top-2 right-3 opacity-30">
-            <FaStar size={16} className="text-white" />
+            <FaStar size={16} className="text-brandInk" />
           </div>
           <div className="absolute bottom-3 right-8 opacity-20">
-            <FaStar size={12} className="text-white" />
+            <FaStar size={12} className="text-brandInk" />
           </div>
 
           <div className="flex justify-between items-center">

@@ -361,7 +361,7 @@ const Page = () => {
                               ? "Unfollow"
                               : "Follow"}
                           </button>
-                          <IoIosArrowForward size={20} className="text-white" />
+                          <IoIosArrowForward size={20} className="text-brandInk" />
                         </div>
                       </div>
                     </div>

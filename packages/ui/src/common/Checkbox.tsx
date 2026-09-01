@@ -27,7 +27,7 @@ const Checkbox = ({ checked, onChange, label, isRound = false }: CheckboxProps) 
           checked ? "bg-brand border-brandDeep" : "border-ink-30"
         )}>
         {checked && (
-          <IoCheckmark className="text-white" size={14} strokeWidth={3} />
+          <IoCheckmark className="text-brandInk" size={14} strokeWidth={3} />
         )}
       </div>
     );
@@ -44,7 +44,7 @@ const Checkbox = ({ checked, onChange, label, isRound = false }: CheckboxProps) 
           checked ? "bg-brand border-brandDeep" : "border-ink-30"
         )}>
         {checked && (
-          <IoCheckmark className="text-white" size={14} strokeWidth={3} />
+          <IoCheckmark className="text-brandInk" size={14} strokeWidth={3} />
         )}
       </div>
       <span className="text-ink-90 text-body">{label}</span>

@@ -78,10 +78,10 @@ export default function Header({
         {showLogo && (
           <div className="py-[1px]">
             <Image
-              src="/Logo (6).svg"
+              src="/brand/logo-black.svg"
               alt="Logo"
               width={135.5}
-              height={36}
+              height={39}
               className=""
             />
           </div>

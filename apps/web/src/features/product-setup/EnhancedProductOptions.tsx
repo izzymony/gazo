@@ -738,7 +738,7 @@ const VariationFieldWithProperties = ({
             <div className="flex items-center gap-1">
               {variation.ownedProperties?.includes('price') && (
                 <div className="w-4 h-4 bg-brand rounded-full flex items-center justify-center" title="Custom Price">
-                  <span className="text-white text-body-sm font-bold">₦</span>
+                  <span className="text-brandInk text-body-sm font-bold">₦</span>
                 </div>
               )}
               {variation.ownedProperties?.includes('stock') && (

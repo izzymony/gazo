@@ -31,7 +31,7 @@ const HeaderSlides = () => {
       {/* Slider Content */}
       <div className="relative bg-brand pb-3 flex justify-between items-center transition-all duration-500 ease-in-out overflow-hidden">
         <div className="w-full max-w-full lg:max-w-5xl lg:mx-auto flex justify-between items-center px-4 md:px-6 lg:px-8">
-          <p className="text-[#FFFFFF] text-sm md:text-base font-medium max-w-[250px] lg:max-w-[400px] w-full">
+          <p className="text-brandInk text-sm md:text-base font-medium max-w-[250px] lg:max-w-[400px] w-full">
             {slideTexts[activeSlide]}
           </p>
 

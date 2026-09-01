@@ -335,47 +335,19 @@ function Frame2147207507() {
   );
 }
 
-function Group3() {
+function VibaarLockup() {
+  // The real brand lockup (was two Figma-drawn components: an old mark in
+  // `Group3` plus an old wordmark, both predating the rebrand). Width drives
+  // the render; height comes from the true 2721x781 ratio so it can't stretch.
   return (
-    <div className="h-[20px] sm:h-[24px] md:h-[27.059px] relative shrink-0 w-[17.2px] sm:w-[20.6px] md:w-[23.255px]">
-      <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 28">
-        <g id="Group 3">
-          <path d={svgPaths.p1e500480} fill="var(--fill-0, var(--brand))" id="Vector" />
-          <path d={svgPaths.p2f66e6f0} fill="var(--fill-0, var(--brand))" id="Vector_2" />
-          <path clipRule="evenodd" d={svgPaths.p24789200} fill="var(--fill-0, var(--brand))" fillRule="evenodd" id="Vector_3" />
-          <path clipRule="evenodd" d={svgPaths.p2cf15800} fill="var(--fill-0, var(--brand))" fillRule="evenodd" id="Vector_4" />
-          <path clipRule="evenodd" d={svgPaths.p31f9a00} fill="var(--fill-0, var(--brand))" fillRule="evenodd" id="Vector_5" />
-          <path clipRule="evenodd" d={svgPaths.p31800d00} fill="var(--fill-0, var(--brand))" fillRule="evenodd" id="Vector_6" />
-        </g>
-      </svg>
-    </div>
+    // eslint-disable-next-line @next/next/no-img-element -- static brand asset
+    <img
+      src="/brand/logo-white.svg"
+      alt="Vibaar"
+      className="h-[20px] sm:h-[24px] md:h-[27px] w-auto shrink-0"
+    />
   );
 }
-
-function VibaarWordmark() {
-  return (
-    <div className="h-[16px] sm:h-[19px] md:h-[21.648px] relative shrink-0 w-[96px] sm:w-[115px] md:w-[130.364px]" data-name="Vibaar">
-      <div className="absolute bottom-[-0.01%] left-0 right-0 top-0">
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 131 22">
-          <g id="Vibaar">
-            <path d={svgPaths.p1e7e0800} fill="var(--fill-0, white)" id="Vector" />
-            <path d={svgPaths.p621e00} fill="var(--fill-0, white)" id="Vector_2" />
-            <path d={svgPaths.p34e48d00} fill="var(--fill-0, white)" id="Vector_3" />
-            <path d={svgPaths.p135e1b80} fill="var(--fill-0, white)" id="Vector_4" />
-            <path d={svgPaths.p1d314500} fill="var(--fill-0, white)" id="Vector_5" />
-            <path d={svgPaths.pe77a800} fill="var(--fill-0, white)" id="Vector_6" />
-            <path d={svgPaths.p8ce65f0} fill="var(--fill-0, white)" id="Vector_7" />
-            <path d={svgPaths.pef32400} fill="var(--fill-0, white)" id="Vector_8" />
-            <path d={svgPaths.p3b69a6f8} fill="var(--fill-0, white)" id="Vector_9" />
-            <path d={svgPaths.p29c4ca80} fill="var(--fill-0, white)" id="Vector_10" />
-            <path d={svgPaths.p314fee00} fill="var(--fill-0, white)" id="Vector_11" />
-          </g>
-        </svg>
-      </div>
-    </div>
-  );
-}
-
 function SymbolSvg() {
   return (
     <div className="h-[16px] relative shrink-0 w-[15.912px]" data-name="Symbol.svg">
@@ -542,8 +514,7 @@ function Frame2147207470() {
       <div aria-hidden="true" className="absolute border-[0px_0px_0.6px] border-[rgba(227,227,227,0.25)] border-dashed inset-0 pointer-events-none" />
       <div className="flex items-center gap-2 sm:gap-3">
         <div className="box-border content-stretch flex gap-[4px] sm:gap-[6px] md:gap-[8.118px] items-end px-[3px] sm:px-[6px] md:px-[8px] py-[4px] sm:py-[6px] md:py-[10.824px] relative shrink-0" data-name="Logo">
-          <Group3 />
-          <VibaarWordmark />
+          <VibaarLockup />
         </div>
         <div className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-[#FF6B00]/10 border border-[#FF6B00]/20">
           <span className="text-caption sm:text-xs font-semibold text-[#FF6B00] tracking-wide">BETA</span>

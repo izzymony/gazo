@@ -160,7 +160,7 @@ export default function Button({
     >
       {loading ? (
         <span className="flex items-center gap-2">
-          <LoadingSpinner color={variant === "filled" ? "white" : "var(--brand)"} />
+          <LoadingSpinner color={variant === "filled" ? "var(--brand-ink)" : "var(--brand-deep)"} />
           {loadingText && <span>{loadingText}</span>}
         </span>
       ) : (

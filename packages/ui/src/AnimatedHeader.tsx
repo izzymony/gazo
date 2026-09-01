@@ -248,7 +248,7 @@ export default function AnimatedHeader() {
               <Image
                 src={slide.background}
                 width={640}
-                height={300} // Optimized height for mobile layout
+              height={184} // Optimized height for mobile layout
                 alt={`Slide ${index + 1} background`}
                 priority
                 className="z-0 w-full h-full object-cover sm:hidden"
@@ -270,10 +270,10 @@ export default function AnimatedHeader() {
             /> */}
 
             <Image
-              src="/Logo (5).svg"
+              src="/brand/logo-white.svg"
               alt="Company Logo"
               width={150}
-              height={46}
+              height={43}
               className=" mx-auto z-20 absolute top-16 left-1/2 transform -translate-x-1/2 -translate-y-1/3"
               priority
             />

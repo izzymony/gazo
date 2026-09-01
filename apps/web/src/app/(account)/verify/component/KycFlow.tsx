@@ -240,7 +240,7 @@ export default function KycFlow() {
                     className={`flex h-5 w-5 items-center justify-center rounded-full border ${
                       selected ? "border-brandDeep bg-brand" : "border-ink-30"
                     }`}>
-                    {selected && <Check size={13} className="text-white" />}
+                    {selected && <Check size={13} className="text-brandInk" />}
                   </span>
                 </button>
               );
@@ -334,7 +334,7 @@ export default function KycFlow() {
             className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
               consent ? "border-brandDeep bg-brand" : "border-ink-30"
             }`}>
-            {consent && <Check size={13} className="text-white" />}
+            {consent && <Check size={13} className="text-brandInk" />}
           </span>
           <p className="text-body-sm text-ink-70">
             I consent to Vibaar verifying my identity.

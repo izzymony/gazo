@@ -135,10 +135,10 @@ export default function AnimatedImages({ currentSlide }: AnimatedImagesProps) {
 
               {/* Mobile Logo */}
               <Image
-                src="/Logo (5).svg"
+                src="/brand/logo-white.svg"
                 alt="Company Logo"
                 width={150}
-                height={46}
+              height={43}
                 className="mx-auto z-20 absolute top-16 left-1/2 transform -translate-x-1/2 -translate-y-1/3 md:hidden"
                 priority
               />
