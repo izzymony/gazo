@@ -99,13 +99,13 @@ export default function SalesBody({ action }: { action: () => void }) {
               storeName={store?.name || "Your Store"}
               size={30}
               onClick={() => router.push(`/dashboard/storefront`)}
-              className="ring-1 ring-white ring-opacity-50"
+              className="ring-1 ring-brandInk ring-opacity-20"
             />
             <div className="text-caption font-normal">
               <p> {getGreeting()}</p>
               <div className="text-body font-medium flex items-center gap-1">
                 {store?.name || "Your Store"}{" "}
-                <SquareArrowUpRight size={14} className="text-white" />
+                <SquareArrowUpRight size={14} className="text-brandInk" />
               </div>
             </div>
           </div>
@@ -114,7 +114,7 @@ export default function SalesBody({ action }: { action: () => void }) {
               <IconButton
                 icon={BubbleChat}
                 label="Inbox"
-                variant="onDark"
+                variant="onBrand"
                 onClick={() => router.push("/dashboard/inbox")}
               />
               {chatUnread > 0 && (
@@ -127,7 +127,7 @@ export default function SalesBody({ action }: { action: () => void }) {
               <IconButton
                 icon={Bell}
                 label="Notifications"
-                variant="onDark"
+                variant="onBrand"
                 onClick={() => router.push("/dashboard/notification")}
               />
               {unreadCount > 0 && (

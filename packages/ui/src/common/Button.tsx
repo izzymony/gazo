@@ -146,7 +146,10 @@ export default function Button({
       style={{
         boxShadow:
           variant === "filled" && !loading
-            ? '4px 8px 24px 0px rgb(var(--brand-rgb) / 0.2)'
+            // Neutral, not brand-tinted. A coloured glow worked while the
+            // brand was a saturated red; a yellow one is invisible on light
+            // surfaces and muddy on white. Ink reads on every ground.
+            ? '4px 8px 24px 0px rgb(var(--brand-ink-rgb) / 0.18)'
             : undefined,
         WebkitTapHighlightColor: 'transparent',
         touchAction: 'manipulation',

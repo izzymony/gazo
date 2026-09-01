@@ -21,24 +21,24 @@ const RewardsAccessButton = ({
 }) => (
   <div onClick={onClick} className="cursor-pointer overflow-hidden">
     {/* Gradient background card */}
-    <div className="relative bg-gradient-to-r from-brand to-brand/70 rounded-card p-4 text-white shadow-card">
+    <div className="relative bg-gradient-to-r from-brand to-brand/70 rounded-card p-4 text-brandInk shadow-card">
       {/* Decorative sparkle/star elements (subtle) */}
-      <FaStar size={16} className="absolute top-2 right-3 text-white opacity-30" />
-      <FaStar size={12} className="absolute bottom-3 right-8 text-white opacity-20" />
+      <FaStar size={16} className="absolute top-2 right-3 text-brandInk opacity-30" />
+      <FaStar size={12} className="absolute bottom-3 right-8 text-brandInk opacity-20" />
 
       <div className="flex items-center justify-between">
         {/* Left side: Icon + Text */}
         <div className="flex items-center gap-3">
           {/* Gift/Reward icon in white circle */}
-          <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-            <Gift size={20} className="text-white" />
+          <div className="w-10 h-10 bg-brandInk/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+            <Gift size={20} className="text-brandInk" />
           </div>
 
           <div>
-            <p className="text-white/80 text-caption font-normal uppercase tracking-wide">
+            <p className="text-brandInk/80 text-caption font-normal uppercase tracking-wide">
               Available Earnings
             </p>
-            <p className="text-white text-h2 font-semibold">
+            <p className="text-brandInk text-h2 font-semibold">
               ₦{creditBalance.toLocaleString()}
             </p>
           </div>
@@ -46,17 +46,17 @@ const RewardsAccessButton = ({
 
         {/* Right side: CTA indicator */}
         <div className="flex items-center gap-2">
-          <span className="text-white/70 text-body-sm">Earn rewards</span>
-          <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
-            <ChevronRight size={14} className="text-white" />
+          <span className="text-brandInk/70 text-body-sm">Earn rewards</span>
+          <div className="w-6 h-6 bg-brandInk/20 rounded-full flex items-center justify-center">
+            <ChevronRight size={14} className="text-brandInk" />
           </div>
         </div>
       </div>
 
       {/* Optional: Progress bar for referral earnings (if user has referrals) */}
       {totalEarned > 0 && (
-        <div className="mt-3 pt-3 border-t border-white/20">
-          <div className="flex justify-between text-caption text-white/70 mb-1">
+        <div className="mt-3 pt-3 border-t border-brandInk/20">
+          <div className="flex justify-between text-caption text-brandInk/70 mb-1">
             <span>Referral earnings</span>
             <span>₦{totalEarned.toLocaleString()}</span>
           </div>

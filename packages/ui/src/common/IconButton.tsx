@@ -18,6 +18,8 @@ const iconButtonVariants = cva(
         plain: "text-ink-90 hover:bg-ink-5 active:bg-ink-10",
         muted: "text-ink-60 hover:bg-ink-5 active:bg-ink-10",
         onDark: "text-white hover:bg-white/10 active:bg-white/20",
+        // On a brand-yellow surface. White here is 1.28:1 — invisible.
+        onBrand: "text-brandInk hover:bg-brandInk/10 active:bg-brandInk/20",
         filled: "bg-brand text-brandInk hover:bg-brandHover active:bg-brandHover",
         soft: "bg-brand/10 text-brandDeep hover:bg-brand/20",
       },

@@ -16,7 +16,7 @@ interface HeroHeaderProps {
 /**
  * HeroHeader — the filled brand hero region for "hero" pages (wallet balance,
  * dashboard home, shop). Rendered full-bleed via PageShell's `hero` slot:
- * brand background, white text, rounded bottom, standard horizontal padding.
+ * brand background, on-brand ink text, rounded bottom, standard horizontal padding.
  * Page content flows below it in PageShell's normal padded 24px rhythm.
  *
  * Usage:

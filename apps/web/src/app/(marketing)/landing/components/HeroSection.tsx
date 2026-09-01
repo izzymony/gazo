@@ -584,7 +584,7 @@ function Frame1618869057() {
           backgroundRepeat: 'repeat-x, repeat-y, repeat-x, repeat-y'
         }}
       />
-      <p className="bg-clip-text bg-gradient-to-b font-display font-normal from-brand from-[23.558%] leading-[1.1] not-italic relative shrink-0 text-display sm:text-[56px] md:text-[69.283px] text-nowrap to-[#f24cdf] tracking-[-2.0785px] whitespace-pre" style={{ WebkitTextFillColor: "transparent" }}>{`Social `}</p>
+      <p className="bg-clip-text bg-gradient-to-b font-display font-normal from-brand from-[23.558%] leading-[1.1] not-italic relative shrink-0 text-display sm:text-[56px] md:text-[69.283px] text-nowrap to-[#FFB020] tracking-[-2.0785px] whitespace-pre" style={{ WebkitTextFillColor: "transparent" }}>{`Social `}</p>
     </div>
   );
 }
@@ -763,7 +763,7 @@ function Frame1618868935() {
     <div className="content-stretch flex gap-[12px] md:flex-row flex-col items-center relative shrink-0 animate-[fadeInUp_1s_ease-out_0.6s_both] w-full md:w-auto justify-center">
       <div
         onClick={handleStartSelling}
-        className="bg-brand box-border content-stretch flex h-[52px] md:h-[62px] items-center justify-center p-[10px] relative rounded-[90px] shrink-0 w-[181px] md:w-[181px] w-full max-w-[300px] cursor-pointer transition-all duration-300 hover:bg-[#ff3d64] hover:shadow-[6px_10px_32px_0px_rgba(255, 229, 0,0.3)] hover:scale-105 active:scale-95"
+        className="bg-brand box-border content-stretch flex h-[52px] md:h-[62px] items-center justify-center p-[10px] relative rounded-[90px] shrink-0 w-[181px] md:w-[181px] w-full max-w-[300px] cursor-pointer transition-all duration-300 hover:bg-brandHover hover:shadow-[6px_10px_32px_0px_rgba(255, 229, 0,0.3)] hover:scale-105 active:scale-95"
         data-name="Button"
       >
         <div aria-hidden="true" className="absolute border border-brandDeep border-solid inset-0 pointer-events-none rounded-[90px] shadow-[4px_8px_24px_0px_rgba(255, 229, 0,0.2)]" />

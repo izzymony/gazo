@@ -73,7 +73,7 @@ export default function Button({
 
   // Apply brand shadow only to filled variant when not disabled
   const buttonStyle = {
-    boxShadow: variant === "filled" && !isDisabled ? '4px 8px 24px 0px #FFE50055' : undefined,
+    boxShadow: variant === "filled" && !isDisabled ? '4px 8px 24px 0px rgba(20, 19, 14, 0.18)' : undefined,
     WebkitTapHighlightColor: 'transparent',
     userSelect: 'none' as const,
     WebkitUserSelect: 'none' as const,

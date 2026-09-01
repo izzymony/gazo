@@ -129,7 +129,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               className="flex items-center flex-1 hover:bg-gray-800 rounded-lg p-2 -m-2 transition-colors"
             >
               <div className="w-10 h-10 bg-brand rounded-full flex items-center justify-center">
-                <span className="text-white font-medium text-sm">
+                <span className="text-brandInk font-medium text-sm">
                   {admin?.name.split(' ').map(n => n[0]).join('').toUpperCase() || 'A'}
                 </span>
               </div>

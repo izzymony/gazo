@@ -156,14 +156,14 @@ Enter "${username}" in the Referral ID field when signing up.`;
 
           <div className="flex justify-between items-center">
             <div>
-              <p className="text-white/80 text-caption font-normal">
+              <p className="text-brandInk/80 text-caption font-normal">
                 Available Earnings
               </p>
-              <p className="text-white text-h1 font-medium mt-1">
+              <p className="text-brandInk text-h1 font-medium mt-1">
                 {formatCurrency(creditBalance)}
               </p>
               {referralInfo?.withdrawal_message && (
-                <p className="text-white/60 text-caption mt-1">
+                <p className="text-brandInk/60 text-caption mt-1">
                   {referralInfo.withdrawal_message}
                 </p>
               )}
@@ -174,8 +174,8 @@ Enter "${username}" in the Referral ID field when signing up.`;
               disabled={!referralInfo?.can_withdraw || isWithdrawing}
               className={`px-4 py-2 rounded-full text-body-sm font-medium border ${
                 referralInfo?.can_withdraw
-                  ? "bg-transparent border-white text-white"
-                  : "bg-white/20 border-white/30 text-white/70 cursor-not-allowed"
+                  ? "bg-transparent border-white text-brandInk"
+                  : "bg-brandInk/20 border-brandInk/30 text-brandInk/70 cursor-not-allowed"
               }`}
             >
               {isWithdrawing ? "..." : "Withdraw"}

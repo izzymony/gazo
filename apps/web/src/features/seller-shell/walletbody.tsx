@@ -138,7 +138,7 @@ export default function WalletBody({ action }: { action: () => void }) {
             <IconButton
               icon={BiArrowBack}
               label="Go back"
-              variant="onDark"
+              variant="onBrand"
               onClick={action}
               className="-ml-2"
             />
@@ -148,13 +148,13 @@ export default function WalletBody({ action }: { action: () => void }) {
             <IconButton
               icon={!price ? MdVisibilityOff : MdVisibility}
               label={price ? "Hide balance" : "Show balance"}
-              variant="onDark"
+              variant="onBrand"
               onClick={() => setPrice(!price)}
             />
             <IconButton
               icon={Settings}
               label="Wallet settings"
-              variant="onDark"
+              variant="onBrand"
               onClick={() => router.push("/dashboard/wallet/settings")}
             />
           </div>

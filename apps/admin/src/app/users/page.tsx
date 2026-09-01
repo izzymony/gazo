@@ -328,7 +328,7 @@ export default function UsersPage() {
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-10 w-10">
                               <div className="h-10 w-10 rounded-full bg-gradient-to-br from-brand to-brandLight flex items-center justify-center">
-                                <span className="text-white font-medium text-sm">
+                                <span className="text-brandInk font-medium text-sm">
                                   {user.firstname.charAt(0).toUpperCase()}
                                 </span>
                               </div>

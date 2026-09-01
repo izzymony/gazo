@@ -160,6 +160,7 @@ html {
      --brand-deep is brand AS TEXT on a light surface (6.1:1) — outline
      buttons, links, icons — since the yellow itself is invisible on white. */
   --brand-ink: #14130E;            /* on-brand foreground — 16.5:1 on #FFE500 */
+  --brand-ink-rgb: 20 19 14;       /* same, as channels, for /alpha shadows */
   --brand-deep: #7A5E00;           /* brand-as-text on white — 6.1:1 */
 
   /* Ink — black-on-white alpha ramp (the app's "soft black" family). Defined as
