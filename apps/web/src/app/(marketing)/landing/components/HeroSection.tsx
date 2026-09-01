@@ -551,7 +551,7 @@ function Frame2147207418() {
 function Frame1000006923() {
   return (
     <div className="box-border content-stretch flex gap-[10px] items-center justify-center pl-[6px] pr-[4px] py-px relative shrink-0">
-      <p className="font-['DM_Sans:Regular',sans-serif] leading-[normal] not-italic relative shrink-0 text-body-sm sm:text-body md:text-body-lg text-nowrap text-white tracking-[-0.16px] whitespace-pre">Seamless, secure, and rewarding</p>
+      <p className="font-display font-normal leading-[normal] not-italic relative shrink-0 text-body-sm sm:text-body md:text-body-lg text-nowrap text-white tracking-[-0.16px] whitespace-pre">Seamless, secure, and rewarding</p>
     </div>
   );
 }
@@ -559,7 +559,7 @@ function Frame1000006923() {
 function ChipPicker() {
   return (
     <div className="bg-[rgba(255,255,255,0.05)] box-border content-stretch flex gap-[6px] sm:gap-[8px] items-center px-[14px] sm:px-[16px] py-[8px] sm:py-[10px] relative rounded-[90px] shrink-0 animate-[fadeInUp_0.8s_ease-out] backdrop-blur-sm transition-all duration-300 hover:bg-[rgba(255,255,255,0.08)] hover:scale-105" data-name="Chip & Picker">
-      <div aria-hidden="true" className="absolute border-[0.6px] border-[rgba(255,255,255,0.1)] border-solid inset-0 pointer-events-none rounded-[90px] shadow-[0px_2px_24px_0px_rgba(254,44,85,0.08)]" />
+      <div aria-hidden="true" className="absolute border-[0.6px] border-[rgba(255,255,255,0.1)] border-solid inset-0 pointer-events-none rounded-[90px] shadow-[0px_2px_24px_0px_rgba(255, 229, 0,0.08)]" />
       <Frame2147207418 />
       <Frame1000006923 />
     </div>
@@ -584,7 +584,7 @@ function Frame1618869057() {
           backgroundRepeat: 'repeat-x, repeat-y, repeat-x, repeat-y'
         }}
       />
-      <p className="bg-clip-text bg-gradient-to-b font-['DM_Sans:Regular',sans-serif] from-brand from-[23.558%] leading-[1.1] not-italic relative shrink-0 text-display sm:text-[56px] md:text-[69.283px] text-nowrap to-[#f24cdf] tracking-[-2.0785px] whitespace-pre" style={{ WebkitTextFillColor: "transparent" }}>{`Social `}</p>
+      <p className="bg-clip-text bg-gradient-to-b font-display font-normal from-brand from-[23.558%] leading-[1.1] not-italic relative shrink-0 text-display sm:text-[56px] md:text-[69.283px] text-nowrap to-[#f24cdf] tracking-[-2.0785px] whitespace-pre" style={{ WebkitTextFillColor: "transparent" }}>{`Social `}</p>
     </div>
   );
 }
@@ -592,7 +592,7 @@ function Frame1618869057() {
 function Frame2147207498() {
   return (
     <div className="box-border content-stretch flex gap-[8px] sm:gap-[12px] md:gap-[16px] items-center mb-[-3.849px] relative shrink-0 flex-wrap justify-center">
-      <p className="capitalize font-['DM_Sans:Medium',sans-serif] leading-[1.1] not-italic relative shrink-0 text-display sm:text-[56px] md:text-[69.283px] text-center text-white tracking-[-1.2px] sm:tracking-[-1.8px] md:tracking-[-2.0785px]">Where</p>
+      <p className="capitalize font-display font-medium leading-[1.1] not-italic relative shrink-0 text-display sm:text-[56px] md:text-[69.283px] text-center text-white tracking-[-1.2px] sm:tracking-[-1.8px] md:tracking-[-2.0785px]">Where</p>
       <div className="flex h-[calc(1px*((var(--transform-inner-width)*0.08714797347784042)+(var(--transform-inner-height)*0.9961954355239868)))] items-center justify-center relative shrink-0 w-[calc(1px*((var(--transform-inner-height)*0.08714797347784042)+(var(--transform-inner-width)*0.9961954355239868)))]" style={{ "--transform-inner-width": "130px", "--transform-inner-height": "54px" } as React.CSSProperties}>
         <div className="flex-none rotate-[355deg]">
           <Frame1618869057 />
@@ -605,8 +605,8 @@ function Frame2147207498() {
 function Frame2147207500() {
   return (
     <div className="box-border content-stretch flex gap-[8px] sm:gap-[12px] md:gap-[16px] items-center relative shrink-0 flex-wrap justify-center">
-      <p className="capitalize font-['DM_Sans:Medium',sans-serif] leading-[1.1] not-italic relative shrink-0 text-display sm:text-[56px] md:text-[69.283px] text-center text-white tracking-[-1.2px] sm:tracking-[-1.8px] md:tracking-[-2.0785px]">Meets</p>
-      <p className="capitalize font-['DM_Sans:Medium',sans-serif] leading-[1.1] not-italic relative shrink-0 text-display sm:text-[56px] md:text-[69.283px] text-center text-white tracking-[-1.2px] sm:tracking-[-1.8px] md:tracking-[-2.0785px]">Shopping</p>
+      <p className="capitalize font-display font-medium leading-[1.1] not-italic relative shrink-0 text-display sm:text-[56px] md:text-[69.283px] text-center text-white tracking-[-1.2px] sm:tracking-[-1.8px] md:tracking-[-2.0785px]">Meets</p>
+      <p className="capitalize font-display font-medium leading-[1.1] not-italic relative shrink-0 text-display sm:text-[56px] md:text-[69.283px] text-center text-white tracking-[-1.2px] sm:tracking-[-1.8px] md:tracking-[-2.0785px]">Shopping</p>
     </div>
   );
 }
@@ -624,7 +624,7 @@ function Frame2147207434() {
   return (
     <div className="content-stretch flex flex-col gap-[15.396px] items-center justify-center relative shrink-0 w-[590.834px] max-w-full">
       <Frame2147207499 />
-      <p className="font-['DM_Sans:Regular',sans-serif] leading-[1.5] not-italic relative shrink-0 text-[#b9b9b9] text-body sm:text-body-lg md:text-[19.245px] text-center tracking-[-0.3px] sm:tracking-[-0.35px] md:tracking-[-0.3849px] w-full animate-[fadeInUp_1s_ease-out_0.4s_both] px-4">Vibaar brings buyers and sellers together in a social shopping experience like no other.</p>
+      <p className="font-display font-normal leading-[1.5] not-italic relative shrink-0 text-[#b9b9b9] text-body sm:text-body-lg md:text-[19.245px] text-center tracking-[-0.3px] sm:tracking-[-0.35px] md:tracking-[-0.3849px] w-full animate-[fadeInUp_1s_ease-out_0.4s_both] px-4">Vibaar brings buyers and sellers together in a social shopping experience like no other.</p>
     </div>
   );
 }
@@ -641,7 +641,7 @@ function Frame2147207435() {
 function ButtonText() {
   return (
     <div className="box-border content-stretch flex gap-[10px] items-center justify-center px-[6px] py-px relative shrink-0" data-name="Button text">
-      <p className="font-['DM_Sans:Medium',sans-serif] leading-[normal] not-italic relative shrink-0 text-body-lg text-nowrap text-white tracking-[0.08px] whitespace-pre">Start Selling</p>
+      <p className="font-display font-medium leading-[normal] not-italic relative shrink-0 text-body-lg text-nowrap text-brandInk tracking-[0.08px] whitespace-pre">Start Selling</p>
     </div>
   );
 }
@@ -680,7 +680,7 @@ function Frame2147207468() {
   return (
     <div className="content-stretch flex gap-[4px] h-[24px] items-center relative shrink-0">
       <Frame2147207467 />
-      <p className="font-['DM_Sans:Medium',sans-serif] leading-[normal] not-italic relative shrink-0 text-body text-nowrap text-white tracking-[0.07px] whitespace-pre">Find vendors</p>
+      <p className="font-display font-medium leading-[normal] not-italic relative shrink-0 text-body text-nowrap text-white tracking-[0.07px] whitespace-pre">Find vendors</p>
       <ComingSoonPill />
     </div>
   );
@@ -763,10 +763,10 @@ function Frame1618868935() {
     <div className="content-stretch flex gap-[12px] md:flex-row flex-col items-center relative shrink-0 animate-[fadeInUp_1s_ease-out_0.6s_both] w-full md:w-auto justify-center">
       <div
         onClick={handleStartSelling}
-        className="bg-brand box-border content-stretch flex h-[52px] md:h-[62px] items-center justify-center p-[10px] relative rounded-[90px] shrink-0 w-[181px] md:w-[181px] w-full max-w-[300px] cursor-pointer transition-all duration-300 hover:bg-[#ff3d64] hover:shadow-[6px_10px_32px_0px_rgba(254,44,85,0.3)] hover:scale-105 active:scale-95"
+        className="bg-brand box-border content-stretch flex h-[52px] md:h-[62px] items-center justify-center p-[10px] relative rounded-[90px] shrink-0 w-[181px] md:w-[181px] w-full max-w-[300px] cursor-pointer transition-all duration-300 hover:bg-[#ff3d64] hover:shadow-[6px_10px_32px_0px_rgba(255, 229, 0,0.3)] hover:scale-105 active:scale-95"
         data-name="Button"
       >
-        <div aria-hidden="true" className="absolute border border-brandDeep border-solid inset-0 pointer-events-none rounded-[90px] shadow-[4px_8px_24px_0px_rgba(254,44,85,0.2)]" />
+        <div aria-hidden="true" className="absolute border border-brandDeep border-solid inset-0 pointer-events-none rounded-[90px] shadow-[4px_8px_24px_0px_rgba(255, 229, 0,0.2)]" />
         <ButtonText />
       </div>
       <Button onFindVendors={handleFindVendors} />
@@ -820,7 +820,7 @@ function Frame2147207503() {
   return (
     <div className="bg-[#012d6a] box-border content-stretch flex gap-[6px] items-center justify-center px-[12px] py-[3.75px] relative rounded-tl-[75px] rounded-bl-[75px] rounded-br-[75px] shrink-0">
       <div aria-hidden="true" className="absolute border-[0.75px] border-[rgba(255,255,255,0.5)] border-dashed inset-[-0.375px] pointer-events-none rounded-tl-[75.375px] rounded-bl-[75.375px] rounded-br-[75.375px]" />
-      <p className="font-['DM_Sans:Bold',sans-serif] leading-[1.5] not-italic relative shrink-0 text-body-sm text-center text-nowrap text-white tracking-[-0.6px] whitespace-pre">Buyers</p>
+      <p className="font-display font-semibold leading-[1.5] not-italic relative shrink-0 text-body-sm text-center text-nowrap text-white tracking-[-0.6px] whitespace-pre">Buyers</p>
     </div>
   );
 }
@@ -865,9 +865,9 @@ function Group1618869072() {
 
 function Frame2147207508() {
   return (
-    <div className="bg-[rgba(254,44,85,0.25)] box-border content-stretch flex gap-[6px] items-center justify-center pl-[10.5px] pr-[9px] py-[3.75px] relative rounded-tl-[75px] rounded-tr-[75px] rounded-bl-[75px] shrink-0">
+    <div className="bg-[rgba(255, 229, 0,0.25)] box-border content-stretch flex gap-[6px] items-center justify-center pl-[10.5px] pr-[9px] py-[3.75px] relative rounded-tl-[75px] rounded-tr-[75px] rounded-bl-[75px] shrink-0">
       <div aria-hidden="true" className="absolute border-[0.75px] border-[rgba(255,255,255,0.5)] border-dashed inset-[-0.375px] pointer-events-none rounded-tl-[75.375px] rounded-tr-[75.375px] rounded-bl-[75.375px]" />
-      <p className="font-['DM_Sans:Bold',sans-serif] leading-[1.5] not-italic relative shrink-0 text-body-sm text-center text-nowrap text-white tracking-[-0.6px] whitespace-pre">Vendors</p>
+      <p className="font-display font-semibold leading-[1.5] not-italic relative shrink-0 text-body-sm text-center text-nowrap text-white tracking-[-0.6px] whitespace-pre">Vendors</p>
     </div>
   );
 }
@@ -910,7 +910,7 @@ function Frame1618868900() {
       <div className="overflow-clip relative shrink-0 size-[18px] sm:size-[24px] md:size-[21.33px]" data-name="Hicon / Bold / Discovery 1">
         <Discovery1 />
       </div>
-      <p className="font-['DM_Sans:Medium',sans-serif] leading-[normal] not-italic relative shrink-0 text-[#0063f7] text-body-sm sm:text-[15.5px] md:text-[14.665px] text-nowrap tracking-[0.0733px] whitespace-pre">Discover</p>
+      <p className="font-display font-medium leading-[normal] not-italic relative shrink-0 text-[#0063f7] text-body-sm sm:text-[15.5px] md:text-[14.665px] text-nowrap tracking-[0.0733px] whitespace-pre">Discover</p>
     </div>
   );
 }
@@ -931,7 +931,7 @@ function Frame1618868899() {
           </div>
         </div>
       </div>
-      <p className="font-['DM_Sans:Medium',sans-serif] leading-[normal] not-italic relative shrink-0 text-[#9b51e0] text-body-sm sm:text-[15.5px] md:text-[14.665px] text-nowrap tracking-[0.0733px] whitespace-pre">Gifts</p>
+      <p className="font-display font-medium leading-[normal] not-italic relative shrink-0 text-[#9b51e0] text-body-sm sm:text-[15.5px] md:text-[14.665px] text-nowrap tracking-[0.0733px] whitespace-pre">Gifts</p>
     </div>
   );
 }
@@ -960,9 +960,9 @@ function HiconLinearLike2() {
 
 function Frame1618868898() {
   return (
-    <div className="box-border content-stretch flex gap-[4px] sm:gap-[7px] md:gap-[5.333px] items-center overflow-clip px-[10px] sm:px-[13px] md:px-[9.761px] py-[5px] sm:py-[7px] md:py-[5.333px] relative rounded-[60px] sm:rounded-[70px] md:rounded-[81.338px] shadow-[0px_4px_12px_0px_rgba(254,44,85,0.5)] sm:shadow-[0px_5px_14px_0px_rgba(254,44,85,0.5)] md:shadow-[0px_5.333px_15.998px_0px_rgba(254,44,85,0.5)] scale-[0.85] sm:scale-100" style={{ backgroundImage: "linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%), linear-gradient(90deg, rgb(254, 44, 85) 0%, rgb(254, 44, 85) 100%)" }}>
+    <div className="box-border content-stretch flex gap-[4px] sm:gap-[7px] md:gap-[5.333px] items-center overflow-clip px-[10px] sm:px-[13px] md:px-[9.761px] py-[5px] sm:py-[7px] md:py-[5.333px] relative rounded-[60px] sm:rounded-[70px] md:rounded-[81.338px] shadow-[0px_4px_12px_0px_rgba(255, 229, 0,0.5)] sm:shadow-[0px_5px_14px_0px_rgba(255, 229, 0,0.5)] md:shadow-[0px_5.333px_15.998px_0px_rgba(255, 229, 0,0.5)] scale-[0.85] sm:scale-100" style={{ backgroundImage: "linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%), linear-gradient(90deg, rgb(255, 229, 0) 0%, rgb(255, 229, 0) 100%)" }}>
       <HiconLinearLike2 />
-      <p className="font-['DM_Sans:Medium',sans-serif] leading-[normal] not-italic relative shrink-0 text-brand text-body-sm sm:text-[15.5px] md:text-[14.665px] text-nowrap tracking-[0.0733px] whitespace-pre">Engage</p>
+      <p className="font-display font-medium leading-[normal] not-italic relative shrink-0 text-brand text-body-sm sm:text-[15.5px] md:text-[14.665px] text-nowrap tracking-[0.0733px] whitespace-pre">Engage</p>
     </div>
   );
 }
@@ -991,7 +991,7 @@ function Frame1618868897() {
           </div>
         </div>
       </div>
-      <p className="font-['DM_Sans:Medium',sans-serif] leading-[normal] not-italic relative shrink-0 text-[#ffcc23] text-body-sm sm:text-[15.5px] md:text-[14.665px] text-nowrap tracking-[0.0733px] whitespace-pre">Shop</p>
+      <p className="font-display font-medium leading-[normal] not-italic relative shrink-0 text-[#ffcc23] text-body-sm sm:text-[15.5px] md:text-[14.665px] text-nowrap tracking-[0.0733px] whitespace-pre">Shop</p>
     </div>
   );
 }
@@ -1066,7 +1066,7 @@ function Frame2147207510() {
   return (
     <div className="bg-[#0a5827] box-border content-stretch flex gap-[6px] items-center justify-center px-[12px] py-[3.75px] relative rounded-tl-[75px] rounded-tr-[75px] rounded-br-[75px] shrink-0">
       <div aria-hidden="true" className="absolute border-[0.75px] border-[rgba(255,255,255,0.5)] border-dashed inset-[-0.375px] pointer-events-none rounded-tl-[75.375px] rounded-tr-[75.375px] rounded-br-[75.375px]" />
-      <p className="font-['DM_Sans:Bold',sans-serif] leading-[1.5] not-italic relative shrink-0 text-body-sm text-center text-nowrap text-white tracking-[-0.6px] whitespace-pre">Influencers</p>
+      <p className="font-display font-semibold leading-[1.5] not-italic relative shrink-0 text-body-sm text-center text-nowrap text-white tracking-[-0.6px] whitespace-pre">Influencers</p>
     </div>
   );
 }
@@ -1218,7 +1218,7 @@ export default function HeroSection() {
       </div>
 
       {/* Bottom preview - fixed at bottom, centered, cut at bottom */}
-      <div className="fixed bottom-0 sm:bottom-[-30px] md:bottom-[-40px] lg:bottom-[-50px] left-1/2 -translate-x-1/2 w-full sm:w-[96vw] max-w-[1100px] h-[100px] sm:h-[160px] md:h-[180px] lg:h-[200px] transition-all duration-500 hover:bottom-[10px] sm:hover:bottom-[-20px] md:hover:bottom-[-30px] lg:hover:bottom-[-40px] cursor-pointer hover:shadow-[0px_-10px_40px_rgba(254,44,85,0.15)]" style={{ animation: 'slideUp 1s ease-out 0.8s both' }}>
+      <div className="fixed bottom-0 sm:bottom-[-30px] md:bottom-[-40px] lg:bottom-[-50px] left-1/2 -translate-x-1/2 w-full sm:w-[96vw] max-w-[1100px] h-[100px] sm:h-[160px] md:h-[180px] lg:h-[200px] transition-all duration-500 hover:bottom-[10px] sm:hover:bottom-[-20px] md:hover:bottom-[-30px] lg:hover:bottom-[-40px] cursor-pointer hover:shadow-[0px_-10px_40px_rgba(255, 229, 0,0.15)]" style={{ animation: 'slideUp 1s ease-out 0.8s both' }}>
         <Frame2147207505 />
       </div>
     </div>

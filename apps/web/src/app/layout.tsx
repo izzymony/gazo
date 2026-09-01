@@ -3,9 +3,9 @@ import Script from "next/script";
 import RootLayoutClient from "./rootLayoutClient";
 import "../styles/globals.css";
 import { Toaster } from "sonner";
-import { outfit, plexSans } from "./fonts";
+import { outfit } from "./fonts";
 
-// Brand faces are self-hosted (see ./fonts): Outfit for display, IBM Plex Sans for body.
+// One self-hosted brand face (see ./fonts): Outfit, for display and body alike.
 
 export const metadata: Metadata = {
   title: "Vibaar - Sell Smarter on Instagram & TikTok",
@@ -67,7 +67,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   return (
-    <html lang="en" className={`${outfit.variable} ${plexSans.variable}`}>
+    <html lang="en" className={outfit.variable}>
       <head>
         {/* Google Analytics */}
         {GA_MEASUREMENT_ID && (
@@ -89,7 +89,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </>
         )}
       </head>
-      <body className={plexSans.className}>
+      <body className={outfit.className}>
         <RootLayoutClient>{children}</RootLayoutClient>
         <Toaster position="top-right"/>
       </body>

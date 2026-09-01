@@ -14,10 +14,18 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        // Body default. `font-display` opts into Outfit for headings.
-        sans: ['var(--font-body)', 'IBM Plex Sans', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['var(--font-display)', 'Outfit', 'system-ui', '-apple-system', 'sans-serif'],
-        body: ['var(--font-body)', 'IBM Plex Sans', 'system-ui', '-apple-system', 'sans-serif'],
+        // ONE family — Outfit covers display and body. `display`/`body` are
+        // kept as aliases so existing font-display usages keep working.
+        sans: ['var(--font-outfit)', 'Outfit', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['var(--font-outfit)', 'Outfit', 'system-ui', '-apple-system', 'sans-serif'],
+        body: ['var(--font-outfit)', 'Outfit', 'system-ui', '-apple-system', 'sans-serif'],
+      },
+      fontWeight: {
+        // Outfit reads thin at 400 in UI; the scale starts a step up.
+        normal: '450',
+        medium: '500',
+        semibold: '600',
+        bold: '700',
       },
       fontSize: {
         'hero-xl': ['180px', { lineHeight: '1', letterSpacing: '-0.04em' }],

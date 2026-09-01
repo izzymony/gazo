@@ -10,7 +10,7 @@
 
 /* Custom driver.js styles to match app design */
 .driver-popover.driverjs-theme {
-  font-family: var(--font-body), 'IBM Plex Sans', system-ui, -apple-system, sans-serif !important;
+  font-family: var(--font-outfit), 'Outfit', system-ui, -apple-system, sans-serif !important;
   background: #ffffff !important;
   border-radius: 16px !important;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12) !important;
@@ -217,21 +217,28 @@ html {
 }
 
 /* ── Brand typography ────────────────────────────────────────────────
-   Outfit  = display / headings (geometric, single-storey `a` — the same
-             letterform as the vibaar wordmark, so headings descend from
-             the logo).
-   IBM Plex Sans = body.
-   Both self-hosted via next/font/local (see src/app/fonts.ts) — never a
-   build-time Google fetch (F3). */
+   ONE family: Outfit. Geometric, single-storey `a` — the same letterform
+   as the vibaar wordmark, so the UI descends from the logo. Its weight
+   range covers headings and body, so there is no secondary family.
+   Self-hosted via next/font/local (src/app/fonts.ts) — never a build-time
+   Google fetch (F3). */
 h1, h2, h3, h4, h5, h6, .font-display {
-  font-family: var(--font-display), 'Outfit', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-outfit), 'Outfit', system-ui, -apple-system, sans-serif;
+  font-weight: 600;              /* semibold — geometric faces read thin at 400 */
   letter-spacing: -0.015em;
 }
+
+/* Outfit's 400 is optically light for UI at small sizes. Nudge the base up so
+   body copy, labels and controls read solid rather than wiry. */
+body {
+  font-weight: 450;
+}
+strong, b { font-weight: 600; }
 
 body {
   /* color: var(--foreground); */
   background: var(--background);
-  font-family: var(--font-body), 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-outfit), 'Outfit', system-ui, -apple-system, sans-serif;
   margin: 0;
   padding: 0;
   width: 100%;

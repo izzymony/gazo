@@ -138,11 +138,17 @@ module.exports = {
       },
       fontFamily: {
         // Was ["Inter", …] — Inter was never actually loaded, so admin silently
-        // fell back to system-ui. Now on the real brand faces.
-        sans: ["var(--font-body)", "IBM Plex Sans", "system-ui", "sans-serif"],
-        display: ["var(--font-display)", "Outfit", "system-ui", "sans-serif"],
-        body: ["var(--font-body)", "IBM Plex Sans", "system-ui", "sans-serif"],
+        // fell back to system-ui. Now on Outfit, the one brand family.
+        sans: ["var(--font-outfit)", "Outfit", "system-ui", "sans-serif"],
+        display: ["var(--font-outfit)", "Outfit", "system-ui", "sans-serif"],
+        body: ["var(--font-outfit)", "Outfit", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
+      },
+      fontWeight: {
+        normal: "450",
+        medium: "500",
+        semibold: "600",
+        bold: "700",
       },
       fontSize: {
         "2xs": ["0.625rem", { lineHeight: "0.75rem" }],
