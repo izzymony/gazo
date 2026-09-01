@@ -77,7 +77,7 @@ const Selling = () => {
             </div>
           </div>
           <div
-            className="text-brand flex gap-1 items-center cursor-pointer"
+            className="text-brandDeep flex gap-1 items-center cursor-pointer"
             onClick={() => router.push(`/dashboard/storefront`)}>
             View store
             <ChevronRight size={20} />
@@ -202,7 +202,7 @@ const Selling = () => {
 
           {/* Log out - always at the bottom */}
           <div
-            className="flex gap-2 text-body font-normal items-center cursor-pointer text-brand"
+            className="flex gap-2 text-body font-normal items-center cursor-pointer text-brandDeep"
             onClick={() => logout(() => router.push("/signin"))}>
             <Logout size={20} />
             <p>Log out</p>

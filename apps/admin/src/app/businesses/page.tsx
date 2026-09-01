@@ -213,7 +213,7 @@ export default function BusinessesPage() {
       <AdminLayout>
         <div className="p-8 flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-brand" />
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-brandDeep" />
             <Text>Loading businesses...</Text>
           </div>
         </div>
@@ -231,7 +231,7 @@ export default function BusinessesPage() {
             <Text className="text-gray-600 mb-4">{error}</Text>
             <button 
               onClick={() => fetchBusinesses(currentPage, searchTerm)}
-              className="px-4 py-2 bg-brand text-white rounded-lg hover:bg-brandDark transition-colors"
+              className="px-4 py-2 bg-brand text-brandInk rounded-lg hover:bg-brandDark transition-colors"
             >
               Retry
             </button>
@@ -497,7 +497,7 @@ export default function BusinessesPage() {
           
           {loading && (
             <div className="flex justify-center py-4">
-              <Loader2 className="h-5 w-5 animate-spin text-brand" />
+              <Loader2 className="h-5 w-5 animate-spin text-brandDeep" />
             </div>
           )}
         </Section>

@@ -33,7 +33,7 @@ export function ProductDescription({
         </p>
         {description && description.length > 100 && !isExpanded && (
           <button
-            className=" text-brand text-body-sm font-medium"
+            className=" text-brandDeep text-body-sm font-medium"
             onClick={() => setIsExpanded(!isExpanded)}
           >
             Read more
@@ -41,7 +41,7 @@ export function ProductDescription({
         )}
         {isExpanded && (
           <button
-            className="ml-2 text-brand text-body-sm"
+            className="ml-2 text-brandDeep text-body-sm"
             onClick={() => setIsExpanded(!isExpanded)}
           >
             Show less
@@ -86,7 +86,7 @@ export function ProductVendorInfo({
             </p>
           </div>
 
-          <div className="text-brand text-xs ml-auto font-medium">Follow</div>
+          <div className="text-brandDeep text-xs ml-auto font-medium">Follow</div>
         </div>
         <p className="text-xs font-normal mt-2 text-ink-70">
           {store?.description}

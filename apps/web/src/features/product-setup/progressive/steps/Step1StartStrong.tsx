@@ -122,9 +122,9 @@ const Step1StartStrong = ({ formik }: Step1Props) => {
                                         key={`${image.name}-${index}`}
                                         className={`relative flex-shrink-0 w-24 h-24 rounded-card overflow-hidden border cursor-move transition-all duration-200 ${
                                             dragOverIndex === index
-                                                ? "border-brand border-dashed"
+                                                ? "border-brandDeep border-dashed"
                                                 : draggedIndex === index
-                                                ? "border-brand opacity-50"
+                                                ? "border-brandDeep opacity-50"
                                                 : "border-ink-10"
                                         }`}
                                         draggable
@@ -177,7 +177,7 @@ const Step1StartStrong = ({ formik }: Step1Props) => {
 
                     {/* Add Image Button */}
                     <div className="w-full">
-                        <label className="block w-full bg-ink-3 px-4 py-4 font-medium rounded-card text-body text-brand border-2 border-dashed border-ink-10 hover:border-brand transition-colors cursor-pointer group">
+                        <label className="block w-full bg-ink-3 px-4 py-4 font-medium rounded-card text-body text-brandDeep border-2 border-dashed border-ink-10 hover:border-brandDeep transition-colors cursor-pointer group">
                             <div className="flex items-center justify-center gap-2">
                                 <input
                                     type="file"
@@ -186,7 +186,7 @@ const Step1StartStrong = ({ formik }: Step1Props) => {
                                     className="hidden"
                                     onChange={handleAddImage}
                                 />
-                                <Plus className="h-5 w-5 text-brand group-hover:scale-110 transition-transform" />
+                                <Plus className="h-5 w-5 text-brandDeep group-hover:scale-110 transition-transform" />
                                 <span>Add image</span>
                             </div>
                         </label>

@@ -62,10 +62,10 @@ export default function DesktopNav() {
       {/* Logo/Brand */}
       <div className="mb-8 px-3">
         <Image
-          src="/images/instashop_logo_black.svg"
+          src="/brand/logo-black.svg"
           alt="Vibaar"
           width={140}
-          height={42}
+          height={40}
           className="mb-2"
           priority
         />
@@ -85,7 +85,7 @@ export default function DesktopNav() {
               disabled={isLoading || (loadingRoute !== null && !isActive)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-field text-body transition-all duration-200 disabled:opacity-50 ${
                 isActive
-                  ? "bg-brand/10 text-brand font-semibold"
+                  ? "bg-brand/10 text-brandDeep font-semibold"
                   : "text-ink-60 hover:bg-ink-5 font-medium"
               }`}>
               {isLoading ? (
@@ -130,7 +130,7 @@ export default function DesktopNav() {
             // DISABLED: router.push("/shop");
           }}
           disabled
-          className="w-full flex items-center gap-2 px-4 py-3 rounded-full bg-brand text-white transition-colors shadow-pop opacity-50 cursor-not-allowed relative">
+          className="w-full flex items-center gap-2 px-4 py-3 rounded-full bg-brand text-brandInk transition-colors shadow-pop opacity-50 cursor-not-allowed relative">
           <Image
             src="/icons/Switch-to-buying.svg"
             alt="Switch to buying"

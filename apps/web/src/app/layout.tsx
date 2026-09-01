@@ -3,15 +3,22 @@ import Script from "next/script";
 import RootLayoutClient from "./rootLayoutClient";
 import "../styles/globals.css";
 import { Toaster } from "sonner";
-import { dmSans } from "./fonts";
+import { outfit, plexSans } from "./fonts";
 
-// DM Sans is self-hosted (see ./fonts). Switzer is loaded via CDN in the head below.
+// Brand faces are self-hosted (see ./fonts): Outfit for display, IBM Plex Sans for body.
 
 export const metadata: Metadata = {
   title: "Vibaar - Sell Smarter on Instagram & TikTok",
   description: "Create your free online store in minutes. Accept payments, manage orders, and grow your business on social media. Built for Nigerian entrepreneurs.",
   generator: "Next.js",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   keywords: ["online store", "ecommerce", "instagram selling", "tiktok shop", "nigeria", "social commerce", "vibaar"],
   authors: [
     {
@@ -47,6 +54,7 @@ export const metadata: Metadata = {
 // P/Tier4: Next 14 wants viewport in its own export, not inside `metadata`
 // (the build warned on this). Behaviour is identical.
 export const viewport: Viewport = {
+  themeColor: "#FFE500",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1.2,
@@ -59,7 +67,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   return (
-    <html lang="en" className={dmSans.variable}>
+    <html lang="en" className={`${outfit.variable} ${plexSans.variable}`}>
       <head>
         {/* Google Analytics */}
         {GA_MEASUREMENT_ID && (
@@ -81,7 +89,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </>
         )}
       </head>
-      <body className={dmSans.className}>
+      <body className={plexSans.className}>
         <RootLayoutClient>{children}</RootLayoutClient>
         <Toaster position="top-right"/>
       </body>

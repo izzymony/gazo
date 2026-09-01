@@ -33,7 +33,7 @@ export default function HeroHeader({
   return (
     <div
       className={cn(
-        "relative overflow-hidden w-full max-w-full lg:max-w-5xl lg:mx-auto bg-brand text-white rounded-b-card px-4 lg:px-5 pt-4 pb-6",
+        "relative overflow-hidden w-full max-w-full lg:max-w-5xl lg:mx-auto bg-brand text-brandInk rounded-b-card px-4 lg:px-5 pt-4 pb-6",
         className
       )}>
       {backdrop && (

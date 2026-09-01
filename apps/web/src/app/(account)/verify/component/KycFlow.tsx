@@ -149,7 +149,7 @@ export default function KycFlow() {
         footerAction={<Button onClick={handleSubmit}>Try again</Button>}>
         <div className="flex flex-col items-center gap-4 pt-10 text-center">
           <span className="flex h-20 w-20 items-center justify-center rounded-full bg-brand/10">
-            <AiOutlineInfoCircle size={44} className="text-brand" />
+            <AiOutlineInfoCircle size={44} className="text-brandDeep" />
           </span>
           <div>
             <h1 className="text-h1 font-medium text-ink-90">Something went wrong</h1>
@@ -227,10 +227,10 @@ export default function KycFlow() {
                   key={value}
                   onClick={() => setDocumentType(value)}
                   className={`flex items-center gap-3 rounded-card border p-3 text-left transition-colors ${
-                    selected ? "border-brand bg-brand/5" : "border-ink-10"
+                    selected ? "border-brandDeep bg-brand/5" : "border-ink-10"
                   }`}>
                   <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand/10">
-                    <Icon size={22} className="text-brand" />
+                    <Icon size={22} className="text-brandDeep" />
                   </span>
                   <span className="flex-1">
                     <span className="block text-body font-medium text-ink-90">{label}</span>
@@ -238,7 +238,7 @@ export default function KycFlow() {
                   </span>
                   <span
                     className={`flex h-5 w-5 items-center justify-center rounded-full border ${
-                      selected ? "border-brand bg-brand" : "border-ink-30"
+                      selected ? "border-brandDeep bg-brand" : "border-ink-30"
                     }`}>
                     {selected && <Check size={13} className="text-white" />}
                   </span>
@@ -332,7 +332,7 @@ export default function KycFlow() {
         <div className="flex cursor-pointer items-start gap-2" onClick={() => setConsent((c) => !c)}>
           <span
             className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
-              consent ? "border-brand bg-brand" : "border-ink-30"
+              consent ? "border-brandDeep bg-brand" : "border-ink-30"
             }`}>
             {consent && <Check size={13} className="text-white" />}
           </span>
@@ -379,7 +379,7 @@ function Benefit({
   return (
     <div className="flex items-center gap-3 rounded-card bg-ink-3 p-3">
       <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand/10">
-        <Icon size={22} className="text-brand" />
+        <Icon size={22} className="text-brandDeep" />
       </span>
       <div>
         <p className="text-body font-medium text-ink-90">{title}</p>
@@ -441,7 +441,7 @@ function CaptureStep({
       {slot && (
         <button
           onClick={() => inputRef.current?.click()}
-          className="mx-auto text-body-sm font-medium text-brand">
+          className="mx-auto text-body-sm font-medium text-brandDeep">
           Retake
         </button>
       )}
@@ -461,7 +461,7 @@ function Thumb({
   return (
     <button onClick={onEdit} className="flex flex-col items-center gap-1">
       <img src={preview} alt={label} className="h-16 w-16 rounded-field object-cover" />
-      <span className="text-caption text-brand">{label}</span>
+      <span className="text-caption text-brandDeep">{label}</span>
     </button>
   );
 }
@@ -493,7 +493,7 @@ function StatusScreen({
       <div className="flex flex-col items-center gap-4 pt-6 text-center">
         {rejected ? (
           <span className="flex h-20 w-20 items-center justify-center rounded-full bg-brand/10">
-            <AiOutlineInfoCircle size={44} className="text-brand" />
+            <AiOutlineInfoCircle size={44} className="text-brandDeep" />
           </span>
         ) : (
           <KycHero
@@ -522,7 +522,7 @@ function StatusScreen({
           </p>
         </div>
         {rejected && reason && (
-          <div className="w-full rounded-card border border-brand/30 bg-brand/5 p-3 text-left">
+          <div className="w-full rounded-card border border-brandDeep/30 bg-brand/5 p-3 text-left">
             <p className="text-caption font-medium text-ink-60">Reason</p>
             <p className="text-body-sm text-ink-90">{reason}</p>
           </div>

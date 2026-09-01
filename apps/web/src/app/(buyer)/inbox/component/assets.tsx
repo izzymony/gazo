@@ -21,7 +21,7 @@ export default function Assets() {
         </div>
       </div>
       <div className="items-center justify-center flex">
-        <p className="text-brand text-body-sm font-medium whitespace-nowrap">
+        <p className="text-brandDeep text-body-sm font-medium whitespace-nowrap">
           View details
         </p>
       </div>

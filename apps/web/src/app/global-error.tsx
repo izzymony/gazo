@@ -27,8 +27,8 @@ export default function GlobalError({
             style={{
               padding: "12px 24px",
               // eslint-disable-next-line no-restricted-syntax -- global-error renders outside the root layout; CSS vars/tokens unavailable, literal brand hex is intentional
-              backgroundColor: "#FE2C55",
-              color: "white",
+              backgroundColor: "#FFE500",
+              color: "#14130E",
               border: "none",
               borderRadius: "8px",
               fontSize: "16px",

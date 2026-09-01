@@ -95,15 +95,15 @@ const Page = () => {
               key={profile.id}
               className={`relative ${
                 profile.id === singleShippingDetails?.id
-                  ? "border-brand"
+                  ? "border-brandDeep"
                   : "border-ink-10"
               }`}>
               <div className="flex justify-between">
                 <div className="flex flex-col gap-1">
                   {profile.id === singleShippingDetails?.id && (
-                    <span className=" flex flex-row items-center w-[max-content] gap-1  bg-brand/10 text-brand text-caption px-2 rounded-pill border border-brand tracking-[0.5px]">
+                    <span className=" flex flex-row items-center w-[max-content] gap-1  bg-brand/10 text-brandDeep text-caption px-2 rounded-pill border border-brandDeep tracking-[0.5px]">
                       Default{" "}
-                      <CircleCheck size={12} className="text-brand" />
+                      <CircleCheck size={12} className="text-brandDeep" />
                     </span>
                   )}
                   <p className="font-normal text-ink-90 text-caption">

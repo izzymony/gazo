@@ -87,7 +87,7 @@ const Page = () => {
           onClick={handleViewStorefront}
           className="shadow-pop">
           View store front
-          <SquareArrowUpRight size={20} className="text-brand" />
+          <SquareArrowUpRight size={20} className="text-brandDeep" />
         </Button>
       </div>
     </>

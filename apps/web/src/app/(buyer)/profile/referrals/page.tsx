@@ -128,7 +128,7 @@ Enter "${username}" in the Referral ID field when signing up.`;
     return (
       <PageShell header={referralHeader}>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brandDeep"></div>
         </div>
       </PageShell>
     );
@@ -145,7 +145,7 @@ Enter "${username}" in the Referral ID field when signing up.`;
       }>
       <div className="space-y-4">
         {/* ===== HERO CARD - Available Earnings ===== */}
-        <div className="bg-brand rounded-card p-5 text-white relative overflow-hidden">
+        <div className="bg-brand rounded-card p-5 text-brandInk relative overflow-hidden">
           {/* Decorative sparkle elements */}
           <div className="absolute top-2 right-3 opacity-30">
             <FaStar size={16} className="text-white" />
@@ -273,7 +273,7 @@ Enter "${username}" in the Referral ID field when signing up.`;
             </p>
             <button
               onClick={copyCode}
-              className="text-brand text-body-sm font-medium px-3 py-1.5 border border-brand rounded-full flex items-center gap-1"
+              className="text-brandDeep text-body-sm font-medium px-3 py-1.5 border border-brandDeep rounded-full flex items-center gap-1"
             >
               <Copy size={16} />
               Copy
@@ -286,25 +286,25 @@ Enter "${username}" in the Referral ID field when signing up.`;
           <p className="text-body text-ink-90 font-medium mb-3">How Referrals Work</p>
           <div className="space-y-2 text-body-sm text-ink-60">
             <div className="flex gap-2 items-start">
-              <span className="w-5 h-5 bg-brand text-white rounded-full flex items-center justify-center text-caption flex-shrink-0">
+              <span className="w-5 h-5 bg-brand text-brandInk rounded-full flex items-center justify-center text-caption flex-shrink-0">
                 1
               </span>
               <p>Share your referral ID with friends and family</p>
             </div>
             <div className="flex gap-2 items-start">
-              <span className="w-5 h-5 bg-brand text-white rounded-full flex items-center justify-center text-caption flex-shrink-0">
+              <span className="w-5 h-5 bg-brand text-brandInk rounded-full flex items-center justify-center text-caption flex-shrink-0">
                 2
               </span>
               <p>They sign up and get <strong>₦1,000 instant shopping credit!</strong></p>
             </div>
             <div className="flex gap-2 items-start">
-              <span className="w-5 h-5 bg-brand text-white rounded-full flex items-center justify-center text-caption flex-shrink-0">
+              <span className="w-5 h-5 bg-brand text-brandInk rounded-full flex items-center justify-center text-caption flex-shrink-0">
                 3
               </span>
               <p>When they complete their first order, <strong>you earn ₦500!</strong></p>
             </div>
             <div className="flex gap-2 items-start">
-              <span className="w-5 h-5 bg-brand text-white rounded-full flex items-center justify-center text-caption flex-shrink-0">
+              <span className="w-5 h-5 bg-brand text-brandInk rounded-full flex items-center justify-center text-caption flex-shrink-0">
                 4
               </span>
               <p><strong>No limits</strong> - the more you share, the more you earn!</p>

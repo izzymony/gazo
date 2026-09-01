@@ -149,7 +149,7 @@ const PaymentSucceful = () => {
         header={<Header showBack onBackClick={() => router.back()} />}>
         <div className="w-full flex flex-col items-center text-center">
           <div className="w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center mb-6 mt-10">
-            <span className="text-brand text-h1 font-semibold">!</span>
+            <span className="text-brandDeep text-h1 font-semibold">!</span>
           </div>
           <p className="text-h1 font-medium mb-2">Payment not confirmed</p>
           <p className="text-ink-60 text-body font-normal mb-1 max-w-[320px]">
@@ -158,12 +158,12 @@ const PaymentSucceful = () => {
           </p>
           <button
             onClick={() => router.push("/orders")}
-            className="text-brand border border-brand w-full max-w-[320px] rounded-full px-10 py-2 font-medium mx-auto block mt-8">
+            className="text-brandDeep border border-brandDeep w-full max-w-[320px] rounded-full px-10 py-2 font-medium mx-auto block mt-8">
             View my orders
           </button>
           <button
             onClick={() => router.push("/cart")}
-            className="text-white bg-brand w-full max-w-[320px] rounded-full px-10 py-2 font-medium mx-auto block mt-3">
+            className="text-brandInk bg-brand w-full max-w-[320px] rounded-full px-10 py-2 font-medium mx-auto block mt-3">
             Back to cart
           </button>
         </div>
@@ -213,7 +213,7 @@ const PaymentSucceful = () => {
             Thank you for shopping on Vibaar.
           </p>
         </div>
-        <div className="border border-brand bg-brand/10 rounded-field p-3 space-y-3 text-body-sm font-medium mb-2 mt-10">
+        <div className="border border-brandDeep bg-brand/10 rounded-field p-3 space-y-3 text-body-sm font-medium mb-2 mt-10">
           <div className="flex justify-between font-medium">
             <div className="text-ink-60 flex-1">Order ID:</div> {order?.order?.invoice || "Loading..."}
           </div>
@@ -290,7 +290,7 @@ const PaymentSucceful = () => {
                   router.replace(`/signin?${signinParams.toString()}`);
                 }
           }
-          className="text-white bg-brand w-full rounded-full px-10 md:px-24 py-2 font-medium mx-auto block mt-6">
+          className="text-brandInk bg-brand w-full rounded-full px-10 md:px-24 py-2 font-medium mx-auto block mt-6">
           {user ? "View order details" : "Sign in"}
         </button>
       </div>

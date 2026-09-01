@@ -217,7 +217,7 @@ const Vendor = () => {
                                 }>
                                 {likedItems.includes(index) ? (
                                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-black/15">
-                                    <HeartFilled size={14} className="text-brand" />
+                                    <HeartFilled size={14} className="text-brandDeep" />
                                   </span>
                                 ) : (
                                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-black/15">

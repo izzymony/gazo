@@ -71,7 +71,7 @@ const SelectVariants: React.FC<SelectVariantsProps> = ({ product, onVariantChang
                   onClick={() => handleVariantChange(variant.name, value)}
                   className={`cursor-pointer px-3 py-1 rounded-md text-xs font-medium transition-colors ${
                     selectedValue === value
-                      ? "bg-brand text-white"
+                      ? "bg-brand text-brandInk"
                       : "bg-ink-3 text-gray-700"
                   }
                  ${selectedValue !== value ? "hover:bg-gray-300" : ""}`}

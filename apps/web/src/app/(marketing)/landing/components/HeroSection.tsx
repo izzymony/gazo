@@ -769,7 +769,7 @@ function Button({ onFindVendors }: { onFindVendors: () => void }) {
       className="bg-[rgba(255,255,255,0.1)] box-border content-stretch flex gap-[8px] items-center justify-center px-[12px] py-[10px] relative rounded-[90px] shrink-0 cursor-not-allowed transition-all duration-300 backdrop-blur-sm w-full max-w-[300px] h-[52px] md:h-[62px] opacity-50"
       data-name="Button"
     >
-      <div aria-hidden="true" className="absolute border-brand border-[0.6px] border-solid inset-0 pointer-events-none rounded-[90px]" />
+      <div aria-hidden="true" className="absolute border-brandDeep border-[0.6px] border-solid inset-0 pointer-events-none rounded-[90px]" />
       <Frame2147207468 />
       <Frame1618869090 />
     </button>
@@ -795,7 +795,7 @@ function Frame1618868935() {
         className="bg-brand box-border content-stretch flex h-[52px] md:h-[62px] items-center justify-center p-[10px] relative rounded-[90px] shrink-0 w-[181px] md:w-[181px] w-full max-w-[300px] cursor-pointer transition-all duration-300 hover:bg-[#ff3d64] hover:shadow-[6px_10px_32px_0px_rgba(254,44,85,0.3)] hover:scale-105 active:scale-95"
         data-name="Button"
       >
-        <div aria-hidden="true" className="absolute border border-brand border-solid inset-0 pointer-events-none rounded-[90px] shadow-[4px_8px_24px_0px_rgba(254,44,85,0.2)]" />
+        <div aria-hidden="true" className="absolute border border-brandDeep border-solid inset-0 pointer-events-none rounded-[90px] shadow-[4px_8px_24px_0px_rgba(254,44,85,0.2)]" />
         <ButtonText />
       </div>
       <Button onFindVendors={handleFindVendors} />

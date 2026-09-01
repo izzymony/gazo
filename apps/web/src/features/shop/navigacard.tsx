@@ -17,7 +17,7 @@ export default function Navicard({
       <p
         className={
           active
-            ? "text-brand font-medium text-body-sm text-center"
+            ? "text-brandDeep font-medium text-body-sm text-center"
             : "text-[#616161] font-medium text-body-sm text-center"
         }>
         {tab}

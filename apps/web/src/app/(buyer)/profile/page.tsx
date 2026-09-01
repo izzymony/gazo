@@ -43,13 +43,13 @@ const MenuItem = ({
   <div
     onClick={onClick}
     className={`flex justify-between items-center text-body font-medium px-3 py-3 rounded-field cursor-pointer transition-colors active:bg-ink-5 ${
-      danger ? "text-brand" : "text-ink-90"
+      danger ? "text-brandDeep" : "text-ink-90"
     }`}>
     <div className="flex gap-3 items-center">
       {Icon}
       <p>{label}</p>
     </div>
-    <ChevronRight size={20} className={danger ? "text-brand" : "text-ink-40"} />
+    <ChevronRight size={20} className={danger ? "text-brandDeep" : "text-ink-40"} />
   </div>
 );
 
@@ -138,7 +138,7 @@ const Page = () => {
               <p className="text-body mt-3 text-center text-ink-60">
                 Don’t have an account?{" "}
                 <span
-                  className="text-brand ml-2 cursor-pointer"
+                  className="text-brandDeep ml-2 cursor-pointer"
                   onClick={() => router.push("/signup")}>
                   Sign up
                 </span>
@@ -281,7 +281,7 @@ const Page = () => {
                 </svg>
               </div>
 
-              <div className="py-3 px-4 bg-brand/10 border-[0.5px] border-brand rounded-card w-full my-3 gap-3 flex flex-col">
+              <div className="py-3 px-4 bg-brand/10 border-[0.5px] border-brandDeep rounded-card w-full my-3 gap-3 flex flex-col">
                 {[
                   "Reach Millions of Shoppers",
                   "Easy Product Listing",
@@ -291,7 +291,7 @@ const Page = () => {
                   <div
                     key={item}
                     className="flex gap-2 items-center font-medium text-body text-ink-90">
-                    <CircleCheck size={18} className="text-brand" />
+                    <CircleCheck size={18} className="text-brandDeep" />
                     <p>{item}</p>
                   </div>
                 ))}

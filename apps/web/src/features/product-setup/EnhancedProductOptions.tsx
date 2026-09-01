@@ -236,9 +236,9 @@ const formikToSmart = (formikVariations: FormikVariation[]): SmartVariation[] =>
 // ===== ICON COMPONENTS (HugeIcons; call sites unchanged) =====
 const ChevronDownIcon = () => <ChevronDown size={20} className="text-ink-60" />;
 const ChevronRightIcon = () => <ChevronRight size={16} className="text-ink-40" />;
-const EditIcon = () => <Edit size={20} className="text-brand" />;
+const EditIcon = () => <Edit size={20} className="text-brandDeep" />;
 const CloseIcon = () => <X size={16} className="text-ink-60" />;
-const PlusIcon = () => <Plus size={16} className="text-brand" />;
+const PlusIcon = () => <Plus size={16} className="text-brandDeep" />;
 const ImageIcon = () => <Photo size={24} className="text-ink-40" />;
 
 // Delegates to the shared Checkbox primitive.
@@ -297,9 +297,9 @@ const PropertyToggle = ({
       className={`
         flex items-center gap-2 px-3 py-2 rounded-full text-body font-medium transition-all
         ${isActive
-          ? 'bg-brand text-white border border-brand'
+          ? 'bg-brand text-brandInk border border-brandDeep'
           : isAvailable
-            ? 'bg-white text-ink-70 border border-ink-20 hover:border-brand'
+            ? 'bg-white text-ink-70 border border-ink-20 hover:border-brandDeep'
             : 'bg-ink-5 text-ink-40 border border-ink-10 cursor-not-allowed'
         }
       `}
@@ -618,7 +618,7 @@ const SingleStepContent = ({
       {canAddMore && (
         <button
           onClick={onAddVariation}
-          className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-dashed border-brand rounded-full text-brand text-body font-medium hover:bg-brand/5 transition-colors"
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-dashed border-brandDeep rounded-full text-brandDeep text-body font-medium hover:bg-brand/5 transition-colors"
         >
           <PlusIcon />
           <span>Add new Variant</span>
@@ -719,7 +719,7 @@ const VariationFieldWithProperties = ({
         {newValue && (
           <button
             onClick={addValue}
-            className="text-brand text-body font-medium hover:underline flex-shrink-0"
+            className="text-brandDeep text-body font-medium hover:underline flex-shrink-0"
           >
             Add
           </button>
@@ -800,7 +800,7 @@ const VariationFieldWithProperties = ({
                       className={`
                         flex items-center justify-center gap-1 px-2 h-[22px] rounded-full text-body-sm font-medium transition-all
                         ${isActive
-                          ? 'bg-brand/10 text-brand'
+                          ? 'bg-brand/10 text-brandDeep'
                           : isAvailable
                             ? 'bg-ink-3 text-ink-70 hover:bg-ink-10'
                             : 'bg-ink-3 text-ink-40 cursor-not-allowed'
@@ -1330,12 +1330,12 @@ export default function EnhancedProductOptions({
                     <button
                       key={template.id}
                       onClick={() => handleManageVariations(template)}
-                      className="w-full p-4 border border-brand bg-brand/5 rounded-card text-left hover:bg-brand/10 transition-colors"
+                      className="w-full p-4 border border-brandDeep bg-brand/5 rounded-card text-left hover:bg-brand/10 transition-colors"
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{template.icon}</span>
                         <div className="flex-1">
-                          <h3 className="text-body-lg font-medium text-brand">{template.name}</h3>
+                          <h3 className="text-body-lg font-medium text-brandDeep">{template.name}</h3>
                           <p className="text-body text-ink-60 mt-0.5">{template.description}</p>
                         </div>
                         <ChevronRightIcon />
@@ -1347,14 +1347,14 @@ export default function EnhancedProductOptions({
                 {/* Custom Option */}
                 <button
                   onClick={() => handleManageVariations()}
-                  className="w-full p-4 border border-ink-10 bg-white rounded-card text-left hover:border-brand/30 transition-colors"
+                  className="w-full p-4 border border-ink-10 bg-white rounded-card text-left hover:border-brandDeep/30 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 flex items-center justify-center">
                       <EditIcon />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-body-lg font-medium text-brand">Create Custom variants</h3>
+                      <h3 className="text-body-lg font-medium text-brandDeep">Create Custom variants</h3>
                       <p className="text-body text-ink-60 mt-0.5">Create your own</p>
                     </div>
                     <ChevronRightIcon />
@@ -1378,7 +1378,7 @@ export default function EnhancedProductOptions({
                   </h3>
                   <button
                     onClick={() => handleManageVariations()}
-                    className="flex items-center gap-1 px-2 py-1 text-brand text-body-sm font-medium hover:bg-brand/5 rounded transition-colors"
+                    className="flex items-center gap-1 px-2 py-1 text-brandDeep text-body-sm font-medium hover:bg-brand/5 rounded transition-colors"
                   >
                     <EditIcon />
                     Edit

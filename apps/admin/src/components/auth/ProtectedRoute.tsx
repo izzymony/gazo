@@ -54,7 +54,7 @@ export default function ProtectedRoute({
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brandDeep"></div>
           <p className="text-sm text-gray-600">Loading...</p>
         </div>
       </div>
@@ -80,7 +80,7 @@ export default function ProtectedRoute({
           <p className="text-gray-600">You don't have permission to access this section.</p>
           <button
             onClick={() => router.back()}
-            className="mt-4 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brandDark transition-colors"
+            className="mt-4 px-4 py-2 bg-brand text-brandInk rounded-lg hover:bg-brandDark transition-colors"
           >
             Go Back
           </button>

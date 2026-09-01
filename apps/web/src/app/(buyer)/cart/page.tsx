@@ -327,9 +327,9 @@ const Page = () => {
             }}
             className="absolute right-0 top-0 cursor-pointer">
             {unchecked.includes(cart.id) ? (
-              <div className="w-5 h-5 rounded-full border border-brand" />
+              <div className="w-5 h-5 rounded-full border border-brandDeep" />
             ) : (
-              <CircleCheck size={20} className="text-brand" />
+              <CircleCheck size={20} className="text-brandDeep" />
             )}
           </div>
         </div>
@@ -386,9 +386,9 @@ const Page = () => {
                     }
                   }}>
                   {unchecked.includes(cart.id) ? (
-                    <div className="w-5 h-5 rounded-full border border-brand" />
+                    <div className="w-5 h-5 rounded-full border border-brandDeep" />
                   ) : (
-                    <CircleCheck size={20} className="text-brand" />
+                    <CircleCheck size={20} className="text-brandDeep" />
                   )}
                 </div>
               </div>

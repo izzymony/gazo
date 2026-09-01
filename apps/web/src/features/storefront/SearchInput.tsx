@@ -72,7 +72,7 @@ const SearchInput = ({
               <button
                 type="button"
                 onClick={onBackClick}
-                className="text-brand mr-2">
+                className="text-brandDeep mr-2">
                 <Image
                   src="/images/arrow-back.svg"
                   alt="Arrow back"

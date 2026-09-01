@@ -17,16 +17,20 @@ module.exports = {
     extend: {
       colors: {
         // Vibaar brand colors — keep in sync with apps/web --brand-rgb
-        brand: "#FE2C55",  // Primary brand red
-        brandDark: "#E21145",  // Darker red for hover states
-        brandLight: "#FF6B8A",  // Light red for backgrounds
+        brand: "#FFE500",       // Primary brand yellow
+        brandDark: "#E6CE00",   // Darker yellow for hover states
+        brandLight: "#FFF7B2",  // Light yellow for backgrounds
+        // Brand yellow carries BLACK, never white (white-on-brand = 1.28:1).
+        brandInk: "#14130E",    // foreground ON a brand surface — 16.5:1
+        brandDeep: "#7A5E00",   // brand AS text on white — 6.1:1
         
         // Admin Portal Specific Colors
         adminPrimary: "#1E40AF",  // Professional blue for admin
         adminSecondary: "#7C3AED",  // Purple accent
         adminSuccess: "#10B981",  // Green for success states
         adminWarning: "#F59E0B",  // Orange for warnings
-        adminError: "#EF4444",  // Red for errors (matches brand)
+        adminError: "#DC2626",  // Red for errors — 4.8:1 with white (was #EF4444, 3.8:1)
+        adminErrorDark: "#B91C1C",  // Hover/pressed for danger actions
         adminInfo: "#3B82F6",  // Blue for information
         
         // Additional utility colors
@@ -133,7 +137,11 @@ module.exports = {
         "slide-in-from-bottom": "slide-in-from-bottom 0.3s ease-out",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        // Was ["Inter", …] — Inter was never actually loaded, so admin silently
+        // fell back to system-ui. Now on the real brand faces.
+        sans: ["var(--font-body)", "IBM Plex Sans", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "Outfit", "system-ui", "sans-serif"],
+        body: ["var(--font-body)", "IBM Plex Sans", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
       },
       fontSize: {

@@ -187,7 +187,7 @@ export default function MilestoneCelebration() {
                   setShowConfetti(false);
                   router.push(activeModal.ctaRoute!);
                 }}
-                className="bg-brand text-white text-body-sm font-semibold px-5 py-3 rounded-full min-h-[44px] w-full touch-manipulation"
+                className="bg-brand text-brandInk text-body-sm font-semibold px-5 py-3 rounded-full min-h-[44px] w-full touch-manipulation"
                 style={{ boxShadow: '4px 8px 24px 0px rgb(var(--brand-rgb) / 0.2)' }}
               >
                 {activeModal.ctaLabel}

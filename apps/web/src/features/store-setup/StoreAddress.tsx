@@ -106,7 +106,7 @@ const CountryComponent = ({
     onClick={click}
     className={
       selectedCountry.name === item.name
-        ? "flex text-body font-normal items-center relative text-ink-90 px-1 py-2 rounded-field bg-brand/10 border-brand border justify-between"
+        ? "flex text-body font-normal items-center relative text-ink-90 px-1 py-2 rounded-field bg-brand/10 border-brandDeep border justify-between"
         : "flex text-body font-normal relative items-center text-ink-90 px-1 py-2 rounded-field justify-between"
     }>
     <div className="flex gap-1 items-center">
@@ -177,7 +177,7 @@ const CategoryComponent = ({
               onClick={() => setSubSelected(sub)}
               className={
                 subSelected.name === sub.name
-                  ? "flex text-body font-normal items-center relative text-ink-90 px-4 py-3 justify-between rounded-field bg-brand/10 border-brand border"
+                  ? "flex text-body font-normal items-center relative text-ink-90 px-4 py-3 justify-between rounded-field bg-brand/10 border-brandDeep border"
                   : "flex text-body font-normal relative items-center justify-between text-ink-90 px-4 py-3 rounded-field"
               }>
               {`${sub.name}`}
@@ -211,7 +211,7 @@ const BasicCategoryComponent = ({
         onClick={() => setSelected(item)}
         className={
           selected.id === item.id
-            ? "flex cursor-pointer text-body font-normal items-center relative text-ink-90 px-2 py-2 rounded-field bg-brand/10 border-brand border"
+            ? "flex cursor-pointer text-body font-normal items-center relative text-ink-90 px-2 py-2 rounded-field bg-brand/10 border-brandDeep border"
             : "flex cursor-pointer text-body font-normal relative items-center text-ink-90 px-2 py-2 rounded-field"
         }>
         <span className="text-xl mr-3">{item.icon}</span>

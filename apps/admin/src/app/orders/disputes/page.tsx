@@ -258,7 +258,7 @@ export default function OrderDisputesPage() {
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                            <button className="text-brand hover:text-brandDark">
+                            <button className="text-brandDeep hover:text-brandDark">
                               <Eye className="h-4 w-4" />
                             </button>
                             <button className="text-gray-400 hover:text-gray-600">

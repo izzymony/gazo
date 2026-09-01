@@ -19,7 +19,7 @@ export default function Card({
           />
           <div className="absolute flex flex-col justify-between top-0 bottom-0 left-0 right-0 flex-1">
             <div className="flex justify-between ps-1">
-              <div className="bg-brand rounded-full flex justify-center items-center text-center text-white text-body-sm px-2 h-4 mt-1">
+              <div className="bg-brand rounded-full flex justify-center items-center text-center text-brandInk text-body-sm px-2 h-4 mt-1">
                 20% Off
               </div>
               <div
@@ -171,7 +171,7 @@ export default function Card({
           <p
             className={
               tik
-                ? "text-body-sm tracking-wider leading-[12px] text-brand font-medium line-clamp-1"
+                ? "text-body-sm tracking-wider leading-[12px] text-brandDeep font-medium line-clamp-1"
                 : "text-body-sm tracking-wider leading-[12px] text-black font-medium line-clamp-1"
             }>
             ₦180,000.00
@@ -209,7 +209,7 @@ export function Cards({
           />
           <div className="absolute flex flex-col justify-between top-0 bottom-0 left-0 right-0 flex-1">
             <div className="flex justify-between ps-1">
-              <div className="bg-brand rounded-full flex justify-center items-center text-center text-white text-body-sm px-2 h-4 mt-1">
+              <div className="bg-brand rounded-full flex justify-center items-center text-center text-brandInk text-body-sm px-2 h-4 mt-1">
                 20% Off
               </div>
               <div
@@ -361,7 +361,7 @@ export function Cards({
           <p
             className={
               tik
-                ? "text-body-sm tracking-wider leading-[12px] text-brand font-medium line-clamp-1"
+                ? "text-body-sm tracking-wider leading-[12px] text-brandDeep font-medium line-clamp-1"
                 : "text-body-sm tracking-wider leading-[12px] text-black font-medium line-clamp-1"
             }>
             ₦180,000.00

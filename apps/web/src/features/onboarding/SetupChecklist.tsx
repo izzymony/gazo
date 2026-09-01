@@ -83,7 +83,7 @@ export default function SetupChecklist() {
         <div className="px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center">
-              <Store size={16} className="text-brand" />
+              <Store size={16} className="text-brandDeep" />
             </div>
             <h3 className="font-medium text-body text-ink-90">
               Complete Your Store Setup
@@ -111,7 +111,7 @@ export default function SetupChecklist() {
             <span className="text-caption text-ink-40">
               {steps.filter((s) => s.completed).length} of {steps.length} complete
             </span>
-            <span className="text-caption font-semibold text-brand">{percent}%</span>
+            <span className="text-caption font-semibold text-brandDeep">{percent}%</span>
           </div>
           <div className="h-1.5 bg-ink-10 rounded-full overflow-hidden">
             <motion.div
@@ -170,7 +170,7 @@ export default function SetupChecklist() {
                               router.push(step.route);
                             }
                           }}
-                          className="bg-brand text-white text-caption font-semibold px-3 rounded-full h-7 whitespace-nowrap flex-shrink-0 touch-manipulation inline-flex items-center justify-center gap-0.5 leading-none active:scale-95 transition-transform"
+                          className="bg-brand text-brandInk text-caption font-semibold px-3 rounded-full h-7 whitespace-nowrap flex-shrink-0 touch-manipulation inline-flex items-center justify-center gap-0.5 leading-none active:scale-95 transition-transform"
                           style={{ boxShadow: '0px 2px 10px 0px rgb(var(--brand-rgb) / 0.25)' }}
                         >
                           {step.ctaLabel}

@@ -100,15 +100,15 @@ const Page = () => {
               key={profile.id}
               className={`border rounded-field p-2.5 relative ${
                 profile.id === singleShippingDetails?.id
-                  ? "border-brand"
+                  ? "border-brandDeep"
                   : "border-ink-10"
               }`}>
               <div className="flex justify-between">
                 <div className="flex flex-col gap-1">
                   {profile.id === singleShippingDetails?.id && (
-                    <span className="flex flex-row items-center w-[max-content] gap-1 bg-brand/10 text-brand text-caption px-2 rounded-pill border border-brand tracking-[0.5px]">
+                    <span className="flex flex-row items-center w-[max-content] gap-1 bg-brand/10 text-brandDeep text-caption px-2 rounded-pill border border-brandDeep tracking-[0.5px]">
                       Default{" "}
-                      <CircleCheck size={12} className="text-brand" />
+                      <CircleCheck size={12} className="text-brandDeep" />
                     </span>
                   )}
                   <p className="font-normal text-ink-90 text-caption">
@@ -147,7 +147,7 @@ const Page = () => {
           ))}
 
           <button
-            className="flex items-center gap-2 text-brand text-body-sm font-medium mt-4"
+            className="flex items-center gap-2 text-brandDeep text-body-sm font-medium mt-4"
             onClick={() => router.push("/cart/shipping-profile/new")}>
             <Plus size={18} />
             Add a new delivery address

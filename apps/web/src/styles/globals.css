@@ -10,7 +10,7 @@
 
 /* Custom driver.js styles to match app design */
 .driver-popover.driverjs-theme {
-  font-family: var(--font-dm-sans), 'DM Sans', system-ui, -apple-system, sans-serif !important;
+  font-family: var(--font-body), 'IBM Plex Sans', system-ui, -apple-system, sans-serif !important;
   background: #ffffff !important;
   border-radius: 16px !important;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12) !important;
@@ -54,23 +54,23 @@
 }
 
 .driver-popover.driverjs-theme .driver-popover-prev-btn {
-  color: #FE2C55 !important;
+  color: var(--brand-deep) !important;
   background: #ffffff !important;
-  border: 1px solid #FE2C55 !important;
+  border: 1px solid var(--brand-deep) !important;
 }
 
 .driver-popover.driverjs-theme .driver-popover-prev-btn:hover {
-  background: #FFF5F7 !important;
+  background: #FFFBE5 !important;
 }
 
 .driver-popover.driverjs-theme .driver-popover-next-btn {
-  color: #ffffff !important;
-  background: #FE2C55 !important;
+  color: var(--brand-ink) !important;
+  background: var(--brand) !important;
   border: none !important;
 }
 
 .driver-popover.driverjs-theme .driver-popover-next-btn:hover {
-  background: #e02549 !important;
+  background: var(--brand-hover) !important;
 }
 
 /* Close button (X) in top-right - subtle style */
@@ -151,9 +151,16 @@ html {
 
   /* Brand — rgb channels so Tailwind's /opacity modifier composes.
      The pending rebrand is a one-line change here. */
-  --brand-rgb: 254 44 85;          /* #FE2C55 — vibaar brand (change here to rebrand the color) */
+  --brand-rgb: 255 229 0;          /* #FFE500 — vibaar brand yellow */
   --brand: rgb(var(--brand-rgb));  /* convenience for inline styles / SVG fill+stroke */
-  --brand-hover: #e02549;          /* pressed/hover shade already used in tour */
+  --brand-hover: #E6CE00;          /* pressed/hover shade — 10% darker */
+
+  /* Brand yellow carries BLACK, never white: white-on-#FFE500 is 1.28:1 and
+     unreadable. --brand-ink is what sits ON a brand surface (16.5:1).
+     --brand-deep is brand AS TEXT on a light surface (6.1:1) — outline
+     buttons, links, icons — since the yellow itself is invisible on white. */
+  --brand-ink: #14130E;            /* on-brand foreground — 16.5:1 on #FFE500 */
+  --brand-deep: #7A5E00;           /* brand-as-text on white — 6.1:1 */
 
   /* Ink — black-on-white alpha ramp (the app's "soft black" family). Defined as
      the EXACT hex values already scattered across the app (number ≈ opacity %)
@@ -209,10 +216,22 @@ html {
   }
 }
 
+/* ── Brand typography ────────────────────────────────────────────────
+   Outfit  = display / headings (geometric, single-storey `a` — the same
+             letterform as the vibaar wordmark, so headings descend from
+             the logo).
+   IBM Plex Sans = body.
+   Both self-hosted via next/font/local (see src/app/fonts.ts) — never a
+   build-time Google fetch (F3). */
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--font-display), 'Outfit', system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.015em;
+}
+
 body {
   /* color: var(--foreground); */
   background: var(--background);
-  font-family: var(--font-dm-sans), 'DM Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body), 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
   margin: 0;
   padding: 0;
   width: 100%;
@@ -317,8 +336,8 @@ a {
 }
 
 .custom-checkbox:checked {
-  border-color: #FE2C55;
-  background-color: #FE2C55;
+  border-color: var(--brand);
+  background-color: var(--brand);
 }
 
 .custom-checkbox:checked::after {
@@ -329,7 +348,7 @@ a {
   transform: translate(-50%, -50%) rotate(45deg);
   width: 4px;
   height: 8px;
-  border: solid #fff;
+  border: solid var(--brand-ink);  /* on-brand: the tick sits on brand yellow */
   border-width: 0 2px 2px 0;
 }
 

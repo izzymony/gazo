@@ -108,7 +108,7 @@ const SmallHeader: React.FC<SmallHeaderProps> = ({
           ) : (
             <div
               onClick={onFollowClick}
-              className="text-xs font-medium text-white px-2 py-2 bg-brand rounded-full justify-center items-center flex">
+              className="text-xs font-medium text-brandInk px-2 py-2 bg-brand rounded-full justify-center items-center flex">
               {isFollowed ? "Unfollow" : "Follow"}
             </div>
           )}
@@ -123,7 +123,7 @@ export default SmallHeader;
 
 /*
  <button
-              className="bg-brand text-white py-2 px-3 rounded-full text-xs font-bold items-center flex gap-1"
+              className="bg-brand text-brandInk py-2 px-3 rounded-full text-xs font-bold items-center flex gap-1"
               onClick={onFollowClick}>
               {isFollowed ? "Unfollow" : "Follow"}
               </button>

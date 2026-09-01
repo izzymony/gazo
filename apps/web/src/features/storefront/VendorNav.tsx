@@ -51,7 +51,7 @@ const VendorNav = memo(({ isSeller }: Props) => {
             prefetch
             key={Array.isArray(route) ? route[0] : route}
             className={`flex items-center flex-col transition-colors ${
-              isActive ? "text-brand" : "text-ink-40"
+              isActive ? "text-brandDeep" : "text-ink-40"
             }`}>
             <div className="relative">
               <Icon size={24} />

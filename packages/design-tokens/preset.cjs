@@ -14,7 +14,10 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-dm-sans)', 'DM Sans', 'system-ui', '-apple-system', 'sans-serif'],
+        // Body default. `font-display` opts into Outfit for headings.
+        sans: ['var(--font-body)', 'IBM Plex Sans', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['var(--font-display)', 'Outfit', 'system-ui', '-apple-system', 'sans-serif'],
+        body: ['var(--font-body)', 'IBM Plex Sans', 'system-ui', '-apple-system', 'sans-serif'],
       },
       fontSize: {
         'hero-xl': ['180px', { lineHeight: '1', letterSpacing: '-0.04em' }],
@@ -33,6 +36,11 @@ module.exports = {
       colors: {
         brand: "rgb(var(--brand-rgb) / <alpha-value>)",
         brandHover: "var(--brand-hover)",
+        // Brand yellow carries BLACK, never white (white-on-brand = 1.28:1).
+        // brandInk = foreground ON a brand surface. brandDeep = brand AS text
+        // on a light surface, where the yellow itself is invisible.
+        brandInk: "var(--brand-ink)",
+        brandDeep: "var(--brand-deep)",
         ink: {
           3: "var(--ink-3)",
           5: "var(--ink-5)",

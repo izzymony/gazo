@@ -210,7 +210,7 @@ export default function RevenueReportsPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <button className="text-brand text-sm font-medium hover:text-brandDark transition-colors">
+              <button className="text-brandDeep text-sm font-medium hover:text-brandDark transition-colors">
                 View detailed revenue trends →
               </button>
             </CardFooter>
@@ -257,7 +257,7 @@ export default function RevenueReportsPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <button className="text-brand text-sm font-medium hover:text-brandDark transition-colors">
+              <button className="text-brandDeep text-sm font-medium hover:text-brandDark transition-colors">
                 View category analysis →
               </button>
             </CardFooter>
@@ -313,7 +313,7 @@ export default function RevenueReportsPage() {
                     <tr key={business.name} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="flex items-center justify-center w-8 h-8 bg-brand text-white rounded-full text-sm font-bold mr-4">
+                          <div className="flex items-center justify-center w-8 h-8 bg-brand text-brandInk rounded-full text-sm font-bold mr-4">
                             {index + 1}
                           </div>
                           <div>
@@ -372,7 +372,7 @@ export default function RevenueReportsPage() {
               <div className="text-sm text-gray-700">
                 Showing top <span className="font-medium">{topBusinessesRevenue.length}</span> revenue generating businesses
               </div>
-              <button className="text-brand text-sm font-medium hover:text-brandDark transition-colors">
+              <button className="text-brandDeep text-sm font-medium hover:text-brandDark transition-colors">
                 View all business revenue reports →
               </button>
             </div>

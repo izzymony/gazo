@@ -67,7 +67,7 @@ const ShippingOptionCard: React.FC<ShippingOptionCardProps> = ({
       onClick={onSelect}
       className={cn(
         "w-full text-left border rounded-card p-3 flex gap-3 items-start transition-colors",
-        selected ? "border-brand bg-brand/10" : "border-ink-10 bg-white"
+        selected ? "border-brandDeep bg-brand/10" : "border-ink-10 bg-white"
       )}>
       {/* Courier logo, or a truck fallback */}
       <div className="shrink-0 w-10 h-10 rounded-field bg-ink-3 flex items-center justify-center overflow-hidden">
@@ -113,7 +113,7 @@ const ShippingOptionCard: React.FC<ShippingOptionCardProps> = ({
 
       {/* Price + selected check */}
       <div className="shrink-0 flex flex-col items-end gap-1">
-        {selected && <CircleCheck size={18} className="text-brand" />}
+        {selected && <CircleCheck size={18} className="text-brandDeep" />}
         <p className="text-body font-medium text-ink-90">
           {formatCurrency(parseAmount(option.price))}
         </p>

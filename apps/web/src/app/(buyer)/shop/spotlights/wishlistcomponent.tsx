@@ -65,7 +65,7 @@ export default function WishlistComponent({
         }}>
         {liked ? (
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-black/15">
-            <HeartFilled size={14} className="text-brand" />
+            <HeartFilled size={14} className="text-brandDeep" />
           </span>
         ) : (
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-black/15">
@@ -77,7 +77,7 @@ export default function WishlistComponent({
         onClick={handleAddToCart}
         className="absolute bottom-[70px] right-5 cursor-pointer">
         <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20">
-          <ShoppingCartAdd size={18} className="text-brand" />
+          <ShoppingCartAdd size={18} className="text-brandDeep" />
         </span>
       </div>
       <p

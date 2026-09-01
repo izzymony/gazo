@@ -50,7 +50,7 @@ export default function ChatComposer({
         aria-label="Send"
         onClick={handleSend}
         disabled={sending || !draft.trim()}
-        className="text-brand flex-shrink-0 disabled:opacity-40">
+        className="text-brandDeep flex-shrink-0 disabled:opacity-40">
         <Send size={22} />
       </button>
     </div>

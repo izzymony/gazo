@@ -253,8 +253,8 @@ export default function SalesBody({ action }: { action: () => void }) {
                 </p>
                 <div
                   onClick={action}
-                  className="px-3 py-1 border-brand border rounded-full">
-                  <p className="ml-auto text-brand text-body flex items-center">
+                  className="px-3 py-1 border-brandDeep border rounded-full">
+                  <p className="ml-auto text-brandDeep text-body flex items-center">
                     Withdraw
                   </p>
                 </div>
@@ -303,7 +303,7 @@ export default function SalesBody({ action }: { action: () => void }) {
             {
               icon: (
                 <div className="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center">
-                  <ShoppingBag size={20} className="text-brand" />
+                  <ShoppingBag size={20} className="text-brandDeep" />
                 </div>
               ),
               title: "Add new product",
@@ -312,7 +312,7 @@ export default function SalesBody({ action }: { action: () => void }) {
             {
               icon: (
                 <div className="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center">
-                  <Tag size={20} className="text-brand" />
+                  <Tag size={20} className="text-brandDeep" />
                 </div>
               ),
               title: "Create a Discount",

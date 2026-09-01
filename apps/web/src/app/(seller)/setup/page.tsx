@@ -59,7 +59,7 @@ export default function Page() {
         </div>
       </div>
       <div className="flex items-center justify-between bg-black pt-3 pb-6 px-3">
-        <div className="flex-1 h-10 rounded-full bg-brand text-white text-body-lg font-medium justify-center items-center flex">
+        <div className="flex-1 h-10 rounded-full bg-brand text-brandInk text-body-lg font-medium justify-center items-center flex">
           Next
         </div>
       </div>

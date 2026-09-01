@@ -5,12 +5,12 @@ const Footer = () => {
     <div className=" max-w-[320px] text-center mx-auto w-full px-5 pb-2.5 ">
       <p className="text-ink-40 text-caption -leading-1 font-normal ">
         By continuing, I agree to Vibaar&apos;s {" "}
-        <Link href={"/terms"} className="text-brand">
+        <Link href={"/terms"} className="text-brandDeep">
           Terms of service
         </Link>{" "}
         <br />
         and{" "}
-        <Link href={"/privacy"} className="text-brand">
+        <Link href={"/privacy"} className="text-brandDeep">
           Privacy Policy
         </Link>
       </p>

@@ -106,7 +106,7 @@ const CartItem = ({
           <span className="ml-auto font-500 text-ink-90">
             {delivery.price}
             {"   "}
-            <button onClick={action} className="text-brand font-medium">
+            <button onClick={action} className="text-brandDeep font-medium">
               {delivery.title ? "Change" : "Select"}
             </button>
           </span>
@@ -312,13 +312,13 @@ const ReviewOrder = () => {
   //           <button
   //             onClick={() => router.push("/cart/shipping-profile/new")}
   //             type="button"
-  //             className="w-1/2 py-3 rounded-2xl bg-brand  text-white text-body">
+  //             className="w-1/2 py-3 rounded-2xl bg-brand  text-brandInk text-body">
   //             create
   //           </button>
   //           <button
   //             onClick={() => router.push("/cart/shipping-profile/new")}
   //             type="button"
-  //             className="w-1/2 py-3 rounded-2xl bg-white border border-brand text-brand text-body">
+  //             className="w-1/2 py-3 rounded-2xl bg-white border border-brandDeep text-brandDeep text-body">
   //             cancel
   //           </button>
   //         </div>
@@ -664,7 +664,7 @@ const ReviewOrder = () => {
             <div className="mt-4">
               <p className="mb-3 text-body-sm font-normal">Shipping method</p>
               <div className="p-2 rounded-field border flex flex-col gap-2 text-body-sm font-normal text-ink-90">
-                <span className="border rounded-full px-4 py-1 text-caption border-brand bg-brand/10 text-brand w-[max-content]">
+                <span className="border rounded-full px-4 py-1 text-caption border-brandDeep bg-brand/10 text-brandDeep w-[max-content]">
                   Default
                 </span>
                 <p>

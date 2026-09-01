@@ -144,7 +144,7 @@ export default function ProductInfo({
             <span className="ml-2 mt-1 text-ink-60 line-through text-xs font-normal">
               {formatCurrency(oldPriceNum)}
             </span>
-            <div className="ml-auto text-white font-normal rounded-full bg-brand px-3 py-1 text-caption">
+            <div className="ml-auto text-brandInk font-normal rounded-full bg-brand px-3 py-1 text-caption">
               {calculateDiscountPercentage(oldPriceNum, price)}% OFF
             </div>
           </>

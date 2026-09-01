@@ -211,13 +211,13 @@ function VendorHeader({ isSeller }: HeaderProp) {
               <Link
                 href={`/dashboard/storefront/details`}
                 prefetch
-                className="bg-brand text-white py-1 px-2 rounded-full text-sm font-medium ml-auto flex item-center gap-1">
+                className="bg-brand text-brandInk py-1 px-2 rounded-full text-sm font-medium ml-auto flex item-center gap-1">
                 Edit Store
               </Link>
 
               <button
                 onClick={handleShareStore}
-                className="bg-brand text-white py-1 px-2 rounded-full text-sm font-medium ml-auto flex item-center gap-1"
+                className="bg-brand text-brandInk py-1 px-2 rounded-full text-sm font-medium ml-auto flex item-center gap-1"
               >
                 Share Store
               </button>
@@ -244,7 +244,7 @@ export default VendorHeader;
  (
             <button
               onClick={followed.action}
-              className="bg-brand text-white py-1 px-2 rounded-full text-sm font-medium ml-auto flex item-center gap-1 mx-auto mt-2 mb-2">
+              className="bg-brand text-brandInk py-1 px-2 rounded-full text-sm font-medium ml-auto flex item-center gap-1 mx-auto mt-2 mb-2">
               {followed.title}
             </button>
           )

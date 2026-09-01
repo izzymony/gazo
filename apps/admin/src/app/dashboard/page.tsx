@@ -142,7 +142,7 @@ export default function DashboardPage() {
       <AdminLayout>
         <div className="p-8 flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-brand" />
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-brandDeep" />
             <Text>Loading dashboard data...</Text>
           </div>
         </div>
@@ -160,7 +160,7 @@ export default function DashboardPage() {
             <Text className="text-gray-600 mb-4">{error}</Text>
             <button 
               onClick={() => window.location.reload()} 
-              className="px-4 py-2 bg-brand text-white rounded-lg hover:bg-brandDark transition-colors"
+              className="px-4 py-2 bg-brand text-brandInk rounded-lg hover:bg-brandDark transition-colors"
             >
               Retry
             </button>
@@ -317,7 +317,7 @@ export default function DashboardPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <button className="text-brand text-sm font-medium hover:text-brandDark transition-colors">
+                <button className="text-brandDeep text-sm font-medium hover:text-brandDark transition-colors">
                   View all activity
                 </button>
               </CardFooter>

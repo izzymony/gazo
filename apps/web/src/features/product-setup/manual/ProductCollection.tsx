@@ -182,7 +182,7 @@ export default function CollectionComponent({
             <button
               type="button"
               onClick={handleAddCollection}
-              className="px-3 py-1 bg-brand text-white text-body-sm rounded-field shrink-0">
+              className="px-3 py-1 bg-brand text-brandInk text-body-sm rounded-field shrink-0">
               Add
             </button>
           </div>

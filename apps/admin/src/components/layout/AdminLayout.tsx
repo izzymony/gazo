@@ -152,7 +152,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   <p className="text-sm font-medium text-gray-900">{admin?.name}</p>
                   <p className="text-xs text-gray-500">{admin?.email}</p>
                   <div className="mt-1">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-brand/10 text-brand capitalize">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-brand/10 text-brandDeep capitalize">
                       {admin?.role}
                     </span>
                   </div>
@@ -221,7 +221,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     href={item.href}
                     className={`${
                       isActive 
-                        ? 'bg-brand text-white' 
+                        ? 'bg-brand text-brandInk' 
                         : 'text-gray-300 hover:bg-gray-800 hover:text-white'
                     } group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors`}
                   >
@@ -319,7 +319,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     <input
                       type="text"
                       placeholder="Search..."
-                      className="pl-10 pr-4 py-2 w-64 border border-gray-300 rounded-full text-sm focus:ring-2 focus:ring-brand focus:border-transparent transition-all"
+                      className="pl-10 pr-4 py-2 w-64 border border-gray-300 rounded-full text-sm focus:ring-2 focus:ring-brandDeep focus:border-transparent transition-all"
                     />
                   </div>
                 </div>

@@ -366,7 +366,7 @@ export default function Spotlights({
                   </div>
                 </div>
                 <div className="w-full flex flex-row justify-between items-center gap-3">
-                  <div className="flex-1 h-10 rounded-full bg-brand text-white text-base font-medium justify-center items-center flex">
+                  <div className="flex-1 h-10 rounded-full bg-brand text-brandInk text-base font-medium justify-center items-center flex">
                     Buy now
                   </div>
                   <div>

@@ -72,7 +72,7 @@ export default function UserContactForm({
       </div>
 
       <h1
-        className="text-brand text-right mt-4 cursor-pointer"
+        className="text-brandDeep text-right mt-4 cursor-pointer"
         onClick={() => router.push("forgot-password?step=1")}>
         Forgot password?
       </h1>

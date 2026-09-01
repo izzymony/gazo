@@ -95,7 +95,7 @@ const EtaPresets = ({
             className={cn(
               "h-9 px-3 rounded-full border text-body-sm transition-colors",
               selected
-                ? "border-brand bg-brand/5 text-brand font-medium"
+                ? "border-brandDeep bg-brand/5 text-brandDeep font-medium"
                 : "border-ink-10 text-ink-60"
             )}>
             {preset}
@@ -269,7 +269,7 @@ const ZoneRow = ({
             <span className="text-caption text-ink-40 shrink-0">Required</span>
           )}
           {!required && !configured && (
-            <span className="text-body-sm font-medium text-brand shrink-0 flex items-center gap-0.5">
+            <span className="text-body-sm font-medium text-brandDeep shrink-0 flex items-center gap-0.5">
               Set up
               <ChevronRight size={16} />
             </span>

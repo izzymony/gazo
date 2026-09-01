@@ -209,14 +209,14 @@ const AllProducts = ({
                         className="absolute top-1 right-2 h-9 w-9 flex justify-center items-center rounded-full bg-black/15 backdrop-blur-sm">
                         <Heart
                           size={20}
-                          className={spotlighted ? "text-brand" : "text-white"}
+                          className={spotlighted ? "text-brandDeep" : "text-white"}
                         />
                       </button>
                       <button
                         aria-label="Add to cart"
                         onClick={(e) => handleAddToCart(e, item)}
                         className="absolute bottom-2 right-2 h-9 w-9 flex justify-center items-center rounded-full bg-white/20 backdrop-blur-sm">
-                        <ShoppingCartAdd size={20} className="text-brand" />
+                        <ShoppingCartAdd size={20} className="text-brandDeep" />
                       </button>
                     </div>
 
