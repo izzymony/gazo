@@ -26,7 +26,7 @@ export default function Switch({
         type="checkbox"
         role="switch"
         aria-label={ariaLabel}
-        className="toggle-checkbox sr-only peer"
+        className="sr-only peer"
         name={name}
         checked={checked}
         onChange={onChange}

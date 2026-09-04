@@ -9,7 +9,7 @@ interface SlideContentProps {
 
 export default function SlideContent({ currentSlide, onSlideChange }: SlideContentProps) {
   return (
-    <div className="relative -mt-18">
+    <div className="relative">
       {/* Desktop Logo (hidden on mobile) */}
       <Image
         src="/brand/logo-black.svg"
@@ -37,7 +37,7 @@ export default function SlideContent({ currentSlide, onSlideChange }: SlideConte
         </div>
 
         {/* Slide Indicators */}
-        <div className="flex justify-center -mt-21 py-5 ">
+        <div className="flex justify-center py-5 ">
           {slidesData.map((_, index) => (
             <button
               key={`indicator-${index}`}

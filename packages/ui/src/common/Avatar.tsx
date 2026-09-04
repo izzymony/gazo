@@ -134,7 +134,7 @@ const Avatar = ({
       {initials}
       {editable && (
         <div className="flex items-center justify-center">
-          <div className="w-full h-[100px] inset-0 absolute bg-opacity-10 hover:bg-opacity-1 transition-all duration-200 flex items-center justify-center rounded-full">
+          <div className="w-full h-[100px] inset-0 absolute bg-opacity-10 transition-all duration-200 flex items-center justify-center rounded-full">
             <CameraGlyph className="w-10 h-10 p-2 bg-black text-white opacity-50 hover:opacity-100 rounded-full" />
           </div>
         </div>

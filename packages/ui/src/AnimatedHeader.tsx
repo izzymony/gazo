@@ -229,7 +229,7 @@ export default function AnimatedHeader() {
         {slides.map((slide, index) => (
           <div
             key={index}
-            className={`absolute inset-0 transition-opacity duration-800 ease-in-out ${currentSlide === index
+            className={`absolute inset-0 transition-opacity ease-in-out ${currentSlide === index
               ? "opacity-100"
               : "opacity-0 pointer-events-none"
               }`}>
@@ -254,7 +254,7 @@ export default function AnimatedHeader() {
                 className="z-0 w-full h-full object-cover sm:hidden"
                 sizes="100vw"
               />
-              <div className=" absolute -bottom-0 left-0 right-0 h-[calc(3rem+1px)] bg-gradient-to-t mt-3 from-white via-white/10 to-transparent backdrop-blur-[1px] -webkit-backdrop-blur-[1px] z-20" />            </div>
+              <div className=" absolute -bottom-0 left-0 right-0 h-[calc(3rem+1px)] bg-gradient-to-t mt-3 from-white via-white/10 to-transparent backdrop-blur-[1px] z-20" />            </div>
             {/*  <div
               className="absolute inset-0 pointer-events-none rounded-lg z-10"
               style={{
@@ -314,7 +314,7 @@ export default function AnimatedHeader() {
           }}
         />   */}
 
-        <div className=" absolute -bottom-12 left-0 right-0 h-[calc(6rem+1rem)] bg-gradient-to-t mt-3 from-white via-white/70 to-transparent backdrop-blur-[1px] -webkit-backdrop-blur-[1px] z-20" />
+        <div className=" absolute -bottom-12 left-0 right-0 h-[calc(6rem+1rem)] bg-gradient-to-t mt-3 from-white via-white/70 to-transparent backdrop-blur-[1px] z-20" />
 
       </header>
 

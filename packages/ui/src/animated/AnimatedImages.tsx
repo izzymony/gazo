@@ -118,7 +118,7 @@ export default function AnimatedImages({ currentSlide }: AnimatedImagesProps) {
         {slidesData.map((slide, index) => (
           <div
             key={index}
-            className={`absolute inset-0 transition-opacity duration-800 ease-in-out ${
+            className={`absolute inset-0 transition-opacity ease-in-out ${
               currentSlide === index
                 ? "opacity-100"
                 : "opacity-0 pointer-events-none"
@@ -170,7 +170,7 @@ export default function AnimatedImages({ currentSlide }: AnimatedImagesProps) {
         ))}
 
         {/* Mobile bottom gradient */}
-        <div className="absolute -bottom-12 left-0 right-0 h-[calc(6rem+1rem)] bg-gradient-to-t mt-3 from-white via-white/70 to-transparent backdrop-blur-[1px] -webkit-backdrop-blur-[1px] z-20 md:hidden" />
+        <div className="absolute -bottom-12 left-0 right-0 h-[calc(6rem+1rem)] bg-gradient-to-t mt-3 from-white via-white/70 to-transparent backdrop-blur-[1px] z-20 md:hidden" />
       </header>
     </div>
   );

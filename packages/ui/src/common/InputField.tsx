@@ -125,7 +125,7 @@ export default function InputField({
                showSearch ? "search" : "text")
             }
             required
-            className={`mt-[22px] peer -z-1 focus:ring-0 focus:outline-none z-[99] leading-[18px] text-[#000000] relative text-body bg-transparent font-medium`}
+            className={`mt-[22px] peer focus:ring-0 focus:outline-none z-[99] leading-[18px] text-[#000000] relative text-body bg-transparent font-medium`}
             placeholder=" "
             style={{
               paddingLeft:
@@ -147,7 +147,7 @@ export default function InputField({
         )}
         {drops && (
           <div
-            className={`mt-[22px] peer -z-1 focus:ring-0 focus:outline-none z-[99] leading-[18px] text-[#000000] relative text-body bg-transparent font-medium`}>
+            className={`mt-[22px] peer focus:ring-0 focus:outline-none z-[99] leading-[18px] text-[#000000] relative text-body bg-transparent font-medium`}>
             <p>{value}</p>
           </div>
         )}

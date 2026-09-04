@@ -9,7 +9,7 @@ import { cn } from '@vibaar/utils';
 // Default render (filled / md / fullWidth) is byte-identical to the previous
 // component, so existing footerAction buttons are unchanged.
 const buttonVariants = cva(
-  "max-w-full disabled:opacity-50 flex flex-row gap-2 justify-center items-center text-center rounded-full font-500 touch-manipulation transition-all duration-200",
+  "max-w-full disabled:opacity-50 flex flex-row gap-2 justify-center items-center text-center rounded-full font-medium touch-manipulation transition-all duration-200",
   {
     variants: {
       variant: {

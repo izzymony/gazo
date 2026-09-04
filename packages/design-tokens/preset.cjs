@@ -83,7 +83,6 @@ module.exports = {
         green: { ...colors.green, DEFAULT: "#06C270" },
         red: { ...colors.red, DEFAULT: "#CC2020" },
         black: "#000000E5",
-        foreground: "var(--foreground)",
         landing: {
           yellow: "#F2DE4D",
           cyan: "#00DAE6",
