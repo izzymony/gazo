@@ -42,13 +42,20 @@ const REPORT_DIR = join(APP_ROOT, ".drift");
  * inventing a second taxonomy — one definition of "not swept yet".
  */
 const DEFERRED = [
-  "src/app/(marketing)/",
-  "src/app/(buyer)/shop/",
-  "src/features/storefront/",
-  "src/features/shop/",
-  "src/features/store-setup/",
-  "src/features/product-setup/",
+  "apps/web/src/app/(marketing)/",
+  "apps/web/src/app/(buyer)/shop/",
+  "apps/web/src/features/storefront/",
+  "apps/web/src/features/shop/",
+  "apps/web/src/features/store-setup/",
+  "apps/web/src/features/product-setup/",
 ];
+
+/**
+ * Everything the design system actually ships. packages/ui was missing from an
+ * earlier version, which hid the canonical `font-500` in Button's cva base —
+ * the very defect that motivated the audit — and made the baseline incomplete.
+ */
+const SCAN_ROOTS = [join(APP_ROOT, "src"), UI_SRC];
 
 /** Ratcheted categories. Advisory ones are reported but never fail the build. */
 const RATCHETED = [
@@ -101,10 +108,12 @@ function handWrittenCssClasses() {
   }
   // …and classes defined in inline <style> blocks (styled-jsx). Missing these
   // reports a page's own local CSS classes as dead Tailwind utilities.
-  for (const file of sourceFiles(join(APP_ROOT, "src"))) {
+  for (const root of SCAN_ROOTS) {
+    for (const file of sourceFiles(root)) {
     const src = readFileSync(file, "utf8");
     for (const block of src.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)) {
       for (const m of block[1].matchAll(/\.(-?[_a-zA-Z][\w-]*)/g)) names.add(m[1]);
+    }
     }
   }
   return names;
@@ -159,7 +168,17 @@ function scanBalanced(src, start) {
   return Math.min(src.length - 1, start + 4000);
 }
 
-function extractClassStrings(src) {
+/**
+ * Comments are stripped first: a doc comment that MENTIONS className (e.g.
+ * `Coloring still works via className="text-*"`) would otherwise be scanned as
+ * live code and its prose reported as dead classes.
+ */
+function stripComments(src) {
+  return src.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "));
+}
+
+function extractClassStrings(input) {
+  const src = stripComments(input);
   const out = [];
   const re = /\b(className|cn|cva|clsx|twMerge)\s*(=|\()/g;
   let m;
@@ -186,7 +205,14 @@ function extractClassStrings(src) {
         continue;
       }
     }
-    const chunk = src.slice(from, to + 1);
+    let chunk = src.slice(from, to + 1);
+    // cva()'s `defaultVariants: { variant: "filled", size: "md" }` holds variant
+    // KEY NAMES, not class strings — without this, "filled"/"md"/"plain" get
+    // reported as dead utilities.
+    if (m[1] === "cva") {
+      const cut = chunk.indexOf("defaultVariants");
+      if (cut !== -1) chunk = chunk.slice(0, cut);
+    }
     for (const lit of chunk.matchAll(/(["'`])((?:\\.|(?!\1)[\s\S])*)\1/g)) {
       // `className={mode === "store" ? "…" : "…"}` — the comparison operand is
       // a value, not a class list. Without this, "store"/"Spotlights" get
@@ -202,7 +228,7 @@ function extractClassStrings(src) {
 const CANDIDATE = /^-?[a-z][a-z0-9]*(?:[-/:.[\]()#%!,+&>~*_a-z0-9]*)$/i;
 
 function analyseFile(path, src, isRealClass, cssClasses, exemptions) {
-  const rel = relative(APP_ROOT, path);
+  const rel = relative(REPO_ROOT, path);
   const findings = [];
   const add = (category, index, detail) =>
     findings.push({ category, file: rel, line: lineOf(src, index), detail });
@@ -323,9 +349,9 @@ const cssClasses = handWrittenCssClasses();
 
 const allFindings = [];
 const perFileStrings = [];
-for (const file of sourceFiles(join(APP_ROOT, "src"))) {
+for (const file of SCAN_ROOTS.flatMap((root) => [...sourceFiles(root)])) {
   const src = readFileSync(file, "utf8");
-  const rel = relative(APP_ROOT, file);
+  const rel = relative(REPO_ROOT, file);
   const exempt = new Set(
     (exemptions.files ?? []).filter((e) => rel.startsWith(e.path)).flatMap((e) => e.categories)
   );
@@ -344,6 +370,19 @@ const adoption = componentAdoption();
 const orphans = [...adoption.entries()].filter(([, importers]) => importers.size === 0).map(([k]) => k);
 const duplicates = duplicateClassStrings(perFileStrings);
 
+/**
+ * Per-finding fingerprints. Category totals alone let a NEW violation hide
+ * behind an unrelated cleanup in the same bucket — remove one raw hex, add
+ * another, and the count is unchanged. The fingerprint is
+ * `category|file|detail` WITHOUT the line number, so moving code around does
+ * not churn the baseline while a genuinely new violation still shows up.
+ */
+const fingerprints = {};
+for (const f of allFindings) {
+  const key = `${f.category}|${f.file}|${f.detail}`;
+  fingerprints[key] = (fingerprints[key] ?? 0) + 1;
+}
+
 const report = {
   generatedAt: new Date().toISOString(),
   counts,
@@ -352,6 +391,7 @@ const report = {
     .map((f) => `${f.file}:${f.line}  ${f.detail}`),
   orphanComponents: orphans,
   duplicateClassStrings: duplicates.slice(0, 25),
+  fingerprints,
   findings: allFindings,
 };
 
@@ -384,7 +424,8 @@ if (duplicates.length)
 console.log(`\n  Full report: ${relative(REPO_ROOT, join(REPORT_DIR, "report.json"))}\n`);
 
 if (process.argv.includes("--update-baseline")) {
-  writeFileSync(BASELINE_PATH, JSON.stringify({ counts }, null, 2) + "\n");
+  const sorted = Object.fromEntries(Object.entries(fingerprints).sort(([a], [b]) => a.localeCompare(b)));
+  writeFileSync(BASELINE_PATH, JSON.stringify({ counts, fingerprints: sorted }, null, 2) + "\n");
   console.log(`  Baseline updated: ${relative(REPO_ROOT, BASELINE_PATH)}\n`);
   process.exit(0);
 }
@@ -395,22 +436,27 @@ if (process.argv.includes("--check")) {
     console.error("  ERROR: no baseline. Run with --update-baseline and commit the result.\n");
     process.exit(1);
   }
+  // Finding-level, so a cleanup cannot mask a new violation of the same kind.
+  const base = baseline.fingerprints ?? {};
   const worse = [];
-  for (const category of RATCHETED) {
-    for (const bucket of ["live", "deferred"]) {
-      const now = counts[category][bucket];
-      const was = baseline.counts?.[category]?.[bucket] ?? 0;
-      if (now > was) worse.push(`${category} (${bucket}): ${was} → ${now}`);
+  for (const [key, count] of Object.entries(fingerprints)) {
+    const [category] = key.split("|");
+    if (!RATCHETED.includes(category)) continue;
+    const was = base[key] ?? 0;
+    if (count > was) {
+      const [, file, detail] = key.split("|");
+      worse.push(was === 0 ? `NEW  ${category}  ${file}  ${detail}` : `+${count - was}   ${category}  ${file}  ${detail}`);
     }
   }
   if (worse.length) {
-    console.error("  DRIFT INCREASED — new design-system violations:\n");
-    for (const w of worse) console.error(`    ${w}`);
+    console.error(`  DRIFT INCREASED — ${worse.length} new design-system violation(s):\n`);
+    for (const w of worse.slice(0, 40)) console.error(`    ${w}`);
+    if (worse.length > 40) console.error(`    …and ${worse.length - 40} more`);
     console.error(
       "\n  Fix them, or if the increase is deliberate and reviewed, re-run with" +
         "\n  --update-baseline and explain the rise in the commit message.\n"
     );
     process.exit(1);
   }
-  console.log("  Ratchet OK — no category worsened against the baseline.\n");
+  console.log(`  Ratchet OK — no new violations against ${Object.keys(base).length} baselined findings.\n`);
 }
