@@ -302,9 +302,11 @@ function duplicateClassStrings(perFileStrings, min = 3) {
 }
 
 /**
- * Component adoption. Resolves BOTH `@vibaar/ui/common/X` and relative
- * `./X` / `../common/X` imports — a package-specifier-only scan reports
- * package-internal presets (StoreLogo → Avatar) as orphans.
+ * Component adoption. Resolves `@vibaar/ui/common/X`, relative `./X` /
+ * `../common/X`, AND dynamic `import("…")` specifiers (e.g. next/dynamic:
+ * `dynamic(() => import("../../slidingcomponent"))`) — a scan that only saw
+ * static `from "…"` reported dynamically-loaded components (and
+ * package-internal presets like StoreLogo → Avatar) as false orphans.
  */
 function componentAdoption() {
   const components = new Map(); // rel path without extension -> Set(importers)
@@ -315,7 +317,7 @@ function componentAdoption() {
   const scan = [...sourceFiles(join(APP_ROOT, "src")), ...sourceFiles(UI_SRC)];
   for (const file of scan) {
     const src = readFileSync(file, "utf8");
-    for (const m of src.matchAll(/from\s+["']([^"']+)["']/g)) {
+    for (const m of src.matchAll(/(?:from\s+|import\s*\(\s*)["']([^"']+)["']/g)) {
       const spec = m[1];
       let key = null;
       if (spec.startsWith("@vibaar/ui/")) {

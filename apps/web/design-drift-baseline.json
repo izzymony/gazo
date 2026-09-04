@@ -1,7 +1,7 @@
 {
   "counts": {
     "unknown-utility": {
-      "live": 28,
+      "live": 15,
       "deferred": 37
     },
     "raw-hex": {
@@ -9,7 +9,7 @@
       "deferred": 107
     },
     "arbitrary-utility": {
-      "live": 302,
+      "live": 299,
       "deferred": 599
     },
     "legacy-type-scale": {
@@ -597,13 +597,11 @@
     "arbitrary-utility|apps/web/src/features/storefront/VendorHeader.tsx|max-w-[350px]": 1,
     "arbitrary-utility|apps/web/src/features/storefront/VendorHeader.tsx|rounded-b-[20px]": 3,
     "arbitrary-utility|apps/web/src/features/storefront/VendorNav.tsx|max-w-[150px]": 1,
-    "arbitrary-utility|packages/ui/src/animated/AnimatedImages.tsx|-webkit-backdrop-blur-[1px]": 1,
     "arbitrary-utility|packages/ui/src/animated/AnimatedImages.tsx|backdrop-blur-[1px]": 1,
     "arbitrary-utility|packages/ui/src/animated/AnimatedImages.tsx|h-[250px]": 1,
     "arbitrary-utility|packages/ui/src/animated/AnimatedImages.tsx|h-[calc(6rem+1rem)]": 1,
     "arbitrary-utility|packages/ui/src/animated/AnimatedImages.tsx|w-[250px]": 1,
     "arbitrary-utility|packages/ui/src/animated/SlideContent.tsx|h-[4px]": 1,
-    "arbitrary-utility|packages/ui/src/AnimatedHeader.tsx|-webkit-backdrop-blur-[1px]": 2,
     "arbitrary-utility|packages/ui/src/AnimatedHeader.tsx|backdrop-blur-[1px]": 2,
     "arbitrary-utility|packages/ui/src/AnimatedHeader.tsx|h-[250x]": 1,
     "arbitrary-utility|packages/ui/src/AnimatedHeader.tsx|h-[4px]": 1,
@@ -723,10 +721,10 @@
     "dynamic-classname|apps/web/src/features/storefront/ProductHeader.tsx|capitalize font-medium text-body-lg ${\n                !isSeller?.pro && \"text-b": 1,
     "dynamic-classname|apps/web/src/features/storefront/VendorDatatSort.tsx|px-2.5 md:px-3 text-xs md:text-sm py-1 md:py-1.5 rounded-full flex items-center ": 1,
     "dynamic-classname|apps/web/src/features/storefront/VendorNav.tsx|flex items-center flex-col transition-colors ${\n              isActive ? \"text-b": 1,
-    "dynamic-classname|packages/ui/src/animated/AnimatedImages.tsx|absolute inset-0 transition-opacity duration-800 ease-in-out ${\n              cu": 1,
+    "dynamic-classname|packages/ui/src/animated/AnimatedImages.tsx|absolute inset-0 transition-opacity ease-in-out ${\n              currentSlide ==": 1,
     "dynamic-classname|packages/ui/src/animated/SlideContent.tsx|absolute w-full text-center transition-opacity duration-500 ${currentSlide === i": 1,
     "dynamic-classname|packages/ui/src/animated/SlideContent.tsx|h-[4px] rounded-full transition-all duration-300 ${currentSlide === index\n      ": 1,
-    "dynamic-classname|packages/ui/src/AnimatedHeader.tsx|absolute inset-0 transition-opacity duration-800 ease-in-out ${currentSlide === ": 1,
+    "dynamic-classname|packages/ui/src/AnimatedHeader.tsx|absolute inset-0 transition-opacity ease-in-out ${currentSlide === index\n       ": 1,
     "dynamic-classname|packages/ui/src/AnimatedHeader.tsx|absolute w-full text-center transition-opacity duration-500 ${currentSlide === i": 1,
     "dynamic-classname|packages/ui/src/AnimatedHeader.tsx|h-[4px] rounded-full transition-all duration-300 ${currentSlide === index\n      ": 1,
     "dynamic-classname|packages/ui/src/common/Avatar.tsx|flex items-center justify-center rounded-full bg-gradient-to-br ${colorFor(\n    ": 1,
@@ -1169,17 +1167,6 @@
     "unknown-utility|apps/web/src/features/storefront/Product.tsx|lime-clamp-2": 1,
     "unknown-utility|apps/web/src/features/storefront/product/ProductInfo.tsx|fex-row": 1,
     "unknown-utility|apps/web/src/features/storefront/VendorHeader.tsx|item-center": 2,
-    "unknown-utility|packages/ui/src/animated/AnimatedImages.tsx|-webkit-backdrop-blur-[1px]": 1,
-    "unknown-utility|packages/ui/src/animated/AnimatedImages.tsx|duration-800": 1,
-    "unknown-utility|packages/ui/src/animated/SlideContent.tsx|-mt-18": 1,
-    "unknown-utility|packages/ui/src/animated/SlideContent.tsx|-mt-21": 1,
-    "unknown-utility|packages/ui/src/AnimatedHeader.tsx|-webkit-backdrop-blur-[1px]": 2,
-    "unknown-utility|packages/ui/src/AnimatedHeader.tsx|duration-800": 1,
-    "unknown-utility|packages/ui/src/common/Avatar.tsx|hover:bg-opacity-1": 1,
-    "unknown-utility|packages/ui/src/common/Button.tsx|font-500": 1,
-    "unknown-utility|packages/ui/src/common/Footer.tsx|-leading-1": 1,
-    "unknown-utility|packages/ui/src/common/InputField.tsx|-z-1": 2,
-    "unknown-utility|packages/ui/src/common/Switch.tsx|toggle-checkbox": 1,
     "unknown-utility|packages/ui/src/slidingcomponent.tsx|bg-ink-20/10": 2,
     "unknown-utility|packages/ui/src/slidingcomponent.tsx|hover:bg-ink-20/20": 2
   }
