@@ -60,3 +60,7 @@ pg_dump*.sql
 # it become trackable, which is the exact failure this guards against.
 apps/web/src/app/(dev)/
 apps/web/.playground-parked/
+
+# drift audit report — regenerated on every run, never committed (the reviewed
+# BASELINE at apps/web/design-drift-baseline.json is what is version-controlled)
+apps/web/.drift/

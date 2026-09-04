@@ -1,0 +1,40 @@
+{
+  "counts": {
+    "unknown-utility": {
+      "live": 38,
+      "deferred": 42
+    },
+    "raw-hex": {
+      "live": 166,
+      "deferred": 107
+    },
+    "arbitrary-utility": {
+      "live": 235,
+      "deferred": 599
+    },
+    "legacy-type-scale": {
+      "live": 23,
+      "deferred": 104
+    },
+    "raw-palette-color": {
+      "live": 12,
+      "deferred": 17
+    },
+    "inline-style": {
+      "live": 43,
+      "deferred": 53
+    },
+    "native-button": {
+      "live": 58,
+      "deferred": 47
+    },
+    "inline-svg": {
+      "live": 49,
+      "deferred": 78
+    },
+    "dynamic-classname": {
+      "live": 54,
+      "deferred": 31
+    }
+  }
+}

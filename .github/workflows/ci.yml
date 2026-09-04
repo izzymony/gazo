@@ -32,6 +32,12 @@ jobs:
       - run: node apps/web/scripts/playground-guard.mjs assert-untracked
       - run: pnpm type-check
       - run: pnpm lint
+      # Design-system drift ratchet. Fails on NEW violations against the reviewed
+      # baseline in apps/web/design-drift-baseline.json — dead Tailwind classes
+      # (validated with Tailwind's own engine, not a regex), raw hex, arbitrary
+      # utilities, legacy type scale, raw palette colours, inline styles.
+      # Cleanups lower the floor; a deliberate rise must be re-baselined.
+      - run: node apps/web/scripts/design-drift.mjs --check
       - run: pnpm test
       # Build smoke. Verified env-safe: both apps compile with NO .env files
       # present. Fonts are self-hosted (F3) so there is no build-time Google
