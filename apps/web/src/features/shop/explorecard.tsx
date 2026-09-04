@@ -39,8 +39,8 @@ export default function Explore({
             <path
               d="M8.28906 15.5L13.2891 10.5L8.28906 5.5"
               stroke={tik ? "white" : "black"}
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
           </g>
         </svg>

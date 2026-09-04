@@ -156,7 +156,7 @@ export default function ExploreCard({
                       cy="2"
                       r="2"
                       fill="black"
-                      fill-opacity="0.2"
+                      fillOpacity="0.2"
                     />
                   </svg>{" "}
                   <svg
@@ -168,8 +168,8 @@ export default function ExploreCard({
                     <path
                       d="M7.50457 6.5987C8.1112 6.90344 8.63129 7.39248 9.01092 8.00401C9.0861 8.12511 9.12369 8.18566 9.13668 8.26951C9.1631 8.43991 9.04657 8.64939 8.88788 8.71682C8.80979 8.75 8.72194 8.75 8.54624 8.75M6.67124 4.8051C7.28862 4.49829 7.7129 3.86119 7.7129 3.125C7.7129 2.38881 7.28862 1.75171 6.67124 1.4449M5.8379 3.125C5.8379 4.16053 4.99844 5 3.9629 5C2.92737 5 2.0879 4.16053 2.0879 3.125C2.0879 2.08947 2.92737 1.25 3.9629 1.25C4.99844 1.25 5.8379 2.08947 5.8379 3.125ZM1.07092 7.89098C1.73521 6.89356 2.78348 6.25 3.9629 6.25C5.14233 6.25 6.1906 6.89356 6.85489 7.89098C7.00042 8.10948 7.07318 8.21873 7.06481 8.3583C7.05828 8.46697 6.98705 8.6 6.90022 8.66566C6.78871 8.75 6.63533 8.75 6.32859 8.75H1.59722C1.29048 8.75 1.1371 8.75 1.02559 8.66566C0.938757 8.6 0.867524 8.46697 0.861001 8.3583C0.852624 8.21873 0.925388 8.10948 1.07092 7.89098Z"
                       stroke="white"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     />
                   </svg>
                   {businessDetails?.followers_count || "0"}
@@ -281,7 +281,7 @@ export default function ExploreCard({
                             height="19.5907"
                             rx="9.79535"
                             fill="black"
-                            fill-opacity="0.15"
+                            fillOpacity="0.15"
                           />
                           <mask
                             id="mask0_7965_57995"
@@ -318,7 +318,7 @@ export default function ExploreCard({
                             height="25.92"
                             rx="12"
                             fill="black"
-                            fill-opacity="0.15"
+                            fillOpacity="0.15"
                           />
                           <mask
                             id="mask0_4527_80385"
@@ -339,9 +339,9 @@ export default function ExploreCard({
                             <path
                               d="M14.4667 8.14062C16.58 8.14062 18 10.1521 18 12.0286C18 15.8289 12.1067 18.9406 12 18.9406C11.8933 18.9406 6 15.8289 6 12.0286C6 10.1521 7.42 8.14062 9.53333 8.14062C10.7467 8.14062 11.54 8.75488 12 9.29488C12.46 8.75488 13.2533 8.14062 14.4667 8.14062Z"
                               stroke="white"
-                              stroke-width="0.72"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
+                              strokeWidth="0.72"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
                             />
                           </g>
                         </svg>

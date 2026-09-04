@@ -17,8 +17,8 @@ export const signupOptions = [
             fill="url(#paint1_radial_7909_20326)"
           />
           <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
+            fillRule="evenodd"
+            clipRule="evenodd"
             d="M9.98338 5.87201C7.71452 5.87201 5.875 7.71151 5.875 9.98035C5.875 12.2492 7.71452 14.0878 9.98338 14.0878C12.2522 14.0878 14.0913 12.2492 14.0913 9.98035C14.0913 7.71151 12.2522 5.87201 9.98338 5.87201ZM10 12.625C11.4498 12.625 12.625 11.4498 12.625 10C12.625 8.55027 11.4498 7.37502 10 7.37502C8.55026 7.37502 7.375 8.55027 7.375 10C7.375 11.4498 8.55026 12.625 10 12.625Z"
             fill="url(#paint2_radial_7909_20326)"
           />
@@ -31,8 +31,8 @@ export const signupOptions = [
             fill="url(#paint4_radial_7909_20326)"
           />
           <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
+            fillRule="evenodd"
+            clipRule="evenodd"
             d="M9.98338 5.87201C7.71452 5.87201 5.875 7.71151 5.875 9.98035C5.875 12.2492 7.71452 14.0878 9.98338 14.0878C12.2522 14.0878 14.0913 12.2492 14.0913 9.98035C14.0913 7.71151 12.2522 5.87201 9.98338 5.87201ZM10 12.625C11.4498 12.625 12.625 11.4498 12.625 10C12.625 8.55027 11.4498 7.37502 10 7.37502C8.55026 7.37502 7.375 8.55027 7.375 10C7.375 11.4498 8.55026 12.625 10 12.625Z"
             fill="url(#paint5_radial_7909_20326)"
           />
@@ -44,10 +44,10 @@ export const signupOptions = [
               r="1"
               gradientUnits="userSpaceOnUse"
               gradientTransform="translate(6.25002 19.2323) rotate(-90) scale(15.8572 14.7484)">
-              <stop stop-color="#FFDD55" />
-              <stop offset="0.1" stop-color="#FFDD55" />
-              <stop offset="0.5" stop-color="#FF543E" />
-              <stop offset="1" stop-color="#C837AB" />
+              <stop stopColor="#FFDD55" />
+              <stop offset="0.1" stopColor="#FFDD55" />
+              <stop offset="0.5" stopColor="#FF543E" />
+              <stop offset="1" stopColor="#C837AB" />
             </radialGradient>
             <radialGradient
               id="paint1_radial_7909_20326"
@@ -56,10 +56,10 @@ export const signupOptions = [
               r="1"
               gradientUnits="userSpaceOnUse"
               gradientTransform="translate(6.25002 19.2323) rotate(-90) scale(15.8572 14.7484)">
-              <stop stop-color="#FFDD55" />
-              <stop offset="0.1" stop-color="#FFDD55" />
-              <stop offset="0.5" stop-color="#FF543E" />
-              <stop offset="1" stop-color="#C837AB" />
+              <stop stopColor="#FFDD55" />
+              <stop offset="0.1" stopColor="#FFDD55" />
+              <stop offset="0.5" stopColor="#FF543E" />
+              <stop offset="1" stopColor="#C837AB" />
             </radialGradient>
             <radialGradient
               id="paint2_radial_7909_20326"
@@ -68,10 +68,10 @@ export const signupOptions = [
               r="1"
               gradientUnits="userSpaceOnUse"
               gradientTransform="translate(6.25002 19.2323) rotate(-90) scale(15.8572 14.7484)">
-              <stop stop-color="#FFDD55" />
-              <stop offset="0.1" stop-color="#FFDD55" />
-              <stop offset="0.5" stop-color="#FF543E" />
-              <stop offset="1" stop-color="#C837AB" />
+              <stop stopColor="#FFDD55" />
+              <stop offset="0.1" stopColor="#FFDD55" />
+              <stop offset="0.5" stopColor="#FF543E" />
+              <stop offset="1" stopColor="#C837AB" />
             </radialGradient>
             <radialGradient
               id="paint3_radial_7909_20326"
@@ -80,9 +80,9 @@ export const signupOptions = [
               r="1"
               gradientUnits="userSpaceOnUse"
               gradientTransform="translate(-0.680085 3.15261) rotate(78.6806) scale(7.08823 29.218)">
-              <stop stop-color="#3771C8" />
-              <stop offset="0.128" stop-color="#3771C8" />
-              <stop offset="1" stop-color="#6600FF" stop-opacity="0" />
+              <stop stopColor="#3771C8" />
+              <stop offset="0.128" stopColor="#3771C8" />
+              <stop offset="1" stopColor="#6600FF" stopOpacity="0" />
             </radialGradient>
             <radialGradient
               id="paint4_radial_7909_20326"
@@ -91,9 +91,9 @@ export const signupOptions = [
               r="1"
               gradientUnits="userSpaceOnUse"
               gradientTransform="translate(-0.680085 3.15261) rotate(78.6806) scale(7.08823 29.218)">
-              <stop stop-color="#3771C8" />
-              <stop offset="0.128" stop-color="#3771C8" />
-              <stop offset="1" stop-color="#6600FF" stop-opacity="0" />
+              <stop stopColor="#3771C8" />
+              <stop offset="0.128" stopColor="#3771C8" />
+              <stop offset="1" stopColor="#6600FF" stopOpacity="0" />
             </radialGradient>
             <radialGradient
               id="paint5_radial_7909_20326"
@@ -102,9 +102,9 @@ export const signupOptions = [
               r="1"
               gradientUnits="userSpaceOnUse"
               gradientTransform="translate(-0.680085 3.15261) rotate(78.6806) scale(7.08823 29.218)">
-              <stop stop-color="#3771C8" />
-              <stop offset="0.128" stop-color="#3771C8" />
-              <stop offset="1" stop-color="#6600FF" stop-opacity="0" />
+              <stop stopColor="#3771C8" />
+              <stop offset="0.128" stopColor="#3771C8" />
+              <stop offset="1" stopColor="#6600FF" stopOpacity="0" />
             </radialGradient>
           </defs>
         </svg>
@@ -121,32 +121,32 @@ export const signupOptions = [
           fill="none"
           xmlns="http://www.w3.org/2000/svg">
           <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
+            fillRule="evenodd"
+            clipRule="evenodd"
             d="M8.52094 8.30441V7.68044C8.30433 7.64978 8.08593 7.63385 7.86716 7.63281C5.19202 7.63281 3.01562 9.80921 3.01562 12.4839C3.01562 14.1246 3.83576 15.577 5.08685 16.4552C4.24914 15.5595 3.78341 14.3788 3.78409 13.1526C3.78409 10.516 5.89855 8.36597 8.52094 8.30441Z"
             fill="#00F2EA"
           />
           <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
+            fillRule="evenodd"
+            clipRule="evenodd"
             d="M8.63585 15.3663C9.8294 15.3663 10.8031 14.417 10.8474 13.2339L10.8515 2.67258H12.7812C12.74 2.45206 12.7192 2.22823 12.7189 2.00391H10.0834L10.079 12.5656C10.035 13.7483 9.06096 14.6973 7.86776 14.6973C7.50952 14.6974 7.15668 14.6102 6.83984 14.443C7.04441 14.7284 7.31402 14.961 7.62633 15.1215C7.93863 15.2821 8.28467 15.366 8.63585 15.3663ZM16.3868 6.25895V5.67198C15.6776 5.67264 14.9836 5.46638 14.39 5.07843C14.9105 5.67761 15.6113 6.09181 16.3872 6.25895"
             fill="#00F2EA"
           />
           <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
+            fillRule="evenodd"
+            clipRule="evenodd"
             d="M14.3917 5.06761C13.81 4.40204 13.4895 3.548 13.4899 2.66406H12.7837C12.8752 3.15263 13.0648 3.61756 13.3412 4.03071C13.6176 4.44385 13.975 4.7966 14.3917 5.06761ZM7.86796 10.2612C7.28054 10.2619 6.7174 10.4955 6.30202 10.9108C5.88668 11.3261 5.65304 11.8891 5.65234 12.4765C5.65274 12.8805 5.76355 13.2767 5.97282 13.6223C6.18209 13.9679 6.48183 14.2497 6.83967 14.4374C6.5672 14.0617 6.42049 13.6095 6.42046 13.1455C6.42103 12.5581 6.65463 11.995 7.07001 11.5796C7.48538 11.1643 8.04859 10.9306 8.63607 10.9299C8.86438 10.9299 9.08315 10.9677 9.28982 11.0325V8.34206C9.07325 8.3114 8.85481 8.29547 8.63607 8.29444C8.59757 8.29444 8.55984 8.29664 8.52174 8.29737V10.3639C8.3103 10.2966 8.08983 10.262 7.86796 10.2612Z"
             fill="#FF004F"
           />
           <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
+            fillRule="evenodd"
+            clipRule="evenodd"
             d="M16.3827 6.25818V8.30633C15.0158 8.30633 13.7496 7.86923 12.7155 7.12728V12.4829C12.7155 15.1575 10.5395 17.3336 7.86432 17.3336C6.83053 17.3336 5.87188 17.0075 5.08398 16.4542C5.53697 16.9426 6.08595 17.3322 6.69656 17.5986C7.30717 17.865 7.96622 18.0024 8.6324 18.0022C11.3076 18.0022 13.484 15.8262 13.484 13.1519V7.79631C14.5523 8.56439 15.8352 8.97689 17.1511 8.97536V6.33953C16.8873 6.33953 16.6307 6.31094 16.3827 6.25781"
             fill="#FF004F"
           />
           <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
+            fillRule="evenodd"
+            clipRule="evenodd"
             d="M12.7194 12.481V7.12541C13.7877 7.89356 15.0707 8.30606 16.3866 8.30446V6.25631C15.6107 6.089 14.9101 5.67467 14.3898 5.07543C13.973 4.80442 13.6156 4.45166 13.3392 4.03852C13.0628 3.62538 12.8732 3.16045 12.7817 2.67188H10.8519L10.8479 13.2332C10.8036 14.4159 9.82989 15.3653 8.63634 15.3653C8.28516 15.3649 7.93912 15.2809 7.62681 15.1204C7.31454 14.9599 7.04494 14.7273 6.84033 14.4419C6.48242 14.2543 6.18259 13.9725 5.97325 13.6269C5.76391 13.2813 5.65304 12.885 5.65264 12.481C5.65331 11.8937 5.88695 11.3306 6.30232 10.9154C6.71766 10.5001 7.28084 10.2665 7.86825 10.2658C8.09619 10.2658 8.31496 10.3032 8.522 10.3684V8.30189C5.89961 8.36345 3.78516 10.5135 3.78516 13.15C3.78516 14.4251 4.28061 15.5858 5.08792 16.4527C5.90178 17.0255 6.87297 17.3326 7.86825 17.3317C10.5434 17.3317 12.7194 15.1557 12.7194 12.481Z"
             fill="black"
           />
@@ -165,26 +165,26 @@ export const signupOptions = [
         fill="none"
         xmlns="http://www.w3.org/2000/svg">
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M19.6 10.229C19.6 9.51996 19.5364 8.83814 19.4182 8.18359H10V12.0518H15.3818C15.15 13.3018 14.4455 14.3609 13.3864 15.07V17.5791H16.6182C18.5091 15.8381 19.6 13.2745 19.6 10.229Z"
           fill="#4285F4"
         />
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M10.0008 19.9984C12.7008 19.9984 14.9645 19.103 16.619 17.5757L13.3872 15.0666C12.4917 15.6666 11.3463 16.0212 10.0008 16.0212C7.39627 16.0212 5.19173 14.2621 4.40536 11.8984H1.06445V14.4893C2.70991 17.7575 6.09173 19.9984 10.0008 19.9984Z"
           fill="#34A853"
         />
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M4.40455 11.8987C4.20455 11.2987 4.09091 10.6578 4.09091 9.99872C4.09091 9.33963 4.20455 8.69872 4.40455 8.09872V5.50781H1.06364C0.386364 6.85781 0 8.38509 0 9.99872C0 11.6124 0.386364 13.1396 1.06364 14.4896L4.40455 11.8987Z"
           fill="#FBBC05"
         />
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M10.0008 3.97727C11.469 3.97727 12.7872 4.48182 13.8235 5.47273L16.6917 2.60455C14.9599 0.990909 12.6963 0 10.0008 0C6.09173 0 2.70991 2.24091 1.06445 5.50909L4.40536 8.1C5.19173 5.73636 7.39627 3.97727 10.0008 3.97727Z"
           fill="#EA4335"
         />

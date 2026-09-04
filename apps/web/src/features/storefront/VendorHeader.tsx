@@ -156,7 +156,7 @@ function VendorHeader({ isSeller }: HeaderProp) {
                 height="36"
                 rx="18"
                 fill="black"
-                fill-opacity="0.05"
+                fillOpacity="0.05"
               />
               <mask
                 id="mask0_7914_50392"
@@ -171,8 +171,8 @@ function VendorHeader({ isSeller }: HeaderProp) {
                 <path
                   d="M23.832 18.0013H12.1654M12.1654 18.0013L17.9987 12.168M12.1654 18.0013L17.9987 23.8346"
                   stroke="white"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               </g>
             </svg>

@@ -29,15 +29,15 @@ const Page = () => {
                 <path
                   d="M23.832 17.9993H12.1654M12.1654 17.9993L17.9987 12.166M12.1654 17.9993L17.9987 23.8327"
                   stroke="white"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
                 <path
                   d="M23.832 17.9993H12.1654M12.1654 17.9993L17.9987 12.166M12.1654 17.9993L17.9987 23.8327"
                   stroke="black"
-                  stroke-opacity="0.6"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeOpacity="0.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               </g>
             </svg>

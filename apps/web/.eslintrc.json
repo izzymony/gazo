@@ -12,6 +12,7 @@
         ]
       }
     ],
+    "react/no-unknown-property": ["error", { "ignore": ["jsx", "global"] }],
     "no-restricted-syntax": [
       "error",
       {
