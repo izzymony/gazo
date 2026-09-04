@@ -154,6 +154,7 @@ html {
   --brand-rgb: 255 229 0;          /* #FFE500 — vibaar brand yellow */
   --brand: rgb(var(--brand-rgb));  /* convenience for inline styles / SVG fill+stroke */
   --brand-hover: #E6CE00;          /* pressed/hover shade — 10% darker */
+  --brand-hover-rgb: 230 206 0;    /* channels, so Tailwind's /opacity composes */
 
   /* Brand yellow carries BLACK, never white: white-on-#FFE500 is 1.28:1 and
      unreadable. --brand-ink is what sits ON a brand surface (16.5:1).
@@ -162,6 +163,7 @@ html {
   --brand-ink: #14130E;            /* on-brand foreground — 16.5:1 on #FFE500 */
   --brand-ink-rgb: 20 19 14;       /* same, as channels, for /alpha shadows */
   --brand-deep: #7A5E00;           /* brand-as-text on white — 6.1:1 */
+  --brand-deep-rgb: 122 94 0;      /* channels, so Tailwind's /opacity composes */
 
   /* Ink — black-on-white alpha ramp (the app's "soft black" family). Defined as
      the EXACT hex values already scattered across the app (number ≈ opacity %)
@@ -184,15 +186,26 @@ html {
   /* Hairline border */
   --line: rgba(0, 0, 0, 0.06);
 
-  /* Semantic status colors (values match existing usage) */
+  /* Semantic status colors (values match existing usage).
+     Each also carries an -rgb channel triplet. Tailwind can only apply a
+     /opacity modifier to a colour declared `rgb(var(--x-rgb) / <alpha-value>)`;
+     a bare `var(--x)` silently generates NO CSS for `bg-success/10`, so the
+     tinted surfaces across the seller dashboard and payouts rendered with no
+     background at all. The hex vars stay for direct var() use in CSS/SVG. */
   --success: #06C270;   /* brand green / green DEFAULT (solid fills, icons) */
+  --success-rgb: 6 194 112;
   --error: #CC2020;     /* brand error / red DEFAULT */
+  --error-rgb: 204 32 32;
   --warning: #F59E0B;   /* amber (solid fills, icons) */
+  --warning-rgb: 245 158 11;
   --info: #0063F7;      /* link blue */
+  --info-rgb: 0 99 247;
   /* `strong` = deeper, text-safe shades for coloured TEXT on light/tinted bg,
      where the solid tokens above read washed-out and low-contrast. */
   --success-strong: #047857;  /* emerald-700 — green text on white/tint */
+  --success-strong-rgb: 4 120 87;
   --warning-strong: #B45309;  /* amber-700 — amber text on white/tint */
+  --warning-strong-rgb: 180 83 9;
 
   /* Radius scale (semantic) */
   --radius-field: 12px;

@@ -43,12 +43,12 @@ module.exports = {
       },
       colors: {
         brand: "rgb(var(--brand-rgb) / <alpha-value>)",
-        brandHover: "var(--brand-hover)",
+        brandHover: "rgb(var(--brand-hover-rgb) / <alpha-value>)",
         // Brand yellow carries BLACK, never white (white-on-brand = 1.28:1).
         // brandInk = foreground ON a brand surface. brandDeep = brand AS text
         // on a light surface, where the yellow itself is invisible.
-        brandInk: "var(--brand-ink)",
-        brandDeep: "var(--brand-deep)",
+        brandInk: "rgb(var(--brand-ink-rgb) / <alpha-value>)",
+        brandDeep: "rgb(var(--brand-deep-rgb) / <alpha-value>)",
         ink: {
           3: "var(--ink-3)",
           5: "var(--ink-5)",
@@ -63,10 +63,23 @@ module.exports = {
           90: "var(--ink-90)",
         },
         line: "var(--line)",
-        success: { DEFAULT: "var(--success)", strong: "var(--success-strong)" },
-        error: "var(--error)",
-        warning: { DEFAULT: "var(--warning)", strong: "var(--warning-strong)" },
-        info: "var(--info)",
+        // Declared with an <alpha-value> slot, NOT a bare var(): Tailwind can
+        // only generate a /opacity modifier for the former. As bare vars,
+        // bg-success/10, bg-warning/10, text-brandInk/70 and friends emitted no
+        // CSS at all — 31 dead utilities across the app, invisible to
+        // tsc/lint/build. `ink-*` is deliberately NOT converted: those tokens
+        // are already alpha (--ink-50 is 50% black), so a modifier would
+        // compound into a silent double-dim rather than fail loudly.
+        success: {
+          DEFAULT: "rgb(var(--success-rgb) / <alpha-value>)",
+          strong: "rgb(var(--success-strong-rgb) / <alpha-value>)",
+        },
+        error: "rgb(var(--error-rgb) / <alpha-value>)",
+        warning: {
+          DEFAULT: "rgb(var(--warning-rgb) / <alpha-value>)",
+          strong: "rgb(var(--warning-strong-rgb) / <alpha-value>)",
+        },
+        info: "rgb(var(--info-rgb) / <alpha-value>)",
         green: { ...colors.green, DEFAULT: "#06C270" },
         red: { ...colors.red, DEFAULT: "#CC2020" },
         black: "#000000E5",

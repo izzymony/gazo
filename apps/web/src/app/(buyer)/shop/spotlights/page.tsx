@@ -313,7 +313,7 @@ const Page = () => {
                   <div className="z-10">
                     {/* Story Progress Bar */}
                     {isCurrentCard && (
-                      <div className="w-full rounded-field h-1 bg-ink-40/50 z-[9999] relative">
+                      <div className="w-full rounded-field h-1 bg-ink-20 z-[9999] relative">
                         <div
                           className="h-full bg-white z-[9999] transition-all duration-100"
                           style={{ width: `${loadingProgress}%` }}></div>

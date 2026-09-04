@@ -1,8 +1,8 @@
 {
   "counts": {
     "unknown-utility": {
-      "live": 38,
-      "deferred": 42
+      "live": 11,
+      "deferred": 38
     },
     "raw-hex": {
       "live": 166,
