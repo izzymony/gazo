@@ -310,11 +310,16 @@ function duplicateClassStrings(perFileStrings, min = 3) {
  */
 function componentAdoption() {
   const components = new Map(); // rel path without extension -> Set(importers)
+  const isTestSource = (file) => /(^|[/\\])__tests__([/\\])|\.test\.[^.]+$/.test(file);
+
   for (const file of sourceFiles(UI_SRC)) {
+    if (isTestSource(file)) continue;
     components.set(relative(UI_SRC, file).replace(/\.tsx?$/, ""), new Set());
   }
 
-  const scan = [...sourceFiles(join(APP_ROOT, "src")), ...sourceFiles(UI_SRC)];
+  const scan = [...sourceFiles(join(APP_ROOT, "src")), ...sourceFiles(UI_SRC)].filter(
+    (file) => !isTestSource(file)
+  );
   for (const file of scan) {
     const src = readFileSync(file, "utf8");
     for (const m of src.matchAll(/(?:from\s+|import\s*\(\s*)["']([^"']+)["']/g)) {
@@ -392,6 +397,16 @@ const report = {
     .filter((f) => f.category === "unknown-utility")
     .map((f) => `${f.file}:${f.line}  ${f.detail}`),
   orphanComponents: orphans,
+  componentAdoption: [...adoption.entries()]
+    .map(([component, importers]) => {
+      const productionImporters = [...importers].sort();
+      return {
+        component,
+        importers: productionImporters,
+        appImporters: productionImporters.filter((file) => file.startsWith("apps/web/src/")),
+      };
+    })
+    .sort((a, b) => a.component.localeCompare(b.component)),
   duplicateClassStrings: duplicates.slice(0, 25),
   fingerprints,
   findings: allFindings,

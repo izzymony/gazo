@@ -10,6 +10,8 @@
  * is git-ignored. This script closes that hole.
  *
  * Guarantees, in order of strength:
+ *   0. dev interlock — refuse before touching the tree or .next when port 3000
+ *                      is active, so a build cannot invalidate a live server.
  *   1. park/restore  — the directory is moved OUT of the app tree for the whole
  *                      duration of every build, so it cannot be compiled in.
  *   2. assert-build-clean — the build output is scanned afterwards; any trace
@@ -24,6 +26,7 @@
  */
 import { spawn } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, renameSync, statSync } from "node:fs";
+import { createConnection } from "node:net";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -44,12 +47,39 @@ const SKIP_DIRS = new Set(["cache"]);
  * still trips the second needle.
  */
 const NEEDLES = ["(dev)", "local-design-system"];
+const DEV_PORT = 3000;
 
 const say = (msg) => console.log(`[playground-guard] ${msg}`);
 const die = (msg) => {
   console.error(`[playground-guard] ERROR: ${msg}`);
   process.exit(1);
 };
+
+function portIsListening(port) {
+  return new Promise((resolvePort) => {
+    const socket = createConnection({ host: "127.0.0.1", port });
+    const finish = (listening) => {
+      socket.removeAllListeners();
+      socket.destroy();
+      resolvePort(listening);
+    };
+    socket.setTimeout(500);
+    socket.once("connect", () => finish(true));
+    socket.once("error", () => finish(false));
+    socket.once("timeout", () => finish(false));
+  });
+}
+
+async function assertNoDevServer() {
+  if (await portIsListening(DEV_PORT)) {
+    die(
+      `port ${DEV_PORT} is active. A Next build replaces .next while the dev server is still reading it, ` +
+        `which leaves the running app serving stale or missing chunks.\n\n` +
+        `Stop the dev server, run the guarded build, then restart development on port ${DEV_PORT}.`
+    );
+  }
+  say(`port ${DEV_PORT} is free — safe to replace build output`);
+}
 
 function park() {
   if (existsSync(LIVE_DIR) && existsSync(PARKED_DIR)) {
@@ -174,8 +204,9 @@ async function assertUntracked() {
   say("playground is untracked and ignore-rule is in place");
 }
 
-function runGuarded(argv) {
+async function runGuarded(argv) {
   if (!argv.length) die("`run` needs a command: run -- <cmd> [args…]");
+  await assertNoDevServer();
   const [cmd, ...args] = argv;
   const parked = park();
 
@@ -228,9 +259,12 @@ switch (command) {
   case "assert-untracked":
     await assertUntracked();
     break;
+  case "assert-no-dev":
+    await assertNoDevServer();
+    break;
   case "run":
-    runGuarded(rest[0] === "--" ? rest.slice(1) : rest);
+    await runGuarded(rest[0] === "--" ? rest.slice(1) : rest);
     break;
   default:
-    die(`unknown command "${command ?? ""}". Use: park | restore | assert-build-clean | assert-untracked | run -- <cmd>`);
+    die(`unknown command "${command ?? ""}". Use: park | restore | assert-build-clean | assert-untracked | assert-no-dev | run -- <cmd>`);
 }
