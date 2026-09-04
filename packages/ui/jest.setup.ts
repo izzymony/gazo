@@ -25,3 +25,31 @@ jest.mock(
   }),
   { virtual: true }
 );
+
+// Fail any test that logs a console.error — React's invalid-DOM-property, act(),
+// and key warnings all go through console.error, and for a primitive library a
+// warning IS a defect. Errors are collected during the test and thrown in
+// afterEach (cleaner stack than throwing inside React's render). Add a narrow
+// RegExp to IGNORED_CONSOLE_ERRORS only when a warning is genuinely expected.
+const IGNORED_CONSOLE_ERRORS: RegExp[] = [];
+let consoleErrors: string[] = [];
+let consoleErrorSpy: jest.SpyInstance;
+beforeEach(() => {
+  consoleErrors = [];
+  const original = console.error.bind(console);
+  consoleErrorSpy = jest.spyOn(console, "error").mockImplementation((...args: unknown[]) => {
+    const msg = args.map((a) => (a instanceof Error ? a.message : String(a))).join(" ");
+    if (IGNORED_CONSOLE_ERRORS.some((re) => re.test(msg))) return;
+    consoleErrors.push(msg);
+    original(...(args as Parameters<typeof console.error>));
+  });
+});
+afterEach(() => {
+  consoleErrorSpy.mockRestore();
+  if (consoleErrors.length) {
+    throw new Error(
+      `Unexpected console.error during test (${consoleErrors.length}):\n` +
+        consoleErrors.join("\n---\n")
+    );
+  }
+});
