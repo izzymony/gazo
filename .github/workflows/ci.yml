@@ -26,6 +26,10 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # The local-only design-system playground must never reach the repo.
+      # Fails if anything under apps/web/src/app/(dev)/ is tracked, or if the
+      # .gitignore rule protecting it has been removed.
+      - run: node apps/web/scripts/playground-guard.mjs assert-untracked
       - run: pnpm type-check
       - run: pnpm lint
       - run: pnpm test

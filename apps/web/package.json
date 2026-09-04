@@ -3,16 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node scripts/playground-guard.mjs restore && next dev",
+    "build": "node scripts/playground-guard.mjs run -- next build",
     "start": "next start",
     "lint": "next lint",
-    "build:check": "next build",
+    "build:check": "node scripts/playground-guard.mjs run -- next build",
     "type-check": "tsc --noEmit",
     "test": "jest",
-    "cf:build": "CF_BUILD=1 opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion",
-    "cf:preview": "CF_BUILD=1 opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion && opennextjs-cloudflare preview",
-    "cf:deploy": "CF_BUILD=1 opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion && opennextjs-cloudflare deploy"
+    "cf:build": "CF_BUILD=1 node scripts/playground-guard.mjs run -- opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion",
+    "cf:preview": "CF_BUILD=1 node scripts/playground-guard.mjs run -- opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion && opennextjs-cloudflare preview",
+    "cf:deploy": "CF_BUILD=1 node scripts/playground-guard.mjs run -- opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion && opennextjs-cloudflare deploy"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
