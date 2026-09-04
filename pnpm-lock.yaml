@@ -392,6 +392,9 @@ importers:
       '@types/react-dom':
         specifier: ^18
         version: 18.3.7(@types/react@18.3.31)
+      '@vibaar/config':
+        specifier: workspace:^
+        version: link:../config
       identity-obj-proxy:
         specifier: ^3
         version: 3.0.0
@@ -401,6 +404,9 @@ importers:
       jest-environment-jsdom:
         specifier: ^29.7.0
         version: 29.7.0
+      typescript:
+        specifier: 5.7.2
+        version: 5.7.2
 
   packages/utils:
     dependencies:

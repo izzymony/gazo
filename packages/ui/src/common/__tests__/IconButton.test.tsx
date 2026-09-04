@@ -1,10 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import IconButton from "../IconButton";
+import type { IconProps } from "../../icons";
 
 // A stub icon standing in for a `../icons` component — records the size/className
-// it's handed so we can assert the size-derivation contract.
-const StubIcon = ({ size, className }: { size?: number; className?: string }) => (
+// it's handed so we can assert the size-derivation contract. Typed as the real
+// ComponentType<IconProps> that IconButton demands: a narrower hand-rolled prop
+// type is not assignable under strictFunctionTypes, and this file was never
+// type-checked before packages/ui gained a type-check script.
+// `import type` is erased at transpile, so the @hugeicons runtime is never pulled in.
+const StubIcon: React.ComponentType<IconProps> = ({ size, className }) => (
   <svg data-testid="icon" data-size={size} className={className} />
 );
 

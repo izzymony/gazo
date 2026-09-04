@@ -2,7 +2,15 @@
   "extends": "@vibaar/config/tsconfig.base.json",
   "compilerOptions": {
     "jsx": "preserve",
-    "lib": ["dom", "dom.iterable", "esnext"]
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ]
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "jest.setup.ts",
+    "jest.config.js"
+  ]
 }
