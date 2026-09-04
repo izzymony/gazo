@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import responsive utility classes */
-@import './responsive-utils.css';
-
 /* Driver.js guided tour styles */
 @import 'driver.js/dist/driver.css';
 
@@ -264,23 +261,11 @@ html {
 }
 
 a {
-  color: #0063F7;
+  /* through the token, not a hex — --info is this exact value */
+  color: var(--info);
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
   /* iOS Safe Area Support */
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);
@@ -375,38 +360,3 @@ a {
 }
 
 
-/* Container styles moved to specific components - landing page needs full width */
-.container {
-  max-width: full;
-  margin: 0 auto;
-  /* Center it */
-}
-
-
-@media (min-width: 768px) {
-  .container:not(.landing-page *) {
-    max-width: 768px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .container:not(.landing-page *) {
-    max-width: 760px;
-  }
-}
-
-
-/* Global CSS (e.g., styles.css) */
-.animate-slide {
-  animation: slideLeft 3s linear;
-}
-
-@keyframes slideLeft {
-  0% {
-    width: 0%;
-  }
-
-  100% {
-    width: 100%;
-  }
-}
