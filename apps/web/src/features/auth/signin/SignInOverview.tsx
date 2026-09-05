@@ -7,6 +7,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import UserContactForm from "./UserContactForm";
 import { signupOptions } from "@/lib/conts";
+import AuthOptionButton, { type AuthOption } from "../AuthOptionButton";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Button from "@vibaar/ui/common/Button";
@@ -139,6 +140,15 @@ export default function SignInOverview() {
     }
   };
 
+
+  // One place for the option -> handler mapping. It previously appeared as an
+  // identical nested ternary inside each of the two option blocks.
+  const selectAuthOption = (option: AuthOption) => {
+    if (option.title === "Create my account") return handleCreateAccountClick();
+    if (option.title === "Login to my account") return handleLoginAccountClick();
+    if (option.type === "google") return handleSocialSignin(option.type);
+    if (option.url) return router.push(option.url);
+  };
   const handleCreateAccountClick = async () => {
     setButtonLoading(prev => ({ ...prev, createAccount: true }));
     try {
@@ -305,35 +315,13 @@ export default function SignInOverview() {
                           (option.title === "Login to my account" && buttonLoading.loginAccount);
 
                         return (
-                          <div
+                          <AuthOptionButton
                             key={option?.title}
-                            className={`text-foreground-primary flex flex-row justify-center items-center cursor-pointer h-[52px] rounded-full ${option.isPrimary
-                              ? "bg-brand text-brandInk hover:bg-brandHover"
-                              : option.isSecondary
-                                ? "border border-brandDeep text-brandDeep hover:bg-brand hover:text-brandInk"
-                                : "border border-outline hover:border-brandDeep"
-                              } ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}>
-                            <div
-                              onClick={
-                                isLoading ? undefined :
-                                  option.title === "Create my account"
-                                    ? handleCreateAccountClick
-                                    : option.title === "Login to my account"
-                                      ? handleLoginAccountClick
-                                      : option.type === "google"
-                                        ? () => handleSocialSignin(option.type)
-                                        : () => router.push(option.url)
-                              }
-                              className="flex flex-row justify-center items-center mx-auto w-[180px]"
-                              aria-busy={isLoading}
-                              aria-label={isLoading ? `Loading ${option.title}...` : undefined}>
-                              {isLoading && <LoadingSpinner color={option.isPrimary ? "white" : "currentColor"} />}
-                              {!isLoading && option.image && option.image}
-                              <p className={`text-center text-body font-normal ${option.isPrimary ? "text-white" : ""} ${isLoading ? "ml-2" : ""}`}>
-                                {option?.title}
-                              </p>
-                            </div>
-                          </div>
+                            option={option}
+                            loading={isLoading}
+                            onSelect={selectAuthOption}
+                            layout="mobile"
+                          />
                         );
                       })}
                     </ul>
@@ -400,35 +388,13 @@ export default function SignInOverview() {
                             (option.title === "Login to my account" && buttonLoading.loginAccount);
 
                           return (
-                            <div
+                            <AuthOptionButton
                               key={option?.title}
-                              className={`text-foreground-primary flex flex-row justify-center items-center cursor-pointer h-14 rounded-full ${option.isPrimary
-                                ? "bg-brand text-brandInk hover:bg-brandHover"
-                                : option.isSecondary
-                                  ? "border-2 border-brandDeep text-brandDeep hover:bg-brand hover:text-brandInk"
-                                  : "border border-outline hover:border-brandDeep"
-                                } ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}>
-                              <div
-                                onClick={
-                                  isLoading ? undefined :
-                                    option.title === "Create my account"
-                                      ? handleCreateAccountClick
-                                      : option.title === "Login to my account"
-                                        ? handleLoginAccountClick
-                                        : option.type === "google"
-                                          ? () => handleSocialSignin(option.type)
-                                          : () => router.push(option.url)
-                                }
-                                className="flex flex-row justify-center items-center w-full px-4"
-                                aria-busy={isLoading}
-                                aria-label={isLoading ? `Loading ${option.title}...` : undefined}>
-                                {isLoading && <LoadingSpinner color={option.isPrimary ? "white" : "currentColor"} />}
-                                {!isLoading && option.image && option.image}
-                                <p className={`text-center text-body-lg font-medium ${option.isPrimary ? "text-white" : ""} ${isLoading ? "ml-2" : ""}`}>
-                                  {option?.title}
-                                </p>
-                              </div>
-                            </div>
+                              option={option}
+                              loading={isLoading}
+                              onSelect={selectAuthOption}
+                              layout="desktop"
+                            />
                           );
                         })}
                       </ul>

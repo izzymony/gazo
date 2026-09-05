@@ -559,7 +559,7 @@ function Frame1000006923() {
 function ChipPicker() {
   return (
     <div className="bg-[rgba(255,255,255,0.05)] box-border content-stretch flex gap-[6px] sm:gap-[8px] items-center px-[14px] sm:px-[16px] py-[8px] sm:py-[10px] relative rounded-[90px] shrink-0 animate-[fadeInUp_0.8s_ease-out] backdrop-blur-sm transition-all duration-300 hover:bg-[rgba(255,255,255,0.08)] hover:scale-105" data-name="Chip & Picker">
-      <div aria-hidden="true" className="absolute border-[0.6px] border-[rgba(255,255,255,0.1)] border-solid inset-0 pointer-events-none rounded-[90px] shadow-[0px_2px_24px_0px_rgba(255, 229, 0,0.08)]" />
+      <div aria-hidden="true" className="absolute border-[0.6px] border-[rgba(255,255,255,0.1)] border-solid inset-0 pointer-events-none rounded-[90px] shadow-[0px_2px_24px_0px_rgba(255,229,0,0.08)]" />
       <Frame2147207418 />
       <Frame1000006923 />
     </div>
@@ -763,10 +763,10 @@ function Frame1618868935() {
     <div className="content-stretch flex gap-[12px] md:flex-row flex-col items-center relative shrink-0 animate-[fadeInUp_1s_ease-out_0.6s_both] w-full md:w-auto justify-center">
       <div
         onClick={handleStartSelling}
-        className="bg-brand box-border content-stretch flex h-[52px] md:h-[62px] items-center justify-center p-[10px] relative rounded-[90px] shrink-0 w-[181px] md:w-[181px] w-full max-w-[300px] cursor-pointer transition-all duration-300 hover:bg-brandHover hover:shadow-[6px_10px_32px_0px_rgba(255, 229, 0,0.3)] hover:scale-105 active:scale-95"
+        className="bg-brand box-border content-stretch flex h-[52px] md:h-[62px] items-center justify-center p-[10px] relative rounded-[90px] shrink-0 w-[181px] md:w-[181px] w-full max-w-[300px] cursor-pointer transition-all duration-300 hover:bg-brandHover hover:shadow-[6px_10px_32px_0px_rgba(255,229,0,0.3)] hover:scale-105 active:scale-95"
         data-name="Button"
       >
-        <div aria-hidden="true" className="absolute border border-brandDeep border-solid inset-0 pointer-events-none rounded-[90px] shadow-[4px_8px_24px_0px_rgba(255, 229, 0,0.2)]" />
+        <div aria-hidden="true" className="absolute border border-brandDeep border-solid inset-0 pointer-events-none rounded-[90px] shadow-[4px_8px_24px_0px_rgba(255,229,0,0.2)]" />
         <ButtonText />
       </div>
       <Button onFindVendors={handleFindVendors} />
@@ -865,7 +865,7 @@ function Group1618869072() {
 
 function Frame2147207508() {
   return (
-    <div className="bg-[rgba(255, 229, 0,0.25)] box-border content-stretch flex gap-[6px] items-center justify-center pl-[10.5px] pr-[9px] py-[3.75px] relative rounded-tl-[75px] rounded-tr-[75px] rounded-bl-[75px] shrink-0">
+    <div className="bg-[rgba(255,229,0,0.25)] box-border content-stretch flex gap-[6px] items-center justify-center pl-[10.5px] pr-[9px] py-[3.75px] relative rounded-tl-[75px] rounded-tr-[75px] rounded-bl-[75px] shrink-0">
       <div aria-hidden="true" className="absolute border-[0.75px] border-[rgba(255,255,255,0.5)] border-dashed inset-[-0.375px] pointer-events-none rounded-tl-[75.375px] rounded-tr-[75.375px] rounded-bl-[75.375px]" />
       <p className="font-display font-semibold leading-[1.5] not-italic relative shrink-0 text-body-sm text-center text-nowrap text-white tracking-[-0.6px] whitespace-pre">Vendors</p>
     </div>
@@ -960,7 +960,7 @@ function HiconLinearLike2() {
 
 function Frame1618868898() {
   return (
-    <div className="box-border content-stretch flex gap-[4px] sm:gap-[7px] md:gap-[5.333px] items-center overflow-clip px-[10px] sm:px-[13px] md:px-[9.761px] py-[5px] sm:py-[7px] md:py-[5.333px] relative rounded-[60px] sm:rounded-[70px] md:rounded-[81.338px] shadow-[0px_4px_12px_0px_rgba(255, 229, 0,0.5)] sm:shadow-[0px_5px_14px_0px_rgba(255, 229, 0,0.5)] md:shadow-[0px_5.333px_15.998px_0px_rgba(255, 229, 0,0.5)] scale-[0.85] sm:scale-100" style={{ backgroundImage: "linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%), linear-gradient(90deg, rgb(255, 229, 0) 0%, rgb(255, 229, 0) 100%)" }}>
+    <div className="box-border content-stretch flex gap-[4px] sm:gap-[7px] md:gap-[5.333px] items-center overflow-clip px-[10px] sm:px-[13px] md:px-[9.761px] py-[5px] sm:py-[7px] md:py-[5.333px] relative rounded-[60px] sm:rounded-[70px] md:rounded-[81.338px] shadow-[0px_4px_12px_0px_rgba(255,229,0,0.5)] sm:shadow-[0px_5px_14px_0px_rgba(255,229,0,0.5)] md:shadow-[0px_5.333px_15.998px_0px_rgba(255,229,0,0.5)] scale-[0.85] sm:scale-100" style={{ backgroundImage: "linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%), linear-gradient(90deg, rgb(255, 229, 0) 0%, rgb(255, 229, 0) 100%)" }}>
       <HiconLinearLike2 />
       <p className="font-display font-medium leading-[normal] not-italic relative shrink-0 text-brand text-body-sm sm:text-[15.5px] md:text-[14.665px] text-nowrap tracking-[0.0733px] whitespace-pre">Engage</p>
     </div>
@@ -1218,7 +1218,7 @@ export default function HeroSection() {
       </div>
 
       {/* Bottom preview - fixed at bottom, centered, cut at bottom */}
-      <div className="fixed bottom-0 sm:bottom-[-30px] md:bottom-[-40px] lg:bottom-[-50px] left-1/2 -translate-x-1/2 w-full sm:w-[96vw] max-w-[1100px] h-[100px] sm:h-[160px] md:h-[180px] lg:h-[200px] transition-all duration-500 hover:bottom-[10px] sm:hover:bottom-[-20px] md:hover:bottom-[-30px] lg:hover:bottom-[-40px] cursor-pointer hover:shadow-[0px_-10px_40px_rgba(255, 229, 0,0.15)]" style={{ animation: 'slideUp 1s ease-out 0.8s both' }}>
+      <div className="fixed bottom-0 sm:bottom-[-30px] md:bottom-[-40px] lg:bottom-[-50px] left-1/2 -translate-x-1/2 w-full sm:w-[96vw] max-w-[1100px] h-[100px] sm:h-[160px] md:h-[180px] lg:h-[200px] transition-all duration-500 hover:bottom-[10px] sm:hover:bottom-[-20px] md:hover:bottom-[-30px] lg:hover:bottom-[-40px] cursor-pointer hover:shadow-[0px_-10px_40px_rgba(255,229,0,0.15)]" style={{ animation: 'slideUp 1s ease-out 0.8s both' }}>
         <Frame2147207505 />
       </div>
     </div>
