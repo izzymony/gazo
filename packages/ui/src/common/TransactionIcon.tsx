@@ -29,7 +29,7 @@ const GLYPH: Record<string, Glyph> = {
 
 /** The glyph is coloured by money direction; the circle stays neutral. */
 const GLYPH_COLOR: Record<TxType, string> = {
-  credit: "text-green-700",
+  credit: "text-success-foreground",
   debit: "text-brandDeep",
   pending: "text-yellow-600",
 };

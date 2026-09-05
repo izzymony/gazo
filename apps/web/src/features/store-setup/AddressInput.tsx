@@ -47,14 +47,14 @@ const AddressInput = ({
             Country
           </label>
           <div className={`flex relative w-full px-4 h-[52px] rounded-field border ${
-            error.country ? "border-red" : "border-ink-20"
+            error.country ? "border-error-border" : "border-ink-20"
           } justify-between items-center text-body text-ink-90 font-medium bg-ink-3`}>
             <div className="flex items-center">
               <span className="mr-3">🇳🇬</span>
               <p>Nigeria</p>
             </div>
           </div>
-          {error.country && <p className="text-red text-body-sm mt-1">{error.country}</p>}
+          {error.country && <p className="text-error-foreground text-body-sm mt-1">{error.country}</p>}
         </div>
 
         {/* State/Province */}
@@ -80,7 +80,7 @@ const AddressInput = ({
           <div 
             onClick={openLocationModal}
             className={`flex relative w-full px-4 h-[52px] rounded-field border ${
-              error.address ? "border-red" : "border-ink-20"
+              error.address ? "border-error-border" : "border-ink-20"
             } focus-within:ring-1 focus-within:ring-black justify-between items-center text-body font-medium cursor-pointer`}
           >
             <p className={data.address ? "text-ink-90" : "text-ink-50"}>
@@ -88,7 +88,7 @@ const AddressInput = ({
             </p>
             <FaLocationDot size={20} className="text-ink-40" />
           </div>
-          {error.address && <p className="text-red text-body-sm mt-1">{error.address}</p>}
+          {error.address && <p className="text-error-foreground text-body-sm mt-1">{error.address}</p>}
         </div>
       </div>
 

@@ -27,12 +27,12 @@ const Otp = ({
 }: OtpProps) => {
   const { verifyOtpSent } = useProductStore();
   return (
-    <div className="flex-1 w-full mt-[72px">
+    <div className="mt-16 w-full flex-1">
       <div className="flex flex-col w-full flex-1">
         <H1 className="text-h1 leading-[24px] text-start">
           Check your Inbox!
         </H1>
-        <p className="text-body mt-3 tracking-[0.5px] leading-[20px] text-ink-40 text-start">
+        <p className="text-body mt-3 tracking-[0.5px] leading-[20px] text-foreground-muted text-start">
           We sent a verification code to the provided <br /> email: {email}
         </p>
         <div className="mt-6">

@@ -430,7 +430,7 @@ export default function Page() {
             </div>
             <div className="flex-1 flex flex-col gap-2">
               <div className="flex gap-1 justify-between items-center">
-                <p className="line-clamp-1 ellipse text-body-sm text-black tracking-wider font-normal leading-4 flex-1">
+                <p className="line-clamp-1 text-body-sm text-black tracking-wider font-normal leading-4 flex-1">
                   Gucci bag – the epitome of luxury and sophistic...
                 </p>
                 <svg
@@ -459,15 +459,15 @@ export default function Page() {
                 </svg>
               </div>
               <div className="flex gap-4 items-center">
-                <p className="line-clamp-1 ellipse text-body-sm text-ink-60 tracking-wider font-normal leading-4">
+                <p className="line-clamp-1 text-body-sm text-ink-60 tracking-wider font-normal leading-4">
                   Stock: 50
                 </p>
-                <p className="line-clamp-1 ellipse text-body-sm text-ink-60 tracking-wider font-normal leading-4">
+                <p className="line-clamp-1 text-body-sm text-ink-60 tracking-wider font-normal leading-4">
                   Variant : 5
                 </p>
               </div>
               <div>
-                <p className="line-clamp-1 ellipse text-body-sm text-black tracking-wider font-normal leading-4 flex-1">
+                <p className="line-clamp-1 text-body-sm text-black tracking-wider font-normal leading-4 flex-1">
                   ₦18.0
                 </p>
               </div>

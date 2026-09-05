@@ -1,6 +1,6 @@
 "use client";
 
-import { formatTrendForNigerianMarket } from "@vibaar/utils";
+import { cn, formatTrendForNigerianMarket } from "@vibaar/utils";
 import Image from "next/image";
 
 interface TrendIndicatorProps {
@@ -21,12 +21,17 @@ const TrendIndicator = ({
   const trendData = formatTrendForNigerianMarket(percentChange, currentValue, isNewStore, storeCreatedAt);
 
   return (
-    <span 
-      className={`text-caption flex items-center gap-1 ${
-        trendData.displayText === "New store" ? "font-normal" : ""
-      } ${className}`}
-      style={{ color: trendData.color }}
-    >
+    <span
+      className={cn(
+        "flex items-center gap-1 text-caption",
+        trendData.displayText === "0%"
+          ? "text-foreground-muted"
+          : trendData.isPositive
+            ? "text-success-foreground"
+            : "text-error-foreground",
+        trendData.displayText === "New store" && "font-normal",
+        className
+      )}>
       {trendData.displayText}
       {trendData.showArrow && (
         <Image

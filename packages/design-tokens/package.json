@@ -5,7 +5,7 @@
   "main": "./preset.cjs",
   "scripts": {
     "generate": "node scripts/generate-css.cjs",
-    "test": "node scripts/generate-css.cjs --check"
+    "test": "node scripts/generate-css.cjs --check && node scripts/check-contract.cjs"
   },
   "exports": {
     "./preset": "./preset.cjs",

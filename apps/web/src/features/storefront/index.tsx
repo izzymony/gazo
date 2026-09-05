@@ -94,12 +94,12 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
       value: isNewStore ? (
         <span className="flex items-center gap-1">
           5.0
-          <FaStar size={15} className="text-warning" />
+          <FaStar size={15} className="text-warning-foreground" />
         </span>
       ) : (
         <span className="flex items-center gap-1">
           {storeStats.ratings + ".0"}
-          <FaStar size={15} className="text-warning" />
+          <FaStar size={15} className="text-warning-foreground" />
         </span>
       ),
       label: (
@@ -505,7 +505,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
                 onClick={() => handleCopyLink(productUrl)}
                 className={`flex items-center justify-center gap-1.5 px-5 py-3 rounded-full min-h-[44px] font-semibold text-body transition-all touch-manipulation ${
                   copied
-                    ? "bg-green text-white"
+                    ? "bg-success-foreground text-ink-90"
                     : "bg-brand text-brandInk active:scale-95"
                 }`}
                 style={{

@@ -12,6 +12,9 @@ interface PageShellProps {
   /** Content for the fixed bottom action bar (buttons). When present, the
    *  scroll region gets bottom padding so content isn't hidden behind it. */
   footerAction?: ReactNode;
+  /** `fixed` pins the action to the viewport; `contained` keeps it inside a
+   * composed shell. Default `fixed` preserves the application layout. */
+  footerPosition?: "fixed" | "contained";
   children: ReactNode;
   /** Container width. `standard` = the app's max-w-5xl column; `full` = full-bleed
    *  (marketing). Default `standard`. */
@@ -22,7 +25,7 @@ interface PageShellProps {
   contentClassName?: string;
   /** Exposes the scroll node so scroll-driven UIs (storefront collapse-on-scroll)
    *  can read it. When set, the shell does NOT own scroll behaviour beyond it. */
-  scrollRef?: Ref<HTMLDivElement>;
+  scrollRef?: Ref<HTMLElement>;
 }
 
 /**
@@ -41,6 +44,7 @@ export default function PageShell({
   header,
   hero,
   footerAction,
+  footerPosition = "fixed",
   children,
   width = "standard",
   align = "top",
@@ -72,7 +76,7 @@ export default function PageShell({
               // Consistent 24px vertical rhythm between top-level blocks.
               !hero && "space-y-6",
               // Keep content clear of the fixed action bar.
-              !hero && footerAction && "pb-[100px]",
+              !hero && footerAction && "pb-24",
               align === "center" &&
                 "flex flex-col items-center justify-center",
               contentClassName
@@ -83,7 +87,7 @@ export default function PageShell({
                 <div
                   className={cn(
                     "px-4 lg:px-5 pt-6 space-y-6",
-                    footerAction && "pb-[100px]"
+                    footerAction && "pb-24"
                   )}>
                   {children}
                 </div>
@@ -94,7 +98,11 @@ export default function PageShell({
           </main>
 
           {footerAction && (
-            <div className="fixed bottom-0 left-0 right-0 w-full max-w-full lg:max-w-5xl lg:mx-auto pb-5 px-3 bg-white border-t border-gray-100 z-sticky">
+            <div
+              className={cn(
+                "bottom-0 w-full max-w-full border-t border-outline-subtle bg-white px-3 pb-5 z-sticky lg:mx-auto lg:max-w-5xl",
+                footerPosition === "fixed" ? "fixed left-0 right-0" : "sticky"
+              )}>
               {footerAction}
             </div>
           )}

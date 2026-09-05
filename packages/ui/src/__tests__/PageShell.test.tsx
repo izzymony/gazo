@@ -92,7 +92,7 @@ describe("PageShell", () => {
 
     it("pads the scroll region so content is not hidden behind the bar", () => {
       render(<PageShell footerAction={<button>Save</button>}>content</PageShell>);
-      expect(screen.getByRole("main")).toHaveClass("pb-[100px]");
+      expect(screen.getByRole("main")).toHaveClass("pb-24");
     });
 
     it("pads the hero content wrapper instead when a hero is present", () => {
@@ -102,13 +102,24 @@ describe("PageShell", () => {
         </PageShell>
       );
       expect(screen.getByRole("main")).not.toHaveClass("pb-[100px]");
-      expect(screen.getByText("content")).toHaveClass("pb-[100px]");
+      expect(screen.getByText("content")).toHaveClass("pb-24");
     });
 
     it("renders no bar and no bottom padding when there is no action", () => {
       const { container } = render(<PageShell>content</PageShell>);
       expect(container.querySelector(".fixed")).not.toBeInTheDocument();
-      expect(screen.getByRole("main")).not.toHaveClass("pb-[100px]");
+      expect(screen.getByRole("main")).not.toHaveClass("pb-24");
+    });
+
+    it("can keep the action bar inside a composed shell", () => {
+      const { container } = render(
+        <PageShell footerPosition="contained" footerAction={<button>Save</button>}>
+          content
+        </PageShell>
+      );
+      const bar = container.querySelector(".sticky");
+      expect(bar).toBeInTheDocument();
+      expect(bar).not.toHaveClass("fixed");
     });
   });
 
@@ -131,7 +142,7 @@ describe("PageShell", () => {
     });
 
     it("exposes the scroll node through scrollRef", () => {
-      const ref = createRef<HTMLDivElement>();
+      const ref = createRef<HTMLElement>();
       render(<PageShell scrollRef={ref}>content</PageShell>);
       expect(ref.current).toBe(screen.getByRole("main"));
     });

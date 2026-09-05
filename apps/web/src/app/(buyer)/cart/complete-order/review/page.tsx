@@ -17,6 +17,7 @@ import useAuthStore from "@/store/authStore";
 import { toast } from "sonner";
 import Loader from "@vibaar/ui/common/Loader";
 import Button from "@vibaar/ui/common/Button";
+import Switch from "@vibaar/ui/common/Switch";
 import BottomModal from "@vibaar/ui/common/BottomModal";
 import useShippingStore, { ShippingOptionInfo } from "@/store/shippingStore";
 import { CartsItems } from "@/lib/newinterface";
@@ -75,7 +76,7 @@ const CartItem = ({
                   label="Remove item"
                   onClick={() => decrement(cart.id)}
                   className="bg-ink-3"
-                  iconClassName="text-red"
+                  iconClassName="text-error-foreground"
                   iconSize={18}
                 />
               ) : (
@@ -103,7 +104,7 @@ const CartItem = ({
       <div className="w-full p-2 flex flex-col gap-3">
         <div className="flex items-center text-body-sm text-ink-60 ">
           {delivery.title}
-          <span className="ml-auto font-500 text-ink-90">
+          <span className="ml-auto font-medium text-ink-90">
             {delivery.price}
             {"   "}
             <button onClick={action} className="text-brandDeep font-medium">
@@ -113,7 +114,7 @@ const CartItem = ({
         </div>
         <div className="flex items-center text-body-sm text-ink-60 ">
           Arrives by:{" "}
-          <span className="ml-auto font-500 text-ink-90">
+          <span className="ml-auto font-medium text-ink-90">
             {delivery.estimate}
           </span>
         </div>
@@ -589,7 +590,7 @@ const ReviewOrder = () => {
               </div>
 
               {creditApplied > 0 && (
-                <div className="flex justify-between items-center text-success-strong">
+                <div className="flex justify-between items-center text-success-foreground">
                   <div>Rewards credit</div>
                   <div className="text-body-sm">
                     -{formatCurrency(creditApplied)}
@@ -598,10 +599,10 @@ const ReviewOrder = () => {
               )}
 
               <div className=" flex justify-between items-center">
-                <div className="text-body-lg font-500">
+                <div className="text-body-lg font-medium">
                   {creditApplied > 0 ? "You pay" : "Total"}
                 </div>
-                <div className="text-body-lg font-500">
+                <div className="text-body-lg font-medium">
                   {formatCurrency(totals)}
                 </div>
               </div>
@@ -612,7 +613,7 @@ const ReviewOrder = () => {
                 discount. Order-on-success only (the legacy order-first path has no
                 reserve/charge machinery); shown only when the buyer has credit. */}
             {ORDER_ON_SUCCESS && user && totalCredit > 0 && (
-              <div className="border border-ink-10 rounded-card p-4 mt-4 bg-red/5">
+              <div className="border border-error-border rounded-card p-4 mt-4 bg-error-surface">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-brand rounded-full flex items-center justify-center">
@@ -627,30 +628,16 @@ const ReviewOrder = () => {
                       </p>
                     </div>
                   </div>
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="toggle-checkbox hidden"
-                      checked={useReferralCredit}
-                      onChange={(e) => setUseReferralCredit(e.target.checked)}
-                      disabled={totalCredit === 0}
-                    />
-                    <span className="relative">
-                      <span
-                        className={`block w-[32px] h-[20px] rounded-full transition-colors duration-200 ease-linear ${
-                          useReferralCredit ? "bg-brand" : "bg-ink-20"
-                        } ${totalCredit === 0 ? "opacity-50" : ""}`}
-                      ></span>
-                      <span
-                        className={`absolute left-1 top-[10%] w-[15px] h-[15px] bg-white border border-ink-20 rounded-full transition-transform duration-200 ease-linear transform ${
-                          useReferralCredit ? "translate-x-3" : "-translate-x-1"
-                        }`}
-                      ></span>
-                    </span>
-                  </label>
+                  <Switch
+                    aria-label="Use rewards credit"
+                    checked={useReferralCredit}
+                    onChange={(event) => setUseReferralCredit(event.target.checked)}
+                    disabled={totalCredit === 0}
+                    variant="brand"
+                  />
                 </div>
                 {useReferralCredit && maxUsableCredit > 0 && (
-                  <p className="text-body-sm text-success-strong mt-2">
+                  <p className="text-body-sm text-success-foreground mt-2">
                     -{formatCurrency(creditApplied)} applied (max 50% of order)
                   </p>
                 )}

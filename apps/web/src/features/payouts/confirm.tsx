@@ -28,12 +28,12 @@ export const ReceiptCard = ({
           <p className="text-body font-medium text-ink-90">{content}</p>
         )}
         {sub.toLowerCase() === "pending" ? (
-          <div className="px-2 py-1 bg-warning/10 rounded-pill border border-warning/30">
-            <p className="text-body-sm font-normal text-warning-strong">Pending</p>
+          <div className="px-2 py-1 bg-warning-surface rounded-pill border border-warning-border">
+            <p className="text-body-sm font-normal text-warning-foreground">Pending</p>
           </div>
         ) : sub.toLowerCase() === "completed" ? (
-          <div className="px-2 py-1 bg-success/10 rounded-pill border border-success/30">
-            <p className="text-body-sm font-normal text-success-strong">Completed</p>
+          <div className="px-2 py-1 bg-success-surface rounded-pill border border-success-border">
+            <p className="text-body-sm font-normal text-success-foreground">Completed</p>
           </div>
         ) : (
           <p className="text-body font-normal text-ink-60">{sub}</p>

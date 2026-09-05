@@ -116,7 +116,7 @@ const CovPill = ({
   <span
     className={cn(
       "text-caption font-medium px-2.5 py-1 rounded-full shrink-0",
-      tone === "ok" && "bg-green-50 text-green-700",
+      tone === "ok" && "bg-success-surface text-success-foreground",
       tone === "off" && "bg-ink-3 text-ink-60",
       tone === "warn" && "bg-orange-50 text-orange-600"
     )}>
@@ -281,7 +281,7 @@ const ZoneRow = ({
         {!required && configured && (
           <Switch
             name={`${zoneKey}_enabled`}
-            ariaLabel={`Offer ${title}`}
+            aria-label={`Offer ${title}`}
             checked={state.enabled}
             onChange={onToggle}
           />
@@ -550,7 +550,7 @@ const Page = () => {
             </div>
             <Switch
               name="partner_enabled"
-              ariaLabel="Offer courier partners"
+              aria-label="Offer courier partners"
               checked={partnerEnabled}
               onChange={(e) => setPartnerEnabled(e.target.checked)}
             />

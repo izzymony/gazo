@@ -42,18 +42,18 @@ export default function Authenthecate({
           className="-ml-2"
           onClick={base ? () => action("confirm") : backAction}
         />
-        <p className="text-ink-90 font-medium text-h1">
+        <p className="text-foreground-primary font-medium text-h1">
           Authenticate {base ? "Withdrawal" : "Account"}!
         </p>
-        <p className="text-body-sm mt-2 font-normal text-ink-60">
+        <p className="text-body-sm mt-2 font-normal text-foreground-secondary">
           We sent a 6 digit OTP code to the provided phone number:{" "}
-          <span className="inline-flex font-medium text-ink-90">{phone || "Not set"}</span>
+          <span className="inline-flex font-medium text-foreground-primary">{phone || "Not set"}</span>
         </p>
       </div>
       <div className="flex-1 my-4 w-full flex flex-col gap-2 items-center">
         <OtpInput onComplete={handleComplete} />
       </div>
-      <div className="w-full border-t border-ink-10 py-2">
+      <div className="w-full border-t border-outline py-2">
         <div
           onClick={
             isLoading

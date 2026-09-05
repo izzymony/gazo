@@ -1,11 +1,6 @@
+import { createRef } from "react";
 import { render, screen } from "@testing-library/react";
 import H1 from "../Typography";
-
-// Characterization tests: these pin what Typography does TODAY, defects and
-// all, so the hardening pass has to change them deliberately rather than by
-// accident. `Typography` is currently a single `H1` export that renders a <p>
-// and exposes no heading semantics — that is a real a11y gap, and it is locked
-// here precisely so fixing it shows up as a failing test.
 
 describe("Typography / H1", () => {
   it("renders its children", () => {
@@ -13,41 +8,41 @@ describe("Typography / H1", () => {
     expect(screen.getByText("Sell smarter")).toBeInTheDocument();
   });
 
-  it("renders a <p>, NOT a heading element (current behaviour, pinned)", () => {
+  it("renders a semantic h1 heading", () => {
     render(<H1 className="">Sell smarter</H1>);
-    expect(screen.getByText("Sell smarter").tagName).toBe("P");
-  });
-
-  it("exposes no heading role — a component named H1 is not a heading", () => {
-    render(<H1 className="">Sell smarter</H1>);
-    expect(screen.queryByRole("heading")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Sell smarter" })).toBeInTheDocument();
   });
 
   it("keeps its base type/colour classes", () => {
     render(<H1 className="">Sell smarter</H1>);
     const el = screen.getByText("Sell smarter");
-    expect(el).toHaveClass("font-medium", "text-h1", "text-center", "text-ink-90");
+    expect(el).toHaveClass("font-medium", "text-h1", "text-center", "text-foreground-primary");
   });
 
-  it("carries the arbitrary tracking-[0px] (drift, pinned so removing it is deliberate)", () => {
+  it("does not carry the redundant arbitrary tracking override", () => {
     render(<H1 className="">Sell smarter</H1>);
-    expect(screen.getByText("Sell smarter")).toHaveClass("tracking-[0px]");
+    expect(screen.getByText("Sell smarter")).not.toHaveClass("tracking-[0px]");
   });
 
   it("appends a caller className without dropping the base classes", () => {
     render(<H1 className="mt-4 text-left">Sell smarter</H1>);
     const el = screen.getByText("Sell smarter");
     expect(el).toHaveClass("mt-4", "text-left");
-    expect(el).toHaveClass("text-h1", "text-ink-90");
+    expect(el).toHaveClass("text-h1", "text-foreground-primary");
   });
 
-  it("concatenates rather than merges — the caller override and the base both remain", () => {
-    // No cn()/twMerge here, so text-center and text-left BOTH land in the class
-    // list and CSS order decides. Pinned: the hardening pass should route this
-    // through cn() and this expectation should then change.
+  it("merges conflicting utility classes so the caller override wins", () => {
     render(<H1 className="text-left">Sell smarter</H1>);
     const el = screen.getByText("Sell smarter");
-    expect(el).toHaveClass("text-center");
     expect(el).toHaveClass("text-left");
+    expect(el).not.toHaveClass("text-center");
+  });
+
+  it("forwards native heading attributes and its ref", () => {
+    const ref = createRef<HTMLHeadingElement>();
+    render(<H1 ref={ref} id="page-title" aria-describedby="intro">Sell smarter</H1>);
+    expect(ref.current).toBe(screen.getByRole("heading"));
+    expect(ref.current).toHaveAttribute("id", "page-title");
+    expect(ref.current).toHaveAttribute("aria-describedby", "intro");
   });
 });

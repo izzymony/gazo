@@ -43,7 +43,7 @@ export default function ActivityItem({
       meta={time}
       trailing={
         <svg
-          className="w-4 h-4 text-ink-40 mt-0.5"
+          className="w-4 h-4 text-foreground-muted mt-0.5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24">

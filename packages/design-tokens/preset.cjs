@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-const colors = require("tailwindcss/colors");
 const { tokens } = require("./tokens.cjs");
+
+const cssVariableScale = (name, scale) =>
+  Object.fromEntries(
+    Object.keys(scale).map((step) => [
+      step,
+      `rgb(var(--${name}-${step}-rgb) / <alpha-value>)`,
+    ])
+  );
 
 /**
  * @vibaar/design-tokens — canonical Tailwind mapping for the values in
@@ -46,10 +53,9 @@ module.exports = {
         // working unchanged; the numeric steps are the new scale.
         // GENERATED — scripts/generate-brand-scale.mjs. Re-run after a rebrand.
         //
-        // The brand anchors at 300, not 500. That is its measured lightness
-        // (OKLCH L=0.915), not a convention: forcing #FFE500 to 500 squeezes
-        // six steps into an L range of 0.06 — visually almost one colour — and
-        // leaves coarse gaps below it. Both were generated and compared.
+        // `brand-500` is the canonical brand colour. The generated surrounding
+        // steps preserve a Tailwind-style light-to-dark API while `brand`
+        // remains a compatibility alias for the same value.
         brand: {
           DEFAULT: "rgb(var(--brand-rgb) / <alpha-value>)",
           50: "rgb(var(--brand-50-rgb) / <alpha-value>)",
@@ -70,6 +76,24 @@ module.exports = {
         // on a light surface, where the yellow itself is invisible.
         brandInk: "rgb(var(--brand-ink-rgb) / <alpha-value>)",
         brandDeep: "rgb(var(--brand-deep-rgb) / <alpha-value>)",
+        // The solid black/grey half of the yellow-and-black identity. These
+        // values exactly alias Tailwind neutral; CSS variables make the
+        // approved scale explicit and keep /opacity support consistent.
+        neutral: cssVariableScale("neutral", tokens.color.neutral),
+        foreground: {
+          primary: "rgb(var(--foreground-primary-rgb) / <alpha-value>)",
+          secondary: "rgb(var(--foreground-secondary-rgb) / <alpha-value>)",
+          muted: "rgb(var(--foreground-muted-rgb) / <alpha-value>)",
+          disabled: "rgb(var(--foreground-disabled-rgb) / <alpha-value>)",
+          inverse: "rgb(var(--foreground-inverse-rgb) / <alpha-value>)",
+        },
+        outline: {
+          DEFAULT: "rgb(var(--outline-default-rgb) / <alpha-value>)",
+          subtle: "rgb(var(--outline-subtle-rgb) / <alpha-value>)",
+          strong: "rgb(var(--outline-strong-rgb) / <alpha-value>)",
+          emphasis: "rgb(var(--outline-emphasis-rgb) / <alpha-value>)",
+          contrast: "rgb(var(--outline-contrast-rgb) / <alpha-value>)",
+        },
         ink: {
           3: "var(--ink-3)",
           5: "var(--ink-5)",
@@ -92,21 +116,28 @@ module.exports = {
         // are already alpha (--ink-50 is 50% black), so a modifier would
         // compound into a silent double-dim rather than fail loudly.
         success: {
-          DEFAULT: "rgb(var(--success-rgb) / <alpha-value>)",
-          strong: "rgb(var(--success-strong-rgb) / <alpha-value>)",
+          foreground: "rgb(var(--success-foreground-rgb) / <alpha-value>)",
+          surface: "rgb(var(--success-surface-rgb) / <alpha-value>)",
+          border: "rgb(var(--success-border-rgb) / <alpha-value>)",
         },
-        error: "rgb(var(--error-rgb) / <alpha-value>)",
+        error: {
+          foreground: "rgb(var(--error-foreground-rgb) / <alpha-value>)",
+          surface: "rgb(var(--error-surface-rgb) / <alpha-value>)",
+          border: "rgb(var(--error-border-rgb) / <alpha-value>)",
+        },
         warning: {
-          DEFAULT: "rgb(var(--warning-rgb) / <alpha-value>)",
-          strong: "rgb(var(--warning-strong-rgb) / <alpha-value>)",
+          foreground: "rgb(var(--warning-foreground-rgb) / <alpha-value>)",
+          surface: "rgb(var(--warning-surface-rgb) / <alpha-value>)",
+          border: "rgb(var(--warning-border-rgb) / <alpha-value>)",
         },
-        info: "rgb(var(--info-rgb) / <alpha-value>)",
-        green: { ...colors.green, DEFAULT: tokens.color.status.success },
-        red: { ...colors.red, DEFAULT: tokens.color.status.error },
+        info: {
+          foreground: "rgb(var(--info-foreground-rgb) / <alpha-value>)",
+          surface: "rgb(var(--info-surface-rgb) / <alpha-value>)",
+          border: "rgb(var(--info-border-rgb) / <alpha-value>)",
+        },
         // Compatibility alias: existing `text-black` means the historic soft
         // black. New product UI should prefer the explicit ink scale.
         black: tokens.color.ink[90],
-        landing: tokens.color.landing,
       },
       backgroundImage: {
         'section-yellow': 'linear-gradient(90deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.7) 100%), linear-gradient(90deg, rgb(242, 222, 77) 0%, rgb(242, 222, 77) 100%)',

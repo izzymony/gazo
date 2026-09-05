@@ -4,12 +4,16 @@
   "private": true,
   "sideEffects": false,
   "scripts": {
-    "test": "jest",
+    "test": "jest && node scripts/check-registry.cjs && node scripts/check-component-contracts.cjs",
     "type-check": "tsc --noEmit",
     "test:watch": "jest --watch"
   },
   "exports": {
     "./icons": "./src/icons/index.tsx",
+    "./registry": {
+      "types": "./registry.d.ts",
+      "default": "./registry.cjs"
+    },
     "./*": "./src/*.tsx"
   },
   "dependencies": {

@@ -67,14 +67,14 @@ export const ORDER_STATUS: Record<string, { hue: StatusHue; icon: Glyph }> = {
  * hues StatusBadge needs beyond the order set.
  */
 export const BADGE_HUE: Record<string, string> = {
-  blue: "bg-blue-50 text-blue-700 border-blue-600",
+  blue: "bg-info-surface text-info-foreground border-info-border",
   teal: "bg-teal-50 text-teal-700 border-teal-600",
   yellow: "bg-yellow-50 text-yellow-700 border-yellow-500",
   orange: "bg-orange-50 text-orange-600 border-orange-500",
   purple: "bg-purple-50 text-purple-700 border-purple-600",
   sky: "bg-sky-50 text-sky-700 border-sky-600",
-  green: "bg-green-50 text-green-700 border-green-600",
-  red: "bg-red-50 text-red-700 border-red-600",
+  green: "bg-success-surface text-success-foreground border-success-border",
+  red: "bg-error-surface text-error-foreground border-error-border",
   emerald: "bg-emerald-50 text-emerald-700 border-emerald-600",
   indigo: "bg-indigo-50 text-indigo-700 border-indigo-600",
   ink: "bg-ink-3 text-ink-50 border-ink-30",
@@ -83,14 +83,14 @@ export const BADGE_HUE: Record<string, string> = {
 // Icon circle (OrderStatusIcon): -100 tint bg / -600 glyph (via currentColor).
 // Matches the shades the old `pickers` circles used. Literal strings for JIT.
 const ICON_HUE: Record<StatusHue, string> = {
-  blue: "bg-blue-100 text-blue-600",
+  blue: "bg-info-surface text-info-foreground",
   teal: "bg-teal-100 text-teal-600",
   yellow: "bg-yellow-100 text-yellow-600",
   orange: "bg-orange-100 text-orange-600",
   purple: "bg-purple-100 text-purple-600",
   sky: "bg-sky-100 text-sky-600",
-  green: "bg-green-100 text-green-600",
-  red: "bg-red-100 text-red-600",
+  green: "bg-success-surface text-success-foreground",
+  red: "bg-error-surface text-error-foreground",
 };
 
 /**

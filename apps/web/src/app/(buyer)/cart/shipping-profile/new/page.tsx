@@ -257,7 +257,7 @@ const Page = () => {
               onChange={() => {}}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <div className="w-6 h-6 rounded-full bg-green flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full bg-success-foreground flex items-center justify-center">
                 <Check size={14} className="text-white" strokeWidth={2.5} />
               </div>
             </div>

@@ -742,12 +742,12 @@ const VariationFieldWithProperties = ({
                 </div>
               )}
               {variation.ownedProperties?.includes('stock') && (
-                <div className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center" title="Custom Stock">
+                <div className="w-4 h-4 bg-info-foreground rounded-full flex items-center justify-center" title="Custom Stock">
                   <span className="text-white text-body-sm font-bold">#</span>
                 </div>
               )}
               {variation.ownedProperties?.includes('image') && (
-                <div className="w-4 h-4 bg-green-600 rounded-full flex items-center justify-center" title="Custom Image">
+                <div className="w-4 h-4 bg-success-foreground rounded-full flex items-center justify-center" title="Custom Image">
                   <Photo size={10} className="text-white" />
                 </div>
               )}

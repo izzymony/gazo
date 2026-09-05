@@ -19,7 +19,7 @@ interface SectionProps {
 export default function Section({ children, title, className }: SectionProps) {
   return (
     <section className={cn("space-y-3", className)}>
-      {title && <p className="text-body font-medium text-ink-90">{title}</p>}
+      {title && <p className="text-body font-medium text-foreground-primary">{title}</p>}
       {children}
     </section>
   );

@@ -122,7 +122,7 @@ export default function Withdraw({
 
       {approaching && (
         <Section>
-          <div className="rounded-card border border-warning/30 bg-warning/10 p-3">
+          <div className="rounded-card border border-warning-border bg-warning-surface p-3">
             <p className="text-body-sm text-ink-90">
               You&apos;re close to ₦{GATE_NGN.toLocaleString()} in sales —{" "}
               <span
@@ -158,7 +158,7 @@ export default function Withdraw({
           Available balance :{" "}
           <span
             className={
-              checker ? "text-brandDeep inline-flex" : "text-green inline-flex"
+              checker ? "text-brandDeep inline-flex" : "text-success-foreground inline-flex"
             }>
             N {balance}
           </span>

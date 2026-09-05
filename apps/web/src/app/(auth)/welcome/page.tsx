@@ -170,7 +170,7 @@ export default function Welcome() {
 
             {/* Welcome Text */}
             <div className="text-center">
-              <h1 className="text-h1 font-medium text-ink-90 leading-tight">
+              <h1 className="text-h1 font-medium text-foreground-primary leading-tight">
                 Welcome to <span className="text-brandDeep font-bold">Vibaar</span>, <span className="font-bold">{userName}</span>! 👋
               </h1>
             </div>
@@ -189,7 +189,7 @@ export default function Welcome() {
                     className={`flex-1 py-2 px-3 rounded-full text-body-sm font-medium transition-all duration-200 relative flex items-center justify-center gap-1 ${
                       activeTab === option.key
                         ? "bg-white text-brandDeep shadow-card"
-                        : "text-ink-60"
+                        : "text-foreground-secondary"
                     } ${option.disabled ? "opacity-50 cursor-not-allowed" : ""}`}>
                     <span>{option.label}</span>
                     {option.disabled && <ComingSoonPill />}
@@ -200,7 +200,7 @@ export default function Welcome() {
 
             {/* Dynamic subtitle */}
             <div className="text-center">
-              <h2 className="text-body-lg font-medium text-ink-90">
+              <h2 className="text-body-lg font-medium text-foreground-primary">
                 {activeTab === "sell" ? "Why sellers choose Vibaar" : "Why buyers love Vibaar"}
               </h2>
             </div>
@@ -226,7 +226,7 @@ export default function Welcome() {
                     <div className="flex-shrink-0">
                       <CircleCheck size={18} className="text-brandDeep" />
                     </div>
-                    <span className="text-body-sm font-medium text-ink-80">{feature}</span>
+                    <span className="text-body-sm font-medium text-foreground-primary">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -236,7 +236,7 @@ export default function Welcome() {
         </div>
 
         {/* Fixed Button at Bottom - Guaranteed space */}
-        <div className="flex-shrink-0 pb-3 px-4 md:px-6 lg:px-8 bg-white border-t border-ink-10">
+        <div className="flex-shrink-0 pb-3 px-4 md:px-6 lg:px-8 bg-white border-t border-outline">
           <div className="max-w-md mx-auto">
             <Button
               onClick={handleNavigation}

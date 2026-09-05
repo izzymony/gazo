@@ -66,7 +66,7 @@ export default function AnimatedHeader() {
       ],
       title: "Sell More. Grow Faster.",
       description: (
-        <p className="text-xs text-ink-90">
+        <p className="text-xs text-foreground-primary">
           Transform your IG or TikTok into a smart storefront. <br />
           Payments, delivery & insights—all in one place.
         </p>
@@ -96,7 +96,7 @@ export default function AnimatedHeader() {
       ],
       title: "Shop safer, without fear.",
       description: (
-        <p className="text-xs text-ink-90">
+        <p className="text-xs text-foreground-primary">
           Discover trusted vendors with secure checkout, <br />
           refund support, and verified ratings.
         </p>
@@ -120,7 +120,7 @@ export default function AnimatedHeader() {
       ],
       title: "Track Every Order Instantly.",
       description: (
-        <p className="text-xs text-ink-90">
+        <p className="text-xs text-foreground-primary">
           Real-time delivery tracking and fast, affordable <br />
           shipping — no more stress
         </p>
@@ -327,7 +327,7 @@ export default function AnimatedHeader() {
               key={`text-${index}`}
               className={`absolute w-full text-center transition-opacity duration-500 ${currentSlide === index ? "opacity-100" : "opacity-0"
                 }`}>
-              <h1 className="text-ink-90 text-lg sm:text-2xl font-medium tracking-wider mb-1 sm:mb-2">
+              <h1 className="text-foreground-primary text-lg sm:text-2xl font-medium tracking-wider mb-1 sm:mb-2">
                 {slide.title}
               </h1>
               {slide.description}

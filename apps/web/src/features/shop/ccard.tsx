@@ -178,7 +178,7 @@ export default function Card({
           </p>
           <div className="flex justify-between">
             <div className="flex flex-row rounded-full h-[20px] px-2 justify-center items-center bg-[#FFEBEB]">
-              <p className="text-caption tracking-wider leading-[10px] text-black font-regular line-clamp-1">
+              <p className="text-caption tracking-wider leading-[10px] text-black font-normal line-clamp-1">
                 🔥 Trending
               </p>
             </div>
@@ -368,7 +368,7 @@ export function Cards({
           </p>
           <div className="flex justify-between">
             <div className="flex flex-row rounded-full h-[20px] px-2 justify-center items-center bg-[#FFEBEB]">
-              <p className="text-caption tracking-wider leading-[10px] text-black font-regular line-clamp-1">
+              <p className="text-caption tracking-wider leading-[10px] text-black font-normal line-clamp-1">
                 🔥 Trending
               </p>
             </div>

@@ -8,22 +8,78 @@
  */
 
 const { buildScale } = require("./scripts/generate-brand-scale.cjs");
+const tailwindColors = require("tailwindcss/colors");
 
 /**
- * Brand colour SCALE, derived from the brand hex in OKLCH — see
- * scripts/generate-brand-scale.cjs for the method and why it anchors at 300.
+ * Brand colour scale derived from the canonical brand hex — see the generator
+ * for the method. The canonical brand is 500, matching Tailwind's numeric API.
  * Computed rather than pasted so a rebrand stays a single hex change.
  */
-const brandScale = (hex) =>
-  Object.fromEntries(buildScale(hex).map(({ step, rgb }) => [step, rgb.join(" ")]));
+const CANONICAL_BRAND = "#FFE500";
+const brandScale = Object.fromEntries(
+  buildScale(CANONICAL_BRAND).map(({ step, rgb }) => [step, rgb.join(" ")])
+);
+const brandRoleSteps = {
+  hover: 600,
+  deep: 900,
+};
+const brandNeutralRoleSteps = {
+  ink: 950,
+};
+const semanticColorSteps = {
+  success: { family: "green", foreground: 600, surface: 50, border: 200 },
+  error: { family: "red", foreground: 600, surface: 50, border: 200 },
+  warning: { family: "amber", foreground: 600, surface: 50, border: 200 },
+  info: { family: "blue", foreground: 600, surface: 50, border: 200 },
+};
+const neutralRoleSteps = {
+  foreground: {
+    primary: 900,
+    secondary: 700,
+    muted: 500,
+    disabled: 400,
+    inverse: 50,
+  },
+  outline: {
+    subtle: 100,
+    DEFAULT: 200,
+    strong: 300,
+    emphasis: 400,
+    contrast: 900,
+  },
+};
+
+const semanticColor = (role, tone) => {
+  const { family, ...steps } = semanticColorSteps[role];
+  return tailwindColors[family][steps[tone]];
+};
+
+const channelsToHex = (channels) =>
+  `#${channels
+    .split(" ")
+    .map((channel) => Number(channel).toString(16).padStart(2, "0"))
+    .join("")}`.toUpperCase();
 
 const color = {
   brand: {
-    DEFAULT: "#FFE500",
-    hover: "#E6CE00",
-    ink: "#14130E",
-    deep: "#7A5E00",
+    DEFAULT: CANONICAL_BRAND,
+    hover: channelsToHex(brandScale[brandRoleSteps.hover]),
+    ink: tailwindColors.neutral[brandNeutralRoleSteps.ink],
+    deep: channelsToHex(brandScale[brandRoleSteps.deep]),
   },
+  neutral: tailwindColors.neutral,
+  foreground: Object.fromEntries(
+    Object.entries(neutralRoleSteps.foreground).map(([role, step]) => [
+      role,
+      tailwindColors.neutral[step],
+    ])
+  ),
+  outline: Object.fromEntries(
+    Object.entries(neutralRoleSteps.outline).map(([role, step]) => [
+      role,
+      tailwindColors.neutral[step],
+    ])
+  ),
   ink: {
     3: "#00000008",
     5: "#0000000D",
@@ -39,29 +95,25 @@ const color = {
   },
   line: "rgba(0, 0, 0, 0.06)",
   status: {
-    success: "#06C270",
-    successStrong: "#047857",
-    error: "#CC2020",
-    warning: "#F59E0B",
-    warningStrong: "#B45309",
-    info: "#0063F7",
-  },
-  landing: {
-    yellow: "#F2DE4D",
-    cyan: "#00DAE6",
-    purple: "#F193FF",
-    darkFooter: "#010A0B",
-    navy: {
-      50: "#f0f9ff",
-      100: "#e0f2fe",
-      200: "#bae6fd",
-      300: "#7dd3fc",
-      400: "#38bdf8",
-      500: "#0ea5e9",
-      600: "#0284c7",
-      700: "#0369a1",
-      800: "#075985",
-      900: "#0c4a6e",
+    success: {
+      foreground: semanticColor("success", "foreground"),
+      surface: semanticColor("success", "surface"),
+      border: semanticColor("success", "border"),
+    },
+    error: {
+      foreground: semanticColor("error", "foreground"),
+      surface: semanticColor("error", "surface"),
+      border: semanticColor("error", "border"),
+    },
+    warning: {
+      foreground: semanticColor("warning", "foreground"),
+      surface: semanticColor("warning", "surface"),
+      border: semanticColor("warning", "border"),
+    },
+    info: {
+      foreground: semanticColor("info", "foreground"),
+      surface: semanticColor("info", "surface"),
+      border: semanticColor("info", "border"),
     },
   },
 };
@@ -93,48 +145,60 @@ function rgbChannels(hex) {
   return [0, 2, 4].map((offset) => Number.parseInt(value.slice(offset, offset + 2), 16)).join(" ");
 }
 
+const neutralScale = Object.fromEntries(
+  Object.entries(tailwindColors.neutral).map(([step, value]) => [step, rgbChannels(value)])
+);
+
 const cssVariables = {
   "--brand-rgb": rgbChannels(color.brand.DEFAULT),
   "--brand": "rgb(var(--brand-rgb))",
-  "--brand-hover": color.brand.hover,
-  "--brand-hover-rgb": rgbChannels(color.brand.hover),
-  "--brand-ink": color.brand.ink,
-  "--brand-ink-rgb": rgbChannels(color.brand.ink),
-  "--brand-deep": color.brand.deep,
-  "--brand-deep-rgb": rgbChannels(color.brand.deep),
+  "--brand-hover": `rgb(var(--brand-${brandRoleSteps.hover}-rgb))`,
+  "--brand-hover-rgb": brandScale[brandRoleSteps.hover],
+  "--brand-ink": `rgb(var(--neutral-${brandNeutralRoleSteps.ink}-rgb))`,
+  "--brand-ink-rgb": neutralScale[brandNeutralRoleSteps.ink],
+  "--brand-deep": `rgb(var(--brand-${brandRoleSteps.deep}-rgb))`,
+  "--brand-deep-rgb": brandScale[brandRoleSteps.deep],
   ...Object.fromEntries(
-    Object.entries(brandScale(color.brand.DEFAULT)).map(([step, channels]) => [
+    Object.entries(brandScale).map(([step, channels]) => [
       `--brand-${step}-rgb`,
       channels,
     ])
   ),
+  ...Object.fromEntries(
+    Object.entries(neutralScale).map(([step, channels]) => [
+      `--neutral-${step}-rgb`,
+      channels,
+    ])
+  ),
+  ...Object.fromEntries(
+    Object.entries(neutralRoleSteps).flatMap(([family, roles]) =>
+      Object.entries(roles).map(([role, step]) => [
+        `--${family}-${role === "DEFAULT" ? "default" : role}-rgb`,
+        neutralScale[step],
+      ])
+    )
+  ),
   ...Object.fromEntries(Object.entries(color.ink).map(([step, value]) => [`--ink-${step}`, value])),
   "--line": color.line,
-  "--success": color.status.success,
-  "--success-rgb": rgbChannels(color.status.success),
-  "--success-strong": color.status.successStrong,
-  "--success-strong-rgb": rgbChannels(color.status.successStrong),
-  "--error": color.status.error,
-  "--error-rgb": rgbChannels(color.status.error),
-  "--warning": color.status.warning,
-  "--warning-rgb": rgbChannels(color.status.warning),
-  "--warning-strong": color.status.warningStrong,
-  "--warning-strong-rgb": rgbChannels(color.status.warningStrong),
-  "--info": color.status.info,
-  "--info-rgb": rgbChannels(color.status.info),
+  ...Object.fromEntries(
+    Object.entries(color.status).flatMap(([role, tones]) =>
+      Object.entries(tones).map(([tone, value]) => [`--${role}-${tone}-rgb`, rgbChannels(value)])
+    )
+  ),
   ...Object.fromEntries(Object.entries(tokens.radius).map(([name, value]) => [`--radius-${name}`, value])),
   ...Object.fromEntries(Object.entries(tokens.shadow).map(([name, value]) => [`--shadow-${name}`, value])),
   ...Object.fromEntries(Object.entries(tokens.zIndex).map(([name, value]) => [`--z-${name}`, value])),
 };
 
-function leafNames(node, prefix) {
-  return Object.entries(node).flatMap(([name, value]) => {
-    const path = `${prefix}-${name}`;
-    return typeof value === "string" ? [path] : leafNames(value, path);
-  });
-}
-
 /** Literal project colours that are available but are not semantic tokens. */
-const projectLiteralColorNames = ["black", "green", "red", ...leafNames(color.landing, "landing")];
+const projectLiteralColorNames = ["black"];
 
-module.exports = { tokens, cssVariables, projectLiteralColorNames };
+module.exports = {
+  tokens,
+  cssVariables,
+  brandRoleSteps,
+  brandNeutralRoleSteps,
+  semanticColorSteps,
+  neutralRoleSteps,
+  projectLiteralColorNames,
+};

@@ -145,7 +145,7 @@ export default function Header({
           <div className="relative ml-auto">
             <IconButton icon={Bell} label="Notifications" onClick={onNotificationClick} />
             {notificationCount > 0 && (
-              <div className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red text-white rounded-full flex items-center justify-center text-body-sm font-normal ring-1 ring-white z-10">
+              <div className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-error-foreground text-white rounded-full flex items-center justify-center text-body-sm font-normal ring-1 ring-white z-10">
                 {notificationCount > 99 ? "99+" : notificationCount}
               </div>
             )}

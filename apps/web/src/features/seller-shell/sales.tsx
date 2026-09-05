@@ -118,7 +118,7 @@ export default function SalesBody({ action }: { action: () => void }) {
                 onClick={() => router.push("/dashboard/inbox")}
               />
               {chatUnread > 0 && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-red text-white rounded-full flex items-center justify-center text-body-sm font-normal ring-1 ring-white z-10">
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-error-foreground text-white rounded-full flex items-center justify-center text-body-sm font-normal ring-1 ring-white z-10">
                   {chatUnread > 99 ? "99+" : chatUnread}
                 </div>
               )}
@@ -131,7 +131,7 @@ export default function SalesBody({ action }: { action: () => void }) {
                 onClick={() => router.push("/dashboard/notification")}
               />
               {unreadCount > 0 && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-red text-white rounded-full flex items-center justify-center text-body-sm font-normal ring-1 ring-white z-10">
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-error-foreground text-white rounded-full flex items-center justify-center text-body-sm font-normal ring-1 ring-white z-10">
                   {unreadCount > 99 ? "99+" : unreadCount}
                 </div>
               )}
@@ -340,7 +340,7 @@ export default function SalesBody({ action }: { action: () => void }) {
         <div className="flex flex-col">
           {activitiesLoading ? (
             <div className="flex items-center justify-center py-4">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-error-foreground"></div>
               <p className="ml-3 text-ink-60 text-body-sm">Loading activities...</p>
             </div>
           ) : activities.length > 0 ? (

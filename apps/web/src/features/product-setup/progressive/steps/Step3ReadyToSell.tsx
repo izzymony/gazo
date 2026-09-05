@@ -45,7 +45,7 @@ const Step3ReadyToSell = ({ formik }: Step3Props) => {
                         error={formik.errors.inventoryStocks as string}
                     />
                     {isStockAutoCalculated && (
-                        <div className="text-blue-600 text-body-sm mt-1">
+                        <div className="text-info-foreground text-body-sm mt-1">
                             ✓ Auto-calculated from {formik.values?.variations?.length || 0} variant combinations
                         </div>
                     )}

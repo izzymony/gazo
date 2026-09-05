@@ -28,7 +28,7 @@ export default function SlideContent({ currentSlide, onSlideChange }: SlideConte
               key={`text-${index}`}
               className={`absolute w-full text-center transition-opacity duration-500 ${currentSlide === index ? "opacity-100" : "opacity-0"
                 }`}>
-              <h1 className="text-ink-90 text-lg md:text-display md:leading-[40px] font-medium tracking-wide whitespace-nowrap">
+              <h1 className="text-foreground-primary text-lg md:text-display md:leading-[40px] font-medium tracking-wide whitespace-nowrap">
                 {slide.title}
               </h1>
               <div className="mt-3 md:leading-[24px]">{slide.description}</div>

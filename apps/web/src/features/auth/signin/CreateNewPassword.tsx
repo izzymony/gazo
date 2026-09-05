@@ -19,7 +19,7 @@ const CreateNewPassword = ({ profileData, handleInputChange, error }: UserProfil
     return (
         <div className="flex-1">
             <H1 className="text-h1 text-start">Create New Password</H1>
-            <p className="text-body text-ink-60 mt-2.5">Choose a unique password that&apos;s easy for you to remember but hard for others to guess. </p>
+            <p className="text-body text-foreground-secondary mt-2.5">Choose a unique password that&apos;s easy for you to remember but hard for others to guess. </p>
 
             <div className="space-y-4 mt-4">
                 <InputField

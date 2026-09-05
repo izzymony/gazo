@@ -22,12 +22,12 @@ const Accordion: React.FC<AccordionProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen((v) => !v)}
-        className="flex items-center justify-between w-full text-body font-medium text-ink-90 min-h-[36px]">
+        className="flex items-center justify-between w-full text-body font-medium text-foreground-primary min-h-[36px]">
         {title}
         <GoChevronDown
           size={20}
           className={cn(
-            "flex-shrink-0 transition-transform text-ink-60",
+            "flex-shrink-0 transition-transform text-foreground-secondary",
             isOpen && "rotate-180"
           )}
         />

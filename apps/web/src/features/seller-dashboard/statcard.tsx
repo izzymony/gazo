@@ -29,14 +29,14 @@ const StatsCard: React.FC<StatsCardProps> = ({ data }) => {
                   <p
                     className={cn(
                       "text-body-sm",
-                      isNegative ? "text-red" : "text-green"
+                      isNegative ? "text-error-foreground" : "text-success-foreground"
                     )}>
                     {item.percentage}
                   </p>
                   {isNegative ? (
-                    <ArrowDownRight size={14} className="text-red" />
+                    <ArrowDownRight size={14} className="text-error-foreground" />
                   ) : (
-                    <ArrowUpRight size={14} className="text-green" />
+                    <ArrowUpRight size={14} className="text-success-foreground" />
                   )}
                 </div>
               )}

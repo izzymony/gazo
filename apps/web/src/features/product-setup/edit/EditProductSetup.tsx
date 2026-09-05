@@ -768,7 +768,7 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                     )}
 
                                     {formik.errors.images && (
-                                        <div className="text-red-500 text-body mt-2">
+                                        <div className="text-error-foreground text-body mt-2">
                                             {formik.errors.images as string}
                                         </div>
                                     )}
@@ -818,14 +818,14 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                     {/* Discount Indicator */}
                                     {formik.values?.price && formik.values?.comparePrice &&
                                      Number(formik.values.comparePrice) > Number(formik.values.price) && (
-                                        <div className="bg-green-50 border border-green-200 rounded-card p-3">
+                                        <div className="bg-success-surface border border-success-border rounded-card p-3">
                                             <div className="flex items-center gap-2">
-                                                <CircleCheck size={16} className="text-green-600" />
-                                                <span className="text-body font-medium text-green-700">
+                                                <CircleCheck size={16} className="text-success-foreground" />
+                                                <span className="text-body font-medium text-success-foreground">
                                                     {Math.round(((Number(formik.values.comparePrice) - Number(formik.values.price)) / Number(formik.values.comparePrice)) * 100)}% discount
                                                 </span>
                                             </div>
-                                            <p className="text-body-sm text-green-600 mt-1">
+                                            <p className="text-body-sm text-success-foreground mt-1">
                                                 Customers love discounts! This will help your product stand out.
                                             </p>
                                         </div>
@@ -923,7 +923,7 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                         disabled={isVariable && variations.length > 0}
                                     />
                                     {isVariable && variations.length > 0 && variantDetails.length > 0 && (
-                                        <div className="text-blue-600 text-body mt-1">
+                                        <div className="text-info-foreground text-body mt-1">
                                             ✓ Auto-calculated from {variantDetails.length} variant combinations
                                         </div>
                                     )}

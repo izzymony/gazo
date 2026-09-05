@@ -84,7 +84,7 @@ export default function ShareModal({
     <Dialog isOpen={isOpen} onClose={onClose}>
       <div className="flex flex-col">
         {/* Header */}
-        <h2 className="text-body-lg font-semibold text-ink-90 text-center mb-6">
+        <h2 className="text-body-lg font-semibold text-foreground-primary text-center mb-6">
           {title}
         </h2>
 
@@ -118,7 +118,7 @@ export default function ShareModal({
             onClick={handleCopyLink}
             className={`flex items-center justify-center gap-1.5 px-5 py-3 rounded-full min-h-[44px] font-semibold text-body transition-all touch-manipulation ${
               copied
-                ? "bg-green text-white"
+                ? "bg-success-foreground text-foreground-primary"
                 : "bg-brand text-brandInk active:scale-95"
             }`}
             style={{

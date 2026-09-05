@@ -229,7 +229,7 @@ export default function ProductsPreview({
         </div>
 
         <div className="w-full px-4">
-          <div className="flex fex-row items-center gap-1 my-2">
+          <div className="flex flex-row items-center gap-1 my-2">
             <h1 className="text-body font-medium mr-auto max-w-[70%]">
               {productPreview?.title}
             </h1>
@@ -270,7 +270,7 @@ export default function ProductsPreview({
               .fill(null)
               .map((_: string, index: number) => (
                 <div key={index}>
-                  <FaStar size={14} className="text-warning" />
+                  <FaStar size={14} className="text-warning-foreground" />
                 </div>
               ))}
             <p className="text-ink-40 text-body font-normal">(5 sold)</p>
@@ -364,7 +364,7 @@ export default function ProductsPreview({
                 <h3 className="font-medium text-body-sm">{store?.name}</h3>
                 <p className="text-ink-50 text-caption font-normal flex items-center gap-1">
                   {store?.category} ·{" "}
-                  <FaStar size={12} className="text-warning" />
+                  <FaStar size={12} className="text-warning-foreground" />
                   5.4 · 100k{" "}
                   <FiUsers size={12} className="text-ink-60" />
                 </p>

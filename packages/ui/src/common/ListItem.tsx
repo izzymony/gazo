@@ -59,13 +59,13 @@ export default function ListItem({
 
       <div className="flex-1 min-w-0 flex flex-col gap-0.5">
         <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 text-body text-ink-90 line-clamp-1">{title}</div>
+          <div className="min-w-0 text-body text-foreground-primary line-clamp-1">{title}</div>
           {trailing && <div className="flex-shrink-0">{trailing}</div>}
         </div>
         {subtitle && (
-          <p className="text-body-sm text-ink-60 line-clamp-2">{subtitle}</p>
+          <p className="text-body-sm text-foreground-secondary line-clamp-2">{subtitle}</p>
         )}
-        {meta && <p className="text-caption text-ink-40">{meta}</p>}
+        {meta && <p className="text-caption text-foreground-muted">{meta}</p>}
       </div>
     </div>
   );

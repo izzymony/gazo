@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useState } from "react";
+import React, { useId, useState } from "react";
+import { cn } from "@vibaar/utils";
 import { BiChevronDown, CiSearch } from "../icons";
 import PasswordCriteria from "./PasswordCriteria";
 //
@@ -10,14 +10,25 @@ interface Option {
   value: string | number;
 }
 
-export interface InputFieldProps {
+type NativeInputProps = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  | "type"
+  | "value"
+  | "onChange"
+  | "onBlur"
+  | "placeholder"
+  | "name"
+  | "className"
+  | "ref"
+>;
+
+export interface InputFieldProps extends NativeInputProps {
   type:
     | "text"
     | "password"
     | "dropdown"
     | "textarea"
     | "number"
-    | "dropdown"
     | "date"
     | "email"
     | "tel"
@@ -32,50 +43,64 @@ export interface InputFieldProps {
   showWeightSymbol?: boolean;
   showProductIcon?: boolean;
   showSearch?: boolean;
-  onKeyPress?: unknown;
   onEnterPress?: () => void; // New prop for Enter key handling
   error?: string;
   isReadonly?: boolean;
   disabled?: boolean;
+  /** Classes for the field container. */
   className?: string;
+  /** Classes for the native input itself. */
+  inputClassName?: string;
   options?: Option[];
-  ref?: any;
   flag?: string;
   modal?: (val: boolean) => void;
   icon?: boolean;
   mode?: "signin" | "signup";
   drops?: boolean;
   dropAction?: () => void;
-  inputMode?: "text" | "numeric" | "tel" | "email" | "url" | "search"; // Better mobile keyboard
 }
 
-export default function InputField({
-  type,
-  placeholder,
-  onChange,
-  onBlur,
-  value,
-  name,
-  showNairaSymbol = false,
-  showWeightSymbol = false,
-  error,
-  isReadonly,
-  disabled,
-  className,
-  showPercentage,
-  showProductIcon,
-  showSearch,
-  options = [], // Empty array by default
-  ref,
-  flag,
-  modal = () => {},
-  icon,
-  mode = "signup",
-  drops = false,
-  dropAction = () => {},
-  onEnterPress,
-  inputMode,
-}: InputFieldProps) {
+const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(function InputField(
+  {
+    type,
+    placeholder,
+    onChange,
+    onBlur,
+    value,
+    name,
+    showNairaSymbol = false,
+    showWeightSymbol = false,
+    error,
+    isReadonly,
+    disabled,
+    className,
+    inputClassName,
+    showPercentage,
+    showProductIcon,
+    showSearch,
+    options = [],
+    flag,
+    modal = () => {},
+    icon,
+    mode = "signup",
+    drops = false,
+    dropAction = () => {},
+    onEnterPress,
+    inputMode,
+    id,
+    required = true,
+    readOnly,
+    autoFocus,
+    onKeyDown,
+    "aria-describedby": ariaDescribedBy,
+    "aria-invalid": ariaInvalid,
+    ...inputProps
+  },
+  ref
+) {
+  const generatedId = useId();
+  const inputId = id ?? `input-${generatedId.replace(/:/g, "")}`;
+  const errorId = `${inputId}-error`;
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDropOpen, setIsDropOpen] = useState(false);
@@ -89,6 +114,8 @@ export default function InputField({
 
   // Handle Enter key press for form submission
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    onKeyDown?.(e);
+    if (e.defaultPrevented) return;
     if (e.key === 'Enter' && onEnterPress) {
       e.preventDefault(); // Prevent default form submission
       onEnterPress();
@@ -99,24 +126,40 @@ export default function InputField({
   return (
     <>
       <div
-        onClick={drops ? dropAction : () => {}}
-        className={`peer flex flex-col relative w-full px-3 h-[52px] z-10 rounded-field border border-ink-20 focus-within:ring-1 ${
+        onClick={drops ? dropAction : undefined}
+        className={cn(
+          "peer relative z-10 flex h-[52px] w-full flex-col rounded-field border border-outline-strong px-3 focus-within:ring-1",
           error
-            ? "border-red focus-within:ring-red"
-            : "focus-within:ring-black"
-        } ${className}`}>
+            ? "border-error-border focus-within:ring-error-foreground"
+            : "focus-within:ring-brandDeep",
+          disabled && "cursor-not-allowed bg-ink-3 opacity-60",
+          className
+        )}>
         {/* Input Field */}
         {!drops && (
           <input
-            ref={ref ?? null}
-            type={type === "password" && isPasswordVisible ? "text" : type}
+            {...inputProps}
+            ref={ref}
+            id={inputId}
+            type={
+              type === "password" && isPasswordVisible
+                ? "text"
+                : type === "dropdown" || type === "textarea" || type === "drop"
+                  ? "text"
+                  : type
+            }
             name={name}
             value={value}
             onChange={onChange}
             onBlur={onBlur}
             onKeyDown={handleKeyDown}
-            readOnly={isReadonly}
+            readOnly={readOnly ?? isReadonly ?? !onChange}
             disabled={disabled}
+            required={required}
+            aria-invalid={error ? true : ariaInvalid}
+            aria-describedby={
+              [ariaDescribedBy, error ? errorId : undefined].filter(Boolean).join(" ") || undefined
+            }
             inputMode={
               inputMode ||
               (type === "email" ? "email" :
@@ -124,36 +167,32 @@ export default function InputField({
                type === "number" ? "numeric" :
                showSearch ? "search" : "text")
             }
-            required
-            className={`mt-[22px] peer focus:ring-0 focus:outline-none z-[99] leading-[18px] text-[#000000] relative text-body bg-transparent font-medium`}
-            placeholder=" "
-            style={{
-              paddingLeft:
-                showNairaSymbol ||
-                showPercentage ||
-                showProductIcon ||
-                showSearch
-                  ? 24
-                  : showWeightSymbol
-                  ? 20
+            className={cn(
+              "peer relative z-[99] mt-[22px] bg-transparent text-body font-medium leading-[18px] text-foreground-primary focus:outline-none focus:ring-0",
+              showNairaSymbol || showPercentage || showProductIcon || showSearch
+                ? "pl-6"
+                : showWeightSymbol
+                  ? "pl-5"
                   : undefined,
-            }}
-            {...((showNairaSymbol ||
-              showPercentage ||
-              showWeightSymbol ||
-              showProductIcon ||
-              showSearch) && { autoFocus: true })}
+              inputClassName
+            )}
+            placeholder=" "
+            autoFocus={
+              autoFocus ??
+              (showNairaSymbol || showPercentage || showWeightSymbol || showProductIcon || showSearch)
+            }
           />
         )}
         {drops && (
           <div
-            className={`mt-[22px] peer focus:ring-0 focus:outline-none z-[99] leading-[18px] text-[#000000] relative text-body bg-transparent font-medium`}>
+            className="peer relative z-[99] mt-[22px] bg-transparent text-body font-medium leading-[18px] text-foreground-primary focus:outline-none focus:ring-0">
             <p>{value}</p>
           </div>
         )}
 
         {/* Placeholder Label */}
         <label
+          htmlFor={!drops ? inputId : undefined}
           className={`absolute transition-all duration-200 ease-in-out
              ${type === "textarea" && "!top-[35%]"}
                           ${type === "date" && "!top-[50%]"}
@@ -164,13 +203,13 @@ export default function InputField({
               showProductIcon ||
               showSearch ||
               value === 0
-                ? "text-caption font-medium text-ink-20 -translate-y-[18px] top-[50%] left-9"
+                ? "text-caption font-medium text-foreground-muted -translate-y-[18px] top-[50%] left-9"
                 : value
-                ? "text-caption font-medium text-ink-20 -translate-y-[18px]"
-                : "text-body text-ink-60 top-1/2 transform -translate-y-1/2 peer-focus:-translate-y-[18px]"
+                ? "text-caption font-medium text-foreground-muted -translate-y-[18px]"
+                : "text-body text-foreground-secondary top-1/2 transform -translate-y-1/2 peer-focus:-translate-y-[18px]"
             } 
-            peer-focus:text-caption top-[50%] !peer-focus:-translate-y-[20px] peer-focus:text-ink-20 peer-focus:font-medium
-                        ${error && "!text-red"}
+            peer-focus:text-caption top-[50%] !peer-focus:-translate-y-[20px] peer-focus:text-foreground-muted peer-focus:font-medium
+                        ${error && "!text-error-foreground"}
 `}>
           {placeholder}
         </label>
@@ -178,28 +217,28 @@ export default function InputField({
         {showSearch && (
           <CiSearch
             size={20}
-            className="absolute left-2 top-[50%] transform -translate-y-1/2 pointer-events-none leading-[18px] font-medium text-body text-black"
+            className="absolute left-2 top-[50%] transform -translate-y-1/2 pointer-events-none leading-[18px] font-medium text-body text-foreground-primary"
           />
         )}
 
         {/* Naira and Weight Symbols */}
         {showNairaSymbol && (
-          <span className="absolute left-4 top-[63%] transform -translate-y-1/2 pointer-events-none leading-[18px] font-medium text-body text-black">
+          <span className="absolute left-4 top-[63%] transform -translate-y-1/2 pointer-events-none leading-[18px] font-medium text-body text-foreground-primary">
             ₦
           </span>
         )}
         {showWeightSymbol && (
-          <span className="absolute left-4 top-[63%] transform -translate-y-1/2 pointer-events-none leading-[18px] font-medium text-body text-black">
+          <span className="absolute left-4 top-[63%] transform -translate-y-1/2 pointer-events-none leading-[18px] font-medium text-body text-foreground-primary">
             Kg
           </span>
         )}
         {showPercentage && (
-          <span className="absolute left-4 top-[63%] transform -translate-y-1/2 pointer-events-none leading-[18px] font-medium text-body text-black">
+          <span className="absolute left-4 top-[63%] transform -translate-y-1/2 pointer-events-none leading-[18px] font-medium text-body text-foreground-primary">
             %
           </span>
         )}
         {showProductIcon && (
-          <span className="absolute left-4 top-[63%] transform -translate-y-1/2 pointer-events-none leading-[18px] font-semibold text-body text-black">
+          <span className="absolute left-4 top-[63%] transform -translate-y-1/2 pointer-events-none leading-[18px] font-semibold text-body text-foreground-primary">
             <svg
               width="20"
               height="21"
@@ -236,9 +275,12 @@ export default function InputField({
 
         {/* Password Visibility Toggle */}
         {type === "password" && (
-          <span
+          <button
+            type="button"
             onClick={togglePasswordVisibility}
-            className="absolute right-4 top-[50%] z-[999] transform -translate-y-1/2 cursor-pointer text-ink-40">
+            disabled={disabled}
+            aria-label={isPasswordVisible ? "Hide password" : "Show password"}
+            className="absolute right-2 top-1/2 z-[999] inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-pill text-foreground-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40">
             {!isPasswordVisible ? (
               <svg
                 width="36"
@@ -294,9 +336,8 @@ export default function InputField({
                   strokeLinejoin="round"
                 />
               </svg>
-            )}{" "}
-            {/* Replace with eye icons */}
-          </span>
+            )}
+          </button>
         )}
 
         {/* Dropdown */}
@@ -304,11 +345,11 @@ export default function InputField({
           <>
             <span
               onClick={toggleDropdown}
-              className="absolute z-[999] right-4 top-[50%] transform -translate-y-1/2 cursor-pointer text-ink-40">
+              className="absolute z-[999] right-4 top-[50%] transform -translate-y-1/2 cursor-pointer text-foreground-muted">
               <BiChevronDown size={25} />
             </span>
             {isDropdownOpen && (
-              <div className="absolute z-[999] top-full h-[100px] left-0 w-full bg-white border border-gray-200 rounded-md shadow-md mt-1">
+              <div className="absolute left-0 top-full z-[999] mt-1 h-[100px] w-full rounded-field border border-outline bg-white shadow-card">
                 {options.map((option) => (
                   <div
                     key={option.value}
@@ -318,7 +359,7 @@ export default function InputField({
                       } as React.ChangeEvent<HTMLInputElement>);
                       setIsDropdownOpen(false);
                     }}
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                    className="cursor-pointer px-4 py-2 hover:bg-neutral-100">
                     {option.label}
                   </div>
                 ))}
@@ -332,13 +373,13 @@ export default function InputField({
             {icon && (
               <span
                 onClick={toggleDrop}
-                className="absolute z-[999] right-4 top-[50%] transform -translate-y-1/2 cursor-pointer text-ink-40">
+                className="absolute z-[999] right-4 top-[50%] transform -translate-y-1/2 cursor-pointer text-foreground-muted">
                 <BiChevronDown size={25} />
               </span>
             )}
             {flag && (
               <img
-                className="absolute z-[999] right-4 top-[50%] transform -translate-y-1/2 cursor-pointer text-ink-40 rounded-full w-8 h-8 object-cover"
+                className="absolute z-[999] right-4 top-[50%] transform -translate-y-1/2 cursor-pointer text-foreground-muted rounded-full w-8 h-8 object-cover"
                 onClick={toggleDrop}
                 src={`https://flagcdn.com/w40/${flag}.png`}
                 alt="USA Flag"
@@ -349,11 +390,17 @@ export default function InputField({
       </div>
 
       {/* Error Message */}
-      {error && <small className="text-red">{error}</small>}
+      {error && (
+        <small id={errorId} role="alert" className="text-error-foreground">
+          {error}
+        </small>
+      )}
 
       {type === "password" && (name === "password" || name === "passwords") && mode === "signup" && (
         <PasswordCriteria password={typeof value === "string" ? value : ""} />
       )}
     </>
   );
-}
+});
+
+export default InputField;

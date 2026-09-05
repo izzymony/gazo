@@ -43,8 +43,8 @@ const Tabs: React.FC<TabsProps> = ({
             className={cn(
               "w-full lg:w-auto text-center py-2 md:py-3 px-4 md:px-6 lg:px-8 border-b-2 text-body md:text-body-lg transition-all",
               activeTab === index
-                ? "border-ink-90 text-ink-90 font-medium"
-                : "border-transparent text-ink-30 font-normal hover:text-ink-60 hover:border-ink-20"
+                ? "border-outline-contrast text-foreground-primary font-medium"
+                : "border-transparent text-ink-30 font-normal hover:text-foreground-secondary hover:border-outline-strong"
             )}>
             {tab}
           </button>

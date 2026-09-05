@@ -964,7 +964,7 @@ function Rating({
         <p className="text-caption text-ink-60">{dates}</p>
       </div>
       <div className="w-full">
-        <p className="text-body-sm font-medium w-full lime-clamp-2">
+        <p className="text-body-sm font-medium w-full line-clamp-2">
           &quot;{comment}&quot;
         </p>
       </div>

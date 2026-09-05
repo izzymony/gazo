@@ -35,7 +35,7 @@ describe("IconButton", () => {
 
   it("defaults to plain variant + md size (36px)", () => {
     render(<IconButton icon={StubIcon} label="x" onClick={() => {}} />);
-    expect(screen.getByRole("button")).toHaveClass("text-ink-90", "h-9", "w-9");
+    expect(screen.getByRole("button")).toHaveClass("text-foreground-primary", "h-9", "w-9");
   });
 
   it("applies variant + size classes", () => {

@@ -24,7 +24,7 @@ const Checkbox = ({ checked, onChange, label, isRound = false }: CheckboxProps) 
         className={cn(
           "w-5 h-5 border-2 flex items-center justify-center cursor-pointer transition-colors flex-shrink-0",
           isRound ? "rounded-full" : "rounded",
-          checked ? "bg-brand border-brandDeep" : "border-ink-30"
+          checked ? "bg-brand border-brandDeep" : "border-outline-emphasis"
         )}>
         {checked && (
           <IoCheckmark className="text-brandInk" size={14} strokeWidth={3} />
@@ -41,13 +41,13 @@ const Checkbox = ({ checked, onChange, label, isRound = false }: CheckboxProps) 
       <div
         className={cn(
           "w-5 h-5 flex items-center justify-center rounded border-2 transition-colors flex-shrink-0",
-          checked ? "bg-brand border-brandDeep" : "border-ink-30"
+          checked ? "bg-brand border-brandDeep" : "border-outline-emphasis"
         )}>
         {checked && (
           <IoCheckmark className="text-brandInk" size={14} strokeWidth={3} />
         )}
       </div>
-      <span className="text-ink-90 text-body">{label}</span>
+      <span className="text-foreground-primary text-body">{label}</span>
     </div>
   );
 };

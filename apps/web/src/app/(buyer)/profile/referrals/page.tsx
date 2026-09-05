@@ -219,11 +219,11 @@ Enter "${username}" in the Referral ID field when signing up.`;
             <div className="w-full rounded-field bg-ink-3 flex flex-col">
               <div className="w-full flex justify-between items-center gap-2 p-3">
                 <div className="items-center flex gap-2">
-                  <Clock size={18} className="text-warning" />
+                  <Clock size={18} className="text-warning-foreground" />
                   <p className="text-body-sm font-medium">Pending Earnings</p>
                 </div>
                 <div className="items-center flex gap-2">
-                  <p className="text-body-sm font-medium text-warning-strong">
+                  <p className="text-body-sm font-medium text-warning-foreground">
                     {formatCurrency(referralInfo.pending_earnings)}
                   </p>
                 </div>
@@ -255,7 +255,7 @@ Enter "${username}" in the Referral ID field when signing up.`;
               <p className="text-ink-90 font-medium text-caption">
                 Total Earned
               </p>
-              <p className="text-success-strong font-normal text-h2">
+              <p className="text-success-foreground font-normal text-h2">
                 {formatCurrency(totalEarned)}
               </p>
             </div>
@@ -322,8 +322,8 @@ Enter "${username}" in the Referral ID field when signing up.`;
                   {referralInfo.referred_by}
                 </p>
               </div>
-              <div className="w-8 h-8 bg-green/10 rounded-full flex items-center justify-center">
-                <CircleCheck size={16} className="text-green" />
+              <div className="w-8 h-8 bg-success-surface rounded-full flex items-center justify-center">
+                <CircleCheck size={16} className="text-success-foreground" />
               </div>
             </div>
             {!referralInfo.referral_activated && (

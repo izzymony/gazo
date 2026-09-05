@@ -3,7 +3,7 @@
  *
  * Replaces the two byte-identical copies that lived inline in InputField and
  * in SignUpOverview. Computes its own state from the `password` string; met
- * rules turn `success-strong` (readable green), unmet stay `ink-40`.
+ * rules turn semantic `success-foreground`, unmet stay `ink-40`.
  */
 export default function PasswordCriteria({ password }: { password: string }) {
   const criteria = {
@@ -14,7 +14,7 @@ export default function PasswordCriteria({ password }: { password: string }) {
   };
 
   const cls = (met: boolean) =>
-    `list-disc ${met ? "text-success-strong" : "text-ink-40"}`;
+    `list-disc ${met ? "text-success-foreground" : "text-foreground-muted"}`;
 
   return (
     <ul className="text-body-sm mt-2 pl-5 space-y-0.5">

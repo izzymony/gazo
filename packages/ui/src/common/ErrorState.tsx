@@ -23,10 +23,10 @@ export default function ErrorState({
       <div className="w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center mb-5">
         <HugeiconsIcon icon={AlertCircleIcon} size={30} color="var(--brand)" />
       </div>
-      <h2 className="text-h2 font-semibold text-ink-90 mb-2 text-balance">
+      <h2 className="text-h2 font-semibold text-foreground-primary mb-2 text-balance">
         {title}
       </h2>
-      <p className="text-body text-ink-60 mb-6 max-w-xs leading-[20px]">
+      <p className="text-body text-foreground-secondary mb-6 max-w-xs leading-[20px]">
         {message}
       </p>
       <div className="w-full max-w-xs">

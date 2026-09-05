@@ -56,7 +56,7 @@ export const slidesData: Slide[] = [
     ],
     title: "Sell More. Grow Faster.",
     description: (
-      <p className="text-xs md:text-body-lg font-normal text-ink-90">
+      <p className="text-xs md:text-body-lg font-normal text-foreground-primary">
         Transform your IG or TikTok into a smart storefront. <br />
         Payments, delivery & insights—all in one place.
       </p>
@@ -89,7 +89,7 @@ export const slidesData: Slide[] = [
     ],
     title: "Shop safer, without fear.",
     description: (
-      <p className="text-xs md:text-body-lg font-normal text-ink-90">
+      <p className="text-xs md:text-body-lg font-normal text-foreground-primary">
         Discover trusted vendors with secure checkout, <br />
         refund support, and verified ratings.
       </p>
@@ -115,7 +115,7 @@ export const slidesData: Slide[] = [
     ],
     title: "Track Every Order Instantly.",
     description: (
-      <p className="text-xs md:text-body-lg font-normal text-ink-90">
+      <p className="text-xs md:text-body-lg font-normal text-foreground-primary">
         Real-time delivery tracking and fast, affordable <br />
         shipping — no more stress
       </p>

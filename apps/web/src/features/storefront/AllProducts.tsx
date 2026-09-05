@@ -232,7 +232,7 @@ const AllProducts = ({
                           {formatCurrency(item?.price ? +item.price : 0)}
                         </p>
                         <div className="flex gap-1 items-center">
-                          <FaStar size={12} className="text-warning" />
+                          <FaStar size={12} className="text-warning-foreground" />
                           <p className="text-caption text-ink-40">{rate}</p>
                         </div>
                       </div>

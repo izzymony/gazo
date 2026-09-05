@@ -10,7 +10,7 @@ interface ListSectionHeaderProps {
 export default function ListSectionHeader({ title, action, className }: ListSectionHeaderProps) {
   return (
     <div className={cn("flex items-center justify-between", className)}>
-      <p className="text-body font-medium text-ink-90">{title}</p>
+      <p className="text-body font-medium text-foreground-primary">{title}</p>
       {action && (
         <button
           type="button"

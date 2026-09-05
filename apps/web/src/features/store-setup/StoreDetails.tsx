@@ -154,19 +154,19 @@ const StoreDetails = ({
         />
 
         {/* Contact Toggle Section */}
-        <div className="bg-blue-50 border border-blue-200 rounded-field p-3 mt-6">
+        <div className="bg-info-surface border border-info-border rounded-field p-3 mt-6">
           <div
             className="flex items-center gap-3 cursor-pointer"
             onClick={() => setUsePersonalContact(!usePersonalContact)}
           >
             <div className={`w-5 h-5 border-2 rounded flex items-center justify-center flex-shrink-0 ${usePersonalContact
-              ? 'bg-blue-500 border-blue-500'
+              ? 'bg-info-foreground border-info-foreground'
               : 'bg-transparent border-ink-30'
               }`}>
               {usePersonalContact && <Check size={14} className="text-white" />}
             </div>
             <div>
-              <div className="text-body font-medium text-blue-800">
+              <div className="text-body font-medium text-info-foreground">
                 Use the same personal contact details
               </div>
               <div className="text-body-sm text-ink-60 mt-1">

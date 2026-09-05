@@ -29,7 +29,7 @@ export default function ProductInfo({
 
   return (
     <div className="w-full px-4 py-4 md:px-6 lg:px-0">
-      <div className="flex fex-row items-center gap-1 my-2">
+      <div className="flex flex-row items-center gap-1 my-2">
         <h1 className="text-sm font-medium mr-auto max-w-[70%]">{title}</h1>
 
         <div onClick={onShare}>

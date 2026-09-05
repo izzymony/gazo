@@ -41,7 +41,7 @@ export default function UserContactForm({
           <>, <span className="font-semibold">{username || "[Username]"}</span></>
         )}! 🫡
       </H1>
-      <p className="text-body tracking-[0px] mt-2 text-ink-60 text-start">
+      <p className="text-body tracking-[0px] mt-2 text-foreground-secondary text-start">
         {isDirectLogin 
           ? "Please enter your email or phone number and password to sign in to your Vibaar account"
           : "Please enter your password to sign in to your Vibaar account"

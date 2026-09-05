@@ -8,10 +8,10 @@ export default function Loader({ text }: { text?: string }) {
       <div
         role="status"
         aria-label="Loading"
-        className="h-10 w-10 rounded-full border-4 border-ink-10 border-t-brand animate-spin"
+        className="h-10 w-10 rounded-full border-4 border-outline border-t-brand animate-spin"
       />
       {text && (
-        <p className="text-center text-body-sm text-ink-60 max-w-[max-content]">
+        <p className="text-center text-body-sm text-foreground-secondary max-w-[max-content]">
           {text}
         </p>
       )}

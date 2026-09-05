@@ -143,7 +143,7 @@ const Selling = () => {
             icon={
               <VerifiedBadge
                 size={20}
-                className={store?.is_verified ? "text-info" : undefined}
+                className={store?.is_verified ? "text-info-foreground" : undefined}
               />
             }
           />

@@ -99,7 +99,7 @@ const ReviewIcon = ({
         Your review
       </p>
       <div className="flex space-x-3 bg-white rounded-field p-2">
-        <div className="bg-warning/10 p-2 rounded-field gap-1 justify-center items-center flex font-medium text-body-sm text-ink-90">
+        <div className="bg-warning-surface p-2 rounded-field gap-1 justify-center items-center flex font-medium text-body-sm text-ink-90">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -510,7 +510,7 @@ const Page = () => {
                   onClick={() => setRating(chip.value)}
                   className={`px-3 py-1 rounded-full border text-caption font-medium cursor-pointer transition-colors duration-300 ${
                     rating === chip.value
-                      ? "bg-warning border-warning text-white"
+                      ? "bg-warning-foreground border-warning-foreground text-ink-90"
                       : "bg-ink-5 border-ink-10 text-ink-60"
                   }`}>
                   {chip.label}

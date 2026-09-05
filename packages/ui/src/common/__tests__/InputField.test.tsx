@@ -1,3 +1,4 @@
+import { createRef } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
@@ -29,13 +30,13 @@ describe("InputField", () => {
     expect(onChange).toHaveBeenCalledTimes(1);
   });
 
-  it("renders an error message styled with the red token", () => {
+  it("renders an error message with the semantic error token", () => {
     render(
       <InputField type="text" name="q" placeholder="x" value="" onChange={() => {}} error="Required field" />
     );
     const err = screen.getByText("Required field");
     expect(err).toBeInTheDocument();
-    expect(err).toHaveClass("text-red");
+    expect(err).toHaveClass("text-error-foreground");
   });
 
   it("keeps text-body + font-medium + peer and drops the dead -z-1 (regression guard)", () => {
@@ -46,13 +47,54 @@ describe("InputField", () => {
   });
 
   it("toggles password visibility when the eye control is clicked", async () => {
-    const { container } = render(
+    render(
       <InputField type="password" name="pw" placeholder="Password" value="secret" onChange={() => {}} mode="signin" />
     );
-    const input = container.querySelector('input[name="pw"]') as HTMLInputElement;
+    const input = screen.getByLabelText("Password") as HTMLInputElement;
     expect(input).toHaveAttribute("type", "password");
-    const eyeToggle = container.querySelector('span[class*="cursor-pointer"]') as HTMLElement;
-    await userEvent.click(eyeToggle);
+    await userEvent.click(screen.getByRole("button", { name: "Show password" }));
     expect(input).toHaveAttribute("type", "text");
+    expect(screen.getByRole("button", { name: "Hide password" })).toBeInTheDocument();
+  });
+
+  it("associates the visible label with the native input", () => {
+    render(<InputField type="email" name="email" placeholder="Email address" value="" onChange={() => {}} />);
+    expect(screen.getByLabelText("Email address")).toHaveAttribute("type", "email");
+  });
+
+  it("forwards native input attributes and its ref", () => {
+    const ref = createRef<HTMLInputElement>();
+    render(
+      <InputField
+        ref={ref}
+        type="text"
+        name="handle"
+        placeholder="Handle"
+        value=""
+        onChange={() => {}}
+        id="store-handle"
+        autoComplete="username"
+        data-field="identity"
+      />
+    );
+    expect(ref.current).toBe(screen.getByRole("textbox"));
+    expect(ref.current).toHaveAttribute("id", "store-handle");
+    expect(ref.current).toHaveAttribute("autocomplete", "username");
+    expect(ref.current).toHaveAttribute("data-field", "identity");
+  });
+
+  it("connects error text to the input and exposes invalid state", () => {
+    render(
+      <InputField type="text" name="handle" placeholder="Handle" value="" onChange={() => {}} error="Already taken" />
+    );
+    const input = screen.getByRole("textbox");
+    const error = screen.getByRole("alert");
+    expect(input).toHaveAttribute("aria-invalid", "true");
+    expect(input).toHaveAttribute("aria-describedby", error.id);
+  });
+
+  it("allows optional fields instead of forcing required", () => {
+    render(<InputField type="text" name="referral" placeholder="Referral" value="" onChange={() => {}} required={false} />);
+    expect(screen.getByRole("textbox")).not.toBeRequired();
   });
 });

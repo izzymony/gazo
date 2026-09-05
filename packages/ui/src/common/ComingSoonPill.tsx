@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from "@vibaar/utils";
 
 interface ComingSoonPillProps {
   className?: string;
@@ -7,7 +8,10 @@ interface ComingSoonPillProps {
 const ComingSoonPill: React.FC<ComingSoonPillProps> = ({ className = '' }) => {
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 ${className}`}
+      className={cn(
+        "inline-flex items-center rounded-pill border border-info-border bg-info-surface px-2 py-0.5 text-body-sm font-medium text-info-foreground",
+        className
+      )}
     >
       Soon
     </span>

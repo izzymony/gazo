@@ -64,7 +64,7 @@ const ActivityText = ({
         <p
           className={`text-body-sm font-medium ${show
             ? `${title.toLowerCase() === "order delivered"
-              ? "text-success-strong"
+              ? "text-success-foreground"
               : "text-brandDeep"
             }`
             : "text-ink-60"
@@ -659,7 +659,7 @@ const Order = () => {
                   onClick={() => handleChipClick(chip.value)}
                   className={`px-3 py-1 rounded-full border text-caption font-medium cursor-pointer transition-colors duration-300 ${
                     rating === chip.value
-                      ? "bg-warning border-warning text-white"
+                      ? "bg-warning-foreground border-warning-foreground text-ink-90"
                       : "bg-ink-5 border-ink-10 text-ink-60"
                   }`}>
                   {chip.label}

@@ -1,119 +1,79 @@
 #!/usr/bin/env node
 /**
- * Generate the brand colour scale.
+ * Generate the Tailwind-shaped brand colour scale.
  *
  *   node scripts/generate-brand-scale.cjs [#HEX]     print the CSS block
  *
- * Why a script rather than a pasted palette: the scale must be REGENERABLE. A
- * rebrand is one hex here, not eleven hand-picked values that drift apart.
- *
- * Method — OKLCH, not HSL tint/shade. Mixing a colour with white and black in
- * sRGB or HSL turns yellow olive and grey; OKLCH is perceptually uniform, so
- * even lightness steps look even.
- *
- * The ramp's SHAPE is taken from Tailwind's own yellow scale, measured in
- * OKLCH. Two properties of it matter and neither is obvious:
- *   1. Hue DRIFTS as lightness drops — 102° at the top to 54° at the bottom.
- *      A hue-constant ramp produces olive dark steps; real yellow scales rotate
- *      toward orange/brown. (The hand-authored --brand-deep already did this
- *      instinctively, sitting at 88° rather than the brand's 101°.)
- *   2. Chroma PEAKS around 400 and falls off both ways, so the pale steps stay
- *      clean and the dark steps do not go neon.
- *
- * The brand anchors at 300, not 500. That is determined by its lightness, not
- * by convention: #FFE500 is L=0.915, which is where a 300 sits. Forcing it to
- * 500 compresses six steps into the L range 0.98–0.92 — visually almost one
- * colour — and leaves huge gaps below. Measured both; 300 is the correct anchor.
+ * The source brand is always 500. Lighter steps tint that exact colour toward
+ * white; darker steps shade it toward black. Keeping the weights here makes a
+ * rebrand one input change while preserving the familiar 50–950 Tailwind API.
  */
-const srgbToLinear = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
-const linearToSrgb = (c) => (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);
 
-function hexToOklch(hex) {
-  const n = parseInt(hex.replace("#", ""), 16);
-  const [r, g, bl] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => srgbToLinear(v / 255));
-  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * bl);
-  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * bl);
-  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * bl);
-  const L = 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s;
-  const A = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s;
-  const B = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
-  return { L, C: Math.hypot(A, B), h: (Math.atan2(B, A) * 180) / Math.PI };
-}
+const WEIGHTS = {
+  50: 0.08,
+  100: 0.18,
+  200: 0.34,
+  300: 0.52,
+  400: 0.76,
+  500: 1,
+  600: 0.85,
+  700: 0.7,
+  800: 0.55,
+  900: 0.4,
+  950: 0.24,
+};
 
-function oklchToLinear({ L, C, h }) {
-  const A = C * Math.cos((h * Math.PI) / 180);
-  const B = C * Math.sin((h * Math.PI) / 180);
-  const l = (L + 0.3963377774 * A + 0.2158037573 * B) ** 3;
-  const m = (L - 0.1055613458 * A - 0.0638541728 * B) ** 3;
-  const s = (L - 0.0894841775 * A - 1.291485548 * B) ** 3;
-  return [
-    4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
-    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
-    -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
-  ];
-}
-
-/** Binary-search chroma down until the colour fits sRGB — hue and L stay exact. */
-function toRgb(spec) {
-  let lo = 0, hi = spec.C;
-  for (let i = 0; i < 40; i++) {
-    const mid = (lo + hi) / 2;
-    const v = oklchToLinear({ ...spec, C: mid });
-    if (v.every((x) => x >= -1e-4 && x <= 1 + 1e-4)) lo = mid; else hi = mid;
+function hexToRgb(hex) {
+  const value = hex.replace("#", "");
+  if (!/^[0-9a-f]{6}$/i.test(value)) {
+    throw new Error(`Expected a six-digit hex colour, received ${hex}`);
   }
-  return oklchToLinear({ ...spec, C: lo }).map((v) =>
-    Math.round(Math.min(1, Math.max(0, linearToSrgb(v))) * 255)
+  const n = Number.parseInt(value, 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+function mix(source, target, sourceWeight) {
+  return source.map((channel, index) =>
+    Math.round(channel * sourceWeight + target[index] * (1 - sourceWeight))
   );
 }
 
+function buildScale(brandHex) {
+  const brand = hexToRgb(brandHex);
+  return Object.entries(WEIGHTS).map(([step, weight]) => ({
+    step: Number(step),
+    rgb:
+      Number(step) === 500
+        ? brand
+        : mix(brand, Number(step) < 500 ? [255, 255, 255] : [0, 0, 0], weight),
+  }));
+}
+
+const srgbToLinear = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
 const relLum = ([r, g, b]) => {
-  const [R, G, B] = [r, g, b].map((v) => srgbToLinear(v / 255));
+  const [R, G, B] = [r, g, b].map((value) => srgbToLinear(value / 255));
   return 0.2126 * R + 0.7152 * G + 0.0722 * B;
 };
 const contrast = (a, b) => {
-  const [x, y] = [relLum(a), relLum(b)].sort((p, q) => q - p);
-  return (x + 0.05) / (y + 0.05);
+  const [lighter, darker] = [relLum(a), relLum(b)].sort((x, y) => y - x);
+  return (lighter + 0.05) / (darker + 0.05);
 };
+const hex = (rgb) => `#${rgb.map((value) => value.toString(16).padStart(2, "0")).join("").toUpperCase()}`;
 
-/** Tailwind's yellow scale, measured in OKLCH. The shape reference. */
-const REF = {
-  50:{L:0.987,C:0.026,h:102.2}, 100:{L:0.973,C:0.069,h:103.2}, 200:{L:0.945,C:0.124,h:101.5},
-  300:{L:0.905,C:0.166,h:98.1}, 400:{L:0.861,C:0.173,h:91.9},  500:{L:0.795,C:0.162,h:86.0},
-  600:{L:0.681,C:0.142,h:75.8}, 700:{L:0.554,C:0.121,h:66.4},  800:{L:0.476,C:0.103,h:61.9},
-  900:{L:0.421,C:0.090,h:57.7}, 950:{L:0.286,C:0.064,h:53.8},
-};
-const ANCHOR = 300;
-
-function buildScale(brandHex) {
-  const b = hexToOklch(brandHex);
-  const sat = b.C / REF[ANCHOR].C;      // carry the brand's intensity through the ramp
-  const rot = b.h - REF[ANCHOR].h;      // rotate the ramp onto the brand's hue
-  return Object.entries(REF).map(([step, r]) => {
-    const n = Number(step);
-    if (n === ANCHOR) {
-      const v = parseInt(brandHex.replace("#", ""), 16);
-      return { step: n, rgb: [(v >> 16) & 255, (v >> 8) & 255, v & 255] };
-    }
-    return { step: n, rgb: toRgb({ L: r.L, C: r.C * sat, h: r.h + rot }) };
-  });
-}
-
-const hex = (rgb) => "#" + rgb.map((v) => v.toString(16).padStart(2, "0").toUpperCase()).join("");
-
-module.exports = { buildScale, contrast, hexToOklch };
+module.exports = { buildScale, contrast };
 
 if (require.main === module) {
   const brand = process.argv[2] ?? "#FFE500";
   const scale = buildScale(brand);
   console.log(`  /* Brand scale — GENERATED by packages/design-tokens/scripts/generate-brand-scale.cjs`);
   console.log(`     from ${brand}. Do not hand-edit: re-run the script after a rebrand. */`);
-  for (const s of scale) {
-    const cw = contrast(s.rgb, [255, 255, 255]).toFixed(2);
-    const cb = contrast(s.rgb, [0, 0, 0]).toFixed(2);
-    const note = s.step === ANCHOR ? "  <- the brand" : "";
+  for (const swatch of scale) {
+    const whiteContrast = contrast(swatch.rgb, [255, 255, 255]).toFixed(2);
+    const blackContrast = contrast(swatch.rgb, [0, 0, 0]).toFixed(2);
+    const note = swatch.step === 500 ? "  <- canonical brand" : "";
     console.log(
-      `  ${`--brand-${s.step}-rgb:`.padEnd(18)} ${s.rgb.join(" ").padEnd(11)};` +
-      ` /* ${hex(s.rgb)}  on-white ${cw.padStart(5)}:1  on-black ${cb.padStart(5)}:1${note} */`
+      `  ${`--brand-${swatch.step}-rgb:`.padEnd(18)} ${swatch.rgb.join(" ").padEnd(11)};` +
+        ` /* ${hex(swatch.rgb)}  on-white ${whiteContrast.padStart(5)}:1  on-black ${blackContrast.padStart(5)}:1${note} */`
     );
   }
 }

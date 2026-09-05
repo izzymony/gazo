@@ -62,7 +62,7 @@ const ActivityText = ({
         <p
           className={`text-body-sm font-medium ${show
             ? `${title.toLowerCase() === "order delivered"
-              ? "text-green"
+              ? "text-success-foreground"
               : "text-brandDeep"
             }`
             : "text-ink-60"

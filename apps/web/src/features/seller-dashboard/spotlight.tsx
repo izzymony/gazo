@@ -63,7 +63,7 @@ const ProductComp: React.FC<ProductProps> = ({ product }: ProductProps) => {
         <img
           src={product.image ? getMobileCompatibleImageUrl(product.image[0]) : ""}
           alt="Product"
-          className="object-fit h-[60px] w-[60px]"
+          className="object-cover h-[60px] w-[60px]"
         />
         <div className="w-[100%]">
           <div className="flex space-x-8 justify-between">

@@ -432,7 +432,7 @@ const Page: React.FC = () => {
                                 ₦{item?.product.price?.toLocaleString()}
                               </p>
                               <div className="flex gap-2">
-                                <FaStar size={12} className="text-warning" />
+                                <FaStar size={12} className="text-warning-foreground" />
                                 <p className="text-caption text-ink-40">
                                   {item.product.weight}
                                 </p>

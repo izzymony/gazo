@@ -116,7 +116,7 @@ export default function NotificationFeed({ side }: { side: "buyer" | "seller" })
             </div>
           ) : isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red" />
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-error-foreground" />
               <p className="ml-3 text-ink-60">Loading...</p>
             </div>
           ) : (

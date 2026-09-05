@@ -162,7 +162,8 @@ const Step1StartStrong = ({ formik }: Step1Props) => {
                                         {/* Toggle Switch (Hidden but maintaining functionality) */}
                                         <div className="absolute bottom-1 right-1 opacity-0">
                                             <Switch
-                                                color={"bg-brand"}
+                                                variant="brand"
+                                                aria-label={`Include image ${index + 1}`}
                                                 checked={formik.values.images[index]?.toggle !== false}
                                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                                     handleImageToggleChange(e, index)
@@ -203,7 +204,7 @@ const Step1StartStrong = ({ formik }: Step1Props) => {
                     )}
 
                     {formik.errors.images && (
-                        <small className="text-red block mt-2">
+                        <small className="text-error-foreground block mt-2">
                             {formik.errors.images as string}
                         </small>
                     )}
@@ -253,14 +254,14 @@ const Step1StartStrong = ({ formik }: Step1Props) => {
                     {/* Discount Indicator */}
                     {formik.values?.price && formik.values?.oldPrice &&
                      Number(formik.values.oldPrice) > Number(formik.values.price) && (
-                        <div className="bg-green-50 border border-green-200 rounded-card p-3">
+                        <div className="bg-success-surface border border-success-border rounded-card p-3">
                             <div className="flex items-center gap-2">
-                                <CircleCheck size={16} className="text-green-600" />
-                                <span className="text-body-sm font-medium text-green-700">
+                                <CircleCheck size={16} className="text-success-foreground" />
+                                <span className="text-body-sm font-medium text-success-foreground">
                                     {Math.round(((Number(formik.values.oldPrice) - Number(formik.values.price)) / Number(formik.values.oldPrice)) * 100)}% discount
                                 </span>
                             </div>
-                            <p className="text-caption text-green-600 mt-1">
+                            <p className="text-caption text-success-foreground mt-1">
                                 Customers love discounts! This will help your product stand out.
                             </p>
                         </div>

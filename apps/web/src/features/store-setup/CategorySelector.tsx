@@ -134,7 +134,7 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
           setShowModal(true);
         }}
         className={`flex flex-col relative w-full px-3 h-[52px] rounded-field border ${
-          error ? "border-red focus-within:ring-[red]" : "border-ink-20 focus-within:ring-black"
+          error ? "border-error-border focus-within:ring-error-foreground" : "border-ink-20 focus-within:ring-black"
         } focus-within:ring-1 cursor-pointer`}>
         
         {/* Floating label */}
@@ -201,7 +201,7 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
             {/* Error state */}
             {mode === 'product' && categoriesError && (
               <div className="p-4 text-center">
-                <p className="text-red">{categoriesError}</p>
+                <p className="text-error-foreground">{categoriesError}</p>
                 <Button onClick={() => window.location.reload()} className="mt-2">Retry</Button>
               </div>
             )}

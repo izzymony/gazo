@@ -44,7 +44,7 @@ export const Modal: React.FC<ModalProps> = ({
 
         <div className="text-center">
           <H1 className="text-h2 mb-1 leading-[22px]">{title}</H1>
-          <p className="text-ink-60">{description}</p>
+          <p className="text-foreground-secondary">{description}</p>
         </div>
 
         {children}

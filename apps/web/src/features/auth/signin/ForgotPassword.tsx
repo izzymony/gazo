@@ -173,7 +173,7 @@ export default function ForgotPasswordComp() {
                                         <div >
                                             <div className="flex-1">
                                                 <H1 className="text-h1 text-start">Forgot Your Password?</H1>
-                                                <p className="text-body mt-2 text-ink-60 text-start">No worries, we&apos;ll help you reset it. Enter email or <br /> phone number to receive your reset code . </p>
+                                                <p className="text-body mt-2 text-foreground-secondary text-start">No worries, we&apos;ll help you reset it. Enter email or <br /> phone number to receive your reset code . </p>
                                                 <div className="mt-6">
                                                     <InputField
                                                         name='email'
@@ -196,7 +196,7 @@ export default function ForgotPasswordComp() {
                                                 error={formik.errors?.otp as string}
                                                 setFieldValue={formik.setFieldValue}
                                             />
-                                            <p className="text-body text-ink-60 font-normal text-start pt-8">
+                                            <p className="text-body text-foreground-secondary font-normal text-start pt-8">
                                                 If you haven&apos;t received the mail try checking your <br /> spam folder or resending it.
                                             </p>
                                         </>

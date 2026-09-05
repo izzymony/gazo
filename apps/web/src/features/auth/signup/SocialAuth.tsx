@@ -203,7 +203,7 @@ export default function SocialAuth() {
                       error={formik.errors.otp}
                       setFieldValue={formik.setFieldValue}
                     />
-                    <p className="text-body text-ink-60 font-normal text-start pt-8">
+                    <p className="text-body text-foreground-secondary font-normal text-start pt-8">
                       If you haven&apos;t received the mail try checking your <br /> spam folder or resending it.
                     </p>
                   </>

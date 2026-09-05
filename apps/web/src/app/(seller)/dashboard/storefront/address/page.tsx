@@ -97,7 +97,7 @@ const Page = () => {
                             className="bg-ink-5"
                         />
                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                            <div className="w-6 h-6 rounded-full bg-green flex items-center justify-center">
+                            <div className="w-6 h-6 rounded-full bg-success-foreground flex items-center justify-center">
                                 <Check size={16} className="text-white" />
                             </div>
                         </div>

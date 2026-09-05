@@ -23,7 +23,7 @@ const Indicator = ({ selected }: { selected: boolean }) => (
   <div
     className={cn(
       "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors",
-      selected ? "border-brandDeep" : "border-ink-30"
+      selected ? "border-brandDeep" : "border-outline-emphasis"
     )}>
     {selected && <div className="w-2.5 h-2.5 rounded-full bg-brand" />}
   </div>
@@ -52,7 +52,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
               "flex justify-between items-center p-3 border rounded-field cursor-pointer transition-colors",
               selectedValue === option.value
                 ? "border-brandDeep bg-brand/5"
-                : "border-ink-10"
+                : "border-outline"
             )}>
             <div className="flex items-center gap-4">
               <input
@@ -65,18 +65,18 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
               />
               <Indicator selected={selectedValue === option.value} />
               <div className="flex flex-col">
-                <p className="font-normal text-body text-ink-90">
+                <p className="font-normal text-body text-foreground-primary">
                   {option.label}
                 </p>
                 {option.days && (
-                  <p className="text-caption text-ink-60 font-normal">
+                  <p className="text-caption text-foreground-secondary font-normal">
                     {option.days}
                   </p>
                 )}
               </div>
             </div>
             {option.price && (
-              <p className="font-medium text-body text-ink-90">
+              <p className="font-medium text-body text-foreground-primary">
                 {option.price}
               </p>
             )}
@@ -101,7 +101,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
             className="hidden"
           />
           <Indicator selected={selectedValue === option.value} />
-          <span className="text-body text-ink-90">{option.label}</span>
+          <span className="text-body text-foreground-primary">{option.label}</span>
         </label>
       ))}
     </div>

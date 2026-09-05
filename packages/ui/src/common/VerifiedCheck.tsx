@@ -1,8 +1,9 @@
 import { VerifiedBadge } from "../icons";
+import { cn } from "@vibaar/utils";
 
 /**
  * Buyer-facing seller trust mark (KYC1 §5). Renders a trust-blue verified check
- * ONLY when the seller is KYC-approved (`verified`). Trust-blue (`text-info`) is
+ * ONLY when the seller is KYC-approved (`verified`). Trust-blue (`text-info-foreground`) is
  * deliberate — the app's brand red is its action/sale colour, blue reads as
  * "verified" universally.
  */
@@ -20,8 +21,8 @@ export default function VerifiedCheck({
     <span
       title="Verified seller"
       aria-label="Verified seller"
-      className={`inline-flex shrink-0 ${className}`}>
-      <VerifiedBadge size={size} className="text-info" />
+      className={cn("inline-flex shrink-0", className)}>
+      <VerifiedBadge size={size} className="text-info-foreground" />
     </span>
   );
 }

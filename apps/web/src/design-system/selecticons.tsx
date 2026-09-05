@@ -30,7 +30,7 @@ export const TransactionCard = ({
   const router = useRouter();
   const colorClass =
     type === "credit"
-      ? "text-green-700"
+      ? "text-success-foreground"
       : type === "debit"
       ? "text-brandDeep"
       : "text-ink-60";

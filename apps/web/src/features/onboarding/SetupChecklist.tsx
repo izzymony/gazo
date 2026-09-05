@@ -143,7 +143,7 @@ export default function SetupChecklist() {
                     >
                       <div className="flex items-center gap-2.5 flex-1 min-w-0">
                         {step.completed ? (
-                          <div className="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                          <div className="w-5 h-5 rounded-full bg-success-foreground flex items-center justify-center flex-shrink-0">
                             <Check size={10} className="text-white" strokeWidth={2.5} />
                           </div>
                         ) : (
@@ -183,8 +183,8 @@ export default function SetupChecklist() {
               </div>
 
               {/* Tip */}
-              <div className="mx-4 mb-3 py-2 px-3 bg-warning/10 rounded-field">
-                <p className="text-caption text-warning-strong font-medium">
+              <div className="mx-4 mb-3 py-2 px-3 bg-warning-surface rounded-field">
+                <p className="text-caption text-warning-foreground font-medium">
                   💡 Stores with 3+ products get 3x more views
                 </p>
               </div>

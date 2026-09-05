@@ -295,7 +295,7 @@ const Page = () => {
                   label="Remove item"
                   onClick={() => decrement(cart.id)}
                   className="bg-ink-3"
-                  iconClassName="text-red"
+                  iconClassName="text-error-foreground"
                   iconSize={18}
                 />
               ) : (

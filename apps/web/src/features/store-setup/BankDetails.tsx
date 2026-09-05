@@ -79,8 +79,8 @@ const BankSelectorModal = ({
             }`}
           >
             {/* Bank icon */}
-            <div className="w-8 h-8 rounded-full bg-green/10 flex items-center justify-center mr-3">
-              <Bank size={16} className="text-green" />
+            <div className="w-8 h-8 rounded-full bg-success-surface flex items-center justify-center mr-3">
+              <Bank size={16} className="text-success-foreground" />
             </div>
             <span className="text-body text-ink-90">{bank.name}</span>
           </div>

@@ -196,7 +196,7 @@ const Vendor = () => {
                               {item.description}
                             </p>
                             <div className="flex items-center gap-1 text-micro mb-4">
-                              <FaStar size={8} className="text-warning" />
+                              <FaStar size={8} className="text-warning-foreground" />
 
                               <span className="text-white">4.5</span>
                             </div>

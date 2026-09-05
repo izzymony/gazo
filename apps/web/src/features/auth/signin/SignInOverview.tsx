@@ -298,7 +298,7 @@ export default function SignInOverview() {
                 </div>
                 <div className="flex-1 flex flex-col justify-center px-4 pt-28">
                   <div className="w-full mx-auto space-y-2.5">
-                    <ul className="space-y-2.5 text-ink-90 gap-0 flex flex-col w-full">
+                    <ul className="space-y-2.5 text-foreground-primary gap-0 flex flex-col w-full">
                       {signupOptions.map((option, index) => {
                         const isLoading =
                           (option.title === "Create my account" && buttonLoading.createAccount) ||
@@ -307,11 +307,11 @@ export default function SignInOverview() {
                         return (
                           <div
                             key={option?.title}
-                            className={`text-ink-90 flex flex-row justify-center items-center cursor-pointer h-[52px] rounded-full ${option.isPrimary
+                            className={`text-foreground-primary flex flex-row justify-center items-center cursor-pointer h-[52px] rounded-full ${option.isPrimary
                               ? "bg-brand text-brandInk hover:bg-brandHover"
                               : option.isSecondary
                                 ? "border border-brandDeep text-brandDeep hover:bg-brand hover:text-brandInk"
-                                : "border border-ink-10 hover:border-brandDeep"
+                                : "border border-outline hover:border-brandDeep"
                               } ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}>
                             <div
                               onClick={
@@ -341,7 +341,7 @@ export default function SignInOverview() {
                     {/* <div className="mt-2">
                       <div
                         onClick={buttonLoading.exploreMarketplace ? undefined : handleExploreMarketplaceClick}
-                        className={`text-ink-90 flex flex-row justify-between items-center cursor-pointer border border-ink-10 hover:border-brand h-[52px] rounded-full mx-auto min-w-[180px] ${buttonLoading.exploreMarketplace ? "opacity-70 cursor-not-allowed" : ""}`}>
+                        className={`text-foreground-primary flex flex-row justify-between items-center cursor-pointer border border-outline hover:border-brand h-[52px] rounded-full mx-auto min-w-[180px] ${buttonLoading.exploreMarketplace ? "opacity-70 cursor-not-allowed" : ""}`}>
                         <div
                           className="flex flex-row justify-between items-center mx-auto w-[180px]"
                           aria-busy={buttonLoading.exploreMarketplace}
@@ -362,7 +362,7 @@ export default function SignInOverview() {
                           </p>
                         </div>
                       </div>
-                      <p className="text-center text-ink-60 text-body-sm font-normal mt-3">
+                      <p className="text-center text-foreground-secondary text-body-sm font-normal mt-3">
                         Discover Instagram vendors and products
                       </p>
                     </div> */}
@@ -402,11 +402,11 @@ export default function SignInOverview() {
                           return (
                             <div
                               key={option?.title}
-                              className={`text-ink-90 flex flex-row justify-center items-center cursor-pointer h-14 rounded-full ${option.isPrimary
+                              className={`text-foreground-primary flex flex-row justify-center items-center cursor-pointer h-14 rounded-full ${option.isPrimary
                                 ? "bg-brand text-brandInk hover:bg-brandHover"
                                 : option.isSecondary
                                   ? "border-2 border-brandDeep text-brandDeep hover:bg-brand hover:text-brandInk"
-                                  : "border border-ink-10 hover:border-brandDeep"
+                                  : "border border-outline hover:border-brandDeep"
                                 } ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}>
                               <div
                                 onClick={
@@ -437,7 +437,7 @@ export default function SignInOverview() {
                       {/* Explore Marketplace Button */}
                       {/* <div
                         onClick={buttonLoading.exploreMarketplace ? undefined : handleExploreMarketplaceClick}
-                        className={`text-ink-90 flex flex-row justify-center items-center cursor-pointer border border-ink-10 hover:border-brand h-14 rounded-full ${buttonLoading.exploreMarketplace ? "opacity-70 cursor-not-allowed" : ""}`}>
+                        className={`text-foreground-primary flex flex-row justify-center items-center cursor-pointer border border-outline hover:border-brand h-14 rounded-full ${buttonLoading.exploreMarketplace ? "opacity-70 cursor-not-allowed" : ""}`}>
                         <div
                           className="flex flex-row justify-center items-center gap-2"
                           aria-busy={buttonLoading.exploreMarketplace}
@@ -461,7 +461,7 @@ export default function SignInOverview() {
 
                     {/* Bottom Section - Footer */}
                     <div className="mt-6">
-                      <p className="text-body-sm text-ink-50 text-center">
+                      <p className="text-body-sm text-foreground-muted text-center">
                         By continuing, I agree to Vibaar&apos;s{" "} <br />
                         <Link href="/terms" className="text-brandDeep hover:underline">
                           Terms of use
@@ -514,7 +514,7 @@ export default function SignInOverview() {
                 {/* Position the signup link right before the button area */}
                 {step === 1 && (
                   <div className="text-center mb-6 mt-auto">
-                    <p className="text-body-sm text-ink-60">
+                    <p className="text-body-sm text-foreground-secondary">
                       Don&apos;t have an account?{" "}
                       <span
                         className="text-brandDeep font-medium cursor-pointer hover:underline"
