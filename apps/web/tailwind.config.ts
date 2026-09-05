@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import type { Config } from "tailwindcss";
 
-// Token theme extracted to @vibaar/design-tokens (M1) and spread here as a preset.
-// Tailwind's preset merge makes the resolved theme identical to the previous
-// inline theme; the CSS custom properties it references (--brand-rgb, --ink-*, …)
-// still live in src/styles/globals.css. `content` + `plugins` stay app-specific.
+// @vibaar/design-tokens owns both this Tailwind mapping and the runtime CSS
+// variables imported by globals.css. `content` + `plugins` stay app-specific.
 const config: Config = {
   presets: [require("@vibaar/design-tokens/preset")],
   content: [

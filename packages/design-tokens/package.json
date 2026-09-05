@@ -3,8 +3,17 @@
   "version": "0.0.0",
   "private": true,
   "main": "./preset.cjs",
+  "scripts": {
+    "generate": "node scripts/generate-css.cjs",
+    "test": "node scripts/generate-css.cjs --check"
+  },
   "exports": {
-    "./preset": "./preset.cjs"
+    "./preset": "./preset.cjs",
+    "./tokens": {
+      "types": "./tokens.d.ts",
+      "default": "./tokens.cjs"
+    },
+    "./tokens.css": "./tokens.css"
   },
   "peerDependencies": {
     "tailwindcss": "^3.4.1"

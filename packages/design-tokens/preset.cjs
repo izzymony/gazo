@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 const colors = require("tailwindcss/colors");
+const { tokens } = require("./tokens.cjs");
 
 /**
- * @vibaar/design-tokens — canonical Tailwind token theme (extracted verbatim from
- * web's tailwind.config.ts, M1). Consumers spread this via `presets: [...]`.
- * The CSS custom properties it references (--brand-rgb, --ink-*, --success,
- * --radius-*, --shadow-*, --z-*, …) must be provided by the consumer's global
- * stylesheet (web: src/styles/globals.css). Admin adopts this at M5.
+ * @vibaar/design-tokens — canonical Tailwind mapping for the values in
+ * tokens.cjs. Consumers use this preset and import `tokens.css`; both outputs
+ * therefore come from the same source rather than relying on an app-local copy.
  *
  * @type {import('tailwindcss').Config}
  */
@@ -42,7 +41,29 @@ module.exports = {
         'micro': ['8px', { lineHeight: '12px' }],
       },
       colors: {
-        brand: "rgb(var(--brand-rgb) / <alpha-value>)",
+        // Brand PALETTE plus the semantic default. `brand` with no step stays
+        // the brand itself, so every existing bg-brand / text-brand keeps
+        // working unchanged; the numeric steps are the new scale.
+        // GENERATED — scripts/generate-brand-scale.mjs. Re-run after a rebrand.
+        //
+        // The brand anchors at 300, not 500. That is its measured lightness
+        // (OKLCH L=0.915), not a convention: forcing #FFE500 to 500 squeezes
+        // six steps into an L range of 0.06 — visually almost one colour — and
+        // leaves coarse gaps below it. Both were generated and compared.
+        brand: {
+          DEFAULT: "rgb(var(--brand-rgb) / <alpha-value>)",
+          50: "rgb(var(--brand-50-rgb) / <alpha-value>)",
+          100: "rgb(var(--brand-100-rgb) / <alpha-value>)",
+          200: "rgb(var(--brand-200-rgb) / <alpha-value>)",
+          300: "rgb(var(--brand-300-rgb) / <alpha-value>)",
+          400: "rgb(var(--brand-400-rgb) / <alpha-value>)",
+          500: "rgb(var(--brand-500-rgb) / <alpha-value>)",
+          600: "rgb(var(--brand-600-rgb) / <alpha-value>)",
+          700: "rgb(var(--brand-700-rgb) / <alpha-value>)",
+          800: "rgb(var(--brand-800-rgb) / <alpha-value>)",
+          900: "rgb(var(--brand-900-rgb) / <alpha-value>)",
+          950: "rgb(var(--brand-950-rgb) / <alpha-value>)",
+        },
         brandHover: "rgb(var(--brand-hover-rgb) / <alpha-value>)",
         // Brand yellow carries BLACK, never white (white-on-brand = 1.28:1).
         // brandInk = foreground ON a brand surface. brandDeep = brand AS text
@@ -80,27 +101,12 @@ module.exports = {
           strong: "rgb(var(--warning-strong-rgb) / <alpha-value>)",
         },
         info: "rgb(var(--info-rgb) / <alpha-value>)",
-        green: { ...colors.green, DEFAULT: "#06C270" },
-        red: { ...colors.red, DEFAULT: "#CC2020" },
-        black: "#000000E5",
-        landing: {
-          yellow: "#F2DE4D",
-          cyan: "#00DAE6",
-          purple: "#F193FF",
-          darkFooter: "#010A0B",
-          navy: {
-            50: '#f0f9ff',
-            100: '#e0f2fe',
-            200: '#bae6fd',
-            300: '#7dd3fc',
-            400: '#38bdf8',
-            500: '#0ea5e9',
-            600: '#0284c7',
-            700: '#0369a1',
-            800: '#075985',
-            900: '#0c4a6e',
-          },
-        },
+        green: { ...colors.green, DEFAULT: tokens.color.status.success },
+        red: { ...colors.red, DEFAULT: tokens.color.status.error },
+        // Compatibility alias: existing `text-black` means the historic soft
+        // black. New product UI should prefer the explicit ink scale.
+        black: tokens.color.ink[90],
+        landing: tokens.color.landing,
       },
       backgroundImage: {
         'section-yellow': 'linear-gradient(90deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.7) 100%), linear-gradient(90deg, rgb(242, 222, 77) 0%, rgb(242, 222, 77) 100%)',
@@ -123,15 +129,11 @@ module.exports = {
         modal: "var(--z-modal)",
         toast: "var(--z-toast)",
       },
-    },
-    letterSpacing: {
-      tightest: "-.075em",
-      tighter: "-.05em",
-      tight: "-.025em",
-      normal: "0",
-      wide: ".025em",
-      wider: ".05em",
-      widest: ".1em",
+      letterSpacing: {
+        // Add only what Tailwind does not already provide. Declaring the full
+        // scale at `theme.letterSpacing` replaced Tailwind's defaults.
+        tightest: "-.075em",
+      },
     },
   },
 };
