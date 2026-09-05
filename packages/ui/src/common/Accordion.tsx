@@ -1,6 +1,9 @@
-import React, { useState, ReactNode } from "react";
+"use client";
+
+import React, { useId, useState, ReactNode } from "react";
 import { GoChevronDown } from "../icons";
 import { cn } from "@vibaar/utils";
+import DisclosureButton from "./DisclosureButton";
 
 interface AccordionProps {
   title: string;
@@ -9,6 +12,15 @@ interface AccordionProps {
   initiallyOpen?: boolean;
 }
 
+/**
+ * Accordion — a titled section that expands and collapses.
+ *
+ * The trigger is a DisclosureButton, so the four screens that import this get
+ * `aria-expanded`, `aria-controls` and a focus ring without changing a line.
+ * Before this the header was a bare <button> with none of them — the same
+ * defect the hand-rolled section headers had, just inside the shared
+ * component instead of beside it.
+ */
 const Accordion: React.FC<AccordionProps> = ({
   title,
   className,
@@ -16,11 +28,13 @@ const Accordion: React.FC<AccordionProps> = ({
   initiallyOpen = false,
 }) => {
   const [isOpen, setIsOpen] = useState(initiallyOpen);
+  const panelId = useId();
 
   return (
     <div className={className}>
-      <button
-        type="button"
+      <DisclosureButton
+        expanded={isOpen}
+        controls={panelId}
         onClick={() => setIsOpen((v) => !v)}
         className="flex items-center justify-between w-full text-body font-medium text-foreground-primary min-h-[36px]">
         {title}
@@ -31,8 +45,12 @@ const Accordion: React.FC<AccordionProps> = ({
             isOpen && "rotate-180"
           )}
         />
-      </button>
-      {isOpen && <div className="space-y-4 mt-3">{children}</div>}
+      </DisclosureButton>
+      {isOpen && (
+        <div id={panelId} className="space-y-4 mt-3">
+          {children}
+        </div>
+      )}
     </div>
   );
 };

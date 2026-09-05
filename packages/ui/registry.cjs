@@ -22,6 +22,7 @@ const entries = [
   ["common/DetailList", "component"],
   ["common/DetailRow", "component"],
   ["common/Dialog", "component"],
+  ["common/DisclosureButton", "primitive"],
   ["common/DropdownMenu", "component"],
   ["common/EmptyState", "pattern"],
   ["common/ErrorState", "pattern"],

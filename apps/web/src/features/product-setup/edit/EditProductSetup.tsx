@@ -15,6 +15,7 @@ import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Loader from "@vibaar/ui/common/Loader";
 import Button from "@vibaar/ui/common/Button";
+import DisclosureButton from "@vibaar/ui/common/DisclosureButton";
 import Switch from "@vibaar/ui/common/Switch";
 import useAuthStore from "@/store/authStore";
 import useBusinessStore from "@/store/businessStore";
@@ -669,11 +670,11 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                 <form onSubmit={formik.handleSubmit} className="pb-4">
                     {/* Product Images & Basic Info */}
                     <div className="bg-surface mb-4 shadow-card">
-                        <button
-                            type="button"
-                            onClick={() => toggleSection('basic')}
-                            className="w-full p-4 flex items-center justify-between border-b border-outline-subtle hover:bg-surface-subtle"
-                        >
+                        <DisclosureButton
+                                expanded={expandedSections.basic}
+                                onClick={() => toggleSection('basic')}
+                                className="w-full p-4 flex items-center justify-between border-b border-outline-subtle hover:bg-surface-subtle"
+                            >
                             <div className="text-left">
                                 <h2 className="text-h2 font-medium text-foreground-primary">Basic Information</h2>
                                 <p className="text-body text-foreground-secondary">Images, title, and pricing</p>
@@ -683,7 +684,7 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                             ) : (
                                 <BiChevronDown className="h-5 w-5 text-foreground-muted" />
                             )}
-                        </button>
+                        </DisclosureButton>
                         {expandedSections.basic && (
                             <div className="p-4">
                                 {/* Product Images Section - Horizontal Scroll Layout */}
@@ -837,11 +838,11 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
 
                     {/* Product Details */}
                     <div className="bg-surface mb-4 shadow-card">
-                        <button
-                            type="button"
-                            onClick={() => toggleSection('details')}
-                            className="w-full p-4 flex items-center justify-between border-b border-outline-subtle hover:bg-surface-subtle"
-                        >
+                        <DisclosureButton
+                                expanded={expandedSections.details}
+                                onClick={() => toggleSection('details')}
+                                className="w-full p-4 flex items-center justify-between border-b border-outline-subtle hover:bg-surface-subtle"
+                            >
                             <div className="text-left">
                                 <h2 className="text-h2 font-medium text-foreground-primary">Product Details</h2>
                                 <p className="text-body text-foreground-secondary">Description, category, and collections</p>
@@ -851,7 +852,7 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                             ) : (
                                 <BiChevronDown className="h-5 w-5 text-foreground-muted" />
                             )}
-                        </button>
+                        </DisclosureButton>
                         {expandedSections.details && (
                             <div className="p-4">
                                 {/* Product Description */}
@@ -894,8 +895,8 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
 
                     {/* Inventory & Variations */}
                     <div className="bg-surface mb-4 shadow-card">
-                        <button
-                            type="button"
+                        <DisclosureButton
+                            expanded={expandedSections.inventory}
                             onClick={() => toggleSection('inventory')}
                             className="w-full p-4 flex items-center justify-between border-b border-outline-subtle hover:bg-surface-subtle"
                         >
@@ -908,7 +909,7 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                             ) : (
                                 <BiChevronDown className="h-5 w-5 text-foreground-muted" />
                             )}
-                        </button>
+                        </DisclosureButton>
                         {expandedSections.inventory && (
                             <div className="p-4">
                                 {/* Inventory Stocks */}

@@ -1,4 +1,5 @@
 import Accordion from "@vibaar/ui/common/Accordion";
+import DisclosureButton from "@vibaar/ui/common/DisclosureButton";
 import StoreLogo from "@vibaar/ui/common/StoreLogo";
 import VerifiedCheck from "@vibaar/ui/common/VerifiedCheck";
 import { FaStar, FiUsers } from "@vibaar/ui/icons";
@@ -32,20 +33,20 @@ export function ProductDescription({
           {truncatedDescription}
         </p>
         {description && description.length > 100 && !isExpanded && (
-          <button
-            className=" text-brandDeep text-body-sm font-medium"
-            onClick={() => setIsExpanded(!isExpanded)}
-          >
-            Read more
-          </button>
+          <DisclosureButton
+              expanded={isExpanded}
+              onClick={() => setIsExpanded(!isExpanded)}
+              className=" text-brandDeep text-body-sm font-medium">
+              Read more
+            </DisclosureButton>
         )}
         {isExpanded && (
-          <button
-            className="ml-2 text-brandDeep text-body-sm"
-            onClick={() => setIsExpanded(!isExpanded)}
-          >
-            Show less
-          </button>
+          <DisclosureButton
+              expanded={isExpanded}
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="ml-2 text-brandDeep text-body-sm">
+              Show less
+            </DisclosureButton>
         )}
       </div>
     </Accordion>

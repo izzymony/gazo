@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Button from "@vibaar/ui/common/Button";
 import Checkbox from "@vibaar/ui/common/Checkbox";
+import DisclosureButton from "@vibaar/ui/common/DisclosureButton";
 import {
   ChevronDown,
   ChevronRight,
@@ -1494,10 +1495,11 @@ export default function EnhancedProductOptions({
                   return (
                     <div className="">
                       {/* Total Variants Header - Clickable */}
-                      <button
-                        onClick={() => toggleSection(totalVariantsKey)}
-                        className="flex items-center justify-between py-2 w-full text-left hover:bg-surface-subtle rounded transition-colors"
-                      >
+                      <DisclosureButton
+                          expanded={!isTotalVariantsCollapsed}
+                          onClick={() => toggleSection(totalVariantsKey)}
+                          className="flex items-center justify-between py-2 w-full text-left hover:bg-surface-subtle rounded transition-colors"
+                        >
                         <span className="text-body font-medium text-foreground-primary">
                           Total Variants ({totalCombinations})
                         </span>
@@ -1505,7 +1507,7 @@ export default function EnhancedProductOptions({
                           size={16}
                           className={`text-foreground-secondary transition-transform ${isTotalVariantsCollapsed ? 'rotate-180' : ''}`}
                         />
-                      </button>
+                      </DisclosureButton>
 
                       {/* Show all actual combinations generated from variants - Collapsible */}
                       {!isTotalVariantsCollapsed && (

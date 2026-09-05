@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Accordion from "@vibaar/ui/common/Accordion";
+import DisclosureButton from "@vibaar/ui/common/DisclosureButton";
 import Button from "@vibaar/ui/common/Button";
 import ShareModal from "@vibaar/ui/common/ShareModal";
 import PageShell from "@vibaar/ui/PageShell";
@@ -322,22 +323,24 @@ export default function ProductsPreview({
             {productPreview?.description &&
               productPreview?.description.length > 100 &&
               !isDescriptionExpanded && (
-                <button
-                  className=" text-brandDeep text-body-sm font-medium"
-                  onClick={() => {
+                <DisclosureButton
+              expanded={isDescriptionExpanded}
+              onClick={() => {
                     setIsDescriptionExpanded(!isDescriptionExpanded);
-                  }}>
-                  Read more
-                </button>
+                  }}
+              className=" text-brandDeep text-body-sm font-medium">
+              Read more
+            </DisclosureButton>
               )}
             {isDescriptionExpanded && (
-              <button
-                className="ml-2 text-brandDeep text-body-sm"
-                onClick={() => {
+              <DisclosureButton
+              expanded={isDescriptionExpanded}
+              onClick={() => {
                   setIsDescriptionExpanded(!isDescriptionExpanded);
-                }}>
-                Show less
-              </button>
+                }}
+              className="ml-2 text-brandDeep text-body-sm">
+              Show less
+            </DisclosureButton>
             )}
           </div>
         </Accordion>
