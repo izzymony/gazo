@@ -60,6 +60,7 @@ const SCAN_ROOTS = [join(APP_ROOT, "src"), UI_SRC];
 /** Ratcheted categories. Advisory ones are reported but never fail the build. */
 const RATCHETED = [
   "unknown-utility",
+  "unknown-css-var",
   "raw-hex",
   "arbitrary-utility",
   "legacy-type-scale",
@@ -107,6 +108,21 @@ function tailwindValidator() {
  * responsive-utils.css, vendor themes). These are real classes that Tailwind
  * knows nothing about, so they must not be reported as unknown utilities.
  */
+/**
+ * Every CSS custom property the design tokens actually define.
+ *
+ * The audit validated Tailwind CLASSES through Tailwind's own engine but never
+ * looked at `var(--x)` references in style objects and SVG fill/stroke. So when
+ * the ink ramp was retired, `var(--ink-5)` in a star rating kept compiling,
+ * kept passing lint, and silently rendered an invalid colour. The same was true
+ * of `var(--warning)` after the status tokens were restructured — broken for
+ * some time with nothing to catch it.
+ */
+function knownCssVars() {
+  const { cssVariables } = require_("@vibaar/design-tokens/tokens");
+  return new Set(Object.keys(cssVariables));
+}
+
 function handWrittenCssClasses() {
   const names = new Set();
   for (const file of ["src/styles/globals.css", "src/styles/responsive-utils.css"]) {
@@ -235,7 +251,7 @@ function extractClassStrings(input) {
 
 const CANDIDATE = /^-?[a-z][a-z0-9]*(?:[-/:.[\]()#%!,+&>~*_a-z0-9]*)$/i;
 
-function analyseFile(path, src, isRealClass, cssClasses, exemptions) {
+function analyseFile(path, src, isRealClass, cssClasses, exemptions, knownVars) {
   const rel = relative(REPO_ROOT, path);
   const findings = [];
   const add = (category, index, detail) =>
@@ -284,6 +300,13 @@ function analyseFile(path, src, isRealClass, cssClasses, exemptions) {
     add("raw-hex", m.index, m[0]);
   }
   for (const m of src.matchAll(/style=\{\{/g)) add("inline-style", m.index, "inline style object");
+
+  // A var() that no design token defines. Locally-declared ones (a component
+  // setting its own --x in the same file, as Figma exports do) are fine.
+  const declaredHere = new Set([...src.matchAll(/["']?(--[\w-]+)["']?\s*:/g)].map((m) => m[1]));
+  for (const m of src.matchAll(/var\((--[\w-]+)\)/g)) {
+    if (!knownVars.has(m[1]) && !declaredHere.has(m[1])) add("unknown-css-var", m.index, m[1]);
+  }
   for (const m of src.matchAll(/<button\b/g)) add("native-button", m.index, "<button>");
   for (const m of src.matchAll(/<svg\b/g)) add("inline-svg", m.index, "<svg>");
 
@@ -360,6 +383,7 @@ exemptions.allowedHex = Object.fromEntries(
 
 const isRealClass = tailwindValidator();
 const cssClasses = handWrittenCssClasses();
+const knownVars = knownCssVars();
 
 const allFindings = [];
 const perFileStrings = [];
@@ -371,7 +395,7 @@ for (const file of SCAN_ROOTS.flatMap((root) => [...sourceFiles(root)])) {
     (exemptions.files ?? []).filter((e) => rel.startsWith(e.path)).flatMap((e) => e.categories)
   );
   perFileStrings.push([rel, extractClassStrings(src).map((s) => s.text)]);
-  for (const f of analyseFile(file, src, isRealClass, cssClasses, exemptions)) {
+  for (const f of analyseFile(file, src, isRealClass, cssClasses, exemptions, knownVars)) {
     if (exempt.has(f.category)) continue;
     allFindings.push({ ...f, bucket: bucketOf(f.file) });
   }

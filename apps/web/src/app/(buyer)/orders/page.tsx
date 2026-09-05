@@ -72,8 +72,8 @@ const ReviewIcon = ({
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
-            fill={"var(--warning)"} // Dynamic fill color
-            stroke={"var(--warning)"} // Dynamic stroke color
+            fill={"rgb(var(--warning-foreground-rgb))"} // Dynamic fill color
+            stroke={"rgb(var(--warning-foreground-rgb))"} // Dynamic stroke color
             strokeWidth={2}
             className="w-[14px] h-[14px] cursor-pointer">
             <path

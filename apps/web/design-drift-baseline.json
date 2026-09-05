@@ -4,6 +4,10 @@
       "live": 0,
       "deferred": 22
     },
+    "unknown-css-var": {
+      "live": 0,
+      "deferred": 0
+    },
     "raw-hex": {
       "live": 152,
       "deferred": 107
@@ -656,6 +660,9 @@
     "dynamic-classname|apps/web/src/design-system/selecticons.tsx|text-body font-medium ${colorClass}": 1,
     "dynamic-classname|apps/web/src/design-system/VariantSelector.tsx|cursor-pointer px-3 py-1 rounded-md text-xs font-medium transition-colors ${\n   ": 1,
     "dynamic-classname|apps/web/src/features/auth/authenthecate.tsx|p-2 h-10 justify-center items-center flex font-medium w-full text-body-sm rounde": 1,
+    "dynamic-classname|apps/web/src/features/marketing-v2/sections/HeroSection.tsx|${styles.audienceTag} ${styles.buyerTag}": 1,
+    "dynamic-classname|apps/web/src/features/marketing-v2/sections/HeroSection.tsx|${styles.audienceTag} ${styles.creatorTag}": 1,
+    "dynamic-classname|apps/web/src/features/marketing-v2/sections/HeroSection.tsx|${styles.audienceTag} ${styles.sellerTag}": 1,
     "dynamic-classname|apps/web/src/features/onboarding/SetupChecklist.tsx|text-body-sm ${\n                            step.completed\n                     ": 1,
     "dynamic-classname|apps/web/src/features/onboarding/SetupChecklist.tsx|text-foreground-muted transition-transform duration-200 ${\n                check": 1,
     "dynamic-classname|apps/web/src/features/product-setup/edit/EditProductSetup.tsx|relative flex-shrink-0 w-24 h-24 rounded-card overflow-hidden border cursor-move": 1,

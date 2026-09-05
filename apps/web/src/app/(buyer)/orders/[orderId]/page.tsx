@@ -250,8 +250,8 @@ const Rating = ({
               onClick={isRated ? undefined : () => handleStarClick(star)}
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
-              fill={filled ? "var(--warning)" : "var(--ink-5)"}
-              stroke="var(--warning)"
+              fill={filled ? "rgb(var(--warning-foreground-rgb))" : "rgb(var(--surface-muted-rgb))"}
+              stroke="rgb(var(--warning-foreground-rgb))"
               strokeWidth={1.5}
               className={isRated ? "w-10 h-10" : "w-10 h-10 cursor-pointer"}>
               <path
@@ -577,8 +577,8 @@ const Order = () => {
                 onClick={() => handleStarClick(star)}
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
-                fill={rating >= star ? "var(--warning)" : "var(--ink-5)"}
-                stroke={rating >= star ? "var(--warning)" : "var(--ink-20)"}
+                fill={rating >= star ? "rgb(var(--warning-foreground-rgb))" : "rgb(var(--surface-muted-rgb))"}
+                stroke={rating >= star ? "rgb(var(--warning-foreground-rgb))" : "rgb(var(--outline-strong-rgb))"}
                 strokeWidth={1.5}
                 className="w-10 h-10 cursor-pointer">
                 <path

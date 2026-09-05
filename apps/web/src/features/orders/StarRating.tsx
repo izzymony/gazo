@@ -34,8 +34,8 @@ export default function StarRating({
           <svg
             viewBox="0 0 24 24"
             aria-hidden="true"
-            fill={filled ? "var(--warning)" : "var(--ink-5)"}
-            stroke={filled ? "var(--warning)" : "var(--ink-20)"}
+            fill={filled ? "rgb(var(--warning-foreground-rgb))" : "rgb(var(--surface-muted-rgb))"}
+            stroke={filled ? "rgb(var(--warning-foreground-rgb))" : "rgb(var(--outline-strong-rgb))"}
             strokeWidth={size === "lg" ? 1.5 : 2}
             className={dimension}>
             <path
