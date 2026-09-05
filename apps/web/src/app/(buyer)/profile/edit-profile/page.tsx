@@ -157,7 +157,7 @@ const Page = () => {
         />
       }
       footerAction={
-        <Button type="button" onClick={formik.handleSubmit} loading={isUploading}>
+        <Button type="button" onClick={() => formik.handleSubmit()} loading={isUploading}>
           Save
         </Button>
       }>

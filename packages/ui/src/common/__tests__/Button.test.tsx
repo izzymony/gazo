@@ -1,3 +1,4 @@
+import { createRef } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Button from "../Button";
@@ -129,5 +130,98 @@ describe("Button", () => {
     const btn = screen.getByRole("button");
     expect(btn).toHaveClass("mt-10");
     expect(btn).toHaveClass("bg-brand"); // variant classes still present
+  });
+
+  // --- hardened API (native button contract) --------------------------------
+
+  describe("native button contract", () => {
+    it("renders without an onClick — a submit button needs no handler", () => {
+      render(<Button type="submit">Save</Button>);
+      expect(screen.getByRole("button", { name: "Save" })).toBeEnabled();
+    });
+
+    it("actually submits its form when type=submit", async () => {
+      const onSubmit = jest.fn((e: React.FormEvent) => e.preventDefault());
+      render(
+        <form onSubmit={onSubmit}>
+          <Button type="submit">Save</Button>
+        </form>
+      );
+      await userEvent.click(screen.getByRole("button", { name: "Save" }));
+      // Regression guard: handleClick used to call preventDefault()
+      // unconditionally, so this never fired and every call site wired
+      // formik.handleSubmit into onClick instead.
+      expect(onSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    it("does NOT submit when type=button (the default)", async () => {
+      const onSubmit = jest.fn((e: React.FormEvent) => e.preventDefault());
+      render(
+        <form onSubmit={onSubmit}>
+          <Button onClick={() => {}}>Not a submit</Button>
+        </form>
+      );
+      await userEvent.click(screen.getByRole("button"));
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+
+    it("spreads native attributes onto the button", () => {
+      render(
+        <Button id="save-btn" name="save" form="checkout" data-testid="native" aria-describedby="hint">
+          Save
+        </Button>
+      );
+      const btn = screen.getByTestId("native");
+      expect(btn).toHaveAttribute("id", "save-btn");
+      expect(btn).toHaveAttribute("name", "save");
+      expect(btn).toHaveAttribute("form", "checkout");
+      expect(btn).toHaveAttribute("aria-describedby", "hint");
+    });
+
+    it("forwards a ref to the underlying <button>", () => {
+      const ref = createRef<HTMLButtonElement>();
+      render(<Button ref={ref}>Save</Button>);
+      expect(ref.current).toBe(screen.getByRole("button", { name: "Save" }));
+    });
+
+    it("lets a caller aria-label win over the loading fallback", () => {
+      render(
+        <Button loading loadingText="Saving…" aria-label="Save your changes">
+          Save
+        </Button>
+      );
+      expect(screen.getByRole("button", { name: "Save your changes" })).toBeInTheDocument();
+    });
+
+    it("still stops propagation so a tappable parent does not also fire", async () => {
+      const onParent = jest.fn();
+      const onClick = jest.fn();
+      render(
+        // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
+        <div onClick={onParent}>
+          <Button onClick={onClick}>Inner</Button>
+        </div>
+      );
+      await userEvent.click(screen.getByRole("button"));
+      expect(onClick).toHaveBeenCalledTimes(1);
+      expect(onParent).not.toHaveBeenCalled();
+    });
+
+    it("fires haptic feedback exactly once per click", async () => {
+      const vibrate = jest.fn();
+      Object.defineProperty(window.navigator, "vibrate", { value: vibrate, configurable: true });
+      render(<Button onClick={() => {}}>Tap</Button>);
+      await userEvent.click(screen.getByRole("button"));
+      // Regression guard: onTouchStart AND onTouchEnd both fired haptics, so a
+      // tap vibrated twice.
+      expect(vibrate).toHaveBeenCalledTimes(1);
+    });
+
+    it("passes the click event through to onClick", async () => {
+      const onClick = jest.fn();
+      render(<Button onClick={onClick}>Go</Button>);
+      await userEvent.click(screen.getByRole("button"));
+      expect(onClick.mock.calls[0][0]).toHaveProperty("type", "click");
+    });
   });
 });

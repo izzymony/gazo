@@ -34,8 +34,16 @@ const buttonVariants = cva(
   }
 );
 
-type ButtonProps = {
-  onClick: () => void;
+/**
+ * Native <button> attributes are spread onto the element, so aria-*, id, name,
+ * form, data-* and the rest work without the component having to enumerate
+ * them. `onClick` is therefore optional: a `type="submit"` button inside a form
+ * needs no handler at all.
+ */
+type ButtonProps = Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  "className" | "type" | "disabled"
+> & {
   children: React.ReactNode;
   className?: string;
   type?: "button" | "reset" | "submit";
@@ -88,55 +96,45 @@ const triggerHapticFeedback = (type: 'light' | 'medium' | 'heavy' = 'light') => 
   }
 };
 
-export default function Button({
-  onClick,
-  children,
-  className = "",
-  type = "button",
-  loading = false,
-  loadingText,
-  disabled = false,
-  variant = "filled",
-  size = "md",
-  fullWidth = true,
-  hapticFeedback = true, // Enable by default for better mobile UX
-}: ButtonProps) {
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    onClick,
+    children,
+    className = "",
+    type = "button",
+    loading = false,
+    loadingText,
+    disabled = false,
+    variant = "filled",
+    size = "md",
+    fullWidth = true,
+    hapticFeedback = true, // Enable by default for better mobile UX
+    ...rest
+  },
+  ref
+) {
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    // NOTE: no preventDefault(). It used to be unconditional, which meant a
+    // `type="submit"` button never actually submitted its form — every call
+    // site worked around it by wiring formik.handleSubmit into onClick.
+    // stopPropagation IS kept: buttons sit inside tappable cards and rows that
+    // would otherwise fire their own handler too.
+    event.stopPropagation();
 
-    if (!loading && !disabled) {
-      if (hapticFeedback) {
-        triggerHapticFeedback('light');
-      }
-      onClick();
-    }
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (!loading && !disabled) {
-      if (hapticFeedback) {
-        triggerHapticFeedback('light');
-      }
-      onClick();
-    }
-  };
-
-  // Handle touch start for immediate visual feedback
-  const handleTouchStart = () => {
-    if (!loading && !disabled && hapticFeedback) {
-      triggerHapticFeedback('light');
-    }
+    if (loading || disabled) return;
+    if (hapticFeedback) triggerHapticFeedback("light");
+    onClick?.(event);
   };
 
   return (
     <button
+      ref={ref}
+      // Touch is handled by the native click. The previous onTouchStart +
+      // onTouchEnd pair fired haptics twice per tap, and onTouchEnd's
+      // preventDefault suppressed the synthesized click — which would have
+      // stopped form submission on touch devices. Press feedback comes from the
+      // cva `active:` classes instead.
       onClick={handleClick}
-      onTouchEnd={handleTouchEnd}
-      onTouchStart={handleTouchStart}
       className={cn(
         buttonVariants({ variant, size, fullWidth }),
         loading && "opacity-70 cursor-not-allowed",
@@ -149,17 +147,20 @@ export default function Button({
             // Neutral, not brand-tinted. A coloured glow worked while the
             // brand was a saturated red; a yellow one is invisible on light
             // surfaces and muddy on white. Ink reads on every ground.
-            ? '4px 8px 24px 0px rgb(var(--brand-ink-rgb) / 0.18)'
+            ? "4px 8px 24px 0px rgb(var(--brand-ink-rgb) / 0.18)"
             : undefined,
-        WebkitTapHighlightColor: 'transparent',
-        touchAction: 'manipulation',
-        userSelect: 'none',
-        WebkitUserSelect: 'none',
+        WebkitTapHighlightColor: "transparent",
+        touchAction: "manipulation",
+        userSelect: "none",
+        WebkitUserSelect: "none",
       }}
       type={type}
       disabled={loading || disabled}
       aria-busy={loading}
-      aria-label={loading ? (loadingText || "Loading, please wait") : undefined}
+      // A caller-supplied aria-label always wins; the loading fallback only
+      // applies when the caller gave none.
+      aria-label={rest["aria-label"] ?? (loading ? loadingText || "Loading, please wait" : undefined)}
+      {...rest}
     >
       {loading ? (
         <span className="flex items-center gap-2">
@@ -171,4 +172,6 @@ export default function Button({
       )}
     </button>
   );
-}
+});
+
+export default Button;

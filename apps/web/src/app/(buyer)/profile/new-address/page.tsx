@@ -59,7 +59,7 @@ const Page = () => {
         />
       }
       footerAction={
-        <Button type="submit" onClick={formik.handleSubmit} loading={isLoading}>
+        <Button type="submit" onClick={() => formik.handleSubmit()} loading={isLoading}>
           Save address
         </Button>
       }>
