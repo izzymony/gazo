@@ -33,13 +33,13 @@ const AccountCard = ({
   onSetDefault: () => void;
 }) => {
   return (
-    <div className="relative justify-between items-center flex gap-4 border border-ink-10 rounded-card py-3 px-2">
-      <div className="w-10 h-10 rounded-field bg-white border border-ink-10 flex items-center justify-center shrink-0">
-        <Bank size={22} className="text-ink-90" />
+    <div className="relative justify-between items-center flex gap-4 border border-outline rounded-card py-3 px-2">
+      <div className="w-10 h-10 rounded-field bg-surface border border-outline flex items-center justify-center shrink-0">
+        <Bank size={22} className="text-foreground-primary" />
       </div>
       <div className="flex-1">
         <div className="flex gap-2 items-center">
-          <p className="text-body text-ink-90 font-medium">
+          <p className="text-body text-foreground-primary font-medium">
             {`${bankname}-Ending in ${accountnumber.slice(-4)}`}
           </p>
           {defaults && (
@@ -48,27 +48,27 @@ const AccountCard = ({
             </span>
           )}
         </div>
-        <p className="text-body text-ink-60 font-normal">
+        <p className="text-body text-foreground-secondary font-normal">
           {accountname}
         </p>
       </div>
       <div
         data-dropdown-trigger
-        className={`w-9 h-9 flex items-center justify-center cursor-pointer ${show === id ? "bg-ink-20 rounded-full " : ""}`}
+        className={`w-9 h-9 flex items-center justify-center cursor-pointer ${show === id ? "bg-surface-strong rounded-full " : ""}`}
         onClick={(e) => {
           e.stopPropagation();
           setShow(show === id ? "" : id);
         }}>
         <BsThreeDots
           size={20}
-          className={show === id ? "text-brandDeep" : "text-ink-90"}
+          className={show === id ? "text-brandDeep" : "text-foreground-primary"}
         />
       </div>
       {show === id && (
-        <div data-dropdown-menu className="absolute rounded-field bg-white right-3 -bottom-20 border p-3 gap-3 flex flex-col shadow-md z-10">
+        <div data-dropdown-menu className="absolute rounded-field bg-surface right-3 -bottom-20 border p-3 gap-3 flex flex-col shadow-md z-10">
           {!defaults && (
             <p
-              className="text-body text-ink-60 font-medium cursor-pointer hover:text-ink-90"
+              className="text-body text-foreground-secondary font-medium cursor-pointer hover:text-foreground-primary"
               onClick={(e) => {
                 e.stopPropagation();
                 onSetDefault();

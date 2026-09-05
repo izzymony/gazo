@@ -328,7 +328,7 @@ export default function ProgressiveProductSetup() {
 
     if (isPreviewOpen) {
         return (
-            <div className="bg-white h-full w-full">
+            <div className="bg-surface h-full w-full">
                 <ProductPreview
                     publish={handlePublish}
                     setIsPreviewOpen={setIsPreviewOpen}

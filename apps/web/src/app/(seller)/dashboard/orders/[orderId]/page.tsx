@@ -37,9 +37,9 @@ const ActivityTop = ({ title, date }: { title: string; date: string }) => {
     <div className="flex gap-3">
       <OrderStatusIcon status={title} />
       <div className="flex flex-col justify-between">
-        <p className="text-ink-60 font-normal text-caption">Status:</p>
-        <p className="text-ink-90 font-medium text-h2">{title}</p>
-        <p className="text-ink-60 font-normal text-caption">
+        <p className="text-foreground-secondary font-normal text-caption">Status:</p>
+        <p className="text-foreground-primary font-medium text-h2">{title}</p>
+        <p className="text-foreground-secondary font-normal text-caption">
           {formatTimestamp(date)}
         </p>
       </div>
@@ -67,20 +67,20 @@ const ActivityText = ({
               ? "text-success-foreground"
               : "text-brandDeep"
             }`
-            : "text-ink-60"
+            : "text-foreground-secondary"
             }`}>
           {title}
         </p>
-        <p className="text-caption font-normal text-ink-40">
+        <p className="text-caption font-normal text-foreground-muted">
           {formatTimeAgos(time)}
         </p>
       </div>
-      <p className="text-caption font-normal text-ink-40">{details}</p>
+      <p className="text-caption font-normal text-foreground-muted">{details}</p>
     </div>
   );
 };
 
-const Check = () => <CircleCheck size={16} className="text-ink-30" />;
+const Check = () => <CircleCheck size={16} className="text-foreground-disabled" />;
 
 const Indicators = ({ show = false }: { show: boolean }) => {
   return (
@@ -88,7 +88,7 @@ const Indicators = ({ show = false }: { show: boolean }) => {
       <div
         className={
           !show
-            ? "h-[10px] border border-ink-20"
+            ? "h-[10px] border border-outline-strong"
             : "h-[10px] border border-brandDeep"
         }
       />
@@ -101,7 +101,7 @@ const Indicators = ({ show = false }: { show: boolean }) => {
           <Check />
         </div>
       )}
-      <div className="flex-1 border border-ink-20" />
+      <div className="flex-1 border border-outline-strong" />
     </div>
   );
 };
@@ -135,8 +135,8 @@ const Cards = ({ order, buyerInfo }: { order: OrderDatas; buyerInfo?: {user_name
   return (
     <div className="mt-6 space-y-3">
       <div>
-        <div className="flex gap-2 items-center text-body font-medium text-ink-90">
-          <IoCubeOutline size={20} className="text-ink-90" />
+        <div className="flex gap-2 items-center text-body font-medium text-foreground-primary">
+          <IoCubeOutline size={20} className="text-foreground-primary" />
           items ({order.quantity})
         </div>
       </div>
@@ -148,7 +148,7 @@ const Cards = ({ order, buyerInfo }: { order: OrderDatas; buyerInfo?: {user_name
           price={order.price}
         />
       </div>
-      <div className="border border-ink-10 rounded-card p-3 gap-2 flex flex-col">
+      <div className="border border-outline rounded-card p-3 gap-2 flex flex-col">
         <DetailRow
           label={`Subtotal: ${order.quantity} items`}
           value={formatCurrency(order.order?.sub_total || (order.price * order.quantity))}
@@ -167,7 +167,7 @@ const Cards = ({ order, buyerInfo }: { order: OrderDatas; buyerInfo?: {user_name
               size={20}
               className=""
             />
-            <p className="text-body-sm font-medium text-ink-90">
+            <p className="text-body-sm font-medium text-foreground-primary">
               {buyerInfo?.isGuest ? buyerInfo?.user_name : `@${buyerInfo?.user_name || "customer"}`}
             </p>
           </div>
@@ -184,7 +184,7 @@ const Cards = ({ order, buyerInfo }: { order: OrderDatas; buyerInfo?: {user_name
 
 const ProgressBar = ({ pick }: { pick: number }) => {
   return (
-    <div className="w-full bg-ink-10 rounded-full h-1 my-3 flex justify-between overflow-hidden">
+    <div className="w-full bg-surface-strong rounded-full h-1 my-3 flex justify-between overflow-hidden">
       {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
         <div
           key={item}
@@ -437,8 +437,8 @@ const Order = ({ params }: { params: { orderId: string } }) => {
           <div
             className={
               status
-                ? "relative border border-ink-10 rounded-card px-4 pb-3 pt-4 gap-3 w-full"
-                : "relative border border-ink-10 rounded-card px-4 pb-3 pt-4 gap-3 h-[204px] w-full overflow-hidden"
+                ? "relative border border-outline rounded-card px-4 pb-3 pt-4 gap-3 w-full"
+                : "relative border border-outline rounded-card px-4 pb-3 pt-4 gap-3 h-[204px] w-full overflow-hidden"
             }>
             <div className="w-full">
               <ActivityTop
@@ -501,20 +501,20 @@ const Order = ({ params }: { params: { orderId: string } }) => {
           <div className="flex flex-col gap-3 pt-4 pb-6">
             <div className="flex items-start gap-2">
               <div className="mt-1">
-                <FaLocationDot size={20} className="text-ink-90" />
+                <FaLocationDot size={20} className="text-foreground-primary" />
               </div>
               <div className="flex flex-col">
-                <p className="font-normal text-caption text-ink-60">
+                <p className="font-normal text-caption text-foreground-secondary">
                   shipping to
                 </p>
-                <p className="font-medium text-ink-90 text-body-sm">
+                <p className="font-medium text-foreground-primary text-body-sm">
                   {newOrder?.shipment?.provider_data?.[0]?.ship_to?.name
                     ? `${newOrder.shipment.provider_data[0].ship_to.name}`
                     : newOrder?.order?.shipping_profile?.shipping_user
                     ? `${newOrder.order.shipping_profile.shipping_user.firstname} ${newOrder.order.shipping_profile.shipping_user.lastname}`
                     : "Customer"}
                 </p>
-                <p className="font-medium text-ink-90 text-body-sm">
+                <p className="font-medium text-foreground-primary text-body-sm">
                   {newOrder?.shipment?.provider_data?.[0]?.ship_to?.address
                     ? `${newOrder.shipment.provider_data[0].ship_to.address}`
                     : newOrder?.order?.shipping_profile
@@ -524,10 +524,10 @@ const Order = ({ params }: { params: { orderId: string } }) => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Calendar size={20} className="text-ink-90 flex-shrink-0" />
+              <Calendar size={20} className="text-foreground-primary flex-shrink-0" />
 
               <div className="flex flex-col">
-                <p className="font-normal text-caption  text-ink-60">
+                <p className="font-normal text-caption  text-foreground-secondary">
                   Estimated delivery:
                 </p>
                 <p className="font-medium text-body-sm">
@@ -537,10 +537,10 @@ const Order = ({ params }: { params: { orderId: string } }) => {
             </div>
 
             <div className="flex items-center gap-2">
-              <DeliveryTruck size={20} className="text-ink-90 flex-shrink-0" />
+              <DeliveryTruck size={20} className="text-foreground-primary flex-shrink-0" />
 
               <div className="flex flex-col">
-                <p className="font-normal text-caption  text-ink-60">
+                <p className="font-normal text-caption  text-foreground-secondary">
                   Shipping method:
                 </p>
                 <p className="font-medium text-body-sm">
@@ -551,22 +551,22 @@ const Order = ({ params }: { params: { orderId: string } }) => {
           </div>
 
           <div className="flex flex-col gap-3 py-4">
-            <p className="text-ink-60 text-body-sm">
+            <p className="text-foreground-secondary text-body-sm">
               Order ID:{" "}
-              <span className="font-medium text-ink-90">
+              <span className="font-medium text-foreground-primary">
                 {newOrder?.order.invoice}
               </span>{" "}
             </p>
-            <p className="text-ink-60 text-body-sm">
+            <p className="text-foreground-secondary text-body-sm">
               Date placed:{" "}
-              <span className="font-medium text-ink-90">
+              <span className="font-medium text-foreground-primary">
                 {newOrder?.created_at &&
                   formatDate(new Date(newOrder?.created_at))}
               </span>{" "}
             </p>
-            <p className="text-ink-60 text-body-sm">
+            <p className="text-foreground-secondary text-body-sm">
               payment method:{" "}
-              <span className="font-medium text-ink-90">
+              <span className="font-medium text-foreground-primary">
                 Credit card via Paystack
               </span>{" "}
             </p>
@@ -580,17 +580,17 @@ const Order = ({ params }: { params: { orderId: string } }) => {
           ariaLabel="Mark out for delivery">
           <div className="space-y-4">
             <div>
-              <p className="text-h2 font-medium text-ink-90">
+              <p className="text-h2 font-medium text-foreground-primary">
                 {isOutForDelivery ? "Edit delivery contact" : "Out for delivery"}
               </p>
-              <p className="text-body-sm text-ink-60 mt-1">
+              <p className="text-body-sm text-foreground-secondary mt-1">
                 Add a dispatch contact so the buyer can reach whoever is
                 delivering. Optional, but it builds trust.
               </p>
             </div>
             <div className="space-y-3">
               <div>
-                <label className="text-caption text-ink-60 mb-1.5 block">
+                <label className="text-caption text-foreground-secondary mb-1.5 block">
                   Dispatch name
                 </label>
                 <InputField
@@ -604,7 +604,7 @@ const Order = ({ params }: { params: { orderId: string } }) => {
                 />
               </div>
               <div>
-                <label className="text-caption text-ink-60 mb-1.5 block">
+                <label className="text-caption text-foreground-secondary mb-1.5 block">
                   Phone number
                 </label>
                 <InputField
@@ -619,7 +619,7 @@ const Order = ({ params }: { params: { orderId: string } }) => {
                 />
               </div>
               <div>
-                <label className="text-caption text-ink-60 mb-1.5 block">
+                <label className="text-caption text-foreground-secondary mb-1.5 block">
                   Note (optional)
                 </label>
                 <InputField

@@ -28,7 +28,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       <button
         type="button"
         onClick={toggleDropdown}
-        className="bg-ink-3 text-ink-60 font-medium py-1 px-3 rounded-pill inline-flex items-center text-body-sm">
+        className="bg-surface-subtle text-foreground-secondary font-medium py-1 px-3 rounded-pill inline-flex items-center text-body-sm">
         <span>{selectedOption ? selectedOption : placeholder}</span>
         <ChevronDown
           size={16}
@@ -39,12 +39,12 @@ const Dropdown: React.FC<DropdownProps> = ({
       </button>
 
       {isOpen && (
-        <ul className="absolute z-dropdown mt-1 bg-white shadow-card rounded-field px-4 py-1">
+        <ul className="absolute z-dropdown mt-1 bg-surface shadow-card rounded-field px-4 py-1">
           {options.map((option, index) => (
             <li
               key={index}
               onClick={() => handleOptionClick(option)}
-              className="cursor-pointer text-ink-90 hover:bg-ink-5 rounded-field py-2 px-2 text-body-sm">
+              className="cursor-pointer text-foreground-primary hover:bg-surface-muted rounded-field py-2 px-2 text-body-sm">
               {option}
             </li>
           ))}

@@ -6,7 +6,7 @@ export default async function WithdrawPage() {
     return <WithdrawView />;
   } catch (error: any) {
     return (
-      <div className="bg-white justify-center items-center">
+      <div className="bg-surface justify-center items-center">
         <p>{error.message}</p>
       </div>
     );

@@ -34,7 +34,7 @@ export default function ActivityItem({
       onClick={onClick}
       showDot={unread}
       leading={
-        <div className="w-10 h-10 rounded-full bg-ink-5 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full bg-surface-muted flex items-center justify-center">
           <ActivityIcon type={icon} />
         </div>
       }

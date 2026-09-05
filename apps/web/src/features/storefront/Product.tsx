@@ -688,7 +688,7 @@ const Product = ({
   return (
     <div
       ref={scrollRef}
-      className="flex flex-col bg-white w-full max-w-full lg:max-w-5xl lg:mx-auto h-full overflow-y-scroll scrollbar-hide pb-28 focus:outline-none">
+      className="flex flex-col bg-surface w-full max-w-full lg:max-w-5xl lg:mx-auto h-full overflow-y-scroll scrollbar-hide pb-28 focus:outline-none">
       {!isScrolled ? (
         <>
           <ProductHeader
@@ -812,11 +812,11 @@ const Product = ({
               ))
             ) : (
               <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
-                <FaStar size={28} className="text-ink-20" />
-                <p className="text-body-sm font-medium text-ink-90">
+                <FaStar size={28} className="text-foreground-disabled" />
+                <p className="text-body-sm font-medium text-foreground-primary">
                   No reviews yet
                 </p>
-                <p className="text-caption text-ink-50 px-6">
+                <p className="text-caption text-foreground-muted px-6">
                   Reviews from verified buyers will appear here once this product
                   has been rated.
                 </p>
@@ -828,7 +828,7 @@ const Product = ({
 
         {/* Right Column - Action Sidebar (Desktop only) */}
         <div className="hidden lg:block lg:col-span-1">
-          <div className="sticky top-24 bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+          <div className="sticky top-24 bg-surface rounded-2xl shadow-lg p-6 border border-gray-100">
             {/* Variants Section - Only show if product has combinations enabled and actual variant data exists */}
             {reconstructedVariations && (
               <ProductVariants
@@ -961,7 +961,7 @@ function Rating({
             ))}
         </div>
 
-        <p className="text-caption text-ink-60">{dates}</p>
+        <p className="text-caption text-foreground-secondary">{dates}</p>
       </div>
       <div className="w-full">
         <p className="text-body-sm font-medium w-full line-clamp-2">

@@ -207,7 +207,7 @@ const Page: React.FC = () => {
       <div ref={scrollRef} className="w-full overflow-y-scroll scrollbar-hide">
         <div className="w-full flex flex-col mb-0">
           <HeaderSlides />
-          <div className="rounded-t-2xl -mt-4 pb-10 z-20 bg-white shadow-lg px-4 pt-8 min-h-[50vh] flex flex-col items-center justify-center gap-4 max-w-full lg:max-w-5xl lg:mx-auto text-center">
+          <div className="rounded-t-2xl -mt-4 pb-10 z-20 bg-surface shadow-lg px-4 pt-8 min-h-[50vh] flex flex-col items-center justify-center gap-4 max-w-full lg:max-w-5xl lg:mx-auto text-center">
             <EmptyState
               image="/images/emptystate/products_empty_state.svg"
               title="Couldn't load vendors"
@@ -234,7 +234,7 @@ const Page: React.FC = () => {
     <div ref={scrollRef} className="w-full overflow-y-scroll scrollbar-hide">
       <div className="w-full flex flex-col mb-0">
         <HeaderSlides />
-        <div className="rounded-t-2xl -mt-4 pb-10 z-20 bg-white shadow-lg px-2 md:px-4 lg:px-6 pt-2 md:pt-4 lg:pt-6 max-w-full lg:max-w-5xl lg:mx-auto">
+        <div className="rounded-t-2xl -mt-4 pb-10 z-20 bg-surface shadow-lg px-2 md:px-4 lg:px-6 pt-2 md:pt-4 lg:pt-6 max-w-full lg:max-w-5xl lg:mx-auto">
           {!isScrolled && (
             <SearchInput
               showSearch={true}
@@ -246,7 +246,7 @@ const Page: React.FC = () => {
               }}
             />
           )}
-          <div className="gap-2 w-full pe-1 flex items-center bg-white sticky top-0 z-30 border-b border-ink-10">
+          <div className="gap-2 w-full pe-1 flex items-center bg-surface sticky top-0 z-30 border-b border-outline">
             {search && isScrolled ? (
               <SearchInput
                 showSearch={true}
@@ -268,8 +268,8 @@ const Page: React.FC = () => {
                       key={it.id}
                       className={
                         it.name === selectedName
-                          ? "py-2 px-4 bg-ink-90 rounded-full text-white text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
-                          : "py-2 px-4 bg-ink-3 rounded-full text-ink-90 text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
+                          ? "py-2 px-4 bg-surface-inverse rounded-full text-white text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
+                          : "py-2 px-4 bg-surface-subtle rounded-full text-foreground-primary text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
                       }>
                       <p className="whitespace-nowrap">{it.name}</p>
                       {it.name === selectedName && (
@@ -287,9 +287,9 @@ const Page: React.FC = () => {
                 </div>
                 {isScrolled && (
                   <div
-                    className="py-2 px-2 bg-ink-3 rounded-full text-ink-90 text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
+                    className="py-2 px-2 bg-surface-subtle rounded-full text-foreground-primary text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
                     onClick={() => setSearch(!search)}>
-                    <Search size={16} className="text-ink-90" />
+                    <Search size={16} className="text-foreground-primary" />
                   </div>
                 )}
               </div>
@@ -424,7 +424,7 @@ const Page: React.FC = () => {
                             <p className="text-caption font-medium mt-2">
                               {truncateTextByLength(item.product.title, 30)}
                             </p>
-                            <p className="text-caption text-ink-20 font-medium line-through">
+                            <p className="text-caption text-foreground-disabled font-medium line-through">
                               ₦{item?.product.old_price?.toLocaleString()}
                             </p>
                             <div className="flex justify-between">
@@ -433,7 +433,7 @@ const Page: React.FC = () => {
                               </p>
                               <div className="flex gap-2">
                                 <FaStar size={12} className="text-warning-foreground" />
-                                <p className="text-caption text-ink-40">
+                                <p className="text-caption text-foreground-muted">
                                   {item.product.weight}
                                 </p>
                               </div>
@@ -464,7 +464,7 @@ const Page: React.FC = () => {
                     ? Array.from({ length: 4 }).map((_, i) => (
                         <div
                           key={i}
-                          className="h-56 rounded-card bg-ink-3 animate-pulse"
+                          className="h-56 rounded-card bg-surface-subtle animate-pulse"
                         />
                       ))
                     : shopVendors.map((v) => (
@@ -552,7 +552,7 @@ const Page: React.FC = () => {
                         {Array.from({ length: 2 }).map((_, i) => (
                           <div
                             key={i}
-                            className="h-56 rounded-card bg-ink-3 animate-pulse"
+                            className="h-56 rounded-card bg-surface-subtle animate-pulse"
                           />
                         ))}
                       </div>

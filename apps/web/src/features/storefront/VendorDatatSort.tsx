@@ -74,7 +74,7 @@ const VendorDataSort: React.FC<VendorDataSortProps> = ({
             className={`px-2.5 md:px-3 text-xs md:text-sm py-1 md:py-1.5 rounded-full flex items-center transition-all hover:scale-105 ${
               activeFilter === filter
                 ? "bg-black text-white shadow-md"
-                : "bg-ink-3 text-black hover:bg-[#00000015]"
+                : "bg-surface-subtle text-black hover:bg-[#00000015]"
             }`}>
             <span className="px-[2px] py-[1px] whitespace-nowrap">
               {filter}

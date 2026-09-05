@@ -62,7 +62,7 @@ export default function DeliveryCard({
     <div className={className}>
       <p className="font-medium text-sm mb-3">Delivery &amp; Returns</p>
 
-      <div className="pt-3 rounded-lg lg:rounded-xl bg-ink-3 mt-3 mb-0">
+      <div className="pt-3 rounded-lg lg:rounded-xl bg-surface-subtle mt-3 mb-0">
         {/* From row (origin marker + dashed connector on the route rail) */}
         <div className="flex px-2 justify-between w-full">
           <div className="flex gap-3">
@@ -99,15 +99,15 @@ export default function DeliveryCard({
         </div>
 
         {/* Selected-delivery summary */}
-        <div className="bg-white border border-ink-10 rounded-xl lg:rounded-2xl px-4 py-4 space-y-2">
+        <div className="bg-surface border border-outline rounded-xl lg:rounded-2xl px-4 py-4 space-y-2">
           <div className="flex justify-between items-center text-sm font-normal">
-            <p className="text-ink-60">
+            <p className="text-foreground-secondary">
               {selectedDelivery?.delivery_type || "Standard delivery"}:
             </p>
             <p>{selectedDelivery?.price?.replace(/^N/, "") || "₦0"}</p>
           </div>
           <div className="flex justify-between items-center text-sm font-medium">
-            <p className="text-ink-60">Arrives by:</p>
+            <p className="text-foreground-secondary">Arrives by:</p>
             <p>~{selectedDelivery?.delivery_days}</p>
           </div>
           <div
@@ -139,7 +139,7 @@ export default function DeliveryCard({
           <p className="text-xs font-medium">Return policy</p>
         </div>
         <div className="flex items-center space-x-2">
-          <p className="text-ink-70 text-xs font-normal">
+          <p className="text-foreground-secondary text-xs font-normal">
             Free return within{" "}
             <span className="text-black font-semibold">24hrs</span>
           </p>

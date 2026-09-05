@@ -101,20 +101,18 @@ const color = {
       step === "white" ? "#FFFFFF" : tailwindColors.neutral[step],
     ])
   ),
-  ink: {
-    3: "#00000008",
-    5: "#0000000D",
-    10: "#0000001A",
-    20: "#00000033",
-    30: "#0000004D",
-    40: "#00000066",
-    50: "#00000080",
-    60: "#00000099",
-    70: "#000000B2",
-    80: "#000000CC",
-    90: "#000000E5",
-  },
-  line: "rgba(0, 0, 0, 0.06)",
+  /**
+   * Scrim over arbitrary content — the modal backdrop, and anything else that
+   * must darken whatever is behind it. This replaces an 11-step `ink` ramp of
+   * transparent blacks that was being used as a neutral palette: of 886 uses
+   * across the app, exactly ONE was a genuine overlay. Text, borders and
+   * backgrounds now use foreground/outline/surface, which are solid and do not
+   * tint the surface they sit on.
+   *
+   * Declared in channels so `/opacity` composes — a lighter scrim is
+   * `bg-overlay/40`, not another token.
+   */
+  overlay: "#000000",
   status: {
     success: {
       foreground: semanticColor("success", "foreground"),
@@ -201,8 +199,7 @@ const cssVariables = {
       ])
     )
   ),
-  ...Object.fromEntries(Object.entries(color.ink).map(([step, value]) => [`--ink-${step}`, value])),
-  "--line": color.line,
+  "--overlay-rgb": rgbChannels(color.overlay),
   ...Object.fromEntries(
     Object.entries(color.status).flatMap(([role, tones]) =>
       Object.entries(tones).map(([tone, value]) => [`--${role}-${tone}-rgb`, rgbChannels(value)])

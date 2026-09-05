@@ -68,7 +68,7 @@ describe("Button", () => {
       </Button>
     );
     const btn = screen.getByRole("button");
-    expect(btn).toHaveClass("border", "border-brandDeep", "text-brandDeep", "bg-white");
+    expect(btn).toHaveClass("border", "border-brandDeep", "text-brandDeep", "bg-surface");
     expect(btn).not.toHaveClass("bg-brand");
   });
 
@@ -81,7 +81,7 @@ describe("Button", () => {
     const btn = screen.getByRole("button");
     expect(btn).toHaveClass("bg-transparent", "text-brandDeep");
     expect(btn).not.toHaveClass("bg-brand");
-    expect(btn).not.toHaveClass("bg-white");
+    expect(btn).not.toHaveClass("bg-surface");
   });
 
   it("maps size to the type scale (exact token)", () => {

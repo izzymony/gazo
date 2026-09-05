@@ -296,12 +296,12 @@ export default function Spotlights({
   const [liked, setLiked] = useState(false);
 
   return (
-    <div className="h-[100dvh] relative w-screen max-w-[1050px] bg-white flex flex-col">
+    <div className="h-[100dvh] relative w-screen max-w-[1050px] bg-surface flex flex-col">
       <div className="flex-1 overflow-y-scroll scrollbar-hide">
         {[1, 2, 3, 4, 5].map((it) => (
           <div
             key={it}
-            className="overflow-y-scroll scrollbar-hide h-[100dvh] relative w-screen max-w-[1050px] bg-white">
+            className="overflow-y-scroll scrollbar-hide h-[100dvh] relative w-screen max-w-[1050px] bg-surface">
             <div className="flex-1 flex flex-col absolute top-0 bottom-0 left-0 right-0 justify-between pb-[calc(5rem+env(safe-area-inset-bottom))] px-5">
               <div>
                 <FloatingHeader show={show} setShow={setShow} />

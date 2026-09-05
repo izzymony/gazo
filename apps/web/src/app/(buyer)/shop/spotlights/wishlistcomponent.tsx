@@ -46,7 +46,7 @@ export default function WishlistComponent({
     <div
       className={
         base
-          ? "cursor-pointer relative min-w-[148px] p-2 rounded-card backdrop-blur-sm bg-white/10 shadow-md"
+          ? "cursor-pointer relative min-w-[148px] p-2 rounded-card backdrop-blur-sm bg-surface/10 shadow-md"
           : "cursor-pointer relative min-w-[148px] p-2 rounded-card"
       }
       onClick={handleProductClick}>
@@ -76,7 +76,7 @@ export default function WishlistComponent({
       <div
         onClick={handleAddToCart}
         className="absolute bottom-[70px] right-5 cursor-pointer">
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20">
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-surface/20">
           <ShoppingCartAdd size={18} className="text-brandDeep" />
         </span>
       </div>
@@ -84,7 +84,7 @@ export default function WishlistComponent({
         className={
           base
             ? "text-caption w-full font-medium mt-1 line-clamp-1 text-white"
-            : "text-caption w-full font-medium mt-1 line-clamp-1 text-ink-90"
+            : "text-caption w-full font-medium mt-1 line-clamp-1 text-foreground-primary"
         }>
         {item.title}
       </p>
@@ -96,7 +96,7 @@ export default function WishlistComponent({
           className={
             base
               ? "text-body-sm text-white font-medium"
-              : "text-body-sm text-ink-90 font-medium"
+              : "text-body-sm text-foreground-primary font-medium"
           }>
           ₦{item?.price?.toLocaleString()}
         </p>
@@ -104,14 +104,14 @@ export default function WishlistComponent({
           {base ? (
             <FaStar size={13} className="text-white" />
           ) : (
-            <FaStar size={14} className="text-ink-90" />
+            <FaStar size={14} className="text-foreground-primary" />
           )}
 
           <p
             className={
               base
                 ? "text-caption text-white/60 font-normal"
-                : "text-caption text-ink-60 font-normal"
+                : "text-caption text-foreground-secondary font-normal"
             }>
             {item.rating || 0}
           </p>

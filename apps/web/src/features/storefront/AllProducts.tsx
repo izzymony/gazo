@@ -215,7 +215,7 @@ const AllProducts = ({
                       <button
                         aria-label="Add to cart"
                         onClick={(e) => handleAddToCart(e, item)}
-                        className="absolute bottom-2 right-2 h-9 w-9 flex justify-center items-center rounded-full bg-white/20 backdrop-blur-sm">
+                        className="absolute bottom-2 right-2 h-9 w-9 flex justify-center items-center rounded-full bg-surface/20 backdrop-blur-sm">
                         <ShoppingCartAdd size={20} className="text-brandDeep" />
                       </button>
                     </div>
@@ -224,7 +224,7 @@ const AllProducts = ({
                       <p className="text-caption w-full line-clamp-1 font-medium">
                         {item?.title}
                       </p>
-                      <p className="text-caption text-ink-40 font-medium line-through">
+                      <p className="text-caption text-foreground-muted font-medium line-through">
                         {formatCurrency(item?.old_price ? +item.old_price : 0)}
                       </p>
                       <div className="flex justify-between">
@@ -233,7 +233,7 @@ const AllProducts = ({
                         </p>
                         <div className="flex gap-1 items-center">
                           <FaStar size={12} className="text-warning-foreground" />
-                          <p className="text-caption text-ink-40">{rate}</p>
+                          <p className="text-caption text-foreground-muted">{rate}</p>
                         </div>
                       </div>
                     </div>

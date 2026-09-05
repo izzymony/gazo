@@ -68,14 +68,14 @@ export default function Withdraw({
       <Section>
         <div className="flex items-center justify-between">
           <div className="flex gap-4">
-            <p className="text-ink-90 font-bold text-body">To :</p>
+            <p className="text-foreground-primary font-bold text-body">To :</p>
             {hasAccount ? (
               <div>
-                <p className="text-ink-90 font-bold text-body">
+                <p className="text-foreground-primary font-bold text-body">
                   {data.bankname.slice(0, 3) || "ACC"}-Ending in {"  "}
                   {data.accountnumber.slice(-4)}
                 </p>
-                <p className="text-ink-60 text-body font-normal">
+                <p className="text-foreground-secondary text-body font-normal">
                   {data.accountname || "Account Name"}
                 </p>
               </div>
@@ -86,7 +86,7 @@ export default function Withdraw({
                 <p className="text-brandDeep font-medium text-body">
                   + Add bank account
                 </p>
-                <p className="text-ink-60 text-body-sm font-normal">
+                <p className="text-foreground-secondary text-body-sm font-normal">
                   Add a bank account to withdraw
                 </p>
               </div>
@@ -105,10 +105,10 @@ export default function Withdraw({
       {gated && (
         <Section>
           <div className="rounded-card border border-brandDeep/30 bg-brand/5 p-3">
-            <p className="text-body-sm font-medium text-ink-90">
+            <p className="text-body-sm font-medium text-foreground-primary">
               Verify your identity to withdraw
             </p>
-            <p className="text-caption text-ink-60">
+            <p className="text-caption text-foreground-secondary">
               You&apos;ve earned over ₦{GATE_NGN.toLocaleString()}.{" "}
               <span
                 className="cursor-pointer font-medium text-brandDeep"
@@ -123,7 +123,7 @@ export default function Withdraw({
       {approaching && (
         <Section>
           <div className="rounded-card border border-warning-border bg-warning-surface p-3">
-            <p className="text-body-sm text-ink-90">
+            <p className="text-body-sm text-foreground-primary">
               You&apos;re close to ₦{GATE_NGN.toLocaleString()} in sales —{" "}
               <span
                 className="cursor-pointer font-medium text-brandDeep"
@@ -154,7 +154,7 @@ export default function Withdraw({
       </div>
 
       <Section>
-        <p className="text-body font-bold text-ink-60">
+        <p className="text-body font-bold text-foreground-secondary">
           Available balance :{" "}
           <span
             className={
@@ -170,8 +170,8 @@ export default function Withdraw({
           <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand/10">
             <Shield size={32} className="text-brandDeep" />
           </span>
-          <h2 className="text-body-lg font-medium text-ink-90">Verify to withdraw</h2>
-          <p className="max-w-[280px] text-body-sm text-ink-60">
+          <h2 className="text-body-lg font-medium text-foreground-primary">Verify to withdraw</h2>
+          <p className="max-w-[280px] text-body-sm text-foreground-secondary">
             You&apos;ve earned over ₦{GATE_NGN.toLocaleString()} — verify your
             identity to unlock withdrawals. It takes about 2 minutes.
           </p>
@@ -180,7 +180,7 @@ export default function Withdraw({
           </Button>
           <button
             onClick={() => setShowGate(false)}
-            className="text-body-sm font-medium text-ink-60">
+            className="text-body-sm font-medium text-foreground-secondary">
             Later
           </button>
         </div>

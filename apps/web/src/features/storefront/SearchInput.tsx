@@ -63,7 +63,7 @@ const SearchInput = ({
   if (loading) return <Loader />;
 
   return (
-    <div className="w-full relative bg-white z-50">
+    <div className="w-full relative bg-surface z-50">
       <div className="mt-2 space-y-3">
         <div
           className={searchTerm ? "w-full py-2 border-b" : "w-full pt-2 pb-1"}>
@@ -117,7 +117,7 @@ const SearchInput = ({
             <input
               type="text"
               placeholder="Enter a vendor name"
-              className="w-full outline-none text-sm text-ink-60"
+              className="w-full outline-none text-sm text-foreground-secondary"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => {
@@ -148,7 +148,7 @@ const SearchInput = ({
               <button
                 type="button"
                 onClick={action ? action : () => setSearchTerm("")}
-                className="text-ink-60 text-sm">
+                className="text-foreground-secondary text-sm">
                 Clear
               </button>
             )}
@@ -162,7 +162,7 @@ const SearchInput = ({
       </div>
 
       {searchTerm && (
-        <div className="p-2 absolute bg-white z-40 shadow-sm w-full">
+        <div className="p-2 absolute bg-surface z-40 shadow-sm w-full">
           {filteredData?.length > 0 ? (
             filteredData.map((store, index) => {
               const businessDetails = getBusinessDetail(stores, store.id || "");
@@ -185,14 +185,14 @@ const SearchInput = ({
                         />
                       </div>
                       <div>
-                        <p className="text-xs font-medium text-ink-90">
+                        <p className="text-xs font-medium text-foreground-primary">
                           {businessDetails?.name}
                         </p>
                         <div className="flex gap-1 items-center">
-                          <p className="font-normal text-body-sm text-ink-40">
+                          <p className="font-normal text-body-sm text-foreground-muted">
                             {businessDetails?.category || "Fashion"}
                           </p>
-                          <div className="font-normal text-body-sm flex gap-1 items-center text-ink-40">
+                          <div className="font-normal text-body-sm flex gap-1 items-center text-foreground-muted">
                             <div>
                               <svg
                                 width="12"

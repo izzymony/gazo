@@ -44,7 +44,7 @@ export default function SlideContent({ currentSlide, onSlideChange }: SlideConte
               onClick={() => onSlideChange(index)}
               className={`h-[4px] rounded-full transition-all duration-300 ${currentSlide === index
                 ? "w-[14px] bg-brand"
-                : "w-[4px] bg-ink-10"
+                : "w-[4px] bg-surface-strong"
                 }`}
               aria-label={`Go to slide ${index + 1}`}
             />

@@ -39,9 +39,9 @@ const ActivityTop = ({ title, date }: { title: string; date: string }) => {
     <div className="flex gap-3">
       <OrderStatusIcon status={title} />
       <div className="flex flex-col justify-between">
-        <p className="text-ink-60 font-normal text-body-sm">Status:</p>
-        <p className="text-ink-90 font-medium text-h1">{title}</p>
-        <p className="text-ink-60 font-normal text-body-sm">
+        <p className="text-foreground-secondary font-normal text-body-sm">Status:</p>
+        <p className="text-foreground-primary font-medium text-h1">{title}</p>
+        <p className="text-foreground-secondary font-normal text-body-sm">
           {formatTimestamp(date)}
         </p>
       </div>
@@ -69,20 +69,20 @@ const ActivityText = ({
               ? "text-success-foreground"
               : "text-brandDeep"
             }`
-            : "text-ink-60"
+            : "text-foreground-secondary"
             }`}>
           {title}
         </p>
-        <p className="text-caption font-normal text-ink-40">
+        <p className="text-caption font-normal text-foreground-muted">
           {formatTimeAgos(time)}
         </p>
       </div>
-      <p className="text-caption font-normal text-ink-40">{details}</p>
+      <p className="text-caption font-normal text-foreground-muted">{details}</p>
     </div>
   );
 };
 
-const Check = () => <CircleCheck size={16} className="text-ink-40" />;
+const Check = () => <CircleCheck size={16} className="text-foreground-muted" />;
 
 const Indicators = ({ show = false }: { show: boolean }) => {
   return (
@@ -90,7 +90,7 @@ const Indicators = ({ show = false }: { show: boolean }) => {
       <div
         className={
           !show
-            ? "h-[10px] border border-ink-20"
+            ? "h-[10px] border border-outline-strong"
             : "h-[10px] border border-brandDeep"
         }
       />
@@ -103,7 +103,7 @@ const Indicators = ({ show = false }: { show: boolean }) => {
           <Check />
         </div>
       )}
-      <div className="flex-1 border border-ink-20" />
+      <div className="flex-1 border border-outline-strong" />
     </div>
   );
 };
@@ -157,7 +157,7 @@ const Cards = ({
           variant={order.variant_selection}
         />
       </div>
-      <div className="border border-ink-10 rounded-card p-3 gap-2 flex flex-col">
+      <div className="border border-outline rounded-card p-3 gap-2 flex flex-col">
         <DetailRow
           label={`Subtotal: ${order.quantity} items`}
           value={formatCurrency(order.order?.sub_total || (order.price * order.quantity))}
@@ -201,7 +201,7 @@ const Shipping = ({
             router.push("/cart/shipping-profile");
           }}
           type="button"
-          className="w-full rounded-full py-2 border bg-white text-brandDeep text-body font-medium mt-2">
+          className="w-full rounded-full py-2 border bg-surface text-brandDeep text-body font-medium mt-2">
           Change Shipping Details
         </button>
       </div>
@@ -212,12 +212,12 @@ const Shipping = ({
 const Bottom = () => {
   return (
     <div className="w-full mt-4 pb-3 flex justify-between items-center">
-      <div className="flex text-ink-90 font-medium text-body-sm items-center">
+      <div className="flex text-foreground-primary font-medium text-body-sm items-center">
         <Shield /> Return policy
       </div>
-      <div className="flex items-center text-ink-60 text-body-sm">
+      <div className="flex items-center text-foreground-secondary text-body-sm">
         Free return within{" "}
-        <div className=" text-ink-90 mx-1 font-medium text-body-sm">
+        <div className=" text-foreground-primary mx-1 font-medium text-body-sm">
           {" 24hrs "}
         </div>
         <Emergency />
@@ -264,7 +264,7 @@ const Rating = ({
         })}
       </div>
 
-      <p className="text-body-sm font-medium text-center text-ink-60 mt-2">
+      <p className="text-body-sm font-medium text-center text-foreground-secondary mt-2">
         {isRated
           ? `You rated this order ${rated} star${
               (rated as number) > 1 ? "s" : ""
@@ -277,7 +277,7 @@ const Rating = ({
 
 const ProgressBar = ({ pick }: { pick: number }) => {
   return (
-    <div className="w-full bg-ink-10 rounded-full h-1 my-3 flex justify-between overflow-hidden">
+    <div className="w-full bg-surface-strong rounded-full h-1 my-3 flex justify-between overflow-hidden">
       {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
         <div
           key={item}
@@ -355,7 +355,7 @@ const Order = () => {
         }>
         <div className="w-full flex flex-col items-center text-center mt-20">
           <p className="text-h2 font-medium mb-2">Order not found</p>
-          <p className="text-ink-60 text-body-sm mb-6 max-w-[320px]">
+          <p className="text-foreground-secondary text-body-sm mb-6 max-w-[320px]">
             We couldn&apos;t load this order. It may still be processing, or the link
             may be incorrect.
           </p>
@@ -436,8 +436,8 @@ const Order = () => {
             <div
               className={
                 status
-                  ? "relative border border-ink-10 rounded-card px-4 pb-3 pt-4 gap-3 w-full"
-                  : "relative border border-ink-10 rounded-card px-4 pb-3 pt-4 gap-3 h-[204px] w-full overflow-hidden"
+                  ? "relative border border-outline rounded-card px-4 pb-3 pt-4 gap-3 w-full"
+                  : "relative border border-outline rounded-card px-4 pb-3 pt-4 gap-3 h-[204px] w-full overflow-hidden"
               }>
               <div className="w-full">
                 <ActivityTop
@@ -512,21 +512,21 @@ const Order = () => {
           </div>
           {/* Order Details Section */}
           <div className="flex flex-col gap-3 py-4">
-            <p className="text-ink-60 text-body-sm">
+            <p className="text-foreground-secondary text-body-sm">
               Order ID:{" "}
-              <span className="font-medium text-ink-90">
+              <span className="font-medium text-foreground-primary">
                 {newOrder?.order?.invoice}
               </span>
             </p>
-            <p className="text-ink-60 text-body-sm">
+            <p className="text-foreground-secondary text-body-sm">
               Date placed:{" "}
-              <span className="font-medium text-ink-90">
+              <span className="font-medium text-foreground-primary">
                 {newOrder?.created_at && formatDate(new Date(newOrder?.created_at))}
               </span>
             </p>
-            <p className="text-ink-60 text-body-sm">
+            <p className="text-foreground-secondary text-body-sm">
               Payment method:{" "}
-              <span className="font-medium text-ink-90">
+              <span className="font-medium text-foreground-primary">
                 Credit card via Paystack
               </span>
             </p>
@@ -543,28 +543,28 @@ const Order = () => {
             </span>
           </p>
 
-          <div className="w-full flex space-x-3 border-ink-10 border rounded-field p-2">
+          <div className="w-full flex space-x-3 border-outline border rounded-field p-2">
             <img
               src={
                 ratedProduct?.image
                   ? ratedProduct.image[0]
                   : "/PRODUCT IMAGE (2).png"
               }
-              className="w-[60px] h-[60px] object-cover rounded-field border border-ink-10"
+              className="w-[60px] h-[60px] object-cover rounded-field border border-outline"
               alt={ratedProduct?.title || ""}
             />
             <div className="flex-1 flex-col flex justify-between">
-              <p className="text-ink-90 font-normal text-body-sm">
+              <p className="text-foreground-primary font-normal text-body-sm">
                 {ratedProduct?.title || ""}
               </p>
               {newOrder?.variant_selection && (
-                <p className="text-ink-40 text-body-sm font-medium">
+                <p className="text-foreground-muted text-body-sm font-medium">
                   {newOrder.variant_selection}
                 </p>
               )}
-              <div className="flex text-ink-60 text-body-sm font-medium space-x-4">
+              <div className="flex text-foreground-secondary text-body-sm font-medium space-x-4">
                 <p>{formatCurrency(newOrder?.price || 0)}</p>
-                <p className="text-ink-90">x{newOrder?.quantity}</p>
+                <p className="text-foreground-primary">x{newOrder?.quantity}</p>
               </div>
             </div>
           </div>
@@ -592,7 +592,7 @@ const Order = () => {
 
           {/* Feedback + chips (grouped) */}
           <div className="space-y-2">
-            <p className="text-body text-ink-90">
+            <p className="text-body text-foreground-primary">
               You rated the product {rating} star(s). Tell us more about it:
             </p>
             <div className="flex gap-2 flex-wrap">
@@ -608,8 +608,8 @@ const Order = () => {
                   onClick={() => handleChipClick(chip.value)}
                   className={`px-3 py-1 rounded-full border text-caption font-medium cursor-pointer transition-colors duration-300 ${
                     rating === chip.value
-                      ? "bg-warning-foreground border-warning-foreground text-ink-90"
-                      : "bg-ink-5 border-ink-10 text-ink-60"
+                      ? "bg-warning-foreground border-warning-foreground text-foreground-primary"
+                      : "bg-surface-muted border-outline text-foreground-secondary"
                   }`}>
                   {chip.label}
                 </button>

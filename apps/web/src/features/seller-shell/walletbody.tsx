@@ -175,11 +175,11 @@ export default function WalletBody({ action }: { action: () => void }) {
         </div>
           </HeroHeader>
         }>
-      <div className="rounded-field p-1 flex flex-col gap-3 text-ink-60">
-        <div className="w-full rounded-field bg-ink-3 flex flex-col">
+      <div className="rounded-field p-1 flex flex-col gap-3 text-foreground-secondary">
+        <div className="w-full rounded-field bg-surface-subtle flex flex-col">
           <div className="w-full rounded-field flex justify-between items-center gap-2 p-3">
             <div className="items-center flex gap-2">
-              <Clock size={18} className="text-ink-60" />
+              <Clock size={18} className="text-foreground-secondary" />
               <p className="text-body-sm font-medium">Pending balance</p>
             </div>
 
@@ -187,12 +187,12 @@ export default function WalletBody({ action }: { action: () => void }) {
               <p className="text-body-sm font-medium">
                 {price ? "₦ " + walletAnalytics.clearing_balance : "******"}
               </p>
-              <ChevronRight size={14} className="text-ink-60" />
+              <ChevronRight size={14} className="text-foreground-secondary" />
             </div>
           </div>
           <div className="w-full rounded-field flex justify-between items-center gap-2 p-3">
             <div className="items-center flex gap-2">
-              <Package size={18} className="text-ink-60" />
+              <Package size={18} className="text-foreground-secondary" />
               <p className="text-body-sm font-medium">Order in Progress</p>
             </div>
 
@@ -200,27 +200,27 @@ export default function WalletBody({ action }: { action: () => void }) {
               <p className="text-body-sm font-medium">
                 {price ? "₦ " + walletAnalytics.orders_in_progress : "******"}
               </p>
-              <ChevronRight size={14} className="text-ink-60" />
+              <ChevronRight size={14} className="text-foreground-secondary" />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="w-full font-medium text-body text-ink-90 p-3 gap-2">
+      <div className="w-full font-medium text-body text-foreground-primary p-3 gap-2">
         <div className="w-full flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="w-[30px] h-[30px] rounded-full bg-brand/10 flex items-center justify-center">
               <Wallet size={18} className="text-brandDeep" />
             </div>
-            <p className="text-body text-ink-90 font-medium">Wallet Summary</p>
+            <p className="text-body text-foreground-primary font-medium">Wallet Summary</p>
           </div>
           <div
             onClick={() => setSummary(!summary)}
             className="cursor-pointer">
             {summary ? (
-              <ChevronUp size={20} className="text-ink-60" />
+              <ChevronUp size={20} className="text-foreground-secondary" />
             ) : (
-              <ChevronDown size={20} className="text-ink-60" />
+              <ChevronDown size={20} className="text-foreground-secondary" />
             )}
           </div>
         </div>
@@ -239,12 +239,12 @@ export default function WalletBody({ action }: { action: () => void }) {
             },
           ].map((_, index) => (
             <div
-              className="cursor-pointer rounded-field bg-ink-3 p-3 flex-1 items-center gap-2"
+              className="cursor-pointer rounded-field bg-surface-subtle p-3 flex-1 items-center gap-2"
               key={index}>
-              <p className="flex items-center text-ink-90 font-medium text-caption w-[90%] ">
+              <p className="flex items-center text-foreground-primary font-medium text-caption w-[90%] ">
                 {_.title}
               </p>
-              <p className="flex items-center text-ink-90 font-normal text-h2 w-[90%] ">
+              <p className="flex items-center text-foreground-primary font-normal text-h2 w-[90%] ">
                 ₦ {_.path}
               </p>
             </div>
@@ -252,7 +252,7 @@ export default function WalletBody({ action }: { action: () => void }) {
         </div>
       </div>
 
-      <Section className="font-medium text-body text-ink-90">
+      <Section className="font-medium text-body text-foreground-primary">
         <ListSectionHeader
           title="Recent transactions"
           action={{ label: "See All", onClick: () => router.push("/dashboard/transactions") }}

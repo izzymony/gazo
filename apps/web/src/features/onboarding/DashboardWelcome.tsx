@@ -70,17 +70,17 @@ export default function DashboardWelcome() {
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
-        className="bg-white border border-ink-10 rounded-xl p-4 shadow-sm"
+        className="bg-surface border border-outline rounded-xl p-4 shadow-sm"
       >
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-full bg-[#FFEAEE] flex items-center justify-center flex-shrink-0">
             <Heart size={20} className="text-brandDeep" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-body text-ink-90 mb-1">
+            <h3 className="font-medium text-body text-foreground-primary mb-1">
               Welcome, {store?.name || "there"}!
             </h3>
-            <p className="text-body-sm text-ink-60 leading-relaxed mb-3">
+            <p className="text-body-sm text-foreground-secondary leading-relaxed mb-3">
               You&apos;re {stepsRemaining} step{stepsRemaining !== 1 ? "s" : ""} away
               from your first customer. Add a product to get started!
             </p>
@@ -92,7 +92,7 @@ export default function DashboardWelcome() {
               Add Your First Product
               <ChevronRight size={16} strokeWidth={2} />
             </button>
-            <p className="text-caption text-ink-40 mt-2.5">
+            <p className="text-caption text-foreground-muted mt-2.5">
               💡 Stores with 3+ products get 3x more views
             </p>
           </div>
@@ -107,23 +107,23 @@ export default function DashboardWelcome() {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="bg-white border border-ink-10 rounded-xl p-4 shadow-sm"
+      className="bg-surface border border-outline rounded-xl p-4 shadow-sm"
     >
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 rounded-full bg-[#E8FFF3] flex items-center justify-center flex-shrink-0">
           <CircleCheck size={20} className="text-[#06C270]" />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-body text-ink-90 mb-1">
+          <h3 className="font-medium text-body text-foreground-primary mb-1">
             Your store is live!
           </h3>
-          <p className="text-body-sm text-ink-60 leading-relaxed mb-3">
+          <p className="text-body-sm text-foreground-secondary leading-relaxed mb-3">
             Share your store link to get your first customer. Vendors who share
             get their first sale within a week.
           </p>
           {percent < 100 && (
             <div className="flex items-center gap-2 mb-3">
-              <div className="flex-1 h-1.5 bg-ink-10 rounded-full overflow-hidden">
+              <div className="flex-1 h-1.5 bg-surface-strong rounded-full overflow-hidden">
                 <div
                   className="h-full bg-[#06C270] rounded-full transition-all duration-500"
                   style={{ width: `${percent}%` }}

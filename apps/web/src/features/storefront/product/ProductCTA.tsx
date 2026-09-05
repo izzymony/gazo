@@ -33,7 +33,7 @@ export default function ProductCTA({
   onShare: () => void;
 }) {
   return (
-    <div className="z-30 absolute bottom-0 pb-2 lg:pb-6 bg-white w-full px-2.5 md:px-6 lg:px-8 border-t pt-2.5 lg:pt-6 flex gap-2 items-center lg:max-w-5xl lg:left-1/2 lg:-translate-x-1/2">
+    <div className="z-30 absolute bottom-0 pb-2 lg:pb-6 bg-surface w-full px-2.5 md:px-6 lg:px-8 border-t pt-2.5 lg:pt-6 flex gap-2 items-center lg:max-w-5xl lg:left-1/2 lg:-translate-x-1/2">
       {isSeller ? (
         <div className="flex justify-center gap-4 w-full">
           <Button onClick={onEdit} variant="bordered" className="!mt-2 my-5 ">
@@ -53,7 +53,7 @@ export default function ProductCTA({
               label="Decrease quantity"
               onClick={onDecrement}
               size="lg"
-              className="bg-ink-3"
+              className="bg-surface-subtle"
               disabled={isOutOfStock}
             />
             <span className="text-sm font-normal">{count}</span>
@@ -62,7 +62,7 @@ export default function ProductCTA({
               label="Increase quantity"
               onClick={onIncrement}
               size="lg"
-              className="bg-ink-3"
+              className="bg-surface-subtle"
               disabled={isOutOfStock}
             />
           </div>
@@ -79,7 +79,7 @@ export default function ProductCTA({
             label="Add to cart"
             onClick={onAddToCart}
             size="lg"
-            className="bg-ink-3"
+            className="bg-surface-subtle"
             disabled={isOutOfStock}
           />
         </>

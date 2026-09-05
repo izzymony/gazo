@@ -60,7 +60,7 @@ const BottomNav = memo(() => {
   const isNavItemLoading = (route: string) => loadingRoute === route;
 
   return (
-    <div className="absolute bottom-0 h-[60px] right-0 left-0 w-full flex justify-between items-center border-t-[0.5px] bg-white border-t-ink-10 lg:hidden">
+    <div className="absolute bottom-0 h-[60px] right-0 left-0 w-full flex justify-between items-center border-t-[0.5px] bg-surface border-t-outline lg:hidden">
       {navLinks.map(({ title, Icon, route }) => {
         const isActive = activeNavItem === title;
         const isLoading = isNavItemLoading(route);
@@ -71,7 +71,7 @@ const BottomNav = memo(() => {
             onClick={() => handleNavClick(route)}
             disabled={isLoading || (loadingRoute !== null && !isActive)}
             className={`flex-1 h-full flex flex-col justify-center items-center gap-1 text-caption font-medium transition-colors disabled:opacity-50 ${
-              isActive ? "text-brandDeep" : "text-ink-40"
+              isActive ? "text-brandDeep" : "text-foreground-muted"
             }`}>
             {isLoading ? (
               <svg

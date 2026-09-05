@@ -42,10 +42,10 @@ export default function NudgeBanner() {
         <div className="w-14 h-14 rounded-full bg-[#FFEAEE] flex items-center justify-center mb-4">
           <ShoppingBag size={28} className="text-brandDeep" />
         </div>
-        <h2 className="text-body-lg font-semibold text-ink-90 mb-2">
+        <h2 className="text-body-lg font-semibold text-foreground-primary mb-2">
           Ready to start selling?
         </h2>
-        <p className="text-body-sm text-ink-60 mb-5 max-w-[280px] leading-relaxed">
+        <p className="text-body-sm text-foreground-secondary mb-5 max-w-[280px] leading-relaxed">
           {nudge.message}
         </p>
         <button
@@ -60,7 +60,7 @@ export default function NudgeBanner() {
         </button>
         <button
           onClick={dismissNudge}
-          className="text-body-sm text-ink-40 min-h-[40px] px-4 touch-manipulation"
+          className="text-body-sm text-foreground-muted min-h-[40px] px-4 touch-manipulation"
         >
           Remind me later
         </button>

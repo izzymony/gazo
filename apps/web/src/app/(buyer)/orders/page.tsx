@@ -38,7 +38,7 @@ const RatingComponent = ({
 }) => {
   return (
     <div className="flex justify-between items-center">
-      <p className="text-ink-60 font-medium text-body-sm leading-[12px]">
+      <p className="text-foreground-secondary font-medium text-body-sm leading-[12px]">
         Rate this item
       </p>
 
@@ -64,11 +64,11 @@ const ReviewIcon = ({
 }) => {
   return (
     <div>
-      <p className="text-body-sm font-medium text-ink-90 leading-[12px]">
+      <p className="text-body-sm font-medium text-foreground-primary leading-[12px]">
         Your review
       </p>
-      <div className="flex space-x-3 bg-white rounded-field p-2">
-        <div className="bg-warning-surface p-2 rounded-field gap-1 justify-center items-center flex font-medium text-body-sm text-ink-90">
+      <div className="flex space-x-3 bg-surface rounded-field p-2">
+        <div className="bg-warning-surface p-2 rounded-field gap-1 justify-center items-center flex font-medium text-body-sm text-foreground-primary">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -85,7 +85,7 @@ const ReviewIcon = ({
           {rate}
         </div>
         <div className="flex-1">
-          <p className="text-ink-60 font-normal text-body-sm">
+          <p className="text-foreground-secondary font-normal text-body-sm">
             {comment || "No comment"}
           </p>
         </div>
@@ -192,7 +192,7 @@ const Page = () => {
             <H1 className="text-h2 mb-1 leading-[22px]">
               Sign in to your account
             </H1>
-            <p className="text-ink-60 mt-3 max-w-[320px]">
+            <p className="text-foreground-secondary mt-3 max-w-[320px]">
               To continue enjoying Vibaar’s features you need to sign in to
               your account.
             </p>
@@ -206,7 +206,7 @@ const Page = () => {
           >
             Sign in
           </Button>
-          <p className="text-body mt-3 text-center text-ink-60">
+          <p className="text-body mt-3 text-center text-foreground-secondary">
             Don’t have an account?{" "}
             <span
               className="text-brandDeep ml-2 cursor-pointer"
@@ -243,13 +243,13 @@ const Page = () => {
           );
           return (
             <div key={order.id} className="mb-2.5 space-y-4">
-              <div className="bg-ink-3 p-[2px] rounded-field">
+              <div className="bg-surface-subtle p-[2px] rounded-field">
                 <div
                   onClick={() => {
                     setNewOrderItem(order);
                     router.push(`/orders/${order.id}`);
                   }}
-                  className="flex space-x-3 bg-white rounded-field p-2 cursor-pointer">
+                  className="flex space-x-3 bg-surface rounded-field p-2 cursor-pointer">
                   <OrderLineItem
                     image={
                       productName?.image
@@ -266,7 +266,7 @@ const Page = () => {
                   order.buyer_activity[
                     order.buyer_activity.length - 1
                   ].title.toLowerCase() == "order delivered" && (
-                    <div className="flex mt-1 flex-col bg-white rounded-field p-2 space-y-2">
+                    <div className="flex mt-1 flex-col bg-surface rounded-field p-2 space-y-2">
                       {myReview ? (
                         <ReviewIcon
                           rate={myReview.rate}
@@ -307,7 +307,7 @@ const Page = () => {
                     />
                   </DetailRow>
                   <DetailRow label="Order ID:">
-                    <p className="text-caption text-ink-90 font-medium leading-[10px]">
+                    <p className="text-caption text-foreground-primary font-medium leading-[10px]">
                       {order.order.invoice}
                     </p>
                   </DetailRow>
@@ -316,7 +316,7 @@ const Page = () => {
                       order.buyer_activity.length - 1
                     ].title.toLowerCase() !== "order delivered" && (
                       <DetailRow label="Arrives by:">
-                        <p className="text-caption text-ink-90 font-medium leading-[10px]">
+                        <p className="text-caption text-foreground-primary font-medium leading-[10px]">
                           ~ {order.shipping_option.delivery_days}
                         </p>
                       </DetailRow>
@@ -356,28 +356,28 @@ const Page = () => {
             </span>
           </p>
 
-          <div className="w-full flex space-x-3 border-ink-10 border rounded-field p-2">
+          <div className="w-full flex space-x-3 border-outline border rounded-field p-2">
             <img
               src={
                 selected.item?.image
                   ? selected.item.image[0]
                   : "/PRODUCT IMAGE (2).png"
               }
-              className="w-[60px] h-[60px] object-cover rounded-field border border-ink-10"
+              className="w-[60px] h-[60px] object-cover rounded-field border border-outline"
               alt={selected.item?.title}
             />
             <div className="flex-1 flex-col flex justify-between">
-              <p className="text-ink-90 font-normal text-body-sm">
+              <p className="text-foreground-primary font-normal text-body-sm">
                 {selected.item?.title as string}
               </p>
               {selected.product?.variant_selection && (
-                <p className="text-ink-40 text-body-sm font-medium">
+                <p className="text-foreground-muted text-body-sm font-medium">
                   {selected.product.variant_selection}
                 </p>
               )}
-              <div className="flex text-ink-60 text-body-sm font-medium space-x-4">
+              <div className="flex text-foreground-secondary text-body-sm font-medium space-x-4">
                 <p>{formatCurrency(selected.product?.price || 0)}</p>
-                <p className="text-ink-90">x{selected.product?.quantity}</p>
+                <p className="text-foreground-primary">x{selected.product?.quantity}</p>
               </div>
             </div>
           </div>
@@ -387,7 +387,7 @@ const Page = () => {
 
           {/* Feedback + chips (grouped) */}
           <div className="space-y-2">
-            <p className="text-body text-ink-90">
+            <p className="text-body text-foreground-primary">
               You rated the product {rating} star(s). Tell us more about it:
             </p>
             <div className="flex gap-2 flex-wrap">
@@ -403,8 +403,8 @@ const Page = () => {
                   onClick={() => setRating(chip.value)}
                   className={`px-3 py-1 rounded-full border text-caption font-medium cursor-pointer transition-colors duration-300 ${
                     rating === chip.value
-                      ? "bg-warning-foreground border-warning-foreground text-ink-90"
-                      : "bg-ink-5 border-ink-10 text-ink-60"
+                      ? "bg-warning-foreground border-warning-foreground text-foreground-primary"
+                      : "bg-surface-muted border-outline text-foreground-secondary"
                   }`}>
                   {chip.label}
                 </button>

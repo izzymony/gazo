@@ -403,13 +403,13 @@ const PageView = ({
   return (
     <div
       onClick={action}
-      className="flex items-center justify-between border border-ink-20 rounded-field px-4 py-2">
+      className="flex items-center justify-between border border-outline-strong rounded-field px-4 py-2">
       <div className="flex items-center gap-3">
         {name === "" ? icon.old : icon.new}
         <p
           className={
             name === ""
-              ? "text-body text-ink-60"
+              ? "text-body text-foreground-secondary"
               : "font-medium text-body text-black"
           }>
           {name === "" ? `Add ${val} profile` : `@ ${name}`}
@@ -684,12 +684,12 @@ const Page = () => {
               className="hidden"
               onChange={handleImageChange}
             />
-            <p className="text-ink-40 text-body font-normal mt-3">
+            <p className="text-foreground-muted text-body font-normal mt-3">
               Upload store logo
             </p>
           </div>
 
-          <div className="px-4 py-2 border border-ink-20 flex items-center justify-between rounded-field">
+          <div className="px-4 py-2 border border-outline-strong flex items-center justify-between rounded-field">
             {/* Theme Preview */}
             {theme?.backgroundType === "image" && theme?.backgroundImage ? (
               <div className="w-[62px] h-[37px] rounded overflow-hidden">
@@ -906,8 +906,8 @@ const Page = () => {
       {show && (
         <div className="absolute top-0 bottom-0 right-0 left-0 bg-black justify-end flex-col flex z-modal flex-1">
           <div onClick={() => setShow(false)} className="flex-1" />
-          <div className="bg-white px-3 py-4 rounded-t-card gap-4 flex flex-col items-center">
-            <div className="h-1 bg-ink-10 rounded-full w-10" />
+          <div className="bg-surface px-3 py-4 rounded-t-card gap-4 flex flex-col items-center">
+            <div className="h-1 bg-surface-strong rounded-full w-10" />
             <TextView val={selected} />
             <InputField
               name={`enterYour${selected}Username`}

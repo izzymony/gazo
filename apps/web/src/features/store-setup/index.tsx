@@ -279,9 +279,9 @@ const CreateStore = () => {
         <p className="font-medium text-display tracking-wide mb-2">
           Your store is ready!
         </p>
-        <p className="text-ink-60 text-body px-6 font-medium mt-2">
+        <p className="text-foreground-secondary text-body px-6 font-medium mt-2">
           Welcome to <span className="text-brandDeep">Vibaar</span>{" "}
-          <span className="font-semibold text-ink-90">@{myStore?.name + " "}</span>{" "}
+          <span className="font-semibold text-foreground-primary">@{myStore?.name + " "}</span>{" "}
           <br />
           Millions of social shoppers are already waiting, Now publish your first
           product to start selling...

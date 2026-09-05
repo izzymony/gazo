@@ -103,7 +103,7 @@ export default function Page() {
             onClick={() => setChecked(!checked)}
             className="custom-checkbox"
           />
-          <p className="text-body font-medium text-ink-90">Set as default</p>
+          <p className="text-body font-medium text-foreground-primary">Set as default</p>
         </div>
       </Section>
     </PageShell>

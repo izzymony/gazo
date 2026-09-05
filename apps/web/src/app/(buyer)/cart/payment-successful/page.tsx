@@ -152,7 +152,7 @@ const PaymentSucceful = () => {
             <span className="text-brandDeep text-h1 font-semibold">!</span>
           </div>
           <p className="text-h1 font-medium mb-2">Payment not confirmed</p>
-          <p className="text-ink-60 text-body font-normal mb-1 max-w-[320px]">
+          <p className="text-foreground-secondary text-body font-normal mb-1 max-w-[320px]">
             We couldn&apos;t confirm your payment. If your account was charged it may
             take a moment to reflect — please check your orders before paying again.
           </p>
@@ -206,19 +206,19 @@ const PaymentSucceful = () => {
           <p className="text-h1 font-medium mb-2 text-center">
             Payment successful!
           </p>
-          <p className="text-ink-60 text-center text-body font-normal mb-1">
+          <p className="text-foreground-secondary text-center text-body font-normal mb-1">
             Your payment has been successfully confirmed.
           </p>
-          <p className="text-ink-60 text-center text-body font-normal mb-8">
+          <p className="text-foreground-secondary text-center text-body font-normal mb-8">
             Thank you for shopping on Vibaar.
           </p>
         </div>
         <div className="border border-brandDeep bg-brand/10 rounded-field p-3 space-y-3 text-body-sm font-medium mb-2 mt-10">
           <div className="flex justify-between font-medium">
-            <div className="text-ink-60 flex-1">Order ID:</div> {order?.order?.invoice || "Loading..."}
+            <div className="text-foreground-secondary flex-1">Order ID:</div> {order?.order?.invoice || "Loading..."}
           </div>
           <div className="flex justify-between">
-            <div className="text-ink-60">Total paid :</div>{" "}
+            <div className="text-foreground-secondary">Total paid :</div>{" "}
             {formatCurrency(
               order?.order?.total && order.order.total > 0 ? 
                 order.order.total : 
@@ -226,11 +226,11 @@ const PaymentSucceful = () => {
             )}
           </div>
           <div className="flex justify-between">
-            <div className="text-ink-60">Payment via :</div>{" "}
+            <div className="text-foreground-secondary">Payment via :</div>{" "}
             Paystack
           </div>
           <div className="flex justify-between items-start">
-            <div className="text-ink-60 flex-shrink-0 mr-2">Shipping to:</div>
+            <div className="text-foreground-secondary flex-shrink-0 mr-2">Shipping to:</div>
             <div className="text-right text-body-sm flex-1 max-w-[200px]">
               <div className="break-words overflow-hidden" style={{
                 display: '-webkit-box',
@@ -248,7 +248,7 @@ const PaymentSucceful = () => {
             </div>
           </div>
           <div className="flex justify-between">
-            <div className="text-ink-60">Estimated delivery:</div>{" "}
+            <div className="text-foreground-secondary">Estimated delivery:</div>{" "}
             7–10 business days
           </div>
         </div>
@@ -257,10 +257,10 @@ const PaymentSucceful = () => {
             <p className="text-h1 font-medium mb-2 text-center">
               Track your Order
             </p>
-            <p className="text-ink-60 text-center text-body font-normal mb-1">
+            <p className="text-foreground-secondary text-center text-body font-normal mb-1">
               Complete account setup to
             </p>
-            <p className="text-ink-60 text-center text-body font-normal mb-8">
+            <p className="text-foreground-secondary text-center text-body font-normal mb-8">
               manage and track your order
             </p>
             <Image

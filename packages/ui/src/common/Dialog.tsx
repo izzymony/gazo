@@ -107,7 +107,7 @@ const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, children, className = 
 
   return ReactDOM.createPortal(
     <div
-      className="fixed inset-0 z-modal flex items-end lg:items-center justify-center bg-ink-60 backdrop-blur-sm"
+      className="fixed inset-0 z-modal flex items-end lg:items-center justify-center bg-overlay/60 backdrop-blur-sm"
       style={{ height: viewportHeight }}
       onClick={onClose}
     >
@@ -128,7 +128,7 @@ const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, children, className = 
         onTouchEnd={handleTouchEnd}
       >
         {/* Drag indicator — mobile only */}
-        <div className="w-12 h-1 bg-ink-20 rounded-full mx-auto mb-4 lg:hidden" />
+        <div className="w-12 h-1 bg-surface-strong rounded-full mx-auto mb-4 lg:hidden" />
         <div>{children}</div>
       </div>
     </div>,

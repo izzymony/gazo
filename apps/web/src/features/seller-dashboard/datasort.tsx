@@ -39,14 +39,14 @@ const DataSort: React.FC<DataSortProps> = ({
             type="button"
             onClick={() => setIsSearchVisible((v) => !v)}
             aria-label="Search"
-            className="w-9 h-9 flex items-center justify-center rounded-full text-ink-90 hover:bg-ink-5 transition-colors">
+            className="w-9 h-9 flex items-center justify-center rounded-full text-foreground-primary hover:bg-surface-muted transition-colors">
             <CiSearch size={20} />
           </button>
           <button
             type="button"
             onClick={onSortToggle}
             aria-label="Toggle sort order"
-            className="w-9 h-9 flex items-center justify-center rounded-full text-ink-90 hover:bg-ink-5 transition-colors">
+            className="w-9 h-9 flex items-center justify-center rounded-full text-foreground-primary hover:bg-surface-muted transition-colors">
             <SortVertical size={20} />
           </button>
         </div>

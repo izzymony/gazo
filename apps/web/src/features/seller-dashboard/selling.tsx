@@ -37,11 +37,11 @@ const Sellercard = ({
   <div
     onClick={action}
     className="flex justify-between items-center cursor-pointer">
-    <div className="flex gap-2 text-body font-normal items-center text-ink-90">
+    <div className="flex gap-2 text-body font-normal items-center text-foreground-primary">
       {icon}
       <p>{text}</p>
     </div>
-    <ChevronRight size={20} className="text-ink-40" />
+    <ChevronRight size={20} className="text-foreground-muted" />
   </div>
 );
 
@@ -67,11 +67,11 @@ const Selling = () => {
               src={typeof store?.logo === "string" ? store.logo : undefined}
               storeName={store?.name || "Store"}
               size={36}
-              className="ring-1 ring-ink-10"
+              className="ring-1 ring-outline"
             />
             <div className="flex flex-col">
               <p className="text-body font-medium">{store?.name + ""}</p>
-              <p className="text-ink-40 font-normal text-body">
+              <p className="text-foreground-muted font-normal text-body">
                 {store?.category + ""}
               </p>
             </div>
@@ -120,7 +120,7 @@ const Selling = () => {
       </div>
 
       <div>
-        <p className="mb-4 text-ink-90 font-medium text-body">Menu</p>
+        <p className="mb-4 text-foreground-primary font-medium text-body">Menu</p>
         <div className="space-y-5">
           <Sellercard
             text="Store details"
@@ -160,7 +160,7 @@ const Selling = () => {
 
           {/* Coming soon */}
           <div className="pt-3">
-            <p className="text-body-sm text-ink-40">Coming soon</p>
+            <p className="text-body-sm text-foreground-muted">Coming soon</p>
           </div>
           <Sellercard
             text="Billing"

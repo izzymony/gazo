@@ -38,7 +38,7 @@ export default function ProductVariants({
               (option: string, optionIndex: number) => (
                 <button
                   key={optionIndex}
-                  className={`px-4 h-[22px] text-body-sm bg-ink-3 rounded-full ${
+                  className={`px-4 h-[22px] text-body-sm bg-surface-subtle rounded-full ${
                     (selected[(variant?.name || variant?.option) as string] ||
                       "") === option
                       ? "bg-black text-white"

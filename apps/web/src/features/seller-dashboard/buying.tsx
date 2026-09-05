@@ -100,7 +100,7 @@ const Buying = () => {
           <p className="font-medium text-body-lg">
             {user?.firstname + " " + user?.lastname}
           </p>
-          <p className="font-normal text-body-sm text-ink-40">
+          <p className="font-normal text-body-sm text-foreground-muted">
             @{user?.user_name}
           </p>
         </div>

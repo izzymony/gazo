@@ -216,7 +216,7 @@ export default function ExpandableIconMenu({
 
   return (
     <div className="flex gap-2">
-      <motion.div className="inline-flex z-50 items-center gap-2 rounded-full px-2 py-2 backdrop-blur-sm bg-ink-3 shadow-md">
+      <motion.div className="inline-flex z-50 items-center gap-2 rounded-full px-2 py-2 backdrop-blur-sm bg-surface-subtle shadow-md">
 {/* Only show social icons when menu is open */}
         {isOpen && items.map((item, index) => (
           <AnimatePresence key={item.id}>
@@ -229,7 +229,7 @@ export default function ExpandableIconMenu({
                 delay: index * 0.05,
               }}
               onClick={() => handleIconClick(item.id, item.link)}
-              className="hover:bg-ink-5 rounded-full">
+              className="hover:bg-surface-muted rounded-full">
               {item.icon}
             </motion.button>
           </AnimatePresence>
@@ -237,7 +237,7 @@ export default function ExpandableIconMenu({
       </motion.div>
 
       {isOpen && (
-        <motion.div className="inline-flex z-50 items-center gap-2 rounded-full px-2 backdrop-blur-sm bg-ink-3 shadow-md">
+        <motion.div className="inline-flex z-50 items-center gap-2 rounded-full px-2 backdrop-blur-sm bg-surface-subtle shadow-md">
           <AnimatePresence>
             <motion.button
               initial={{ opacity: 0, x: -10 }}
@@ -251,7 +251,7 @@ export default function ExpandableIconMenu({
                 handleShare();
                 handleIconClick(items.length + 1);
               }}
-              className="p-1 rounded-full hover:bg-ink-5">
+              className="p-1 rounded-full hover:bg-surface-muted">
               <svg
                 width="18"
                 height="16"

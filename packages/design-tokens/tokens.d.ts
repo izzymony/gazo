@@ -5,7 +5,6 @@ export type VibaarTokenContract = {
     foreground: Record<"primary" | "secondary" | "muted" | "disabled" | "inverse", string>;
     outline: Record<"subtle" | "DEFAULT" | "strong" | "emphasis" | "contrast", string>;
     ink: Record<string, string>;
-    line: string;
     status: Record<
       "success" | "error" | "warning" | "info",
       { foreground: string; surface: string; border: string }

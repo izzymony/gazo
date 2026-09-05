@@ -33,7 +33,7 @@ export const TransactionCard = ({
       ? "text-success-foreground"
       : type === "debit"
       ? "text-brandDeep"
-      : "text-ink-60";
+      : "text-foreground-secondary";
   return (
     <ListItem
       onClick={() => {

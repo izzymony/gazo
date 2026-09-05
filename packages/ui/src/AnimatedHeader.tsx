@@ -306,7 +306,7 @@ export default function AnimatedHeader() {
         ))}
 
         {/* <div
-          className="absolute -top-10 h-[200px] bg-white/90 backdrop-blur-xl rounded-xl -z-10"
+          className="absolute -top-10 h-[200px] bg-surface/90 backdrop-blur-xl rounded-xl -z-10"
           style={{
             background:
               "linear-gradient(to bottom, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)",
@@ -342,7 +342,7 @@ export default function AnimatedHeader() {
               onClick={() => setCurrentSlide(index)}
               className={`h-[4px] rounded-full transition-all duration-300 ${currentSlide === index
                 ? "w-[14px] bg-brand"
-                : "w-[4px] bg-ink-10"
+                : "w-[4px] bg-surface-strong"
                 }`}
               aria-label={`Go to slide ${index + 1}`}
             />

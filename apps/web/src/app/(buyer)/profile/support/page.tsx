@@ -29,31 +29,31 @@ const Security = () => {
           className="flex justify-between items-center"
           onClick={() => router.push(`/dashboard/settings/change-password`)}>
           <div className="flex gap-2 items-center cursor-pointer">
-            <HelpSquare size={20} className="text-ink-90" />
-            <p className="text-ink-60 text-body">FAQs</p>
+            <HelpSquare size={20} className="text-foreground-primary" />
+            <p className="text-foreground-secondary text-body">FAQs</p>
           </div>
-          <ChevronRight size={20} className="text-ink-90" />
+          <ChevronRight size={20} className="text-foreground-primary" />
         </Surface>
         <Surface className="flex justify-between items-center">
           <div className="flex gap-2 items-center cursor-pointer">
-            <BubbleChat size={20} className="text-ink-90" />
-            <p className="text-ink-60 text-body">Contact Us</p>
+            <BubbleChat size={20} className="text-foreground-primary" />
+            <p className="text-foreground-secondary text-body">Contact Us</p>
           </div>
-          <ChevronRight size={20} className="text-ink-90" />
+          <ChevronRight size={20} className="text-foreground-primary" />
         </Surface>
         <Surface className="flex justify-between items-center">
           <div className="flex gap-2 items-center cursor-pointer">
-            <Book size={20} className="text-ink-90" />
-            <p className="text-ink-60 text-body">Visit our blog</p>
+            <Book size={20} className="text-foreground-primary" />
+            <p className="text-foreground-secondary text-body">Visit our blog</p>
           </div>
-          <ChevronRight size={20} className="text-ink-90" />
+          <ChevronRight size={20} className="text-foreground-primary" />
         </Surface>
         <Surface className="flex justify-between items-center">
           <div className="flex gap-2 items-center cursor-pointer">
-            <Globe size={20} className="text-ink-90" />
-            <p className="text-ink-60 text-body">Visit our Website</p>
+            <Globe size={20} className="text-foreground-primary" />
+            <p className="text-foreground-secondary text-body">Visit our Website</p>
           </div>
-          <ChevronRight size={20} className="text-ink-90" />
+          <ChevronRight size={20} className="text-foreground-primary" />
         </Surface>
       </Section>
     </PageShell>

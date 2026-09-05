@@ -109,7 +109,7 @@ export default function KycFlow() {
   if (!ready) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-ink-20 border-t-brand" />
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-outline-strong border-t-brand" />
       </div>
     );
   }
@@ -152,8 +152,8 @@ export default function KycFlow() {
             <AiOutlineInfoCircle size={44} className="text-brandDeep" />
           </span>
           <div>
-            <h1 className="text-h1 font-medium text-ink-90">Something went wrong</h1>
-            <p className="mx-auto mt-2 max-w-[280px] text-body-sm text-ink-60">
+            <h1 className="text-h1 font-medium text-foreground-primary">Something went wrong</h1>
+            <p className="mx-auto mt-2 max-w-[280px] text-body-sm text-foreground-secondary">
               We couldn&apos;t submit your verification. Check your connection and
               try again — your photos are still here.
             </p>
@@ -176,8 +176,8 @@ export default function KycFlow() {
         <div className="flex flex-col gap-6 pt-4">
           <KycHero icon={User} badge={{ label: "Verified", tone: "brand" }} />
           <div className="text-center">
-            <h1 className="text-h1 font-medium text-ink-90">Get verified</h1>
-            <p className="mt-1 text-body-sm text-ink-60">
+            <h1 className="text-h1 font-medium text-foreground-primary">Get verified</h1>
+            <p className="mt-1 text-body-sm text-foreground-secondary">
               Confirm your identity to build buyer trust and keep your withdrawals flowing.
             </p>
           </div>
@@ -185,7 +185,7 @@ export default function KycFlow() {
             <Benefit Icon={CircleCheck} title="Earn your Verified badge" sub="Win buyer trust and sell more." />
             <Benefit Icon={Shield} title="Withdraw anytime" sub="No holds on your earnings once you're verified." />
           </div>
-          <p className="text-center text-caption text-ink-50">
+          <p className="text-center text-caption text-foreground-muted">
             You&apos;ll need a government ID and a selfie. Takes about 2 minutes.
           </p>
         </div>
@@ -216,7 +216,7 @@ export default function KycFlow() {
         }>
         <div className="flex flex-col gap-5 pt-2">
           <KycHero icon={IdentityCard} size={150} />
-          <h2 className="text-center text-body-lg font-medium text-ink-90">
+          <h2 className="text-center text-body-lg font-medium text-foreground-primary">
             Which ID will you use?
           </h2>
           <div className="flex flex-col gap-3">
@@ -227,18 +227,18 @@ export default function KycFlow() {
                   key={value}
                   onClick={() => setDocumentType(value)}
                   className={`flex items-center gap-3 rounded-card border p-3 text-left transition-colors ${
-                    selected ? "border-brandDeep bg-brand/5" : "border-ink-10"
+                    selected ? "border-brandDeep bg-brand/5" : "border-outline"
                   }`}>
                   <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand/10">
                     <Icon size={22} className="text-brandDeep" />
                   </span>
                   <span className="flex-1">
-                    <span className="block text-body font-medium text-ink-90">{label}</span>
-                    <span className="block text-caption text-ink-60">{sub}</span>
+                    <span className="block text-body font-medium text-foreground-primary">{label}</span>
+                    <span className="block text-caption text-foreground-secondary">{sub}</span>
                   </span>
                   <span
                     className={`flex h-5 w-5 items-center justify-center rounded-full border ${
-                      selected ? "border-brandDeep bg-brand" : "border-ink-30"
+                      selected ? "border-brandDeep bg-brand" : "border-outline-emphasis"
                     }`}>
                     {selected && <Check size={13} className="text-brandInk" />}
                   </span>
@@ -263,7 +263,7 @@ export default function KycFlow() {
           inputRef={docInputRef}
           capture="environment"
           onPick={(e) => pickFile(e, setDoc, doc)}
-          placeholderIcon={<IdentityCard size={30} className="text-ink-40" />}
+          placeholderIcon={<IdentityCard size={30} className="text-foreground-muted" />}
           placeholderText="Tap to take a photo or upload"
         />
       </PageShell>
@@ -283,7 +283,7 @@ export default function KycFlow() {
           capture="user"
           round
           onPick={(e) => pickFile(e, setSelfie, selfie)}
-          placeholderIcon={<Camera size={30} className="text-ink-40" />}
+          placeholderIcon={<Camera size={30} className="text-foreground-muted" />}
           placeholderText="Tap to take a selfie"
         />
       </PageShell>
@@ -296,10 +296,10 @@ export default function KycFlow() {
       header={stepHeader}
       footerAction={<Button onClick={handleSubmit}>Submit for verification</Button>}>
       <div className="flex flex-col gap-5 pt-4">
-        <h2 className="text-body-lg font-medium text-ink-90">Confirm your details</h2>
+        <h2 className="text-body-lg font-medium text-foreground-primary">Confirm your details</h2>
 
         <div>
-          <label className="mb-1 block text-body-sm font-medium text-ink-90">Legal name</label>
+          <label className="mb-1 block text-body-sm font-medium text-foreground-primary">Legal name</label>
           <InputField
             name="legalName"
             type="text"
@@ -307,12 +307,12 @@ export default function KycFlow() {
             value={legalName}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLegalName(e.target.value)}
           />
-          <p className="mt-1 text-caption text-ink-50">Must match your ID and payout account.</p>
+          <p className="mt-1 text-caption text-foreground-muted">Must match your ID and payout account.</p>
         </div>
 
         <div>
-          <label className="mb-1 block text-body-sm font-medium text-ink-90">
-            BVN <span className="font-normal text-ink-50">(optional)</span>
+          <label className="mb-1 block text-body-sm font-medium text-foreground-primary">
+            BVN <span className="font-normal text-foreground-muted">(optional)</span>
           </label>
           <InputField
             name="bvn"
@@ -321,7 +321,7 @@ export default function KycFlow() {
             value={bvn}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBvn(e.target.value)}
           />
-          <p className="mt-1 text-caption text-ink-50">Speeds up future payouts.</p>
+          <p className="mt-1 text-caption text-foreground-muted">Speeds up future payouts.</p>
         </div>
 
         <div className="flex gap-3">
@@ -332,11 +332,11 @@ export default function KycFlow() {
         <div className="flex cursor-pointer items-start gap-2" onClick={() => setConsent((c) => !c)}>
           <span
             className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
-              consent ? "border-brandDeep bg-brand" : "border-ink-30"
+              consent ? "border-brandDeep bg-brand" : "border-outline-emphasis"
             }`}>
             {consent && <Check size={13} className="text-brandInk" />}
           </span>
-          <p className="text-body-sm text-ink-70">
+          <p className="text-body-sm text-foreground-secondary">
             I consent to Vibaar verifying my identity.
           </p>
         </div>
@@ -360,8 +360,8 @@ function CenteredState({
     <div className="flex h-screen flex-col items-center justify-center gap-6 px-4 text-center">
       {hero}
       <div>
-        <h1 className="text-h1 font-medium text-ink-90">{title}</h1>
-        <p className="mx-auto mt-2 max-w-[280px] text-body-sm text-ink-60">{subtitle}</p>
+        <h1 className="text-h1 font-medium text-foreground-primary">{title}</h1>
+        <p className="mx-auto mt-2 max-w-[280px] text-body-sm text-foreground-secondary">{subtitle}</p>
       </div>
     </div>
   );
@@ -377,13 +377,13 @@ function Benefit({
   sub: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-card bg-ink-3 p-3">
+    <div className="flex items-center gap-3 rounded-card bg-surface-subtle p-3">
       <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand/10">
         <Icon size={22} className="text-brandDeep" />
       </span>
       <div>
-        <p className="text-body font-medium text-ink-90">{title}</p>
-        <p className="text-caption text-ink-60">{sub}</p>
+        <p className="text-body font-medium text-foreground-primary">{title}</p>
+        <p className="text-caption text-foreground-secondary">{sub}</p>
       </div>
     </div>
   );
@@ -413,8 +413,8 @@ function CaptureStep({
   return (
     <div className="flex flex-col gap-4 pt-4">
       <div>
-        <h2 className="text-body-lg font-medium text-ink-90">{title}</h2>
-        <p className="mt-1 text-caption text-ink-60">{hint}</p>
+        <h2 className="text-body-lg font-medium text-foreground-primary">{title}</h2>
+        <p className="mt-1 text-caption text-foreground-secondary">{hint}</p>
       </div>
       <input
         ref={inputRef}
@@ -426,7 +426,7 @@ function CaptureStep({
       />
       <button
         onClick={() => inputRef.current?.click()}
-        className={`flex flex-col items-center justify-center gap-2 border border-dashed border-ink-20 bg-ink-3 ${
+        className={`flex flex-col items-center justify-center gap-2 border border-dashed border-outline-strong bg-surface-subtle ${
           round ? "mx-auto aspect-square w-56 rounded-full" : "aspect-[4/3] w-full rounded-card"
         } overflow-hidden`}>
         {slot ? (
@@ -434,7 +434,7 @@ function CaptureStep({
         ) : (
           <>
             {placeholderIcon}
-            <span className="text-body-sm text-ink-50">{placeholderText}</span>
+            <span className="text-body-sm text-foreground-muted">{placeholderText}</span>
           </>
         )}
       </button>
@@ -506,14 +506,14 @@ function StatusScreen({
           />
         )}
         <div>
-          <h1 className="text-h1 font-medium text-ink-90">
+          <h1 className="text-h1 font-medium text-foreground-primary">
             {approved
               ? "You're verified! 🎉"
               : rejected
               ? "We couldn't verify your ID"
               : "KYC verification complete!"}
           </h1>
-          <p className="mx-auto mt-2 max-w-[300px] text-body-sm text-ink-60">
+          <p className="mx-auto mt-2 max-w-[300px] text-body-sm text-foreground-secondary">
             {approved
               ? "Your Verified badge is now live and withdrawals are unlocked."
               : rejected
@@ -523,8 +523,8 @@ function StatusScreen({
         </div>
         {rejected && reason && (
           <div className="w-full rounded-card border border-brandDeep/30 bg-brand/5 p-3 text-left">
-            <p className="text-caption font-medium text-ink-60">Reason</p>
-            <p className="text-body-sm text-ink-90">{reason}</p>
+            <p className="text-caption font-medium text-foreground-secondary">Reason</p>
+            <p className="text-body-sm text-foreground-primary">{reason}</p>
           </div>
         )}
       </div>

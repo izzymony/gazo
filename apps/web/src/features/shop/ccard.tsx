@@ -137,7 +137,7 @@ export default function Card({
               className={
                 tik
                   ? "text-micro tracking-wider leading-[10px] text-white line-through font-normal line-clamp-1"
-                  : "text-micro tracking-wider leading-[10px] text-ink-40 line-through font-normal line-clamp-1"
+                  : "text-micro tracking-wider leading-[10px] text-foreground-muted line-through font-normal line-clamp-1"
               }>
               ₦12,000.00
             </p>
@@ -162,7 +162,7 @@ export default function Card({
                 className={
                   tik
                     ? "text-caption tracking-wider leading-[10px] text-white font-normal line-clamp-1"
-                    : "text-caption tracking-wider leading-[10px] text-ink-40 font-normal line-clamp-1"
+                    : "text-caption tracking-wider leading-[10px] text-foreground-muted font-normal line-clamp-1"
                 }>
                 4.5
               </p>
@@ -327,7 +327,7 @@ export function Cards({
               className={
                 tik
                   ? "text-micro tracking-wider leading-[10px] text-white line-through font-normal line-clamp-1"
-                  : "text-micro tracking-wider leading-[10px] text-ink-40 line-through font-normal line-clamp-1"
+                  : "text-micro tracking-wider leading-[10px] text-foreground-muted line-through font-normal line-clamp-1"
               }>
               ₦12,000.00
             </p>
@@ -352,7 +352,7 @@ export function Cards({
                 className={
                   tik
                     ? "text-caption tracking-wider leading-[10px] text-white font-normal line-clamp-1"
-                    : "text-caption tracking-wider leading-[10px] text-ink-40 font-normal line-clamp-1"
+                    : "text-caption tracking-wider leading-[10px] text-foreground-muted font-normal line-clamp-1"
                 }>
                 4.5
               </p>

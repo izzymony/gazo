@@ -77,7 +77,7 @@ export const BADGE_HUE: Record<string, string> = {
   red: "bg-error-surface text-error-foreground border-error-border",
   emerald: "bg-emerald-50 text-emerald-700 border-emerald-600",
   indigo: "bg-indigo-50 text-indigo-700 border-indigo-600",
-  ink: "bg-ink-3 text-ink-50 border-ink-30",
+  ink: "bg-surface-subtle text-foreground-muted border-outline-emphasis",
 };
 
 // Icon circle (OrderStatusIcon): -100 tint bg / -600 glyph (via currentColor).

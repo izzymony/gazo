@@ -46,11 +46,11 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ options }) => {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <ul className="absolute right-0 z-10 mt-5 bg-white border rounded-lg shadow-lg w-40 text-sm">
+        <ul className="absolute right-0 z-10 mt-5 bg-surface border rounded-lg shadow-lg w-40 text-sm">
           {options.map((option, index) => (
             <li key={index}>
               <button
-                className={`w-full px-4 py-2 text-left hover:bg-ink-3 ${focusRingInset}`}
+                className={`w-full px-4 py-2 text-left hover:bg-surface-subtle ${focusRingInset}`}
                 onClick={(e) => {
                   e.stopPropagation(); // don't bubble to a selectable card ancestor
                   option.onClick(); // Call the specific action

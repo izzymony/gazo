@@ -20,7 +20,7 @@ const Reviewed = () => {
                 <img
                   src={"/images/vendor/vendorDefaultbg.png"}
                   alt="review"
-                  className="w-12 h-12 rounded-lg border border-ink-5 object-cover"
+                  className="w-12 h-12 rounded-lg border border-outline-subtle object-cover"
                 />
                 <div>
                   <div className="flex items-center mb-1">
@@ -55,32 +55,32 @@ const Reviewed = () => {
                       </svg>
                     ))}
                   </div>
-                  <p className="text-caption text-ink-40 tracking-[0.5px] font-medium">
+                  <p className="text-caption text-foreground-muted tracking-[0.5px] font-medium">
                     Gucci Store
                   </p>
-                  <p className="text-caption text-ink-40 tracking-[0.5px] font-medium">
+                  <p className="text-caption text-foreground-muted tracking-[0.5px] font-medium">
                     Product name goes here
                   </p>
                 </div>
               </div>
               <div className="flex flex-col justify-between">
-                <p className="text-caption text-ink-40 tracking-[0.5px] font-normal">
+                <p className="text-caption text-foreground-muted tracking-[0.5px] font-normal">
                   Mon, 23/04/2024
                 </p>
-                <div className="border-ink-30 border rounded px-2 py-[3px] bg-ink-3 text-caption text-[#000000] tracking-[0.5px] font-normal">
+                <div className="border-outline-emphasis border rounded px-2 py-[3px] bg-surface-subtle text-caption text-[#000000] tracking-[0.5px] font-normal">
                   Bought White, M
                 </div>
               </div>
             </div>
-            <div className="rounded-lg border-[0.5px] border-ink-10 p-3 gap-2.5 flex flex-col">
-              <p className="text-body-sm font-normal tracking-[0.5px] text-ink-90 line-clamp-2 ">
+            <div className="rounded-lg border-[0.5px] border-outline p-3 gap-2.5 flex flex-col">
+              <p className="text-body-sm font-normal tracking-[0.5px] text-foreground-primary line-clamp-2 ">
                 “{comment}”
               </p>
               <div className="flex gap-2 items-center">
                 {[1, 2, 3, 4, 5].map((item) => (
                   <div
                     key={item}
-                    className="px-3 py-1 bg-ink-3 rounded-pill font-normal text-caption text-[#000000]">
+                    className="px-3 py-1 bg-surface-subtle rounded-pill font-normal text-caption text-[#000000]">
                     Tag
                   </div>
                 ))}

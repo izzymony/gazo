@@ -42,14 +42,14 @@ const MenuItem = ({
 }) => (
   <div
     onClick={onClick}
-    className={`flex justify-between items-center text-body font-medium px-3 py-3 rounded-field cursor-pointer transition-colors active:bg-ink-5 ${
-      danger ? "text-brandDeep" : "text-ink-90"
+    className={`flex justify-between items-center text-body font-medium px-3 py-3 rounded-field cursor-pointer transition-colors active:bg-surface-muted ${
+      danger ? "text-brandDeep" : "text-foreground-primary"
     }`}>
     <div className="flex gap-3 items-center">
       {Icon}
       <p>{label}</p>
     </div>
-    <ChevronRight size={20} className={danger ? "text-brandDeep" : "text-ink-40"} />
+    <ChevronRight size={20} className={danger ? "text-brandDeep" : "text-foreground-muted"} />
   </div>
 );
 
@@ -119,7 +119,7 @@ const Page = () => {
                 <H1 className="text-h2 mb-1 leading-[22px]">
                   Sign in to your account
                 </H1>
-                <p className="text-ink-60 mt-3 max-w-[320px]">
+                <p className="text-foreground-secondary mt-3 max-w-[320px]">
                   To continue enjoying Vibaar’s features you need to sign in
                   to your account.
                 </p>
@@ -135,7 +135,7 @@ const Page = () => {
                   Sign in
                 </Button>
               </div>
-              <p className="text-body mt-3 text-center text-ink-60">
+              <p className="text-body mt-3 text-center text-foreground-secondary">
                 Don’t have an account?{" "}
                 <span
                   className="text-brandDeep ml-2 cursor-pointer"
@@ -162,10 +162,10 @@ const Page = () => {
               {/* Close button - positioned absolutely, hidden on mobile */}
               <button
                 onClick={closeModal}
-                className="hidden md:flex absolute top-3 right-3 md:top-4 md:right-4 lg:top-5 lg:right-5 w-8 h-8 items-center justify-center rounded-full hover:bg-ink-5 transition-colors z-10"
+                className="hidden md:flex absolute top-3 right-3 md:top-4 md:right-4 lg:top-5 lg:right-5 w-8 h-8 items-center justify-center rounded-full hover:bg-surface-muted transition-colors z-10"
                 aria-label="Close modal"
               >
-                <X size={20} className="text-ink-60" />
+                <X size={20} className="text-foreground-secondary" />
               </button>
 
               <h2 className="text-body md:text-body-lg font-medium text-center">Menu</h2>
@@ -217,7 +217,7 @@ const Page = () => {
           <div
             onClick={closeModalTwo}
             className="fixed inset-0 z-modal flex items-end justify-center bg-black/50 w-full ">
-            <div className="bg-white rounded-t-card w-full px-8 py-10 shadow-pop flex flex-col">
+            <div className="bg-surface rounded-t-card w-full px-8 py-10 shadow-pop flex flex-col">
               <p className="text-center mt-10 text-display font-medium mb-2 tracking-[0.5px] leading-[34px]">
                 Transform Your <br />
                 Passion into Profit
@@ -290,7 +290,7 @@ const Page = () => {
                 ].map((item) => (
                   <div
                     key={item}
-                    className="flex gap-2 items-center font-medium text-body text-ink-90">
+                    className="flex gap-2 items-center font-medium text-body text-foreground-primary">
                     <CircleCheck size={18} className="text-brandDeep" />
                     <p>{item}</p>
                   </div>

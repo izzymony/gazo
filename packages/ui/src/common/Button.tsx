@@ -22,9 +22,9 @@ const buttonVariants = cva(
         filled:
           "bg-brand text-brandInk hover:bg-brandHover active:bg-brandHover",
         bordered:
-          "border border-brandDeep text-brandDeep bg-white hover:bg-ink-3 active:bg-ink-5",
+          "border border-brandDeep text-brandDeep bg-surface hover:bg-surface-subtle active:bg-surface-muted",
         ghost:
-          "bg-transparent text-brandDeep hover:bg-ink-3 active:bg-ink-5",
+          "bg-transparent text-brandDeep hover:bg-surface-subtle active:bg-surface-muted",
       },
       size: {
         sm: "py-1.5 px-4 text-body-sm",

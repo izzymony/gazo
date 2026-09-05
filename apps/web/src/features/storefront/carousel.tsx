@@ -264,7 +264,7 @@ const ImageCarousel = ({
     </div>
 
       {/* Desktop Airbnb-style Grid with Card Background */}
-      <div className="hidden lg:block w-full p-0.5 bg-white rounded-2xl">
+      <div className="hidden lg:block w-full p-0.5 bg-surface rounded-2xl">
         <div className="grid grid-cols-2 gap-0.5 h-[500px] rounded-xl overflow-hidden">
           {/* Large Image - Left Side */}
           <div

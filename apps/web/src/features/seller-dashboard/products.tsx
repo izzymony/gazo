@@ -38,27 +38,27 @@ const ProductComp: React.FC<ProductProps> = ({ product }: ProductProps) => {
             <span className="text-body font-medium line-clamp-2">
               {product?.title} - {product?.description}
             </span>
-            <p className="text-body font-medium text-ink-90 ml-auto">
+            <p className="text-body font-medium text-foreground-primary ml-auto">
               {formatCurrency(product?.price ? +product.price : 0)}
             </p>
           </div>
           <div className="flex gap-4">
-            <p className="text-body-sm text-ink-90">Stock: {product?.stock}</p>
-            <span className="text-body-sm space-x-1 flex items-center rounded-field text-ink-90">
+            <p className="text-body-sm text-foreground-primary">Stock: {product?.stock}</p>
+            <span className="text-body-sm space-x-1 flex items-center rounded-field text-foreground-primary">
               {product?.tag && product?.tag.length > 0 && (
                 <span>Variant: {product?.tag.length}</span>
               )}
             </span>
           </div>
           <div className="flex justify-between w-full mt-1">
-            <div className="text-caption text-ink-40">
+            <div className="text-caption text-foreground-muted">
               Last modified:{" "}
               {formatDate(new Date(product?.created_at || Date.now()))}
             </div>
             <StatusBadge status={product?.status === "active" ? "active" : "Draft"} />
           </div>
           {product?.category?.name && (
-            <span className=" text-body-sm px-3 py-1 rounded-field bg-ink-5">
+            <span className=" text-body-sm px-3 py-1 rounded-field bg-surface-muted">
               {product?.category?.name}
             </span>
           )}

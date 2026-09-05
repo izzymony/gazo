@@ -906,7 +906,7 @@ function Discovery1() {
 
 function Frame1618868900() {
   return (
-    <div className="bg-white box-border content-stretch flex gap-[4px] sm:gap-[7px] md:gap-[5.333px] items-center overflow-clip px-[10px] sm:px-[13px] md:px-[9.761px] py-[5px] sm:py-[7px] md:py-[5.333px] relative rounded-[60px] sm:rounded-[70px] md:rounded-[81.338px] shadow-[0px_4px_12px_0px_rgba(0,99,247,0.5)] sm:shadow-[0px_5px_14px_0px_rgba(0,99,247,0.5)] md:shadow-[0px_5.333px_15.998px_0px_rgba(0,99,247,0.5)] scale-[0.85] sm:scale-100">
+    <div className="bg-surface box-border content-stretch flex gap-[4px] sm:gap-[7px] md:gap-[5.333px] items-center overflow-clip px-[10px] sm:px-[13px] md:px-[9.761px] py-[5px] sm:py-[7px] md:py-[5.333px] relative rounded-[60px] sm:rounded-[70px] md:rounded-[81.338px] shadow-[0px_4px_12px_0px_rgba(0,99,247,0.5)] sm:shadow-[0px_5px_14px_0px_rgba(0,99,247,0.5)] md:shadow-[0px_5.333px_15.998px_0px_rgba(0,99,247,0.5)] scale-[0.85] sm:scale-100">
       <div className="overflow-clip relative shrink-0 size-[18px] sm:size-[24px] md:size-[21.33px]" data-name="Hicon / Bold / Discovery 1">
         <Discovery1 />
       </div>

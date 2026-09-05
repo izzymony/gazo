@@ -49,10 +49,10 @@ export default function Inbox() {
       {!user ? (
         <div className="flex flex-col items-center justify-center px-8 py-16 text-center">
           <EmptyMessage />
-          <p className="text-sm font-medium text-ink-60 mt-4">
+          <p className="text-sm font-medium text-foreground-secondary mt-4">
             Sign in to see your inbox
           </p>
-          <p className="text-ink-40 text-caption mt-2 w-[80%]">
+          <p className="text-foreground-muted text-caption mt-2 w-[80%]">
             Your alerts and messages appear here once you sign in.
           </p>
           <div className="mt-6 w-full max-w-[220px]">

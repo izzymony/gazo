@@ -218,7 +218,7 @@ export default function ExploreCard({
                 onMouseEnter={() => onPrefetchProduct?.(item)}
                 onTouchStart={() => onPrefetchProduct?.(item)}
                 key={item.id}
-                className="p-2 rounded-field lg:rounded-card flex gap-2 items-center cursor-pointer bg-white/10 backdrop-blur-md min-w-[200px] w-[200px] border border-white/20 shadow-sm flex-shrink-0">
+                className="p-2 rounded-field lg:rounded-card flex gap-2 items-center cursor-pointer bg-surface/10 backdrop-blur-md min-w-[200px] w-[200px] border border-white/20 shadow-sm flex-shrink-0">
                 <img
                   alt={item.title || "Product"}
                   src={item.image ? getMobileCompatibleImageUrl(item?.image[0]) : image}

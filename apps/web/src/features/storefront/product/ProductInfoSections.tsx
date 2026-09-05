@@ -28,7 +28,7 @@ export function ProductDescription({
       className="!px-[20px] lg:!px-0"
     >
       <div className="pb-2 rounded-lg">
-        <p className="text-body-sm font-normal text-ink-70 line-clamp-3">
+        <p className="text-body-sm font-normal text-foreground-secondary line-clamp-3">
           {truncatedDescription}
         </p>
         {description && description.length > 100 && !isExpanded && (
@@ -88,7 +88,7 @@ export function ProductVendorInfo({
 
           <div className="text-brandDeep text-xs ml-auto font-medium">Follow</div>
         </div>
-        <p className="text-xs font-normal mt-2 text-ink-70">
+        <p className="text-xs font-normal mt-2 text-foreground-secondary">
           {store?.description}
         </p>
 

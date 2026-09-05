@@ -40,11 +40,11 @@ export default function Header({
 }: HeaderProps) {
   const [searchTerm, setSearchTerm] = useState("");
   return (
-    <div className="absolute lg:sticky lg:top-0 bg-white w-full flex flex-col z-sticky">
+    <div className="absolute lg:sticky lg:top-0 bg-surface w-full flex flex-col z-sticky">
       {/* Desktop max-width wrapper */}
       <div className="w-full lg:max-w-5xl lg:mx-auto pt-3 pb-0 px-4 lg:px-5">
         <div
-          className="flex flex-row items-center bg-white h-[36px]"
+          className="flex flex-row items-center bg-surface h-[36px]"
           style={{
             justifyContent: logoDisplayCenter ? "center" : "",
           }}>
@@ -94,8 +94,8 @@ export default function Header({
               <button
                 key={tab}
                 className={`px-4 pt-2 pb-1 ${index === activeTab
-                  ? "border-b-2 border-ink-90 font-medium"
-                  : "text-ink-40"
+                  ? "border-b-2 border-outline-contrast font-medium"
+                  : "text-foreground-muted"
                   }`}
                 onClick={() => onTabChange?.(index)}>
                 {tab}
@@ -113,8 +113,8 @@ export default function Header({
                   key={pill}
                   onClick={() => onPillChange?.(index)}
                   className={`px-4 py-2 rounded-full text-body-sm font-medium whitespace-nowrap flex-shrink-0 transition-colors ${activePill === index
-                    ? "bg-ink-90 text-white"
-                    : "bg-ink-5 text-ink-60 hover:bg-ink-10"
+                    ? "bg-surface-inverse text-white"
+                    : "bg-surface-muted text-foreground-secondary hover:bg-surface-strong"
                     }`}
                 >
                   {pill}
@@ -126,7 +126,7 @@ export default function Header({
 
         {/* Custom Text */}
         {customText && !showInput && (
-          <h3 className="font-medium text-body-lg text-ink-90 ml-[0px] leading-[18px] flex-1 min-w-0 truncate">
+          <h3 className="font-medium text-body-lg text-foreground-primary ml-[0px] leading-[18px] flex-1 min-w-0 truncate">
             {customText}
           </h3>
         )}

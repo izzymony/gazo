@@ -42,10 +42,10 @@ export default function ChatThreadScreen({
           />
         }>
         <div className="flex flex-col items-center justify-center px-8 py-16 text-center">
-          <p className="text-sm font-medium text-ink-60">
+          <p className="text-sm font-medium text-foreground-secondary">
             Sign in to view your messages
           </p>
-          <p className="text-ink-40 text-caption mt-2 w-[80%]">
+          <p className="text-foreground-muted text-caption mt-2 w-[80%]">
             Your conversations with sellers appear here once you sign in.
           </p>
           <div className="mt-6 w-full max-w-[220px]">

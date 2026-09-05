@@ -6,7 +6,7 @@ import { cn, formatCurrency } from "@/lib/utils";
  * This exact block was written out five times across three screens — the buyer
  * order list (twice), the buyer order detail (twice) and the seller order
  * detail — with the same 60px thumbnail and the same price/quantity row. The
- * copies had already drifted: some carried `border-ink-10`, some a bare
+ * copies had already drifted: some carried `border-outline`, some a bare
  * `border`, and the variant line appeared in three of the five.
  *
  * Callers keep their own image-URL logic (the list runs it through

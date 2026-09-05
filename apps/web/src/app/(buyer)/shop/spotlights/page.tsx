@@ -313,9 +313,9 @@ const Page = () => {
                   <div className="z-10">
                     {/* Story Progress Bar */}
                     {isCurrentCard && (
-                      <div className="w-full rounded-field h-1 bg-ink-20 z-[9999] relative">
+                      <div className="w-full rounded-field h-1 bg-surface-strong z-[9999] relative">
                         <div
-                          className="h-full bg-white z-[9999] transition-all duration-100"
+                          className="h-full bg-surface z-[9999] transition-all duration-100"
                           style={{ width: `${loadingProgress}%` }}></div>
                       </div>
                     )}
@@ -344,7 +344,7 @@ const Page = () => {
                             <div className="font-normal text-caption flex items-center gap-1 text-white capitalize">
                               <FaStar size={10} className="text-white" />
                               {businessDetails?.average_rating || "0.0"}{" "}
-                              <span className="inline-block h-1 w-1 rounded-full bg-white/70" />{" "}
+                              <span className="inline-block h-1 w-1 rounded-full bg-surface/70" />{" "}
                               <FiUsers size={10} className="text-white" />
                               {businessDetails?.followers_count || "0"}
                             </div>

@@ -32,7 +32,7 @@ interface SurfaceProps {
  * same defect Checkbox and the auth CTAs had.
  */
 export default function Surface({ children, className, onClick, ariaLabel }: SurfaceProps) {
-  const base = "border border-outline rounded-card bg-white p-4";
+  const base = "border border-outline rounded-card bg-surface p-4";
 
   if (!onClick) {
     return <div className={cn(base, className)}>{children}</div>;

@@ -44,8 +44,8 @@ export default function ListItem({
     <div
       onClick={onClick}
       className={cn(
-        "flex items-start gap-3 py-3 bg-white transition-colors",
-        onClick && "cursor-pointer hover:bg-ink-3",
+        "flex items-start gap-3 py-3 bg-surface transition-colors",
+        onClick && "cursor-pointer hover:bg-surface-subtle",
         className
       )}>
       {leading && (

@@ -101,7 +101,7 @@ const GoogleAddressInput = ({
             <input
                 ref={inputRef}
                 type="text"
-                className="w-full px-4 h-[52px] rounded-field border border-ink-20 focus:ring-1 focus:ring-ink-90 text-body text-ink-90 font-medium bg-white outline-none"
+                className="w-full px-4 h-[52px] rounded-field border border-outline-strong focus:ring-1 focus:ring-outline-contrast text-body text-foreground-primary font-medium bg-surface outline-none"
                 placeholder={manualEntry ? `${placeholder} (Press Enter to confirm)` : placeholder}
                 defaultValue={defaultValue}
                 onChange={manualEntry ? handleManualInput : undefined}
@@ -109,7 +109,7 @@ const GoogleAddressInput = ({
                 value={manualEntry ? inputValue : undefined}
             />
             {manualEntry && (
-                <p className="text-body-sm text-ink-50 mt-1">
+                <p className="text-body-sm text-foreground-muted mt-1">
                     Google Maps unavailable. Enter address manually and press Enter.
                 </p>
             )}

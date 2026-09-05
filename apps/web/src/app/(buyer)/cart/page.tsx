@@ -270,8 +270,8 @@ const Page = () => {
   };
 
   const CartCard = ({ cart, id }: { cart: CartsItems; id: string }) => (
-    <div className="bg-ink-3 rounded-field mt-3 relative">
-      <div className="flex gap-2 mb-4 bg-white rounded-field">
+    <div className="bg-surface-subtle rounded-field mt-3 relative">
+      <div className="flex gap-2 mb-4 bg-surface rounded-field">
         <div className="h-20 w-20">
           <img
             src={cart.image || "/PRODUCT IMAGE (2).png"}
@@ -282,7 +282,7 @@ const Page = () => {
         <div className="flex flex-col w-full gap-3">
           <div>
             <p className="text-body-sm font-normal">{cart.title}</p>
-            <p className="text-body-sm font-medium text-ink-40">
+            <p className="text-body-sm font-medium text-foreground-muted">
               Color: {cart.color}
             </p>
           </div>
@@ -294,7 +294,7 @@ const Page = () => {
                   icon={Delete}
                   label="Remove item"
                   onClick={() => decrement(cart.id)}
-                  className="bg-ink-3"
+                  className="bg-surface-subtle"
                   iconClassName="text-error-foreground"
                   iconSize={18}
                 />
@@ -303,7 +303,7 @@ const Page = () => {
                   icon={Minus}
                   label="Decrease quantity"
                   onClick={() => decrement(cart.id)}
-                  className="bg-ink-3"
+                  className="bg-surface-subtle"
                   iconSize={18}
                 />
               )}
@@ -312,7 +312,7 @@ const Page = () => {
                 icon={Plus}
                 label="Increase quantity"
                 onClick={() => increment(cart.id)}
-                className="bg-ink-3"
+                className="bg-surface-subtle"
                 iconSize={18}
               />
             </div>
@@ -363,7 +363,7 @@ const Page = () => {
                     alt=""
                     className="rounded-full h-[20px] w-[20px] object-cover"
                   />
-                  <p className="text-body text-ink-90 font-medium">
+                  <p className="text-body text-foreground-primary font-medium">
                     {cart.title.name}
                   </p>
                 </div>
@@ -460,7 +460,7 @@ const Page = () => {
         carts?.length > 0 && totals?.length > 0 ? (
           <div className="flex items-center gap-4">
             <div className="flex flex-col w-24 shrink-0">
-              <p className="text-ink-40 line-clamp-1 text-body-sm">
+              <p className="text-foreground-muted line-clamp-1 text-body-sm">
                 Total ({totals.length}):
               </p>
               <p className="font-medium">

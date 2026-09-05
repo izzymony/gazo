@@ -325,7 +325,7 @@ export default function Shop({
   }, [addScrollListener]);
 
   return (
-    <div className="h-screen relative w-screen max-w-[1050px] bg-white justify-between flex flex-col">
+    <div className="h-screen relative w-screen max-w-[1050px] bg-surface justify-between flex flex-col">
       <div className="h-16 ">
         <FloatingHeader show={show} setShow={setShow} />
       </div>
@@ -346,7 +346,7 @@ export default function Shop({
             />
           </div>
         )}
-        <div className="gap-2 w-full px-3 flex items-center bg-white sticky top-0 z-30 border-b">
+        <div className="gap-2 w-full px-3 flex items-center bg-surface sticky top-0 z-30 border-b">
           {!search && !searchTerm ? (
             <div className="gap-2 py-1 w-full flex items-center">
               <div className="flex flex-1 gap-2 items-center my-2 overflow-x-scroll scrollbar-hide">
@@ -357,7 +357,7 @@ export default function Shop({
                     className={
                       it.name === selected.name
                         ? "py-2 px-4 bg-black rounded-full text-white text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
-                        : "py-2 px-4 bg-ink-3 rounded-full text-black text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
+                        : "py-2 px-4 bg-surface-subtle rounded-full text-black text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
                     }>
                     <p className="whitespace-nowrap">{it.name}</p>
                     {it.name === selected.name && (
@@ -384,7 +384,7 @@ export default function Shop({
               </div>
               {isScrolled && (
                 <div
-                  className="py-2 px-2 bg-ink-3 rounded-full text-black text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
+                  className="py-2 px-2 bg-surface-subtle rounded-full text-black text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
                   onClick={() => setSearch(!search)}>
                   <svg
                     width="16"
@@ -429,7 +429,7 @@ export default function Shop({
                     className={
                       it.name === selected.name
                         ? "py-2 px-4 bg-black rounded-full text-white text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
-                        : "py-2 px-4 bg-ink-3 rounded-full text-black text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
+                        : "py-2 px-4 bg-surface-subtle rounded-full text-black text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
                     }>
                     <p className="whitespace-nowrap">{it.name}</p>
                     {it.name === selected.name && (
@@ -456,7 +456,7 @@ export default function Shop({
               </div>
               {isScrolled && (
                 <div
-                  className="py-2 px-2 bg-ink-3 rounded-full text-black text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
+                  className="py-2 px-2 bg-surface-subtle rounded-full text-black text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
                   onClick={() => setSearch(!search)}>
                   <svg
                     width="16"

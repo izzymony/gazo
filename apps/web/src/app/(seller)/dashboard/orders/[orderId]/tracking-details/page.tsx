@@ -82,8 +82,8 @@ const TrackingDetails = () => {
       />
 
       <div className="flex items-center gap-2">
-        <AiOutlineInfoCircle size={20} className="text-ink-60 flex-shrink-0" />
-        <p className="font-normal text-caption text-ink-60">
+        <AiOutlineInfoCircle size={20} className="text-foreground-secondary flex-shrink-0" />
+        <p className="font-normal text-caption text-foreground-secondary">
           Tracking information helps your buyer to easily track their package and
           enhances customers satisfaction.
         </p>

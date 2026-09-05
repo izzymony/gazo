@@ -83,7 +83,7 @@ export default function KycHero({
       {badge && (
         <span
           className={`absolute bottom-9 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full px-4 py-1.5 shadow-pop ${
-            badge.tone === "brand" ? "bg-brand text-brandInk" : "bg-warning-foreground text-ink-90"
+            badge.tone === "brand" ? "bg-brand text-brandInk" : "bg-warning-foreground text-foreground-primary"
           }`}>
           {badge.tone === "brand" && <VerifiedBadge size={14} className="text-brandInk" />}
           <span className="whitespace-nowrap text-body-sm font-medium">

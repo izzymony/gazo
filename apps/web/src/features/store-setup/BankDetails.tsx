@@ -52,7 +52,7 @@ const BankSelectorModal = ({
     <Dialog isOpen={isOpen} onClose={onClose} ariaLabel="Select a bank">
       {/* Header */}
       <div className="w-full flex flex-col items-center space-y-4">
-        <p className="text-ink-90 text-body-lg font-medium">Select a bank</p>
+        <p className="text-foreground-primary text-body-lg font-medium">Select a bank</p>
         <InputField
           type="text"
           name="search"
@@ -75,14 +75,14 @@ const BankSelectorModal = ({
             className={`flex items-center px-3 py-3 cursor-pointer rounded-field ${
               selectedName === bank.name
                 ? "bg-brand/10 border border-brandDeep"
-                : "hover:bg-ink-5"
+                : "hover:bg-surface-muted"
             }`}
           >
             {/* Bank icon */}
             <div className="w-8 h-8 rounded-full bg-success-surface flex items-center justify-center mr-3">
               <Bank size={16} className="text-success-foreground" />
             </div>
-            <span className="text-body text-ink-90">{bank.name}</span>
+            <span className="text-body text-foreground-primary">{bank.name}</span>
           </div>
         ))}
       </div>

@@ -18,7 +18,7 @@ const StatsCard: React.FC<StatsCardProps> = ({ data }) => {
         return (
           <div
             key={index}
-            className="border border-ink-10 p-2 rounded-card">
+            className="border border-outline p-2 rounded-card">
             <p className="font-medium text-body-sm mb-1">{item.label}</p>
             <div className="flex gap-1 items-center">
               <p className="font-medium text-h2">

@@ -72,10 +72,10 @@ export default function WithdrawalDetails({
           />
         </div>
         <div className="flex justify-center items-center flex-col gap-2">
-          <p className="text-h1 font-medium text-ink-90 text-center">
+          <p className="text-h1 font-medium text-foreground-primary text-center">
             {selectedTransaction.amount || "-₦ " + datas.amount}
           </p>
-          <p className="text-body-sm w-3/4 font-normal text-ink-60 text-center">
+          <p className="text-body-sm w-3/4 font-normal text-foreground-secondary text-center">
             {selectedTransaction.title ||
               "We are working on your transfer! Your money should enter your account shortly."}
           </p>
@@ -88,18 +88,18 @@ export default function WithdrawalDetails({
           <DetailRow label="Transaction Amount" value={"₦ " + datas.amount} />
           <DetailRow label="Beneficiary">
             <div className="flex flex-col items-end text-right">
-              <p className="text-body font-medium text-ink-90">{`${datas.bankname.slice(
+              <p className="text-body font-medium text-foreground-primary">{`${datas.bankname.slice(
                 0,
                 3
               )} - Ending in ${datas.accountnumber.slice(-4)}`}</p>
-              <p className="text-body-sm text-ink-60">{datas.accountname}</p>
+              <p className="text-body-sm text-foreground-secondary">{datas.accountname}</p>
             </div>
           </DetailRow>
           <DetailRow label="Transaction Status">
             {datas.status ? (
               <StatusBadge status={datas.status} />
             ) : (
-              <p className="text-body font-medium text-ink-90 text-right">
+              <p className="text-body font-medium text-foreground-primary text-right">
                 {datas.status}
               </p>
             )}

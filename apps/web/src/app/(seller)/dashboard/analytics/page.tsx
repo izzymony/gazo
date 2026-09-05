@@ -41,7 +41,7 @@ const Page = () => {
                 placeholder="filter"
               />
               <div className="flex items-center">
-                <p className="text-body-sm text-ink-60">Tue, June 5</p>
+                <p className="text-body-sm text-foreground-secondary">Tue, June 5</p>
               </div>
             </div>
           }

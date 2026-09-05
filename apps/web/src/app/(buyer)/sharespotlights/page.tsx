@@ -20,7 +20,7 @@ export default function Page() {
   const [show, setShow] = useState(false);
 
   return next === 1 ? (
-    <div className="h-screen relative w-screen max-w-[450px] bg-white  flex flex-col">
+    <div className="h-screen relative w-screen max-w-[450px] bg-surface  flex flex-col">
       <div
         onClick={() => router.back()}
         className="flex mt-3 gap-2 items-center text-black text-body-lg font-medium tracking-wider">
@@ -65,7 +65,7 @@ export default function Page() {
             className={
               like === it
                 ? "flex gap-2 items-center text-[#ffffff99] text-body-lg font-normal tracking-wider rounded-full py-2 px-4 bg-[#000000]"
-                : "flex gap-2 items-center text-ink-60 text-body-lg font-normal tracking-wider rounded-full py-2 px-4 bg-ink-3"
+                : "flex gap-2 items-center text-foreground-secondary text-body-lg font-normal tracking-wider rounded-full py-2 px-4 bg-surface-subtle"
             }>
             <div>
               {it === "Videos" ? (
@@ -308,7 +308,7 @@ export default function Page() {
           ))}
         </div>
       </div>
-      <div className="flex items-center justify-between bg-white pt-2 px-3 pb-4">
+      <div className="flex items-center justify-between bg-surface pt-2 px-3 pb-4">
         <div className="w-full flex flex-row justify-between items-center gap-3">
           <div
             onClick={() => setNext(2)}
@@ -319,7 +319,7 @@ export default function Page() {
       </div>
     </div>
   ) : (
-    <div className="h-screen relative w-screen max-w-[450px] bg-white  flex flex-col">
+    <div className="h-screen relative w-screen max-w-[450px] bg-surface  flex flex-col">
       <div
         onClick={() => router.back()}
         className="flex mt-3 gap-2 items-center text-black text-body-lg font-medium tracking-wider">
@@ -420,7 +420,7 @@ export default function Page() {
               </svg>
             </div>
           </div>
-          <div className="flex gap-2 justify-between items-center p-2 rounded-xl border bg-ink-3">
+          <div className="flex gap-2 justify-between items-center p-2 rounded-xl border bg-surface-subtle">
             <div className="w-16 h-16 overflow-hidden rounded-xl">
               <img
                 src="/test.jpg"
@@ -459,10 +459,10 @@ export default function Page() {
                 </svg>
               </div>
               <div className="flex gap-4 items-center">
-                <p className="line-clamp-1 text-body-sm text-ink-60 tracking-wider font-normal leading-4">
+                <p className="line-clamp-1 text-body-sm text-foreground-secondary tracking-wider font-normal leading-4">
                   Stock: 50
                 </p>
-                <p className="line-clamp-1 text-body-sm text-ink-60 tracking-wider font-normal leading-4">
+                <p className="line-clamp-1 text-body-sm text-foreground-secondary tracking-wider font-normal leading-4">
                   Variant : 5
                 </p>
               </div>
@@ -492,11 +492,11 @@ export default function Page() {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-between bg-white pt-3 px-3 pb-4 border-t">
+      <div className="flex items-center justify-between bg-surface pt-3 px-3 pb-4 border-t">
         <div className="w-full flex flex-row justify-between items-center gap-3">
           <div
             onClick={() => router.push("/setup")}
-            className="flex-1 h-10 rounded-full border-brandDeep border bg-white text-brandDeep text-base font-medium justify-center items-center flex">
+            className="flex-1 h-10 rounded-full border-brandDeep border bg-surface text-brandDeep text-base font-medium justify-center items-center flex">
             Save Draft
           </div>
           <div

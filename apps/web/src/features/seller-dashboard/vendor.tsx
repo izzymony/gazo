@@ -121,7 +121,7 @@ const Vendor = () => {
                 return (
                   <div
                     key={store.business}
-                    className="mb-4 p-2 rounded-field shadow-md !bg-cover !bg-no-repeat border border-ink-10"
+                    className="mb-4 p-2 rounded-field shadow-md !bg-cover !bg-no-repeat border border-outline"
                     style={{
                       backgroundSize: "cover",
                       backgroundRepeat: "no-repeat !important",
@@ -153,7 +153,7 @@ const Vendor = () => {
                             <div className="font-normal text-caption flex items-center gap-1 text-white/60 capitalize">
                               <FaStar size={8} className="text-white" />
                               5.4{" "}
-                              <span className="inline-block h-1 w-1 rounded-full bg-white/70" />
+                              <span className="inline-block h-1 w-1 rounded-full bg-surface/70" />
                               100k{" "}
                               <FiUsers size={10} className="text-white" />
                             </div>
@@ -183,7 +183,7 @@ const Vendor = () => {
                             }
                           }}
                           key={item.id}
-                          className="p-3 rounded-card flex items-center cursor-pointer bg-white/20 backdrop-blur-md max-w-[180px] min-w-[180px] w-full"
+                          className="p-3 rounded-card flex items-center cursor-pointer bg-surface/20 backdrop-blur-md max-w-[180px] min-w-[180px] w-full"
                           style={{
                             backdropFilter: "blur(12px)",
                           }}>

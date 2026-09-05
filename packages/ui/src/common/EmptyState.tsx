@@ -20,7 +20,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   return (
     <div className="flex flex-col items-center justify-center text-center px-8">
       {icon ? (
-        <div className="w-20 h-20 mb-4 rounded-full bg-ink-3 flex items-center justify-center text-foreground-muted">
+        <div className="w-20 h-20 mb-4 rounded-full bg-surface-subtle flex items-center justify-center text-foreground-muted">
           {icon}
         </div>
       ) : (

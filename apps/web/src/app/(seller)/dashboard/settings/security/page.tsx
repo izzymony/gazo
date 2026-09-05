@@ -26,15 +26,15 @@ const Security = () => {
           <div
             className="flex gap-2 items-center cursor-pointer"
             onClick={() => router.push(`/dashboard/settings/change-password`)}>
-            <LockPassword size={20} className="text-ink-90" />
-            <p className="text-ink-60 text-body">Change Password</p>
+            <LockPassword size={20} className="text-foreground-primary" />
+            <p className="text-foreground-secondary text-body">Change Password</p>
           </div>
           <IoIosArrowForward />
         </Surface>
         <Surface className="flex justify-between items-center">
           <div className="flex gap-2 items-center cursor-pointer">
             <CiLock />
-            <p className="text-ink-60 text-body">2 step authentication</p>
+            <p className="text-foreground-secondary text-body">2 step authentication</p>
           </div>
           <IoIosArrowForward />
         </Surface>

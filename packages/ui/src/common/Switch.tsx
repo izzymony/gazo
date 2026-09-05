@@ -50,13 +50,13 @@ const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(function Switch(
               ? variant === "brand"
                 ? "bg-brand"
                 : "bg-success-foreground"
-              : "bg-ink-20",
+              : "bg-surface-strong",
             disabled && "opacity-50"
           )}
         />
         <span
           className={cn(
-            "absolute left-0.5 top-0.5 h-4 w-4 rounded-pill border border-outline-strong bg-white transition-transform duration-200 ease-linear",
+            "absolute left-0.5 top-0.5 h-4 w-4 rounded-pill border border-outline-strong bg-surface transition-transform duration-200 ease-linear",
             checked && "translate-x-3"
           )}
         />

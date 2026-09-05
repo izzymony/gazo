@@ -174,10 +174,10 @@ export default function MilestoneCelebration() {
             <div className="w-14 h-14 rounded-full bg-[#FFEAEE] flex items-center justify-center mb-3">
               <span className="text-2xl">{activeModal.emoji}</span>
             </div>
-            <h2 className="text-body-lg font-semibold text-ink-90 mb-1.5">
+            <h2 className="text-body-lg font-semibold text-foreground-primary mb-1.5">
               {activeModal.title}
             </h2>
-            <p className="text-body-sm text-ink-60 mb-5 max-w-[280px] leading-relaxed">
+            <p className="text-body-sm text-foreground-secondary mb-5 max-w-[280px] leading-relaxed">
               {activeModal.subtitle}
             </p>
             {activeModal.ctaRoute && (

@@ -47,17 +47,17 @@ export const DropButton = ({
   return (
     <div
       onClick={toogleDrop}
-      className={`peer flex relative w-full px-4 h-[52px] rounded-field border border-ink-20 focus-within:ring-1 focus-within:ring-black justify-between items-center text-body text-ink-90 font-medium`}>
+      className={`peer flex relative w-full px-4 h-[52px] rounded-field border border-outline-strong focus-within:ring-1 focus-within:ring-black justify-between items-center text-body text-foreground-primary font-medium`}>
       <p>{text}</p>
       <>
         {icon && (
-          <span className="absolute z-dropdown right-4 top-[50%] transform -translate-y-1/2 cursor-pointer text-ink-40">
+          <span className="absolute z-dropdown right-4 top-[50%] transform -translate-y-1/2 cursor-pointer text-foreground-muted">
             <ChevronDown size={20} />
           </span>
         )}
         {flag && (
           <img
-            className="absolute z-[999] right-4 top-[50%] transform -translate-y-1/2 cursor-pointer text-ink-40 rounded-full w-8 h-8 object-cover"
+            className="absolute z-[999] right-4 top-[50%] transform -translate-y-1/2 cursor-pointer text-foreground-muted rounded-full w-8 h-8 object-cover"
             src={`https://flagcdn.com/w40/${flag}.png`}
             alt="USA Flag"
           />
@@ -83,12 +83,12 @@ const StoreDetails = ({
       {/* Logo Upload Section */}
       <div className="flex flex-col items-center gap-3 mt-0">
         {/* Upload Container */}
-        <div className="bg-ink-3 border border-dashed border-ink-20 rounded-card p-4 w-full max-w-sm">
+        <div className="bg-surface-subtle border border-dashed border-outline-strong rounded-card p-4 w-full max-w-sm">
           <label className="block cursor-pointer">
             <div className="flex flex-col items-center">
               {/* Logo Circle with Shadow */}
               <div className="relative mb-2">
-                <div className="w-16 h-16 rounded-full shadow-card overflow-hidden bg-white border-2 border-ink-5">
+                <div className="w-16 h-16 rounded-full shadow-card overflow-hidden bg-surface border-2 border-outline-subtle">
                   <StoreLogo
                     src={data?.logo}
                     storeName={data?.name || "Store"}
@@ -98,7 +98,7 @@ const StoreDetails = ({
                 </div>
 
                 {/* Camera Icon Overlay */}
-                <div className="absolute -bottom-0 -right-1 w-6 h-6 bg-ink-70 rounded-full flex items-center justify-center shadow-card">
+                <div className="absolute -bottom-0 -right-1 w-6 h-6 bg-surface-inverse rounded-full flex items-center justify-center shadow-card">
                   <Image
                     width={16}
                     height={16}
@@ -111,8 +111,8 @@ const StoreDetails = ({
 
               {/* Upload Text */}
               <div className="text-center">
-                <div className="text-body text-ink-80 font-medium mb-0">Upload store logo</div>
-                <div className="text-caption text-ink-50">PNG, JPG up to 5MB</div>
+                <div className="text-body text-foreground-secondary font-medium mb-0">Upload store logo</div>
+                <div className="text-caption text-foreground-muted">PNG, JPG up to 5MB</div>
               </div>
             </div>
 
@@ -161,7 +161,7 @@ const StoreDetails = ({
           >
             <div className={`w-5 h-5 border-2 rounded flex items-center justify-center flex-shrink-0 ${usePersonalContact
               ? 'bg-info-foreground border-info-foreground'
-              : 'bg-transparent border-ink-30'
+              : 'bg-transparent border-outline-emphasis'
               }`}>
               {usePersonalContact && <Check size={14} className="text-white" />}
             </div>
@@ -169,7 +169,7 @@ const StoreDetails = ({
               <div className="text-body font-medium text-info-foreground">
                 Use the same personal contact details
               </div>
-              <div className="text-body-sm text-ink-60 mt-1">
+              <div className="text-body-sm text-foreground-secondary mt-1">
                 We'll use your account email ({user?.email}) and phone ({user?.phone})
               </div>
             </div>

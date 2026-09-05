@@ -11,7 +11,7 @@ export default function AllVendorsDetails({ data }: { data: any }) {
   const [show, setShow] = useState("Shop");
 
   return (
-    <div className="flex-1 bg-white justify-center items-center flex-col overflow-y-scroll scrollbar-hide">
+    <div className="flex-1 bg-surface justify-center items-center flex-col overflow-y-scroll scrollbar-hide">
       {show === "Shop" ? (
         <Shop show={show} setShow={setShow} />
       ) : (

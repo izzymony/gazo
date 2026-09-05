@@ -134,21 +134,21 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
           setShowModal(true);
         }}
         className={`flex flex-col relative w-full px-3 h-[52px] rounded-field border ${
-          error ? "border-error-border focus-within:ring-error-foreground" : "border-ink-20 focus-within:ring-black"
+          error ? "border-error-border focus-within:ring-error-foreground" : "border-outline-strong focus-within:ring-black"
         } focus-within:ring-1 cursor-pointer`}>
         
         {/* Floating label */}
         <label className={`absolute transition-all duration-200 ease-in-out pointer-events-none
           ${selectedCategory 
-            ? "text-caption font-medium text-ink-20 top-[8px] left-3"
-            : "text-body text-ink-60 top-1/2 transform -translate-y-1/2 left-3"
+            ? "text-caption font-medium text-foreground-disabled top-[8px] left-3"
+            : "text-body text-foreground-secondary top-1/2 transform -translate-y-1/2 left-3"
           }`}>
           {mode === 'product' ? 'Product category' : 'Store category'}
         </label>
         
         {/* Selected value or empty space */}
         <div className="flex items-center justify-between w-full h-full">
-          <p className={`text-body font-medium ${selectedCategory ? "text-ink-90 mt-[18px]" : "text-transparent"}`}>
+          <p className={`text-body font-medium ${selectedCategory ? "text-foreground-primary mt-[18px]" : "text-transparent"}`}>
             {selectedCategory ? displayText : ''}
           </p>
           <BiChevronDown size={20} className="absolute right-3 top-1/2 transform -translate-y-1/2" />
@@ -169,15 +169,15 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
             {/* Close button - positioned absolutely, hidden on mobile */}
             <button
               onClick={() => setShowModal(false)}
-              className="hidden md:flex absolute top-3 right-3 md:top-4 md:right-4 lg:top-5 lg:right-5 w-8 h-8 items-center justify-center rounded-full hover:bg-ink-5 transition-colors z-10"
+              className="hidden md:flex absolute top-3 right-3 md:top-4 md:right-4 lg:top-5 lg:right-5 w-8 h-8 items-center justify-center rounded-full hover:bg-surface-muted transition-colors z-10"
               aria-label="Close modal"
             >
-              <X size={20} className="text-ink-60" />
+              <X size={20} className="text-foreground-secondary" />
             </button>
 
             {/* Modal Header with handle and search */}
             <div className="w-full flex flex-col items-center">
-              <p className="text-ink-90 text-body-lg font-medium mb-4">
+              <p className="text-foreground-primary text-body-lg font-medium mb-4">
                 Select a category
               </p>
               <InputField
@@ -193,8 +193,8 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
             {/* Loading state */}
             {mode === 'product' && categoriesLoading && (
               <div className="p-4 text-center">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-ink-90 mx-auto"></div>
-                <p className="text-ink-50 mt-2">Loading categories...</p>
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-outline-contrast mx-auto"></div>
+                <p className="text-foreground-muted mt-2">Loading categories...</p>
               </div>
             )}
             
@@ -211,7 +211,7 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
               {/* Render categories based on mode */}
               {!categoriesLoading && !categoriesError && filteredCategories && filteredCategories.length > 0 ? (
                 filteredCategories.map((category: any) => (
-                  <div key={category.id} className="w-full p-2 bg-white">
+                  <div key={category.id} className="w-full p-2 bg-surface">
                     {/* Main Category */}
                     <div
                       onClick={() => {
@@ -232,8 +232,8 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
                       }}
                       className={
                         (mode === 'store' && selectedOriginalCategory?.id === category.id)
-                          ? "flex cursor-pointer text-body font-normal items-center relative text-ink-90 px-2 py-2 rounded-field bg-brand/10 border-brandDeep border justify-between"
-                          : "flex cursor-pointer text-body font-normal relative items-center text-ink-90 px-2 py-2 rounded-field justify-between"
+                          ? "flex cursor-pointer text-body font-normal items-center relative text-foreground-primary px-2 py-2 rounded-field bg-brand/10 border-brandDeep border justify-between"
+                          : "flex cursor-pointer text-body font-normal relative items-center text-foreground-primary px-2 py-2 rounded-field justify-between"
                       }>
                       <div className="flex gap-1 items-center">
                         <span className="text-xl mr-3">{category.emoji || getCategoryEmoji(category.name)}</span>
@@ -279,7 +279,7 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
                             className={`cursor-pointer text-body font-normal px-2 py-2 rounded-[4px] flex items-center justify-between ${
                               selectedSubcategory?.name === sub.name
                                 ? "bg-brand/10 border-brandDeep border text-brandDeep"
-                                : "text-ink-70 hover:bg-ink-5"
+                                : "text-foreground-secondary hover:bg-surface-muted"
                             }`}>
                             <div className="flex items-center">
                               <span className="text-h2 mr-2">{sub.emoji || getCategoryEmoji(sub.name)}</span>
@@ -298,7 +298,7 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
                   </div>
                 ))
               ) : (
-                <div className="p-4 text-center text-ink-50">
+                <div className="p-4 text-center text-foreground-muted">
                   No categories available
                 </div>
               )}

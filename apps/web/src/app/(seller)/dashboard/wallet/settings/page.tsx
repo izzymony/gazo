@@ -23,24 +23,24 @@ export default function Page() {
           onClick={() => router.push("/dashboard/payouts")}
           className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Bank size={20} className="text-ink-90" />
-            <p className="text-ink-60 text-body font-normal">
+            <Bank size={20} className="text-foreground-primary" />
+            <p className="text-foreground-secondary text-body font-normal">
               Manage Payout Accounts
             </p>
           </div>
-          <ChevronRight className="text-ink-40" />
+          <ChevronRight className="text-foreground-muted" />
         </Surface>
 
         <Surface
           onClick={() => {}}
           className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <LockPassword size={20} className="text-ink-90" />
-            <p className="text-ink-60 text-body font-normal">
+            <LockPassword size={20} className="text-foreground-primary" />
+            <p className="text-foreground-secondary text-body font-normal">
               2 Factor Authentication
             </p>
           </div>
-          <ChevronRight className="text-ink-40" />
+          <ChevronRight className="text-foreground-muted" />
         </Surface>
       </Section>
     </PageShell>

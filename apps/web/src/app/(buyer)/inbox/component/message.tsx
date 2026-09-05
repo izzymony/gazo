@@ -17,17 +17,17 @@ export default function Message() {
             />
           </div>
           <div className="flex-1 flex-col flex">
-            <p className="line-clamp-1 text-ink-90 font-medium text-body">
+            <p className="line-clamp-1 text-foreground-primary font-medium text-body">
               Gucci Store
             </p>
-            <p className="text-ink-60 text-body-sm font-normal line-clamp-1">
+            <p className="text-foreground-secondary text-body-sm font-normal line-clamp-1">
               Message Preview
             </p>
           </div>
         </div>
       </div>
       <div>
-        <p className="text-ink-40 text-caption">4m ago</p>
+        <p className="text-foreground-muted text-caption">4m ago</p>
       </div>
     </div>
   );

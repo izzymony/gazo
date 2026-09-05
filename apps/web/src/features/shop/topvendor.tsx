@@ -12,7 +12,7 @@ export default function TopVendor(){
           <p className="text-body-sm leading-[16px] tracking-wider font-medium">
             Gucci store
           </p>
-          <p className="text-body-sm text-ink-40 font-normal">Fashion</p>
+          <p className="text-body-sm text-foreground-muted font-normal">Fashion</p>
           <div className="flex gap-2 items-center justify-center">
             <svg
               width="15"
@@ -48,7 +48,7 @@ export default function TopVendor(){
               </g>
             </svg>
 
-            <p className="text-caption font-normal text-ink-40">5.4</p>
+            <p className="text-caption font-normal text-foreground-muted">5.4</p>
 
             <svg
               width="5"
@@ -103,7 +103,7 @@ export default function TopVendor(){
                 />
               </g>
             </svg>
-            <p className="text-caption font-normal text-ink-40">100</p>
+            <p className="text-caption font-normal text-foreground-muted">100</p>
           </div>
         </div>
       </div>

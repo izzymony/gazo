@@ -185,7 +185,7 @@ function Page() {
                 { label: "Percentage %", value: "Percentage" },
                 { label: "Fixed ", value: "Fixed" },
               ]}
-              className="border border-ink-10 rounded-field p-2"
+              className="border border-outline rounded-field p-2"
               name="discountValue"
               selectedValue={formik.values.discountValue}
               onChange={(value: string) =>
@@ -216,7 +216,7 @@ function Page() {
                 { label: "Store Wide Products", value: "Store Wide Products" },
                 { label: "Selected Products", value: "Selected Products" },
               ]}
-              className="border border-ink-10 rounded-field p-2"
+              className="border border-outline rounded-field p-2"
               name="productType"
               selectedValue={formik.values.productType}
               onChange={(value: string) =>
@@ -301,7 +301,7 @@ function Page() {
                     { value: "price", label: "Price" },
                     { value: "order_count", label: "Order Count" },
                   ]}
-                  className="border border-ink-10 rounded-field p-2"
+                  className="border border-outline rounded-field p-2"
                   name="discountValue"
                   selectedValue={minimumRequirementOption}
                   onChange={(value: string) =>
@@ -351,7 +351,7 @@ function Page() {
                     { label: "Total Usage", value: "total_usage" },
                     { value: "customer_usage", label: "Customer Usage" },
                   ]}
-                  className="border border-ink-10 rounded-field p-2"
+                  className="border border-outline rounded-field p-2"
                   name="discountLimit"
                   selectedValue={discountLimitOption}
                   onChange={(value: string) => setDiscountLimitOption(value)}
@@ -388,7 +388,7 @@ function Page() {
           onClose={() => setShow(false)}
           ariaLabel="Select a product">
           <div className="flex flex-col space-y-4">
-            <p className="text-ink-90 text-body font-medium text-center">
+            <p className="text-foreground-primary text-body font-medium text-center">
               Select a product
             </p>
             <InputField
@@ -419,13 +419,13 @@ function Page() {
                         className="w-10 h-10 rounded-field object-cover"
                       />
                       <div className="text-body-sm">
-                        <p className="text-ink-90 font-medium">{it.title}</p>
-                        <p className="text-ink-60">
+                        <p className="text-foreground-primary font-medium">{it.title}</p>
+                        <p className="text-foreground-secondary">
                           Stock:{it.stock} Variant:{it.weight}
                         </p>
                       </div>
                     </div>
-                    <p className="text-body font-medium text-ink-90">
+                    <p className="text-body font-medium text-foreground-primary">
                       {formatCurrency(it?.price ? +it.price : 0)}
                     </p>
                   </div>
@@ -438,7 +438,7 @@ function Page() {
           onClose={() => setShows(false)}
           ariaLabel="Select a discount type">
           <div className="flex flex-col space-y-4">
-            <p className="text-ink-90 text-body font-medium text-center">
+            <p className="text-foreground-primary text-body font-medium text-center">
               Select a discount type
             </p>
             <div className="max-h-[438px] overflow-y-scroll scrollbar-hide">
@@ -450,7 +450,7 @@ function Page() {
                   }}
                   key={it}
                   className="w-full mb-4 flex gap-4 ">
-                  <p className="text-body font-medium text-ink-90">{it}</p>
+                  <p className="text-body font-medium text-foreground-primary">{it}</p>
                 </div>
               ))}
             </div>

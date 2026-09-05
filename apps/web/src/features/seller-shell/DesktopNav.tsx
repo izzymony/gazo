@@ -58,7 +58,7 @@ export default function DesktopNav() {
   const isNavItemLoading = (route: string) => loadingRoute === route;
 
   return (
-    <nav className="hidden lg:flex fixed left-0 top-0 h-screen w-64 bg-white border-r border-ink-10 flex-col py-6 px-4 z-sticky">
+    <nav className="hidden lg:flex fixed left-0 top-0 h-screen w-64 bg-surface border-r border-outline flex-col py-6 px-4 z-sticky">
       {/* Logo/Brand */}
       <div className="mb-8 px-3">
         <Image
@@ -69,7 +69,7 @@ export default function DesktopNav() {
           className="mb-2"
           priority
         />
-        <p className="text-body-sm text-ink-50">Dashboard</p>
+        <p className="text-body-sm text-foreground-muted">Dashboard</p>
       </div>
 
       {/* Navigation Links */}
@@ -86,7 +86,7 @@ export default function DesktopNav() {
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-field text-body transition-all duration-200 disabled:opacity-50 ${
                 isActive
                   ? "bg-brand/10 text-brandDeep font-semibold"
-                  : "text-ink-60 hover:bg-ink-5 font-medium"
+                  : "text-foreground-secondary hover:bg-surface-muted font-medium"
               }`}>
               {isLoading ? (
                 <>
@@ -123,7 +123,7 @@ export default function DesktopNav() {
       </div>
 
       {/* Bottom Section - Switch to Buyer & Help */}
-      <div className="pt-6 border-t border-ink-10 space-y-2">
+      <div className="pt-6 border-t border-outline space-y-2">
         {/* Switch to Buying Button - TEMPORARY: Disabled (Marketplace coming soon) */}
         <button
           onClick={() => {
@@ -143,7 +143,7 @@ export default function DesktopNav() {
         </button>
 
         {/* Help & Support Button */}
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-field hover:bg-ink-5 text-ink-60 transition-colors">
+        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-field hover:bg-surface-muted text-foreground-secondary transition-colors">
           <HelpSquare size={20} />
           <span className="text-body font-medium">Help &amp; Support</span>
         </button>

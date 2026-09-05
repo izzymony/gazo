@@ -24,17 +24,17 @@ const Security = () => {
           className="flex justify-between items-center"
           onClick={() => router.push(`/profile/settings/change-password`)}>
           <div className="flex gap-3 items-center cursor-pointer">
-            <CiLock size={20} className="text-ink-90" />
-            <p className="text-ink-60 text-body">Change password</p>
+            <CiLock size={20} className="text-foreground-primary" />
+            <p className="text-foreground-secondary text-body">Change password</p>
           </div>
-          <ChevronRight size={20} className="text-ink-90" />
+          <ChevronRight size={20} className="text-foreground-primary" />
         </Surface>
         <Surface className="flex justify-between items-center">
           <div className="flex gap-3 items-center cursor-pointer">
-            <Bell size={20} className="text-ink-90" />
-            <p className="text-ink-60 text-body">Notifications</p>
+            <Bell size={20} className="text-foreground-primary" />
+            <p className="text-foreground-secondary text-body">Notifications</p>
           </div>
-          <ChevronRight size={20} className="text-ink-90" />
+          <ChevronRight size={20} className="text-foreground-primary" />
         </Surface>
       </Section>
     </PageShell>

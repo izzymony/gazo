@@ -103,7 +103,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
         </span>
       ),
       label: (
-        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-ink-60">
+        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-foreground-secondary">
           Store Ratings
         </p>
       ),
@@ -111,7 +111,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     {
       value: formatNigerianCurrency(storeStats.products_sold),
       label: (
-        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-ink-60">
+        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-foreground-secondary">
           Products Sold
         </p>
       ),
@@ -119,7 +119,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     {
       value: formatNigerianCurrency(storeStats.followers_count),
       label: (
-        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-ink-60">
+        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-foreground-secondary">
           Followers
         </p>
       ),
@@ -129,7 +129,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
         ? `${storeStats.avg_order_prep_time} hours`
         : "N/A",
       label: (
-        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-ink-60">
+        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-foreground-secondary">
           Average Order <br />
           Preparation Time
         </p>
@@ -140,7 +140,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
         ? `${storeStats.avg_delivery_time} days`
         : "N/A",
       label: (
-        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-ink-60">
+        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-foreground-secondary">
           Average <br />
           Delivery Time
         </p>
@@ -149,7 +149,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     {
       value: storeStats.fulfilment_rate || "0%",
       label: (
-        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-ink-60">
+        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-foreground-secondary">
           Fulfillment Rate
         </p>
       ),
@@ -342,10 +342,10 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
       <div className="flex flex-col items-center justify-center h-full px-4">
         <div className="text-center max-w-md">
           <div className="text-6xl mb-4">🏪</div>
-          <h2 className="text-h2 font-semibold text-ink-90 mb-2">
+          <h2 className="text-h2 font-semibold text-foreground-primary mb-2">
             Store not found
           </h2>
-          <p className="text-body text-ink-60 mb-6">
+          <p className="text-body text-foreground-secondary mb-6">
             The store you&apos;re looking for doesn&apos;t exist or may have been
             removed.
           </p>
@@ -398,7 +398,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
             <div className="absolute top-4 right-4 z-10">
               <div className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-caption px-3 py-1.5 rounded-pill font-medium shadow-card ring-1 ring-white/20 backdrop-blur-sm">
                 <div className="flex items-center space-x-1">
-                  <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+                  <div className="w-1.5 h-1.5 bg-surface rounded-full animate-pulse"></div>
                   <span>LIVE</span>
                 </div>
               </div>
@@ -406,7 +406,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
           )}
         </div>
 
-        <div className="relative z-20 -top-6 mt-2 grid grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 px-4 md:px-6 py-3 md:py-4 bg-white shadow-card mx-4 lg:mx-6 rounded-card">
+        <div className="relative z-20 -top-6 mt-2 grid grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 px-4 md:px-6 py-3 md:py-4 bg-surface shadow-card mx-4 lg:mx-6 rounded-card">
           {stats.map((stat, index) => (
             <div
               key={index}
@@ -469,7 +469,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
             }
           }}>
           <div className="w-full">
-            <h3 className="font-semibold text-ink-90 text-body-lg text-center mb-6">
+            <h3 className="font-semibold text-foreground-primary text-body-lg text-center mb-6">
               Share product
             </h3>
 
@@ -489,7 +489,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
                   >
                     {option.icon}
                   </div>
-                  <span className="text-body-sm text-ink-80">
+                  <span className="text-body-sm text-foreground-secondary">
                     {option.name}
                   </span>
                 </a>
@@ -497,15 +497,15 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
             </div>
 
             {/* Copy Link Section */}
-            <div className="bg-ink-3 rounded-full flex items-center gap-3 pl-5 pr-1.5 py-1.5">
-              <span className="text-body text-ink-80 truncate flex-1">
+            <div className="bg-surface-subtle rounded-full flex items-center gap-3 pl-5 pr-1.5 py-1.5">
+              <span className="text-body text-foreground-secondary truncate flex-1">
                 {productUrl}
               </span>
               <button
                 onClick={() => handleCopyLink(productUrl)}
                 className={`flex items-center justify-center gap-1.5 px-5 py-3 rounded-full min-h-[44px] font-semibold text-body transition-all touch-manipulation ${
                   copied
-                    ? "bg-success-foreground text-ink-90"
+                    ? "bg-success-foreground text-foreground-primary"
                     : "bg-brand text-brandInk active:scale-95"
                 }`}
                 style={{

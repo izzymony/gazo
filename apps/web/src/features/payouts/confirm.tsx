@@ -21,11 +21,11 @@ export const ReceiptCard = ({
   return (
     <div className="flex justify-between gap-2 py-4">
       <div>
-        <p className="text-body font-normal text-ink-90">{title}</p>
+        <p className="text-body font-normal text-foreground-primary">{title}</p>
       </div>
       <div className="items-end flex flex-col">
         {content && (
-          <p className="text-body font-medium text-ink-90">{content}</p>
+          <p className="text-body font-medium text-foreground-primary">{content}</p>
         )}
         {sub.toLowerCase() === "pending" ? (
           <div className="px-2 py-1 bg-warning-surface rounded-pill border border-warning-border">
@@ -36,7 +36,7 @@ export const ReceiptCard = ({
             <p className="text-body-sm font-normal text-success-foreground">Completed</p>
           </div>
         ) : (
-          <p className="text-body font-normal text-ink-60">{sub}</p>
+          <p className="text-body font-normal text-foreground-secondary">{sub}</p>
         )}
       </div>
     </div>
@@ -84,7 +84,7 @@ export default function Confirm({
       footerAction={<Button onClick={handleConfirm}>Confirm</Button>}>
       <Section>
         <div className="flex items-center justify-center mt-5">
-          <p className="text-ink-90 font-medium text-h2">NGN {amount}</p>
+          <p className="text-foreground-primary font-medium text-h2">NGN {amount}</p>
         </div>
       </Section>
       <Section>
@@ -100,7 +100,7 @@ export default function Confirm({
         <ReceiptCard title={"Total"} sub={"NGN " + total} />
       </Section>
       <Section>
-        <p className="mx-11 text-body-sm text-center font-normal text-ink-60">
+        <p className="mx-11 text-body-sm text-center font-normal text-foreground-secondary">
           Bank Transfers typically works instantly! In rare cases, processing
           may take longer depending on your bank.
         </p>

@@ -216,7 +216,7 @@ const Page = () => {
       }>
       <div className="w-full pt-4">
         <p className="font-medium text-h1">Add shipping profile</p>
-        <p className="text-body font-normal text-ink-60">
+        <p className="text-body font-normal text-foreground-secondary">
           Your order and delivery updates will be sent to the contact
           information below.
         </p>
@@ -253,7 +253,7 @@ const Page = () => {
               value="Nigeria"
               isReadonly={true}
               placeholder="Country"
-              className="bg-ink-5"
+              className="bg-surface-muted"
               onChange={() => {}}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">

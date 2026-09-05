@@ -15,24 +15,24 @@ const Discount: React.FC<{ order: any }> = ({ order }) => {
       <div className="flex justify-between items-center ">
         <div className="">
           <div className="flex items-center space-x-8">
-            <span className="text-body font-medium text-ink-90">
+            <span className="text-body font-medium text-foreground-primary">
               {order.title}
             </span>
-            <span className="text-body-sm space-x-1 flex items-center rounded-field bg-ink-3">
+            <span className="text-body-sm space-x-1 flex items-center rounded-field bg-surface-subtle">
               <span>{order.products.length}</span>
               <IoCubeOutline />
             </span>
           </div>
         </div>
         <div>
-          <span className="text-body-sm font-medium text-ink-90 py-1 px-2 rounded-field bg-ink-5">
+          <span className="text-body-sm font-medium text-foreground-primary py-1 px-2 rounded-field bg-surface-muted">
             {order.type}
           </span>
         </div>
       </div>
       <div className="flex justify-between ">
-        <p className="text-body-sm text-ink-40">{order.discount_type}</p>
-        <span className="text-caption text-ink-40">{`${order.valid_from
+        <p className="text-body-sm text-foreground-muted">{order.discount_type}</p>
+        <span className="text-caption text-foreground-muted">{`${order.valid_from
           .toString()
           .slice(0, 10)} - ${order.valid_to.toString().slice(0, 10)}`}</span>
       </div>

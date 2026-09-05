@@ -103,20 +103,9 @@ module.exports = {
           strong: "rgb(var(--surface-strong-rgb) / <alpha-value>)",
           inverse: "rgb(var(--surface-inverse-rgb) / <alpha-value>)",
         },
-        ink: {
-          3: "var(--ink-3)",
-          5: "var(--ink-5)",
-          10: "var(--ink-10)",
-          20: "var(--ink-20)",
-          30: "var(--ink-30)",
-          40: "var(--ink-40)",
-          50: "var(--ink-50)",
-          60: "var(--ink-60)",
-          70: "var(--ink-70)",
-          80: "var(--ink-80)",
-          90: "var(--ink-90)",
-        },
-        line: "var(--line)",
+        // Scrim only. `/opacity` composes, so a lighter backdrop is
+        // bg-overlay/40 rather than another token.
+        overlay: "rgb(var(--overlay-rgb) / <alpha-value>)",
         // Declared with an <alpha-value> slot, NOT a bare var(): Tailwind can
         // only generate a /opacity modifier for the former. As bare vars,
         // bg-success/10, bg-warning/10, text-brandInk/70 and friends emitted no
@@ -144,9 +133,12 @@ module.exports = {
           surface: "rgb(var(--info-surface-rgb) / <alpha-value>)",
           border: "rgb(var(--info-border-rgb) / <alpha-value>)",
         },
-        // Compatibility alias: existing `text-black` means the historic soft
-        // black. New product UI should prefer the explicit ink scale.
-        black: tokens.color.ink[90],
+        // `text-black` (39 uses) and `bg-black` (30) historically meant a SOFT
+        // black — the old ink-90, #000000E5 — not pure black. Now that the ink
+        // ramp is gone it aliases the neutral role that replaced it, so those
+        // call sites keep rendering the same colour. New UI should use
+        // foreground-primary / surface-inverse explicitly.
+        black: tokens.color.foreground.primary,
       },
       backgroundImage: {
         'section-yellow': 'linear-gradient(90deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.7) 100%), linear-gradient(90deg, rgb(242, 222, 77) 0%, rgb(242, 222, 77) 100%)',

@@ -21,21 +21,21 @@ const CollectionCard = ({ collection }: { collection: CollectionData }) => {
         <div className="space-y-1">
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-8">
-                    <span className="text-body font-medium text-ink-90">{collection.name}</span>
-                    <span className="text-body-sm space-x-1 flex items-center rounded-field bg-ink-3">
+                    <span className="text-body font-medium text-foreground-primary">{collection.name}</span>
+                    <span className="text-body-sm space-x-1 flex items-center rounded-field bg-surface-subtle">
                         <span>{collection.productCount}</span>
                         <IoCubeOutline size={16} />
                     </span>
                 </div>
                 <div>
-                    <p className="text-body font-medium text-ink-90">
+                    <p className="text-body font-medium text-foreground-primary">
                         {formatCurrency(collection.totalValue)}
                     </p>
                 </div>
             </div>
             <div className="flex justify-between">
-                <p className="text-body-sm text-ink-40">Avg Price: {formatCurrency(collection.averagePrice)}</p>
-                <span className="text-body-sm text-ink-40">Total Value</span>
+                <p className="text-body-sm text-foreground-muted">Avg Price: {formatCurrency(collection.averagePrice)}</p>
+                <span className="text-body-sm text-foreground-muted">Total Value</span>
             </div>
         </div>
     );

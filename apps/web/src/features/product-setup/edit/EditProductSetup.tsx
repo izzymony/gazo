@@ -665,23 +665,23 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     </Button>
                 </div>
             }>
-            <div className="bg-ink-3 min-h-full">
+            <div className="bg-surface-subtle min-h-full">
                 <form onSubmit={formik.handleSubmit} className="pb-4">
                     {/* Product Images & Basic Info */}
-                    <div className="bg-white mb-4 shadow-card">
+                    <div className="bg-surface mb-4 shadow-card">
                         <button
                             type="button"
                             onClick={() => toggleSection('basic')}
-                            className="w-full p-4 flex items-center justify-between border-b border-ink-5 hover:bg-ink-3"
+                            className="w-full p-4 flex items-center justify-between border-b border-outline-subtle hover:bg-surface-subtle"
                         >
                             <div className="text-left">
-                                <h2 className="text-h2 font-medium text-ink-90">Basic Information</h2>
-                                <p className="text-body text-ink-60">Images, title, and pricing</p>
+                                <h2 className="text-h2 font-medium text-foreground-primary">Basic Information</h2>
+                                <p className="text-body text-foreground-secondary">Images, title, and pricing</p>
                             </div>
                             {expandedSections.basic ? (
-                                <BiChevronUp className="h-5 w-5 text-ink-40" />
+                                <BiChevronUp className="h-5 w-5 text-foreground-muted" />
                             ) : (
-                                <BiChevronDown className="h-5 w-5 text-ink-40" />
+                                <BiChevronDown className="h-5 w-5 text-foreground-muted" />
                             )}
                         </button>
                         {expandedSections.basic && (
@@ -701,7 +701,7 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                                                 ? "border-brandDeep border-dashed"
                                                                 : draggedIndex === index
                                                                 ? "border-brandDeep opacity-50"
-                                                                : "border-ink-10"
+                                                                : "border-outline"
                                                         }`}
                                                         draggable
                                                         onDragStart={() => handleDragStart(index)}
@@ -728,10 +728,10 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                                                     handleDeleteImage(index);
                                                                     setSelectedImageIndex(null);
                                                                 }}
-                                                                className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-md hover:shadow-lg transition-shadow"
+                                                                className="absolute top-1 right-1 bg-surface rounded-full p-1 shadow-md hover:shadow-lg transition-shadow"
                                                                 aria-label="Delete image"
                                                             >
-                                                                <X className="h-3 w-3 text-ink-60" />
+                                                                <X className="h-3 w-3 text-foreground-secondary" />
                                                             </button>
                                                         )}
                                                     </div>
@@ -742,7 +742,7 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
 
                                     {/* Add Image Button */}
                                     <div className="w-full">
-                                        <label className="block w-full bg-ink-3 px-4 py-4 font-medium rounded-card text-body text-brandDeep border-2 border-dashed border-ink-10 hover:border-brandDeep transition-colors cursor-pointer group">
+                                        <label className="block w-full bg-surface-subtle px-4 py-4 font-medium rounded-card text-body text-brandDeep border-2 border-dashed border-outline hover:border-brandDeep transition-colors cursor-pointer group">
                                             <div className="flex items-center justify-center gap-2">
                                                 <input
                                                     type="file"
@@ -759,9 +759,9 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
 
                                     {/* Image Counter */}
                                     {formik.values?.images && formik.values.images.length > 0 && (
-                                        <div className="mt-2 text-body text-ink-50 text-center">
+                                        <div className="mt-2 text-body text-foreground-muted text-center">
                                             {formik.values.images.length} image{formik.values.images.length !== 1 ? 's' : ''} added
-                                            <span className="ml-2 text-body-sm text-ink-40">
+                                            <span className="ml-2 text-body-sm text-foreground-muted">
                                                 • Drag to reorder
                                             </span>
                                         </div>
@@ -836,20 +836,20 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     </div>
 
                     {/* Product Details */}
-                    <div className="bg-white mb-4 shadow-card">
+                    <div className="bg-surface mb-4 shadow-card">
                         <button
                             type="button"
                             onClick={() => toggleSection('details')}
-                            className="w-full p-4 flex items-center justify-between border-b border-ink-5 hover:bg-ink-3"
+                            className="w-full p-4 flex items-center justify-between border-b border-outline-subtle hover:bg-surface-subtle"
                         >
                             <div className="text-left">
-                                <h2 className="text-h2 font-medium text-ink-90">Product Details</h2>
-                                <p className="text-body text-ink-60">Description, category, and collections</p>
+                                <h2 className="text-h2 font-medium text-foreground-primary">Product Details</h2>
+                                <p className="text-body text-foreground-secondary">Description, category, and collections</p>
                             </div>
                             {expandedSections.details ? (
-                                <BiChevronUp className="h-5 w-5 text-ink-40" />
+                                <BiChevronUp className="h-5 w-5 text-foreground-muted" />
                             ) : (
-                                <BiChevronDown className="h-5 w-5 text-ink-40" />
+                                <BiChevronDown className="h-5 w-5 text-foreground-muted" />
                             )}
                         </button>
                         {expandedSections.details && (
@@ -893,20 +893,20 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     </div>
 
                     {/* Inventory & Variations */}
-                    <div className="bg-white mb-4 shadow-card">
+                    <div className="bg-surface mb-4 shadow-card">
                         <button
                             type="button"
                             onClick={() => toggleSection('inventory')}
-                            className="w-full p-4 flex items-center justify-between border-b border-ink-5 hover:bg-ink-3"
+                            className="w-full p-4 flex items-center justify-between border-b border-outline-subtle hover:bg-surface-subtle"
                         >
                             <div className="text-left">
-                                <h2 className="text-h2 font-medium text-ink-90">Inventory & Variations</h2>
-                                <p className="text-body text-ink-60">Stock management and product options</p>
+                                <h2 className="text-h2 font-medium text-foreground-primary">Inventory & Variations</h2>
+                                <p className="text-body text-foreground-secondary">Stock management and product options</p>
                             </div>
                             {expandedSections.inventory ? (
-                                <BiChevronUp className="h-5 w-5 text-ink-40" />
+                                <BiChevronUp className="h-5 w-5 text-foreground-muted" />
                             ) : (
-                                <BiChevronDown className="h-5 w-5 text-ink-40" />
+                                <BiChevronDown className="h-5 w-5 text-foreground-muted" />
                             )}
                         </button>
                         {expandedSections.inventory && (

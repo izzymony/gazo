@@ -94,7 +94,7 @@ const Page = () => {
                             type="text"
                             value="Nigeria"
                             isReadonly={true}
-                            className="bg-ink-5"
+                            className="bg-surface-muted"
                         />
                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
                             <div className="w-6 h-6 rounded-full bg-success-foreground flex items-center justify-center">

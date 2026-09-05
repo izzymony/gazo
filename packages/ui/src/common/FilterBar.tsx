@@ -37,7 +37,7 @@ export default function FilterBar({
     };
 
     return (
-        <div className={cn("sticky top-0 z-sticky w-full bg-white pb-2", className)}>
+        <div className={cn("sticky top-0 z-sticky w-full bg-surface pb-2", className)}>
             <div className="w-full flex">
                 <div className="w-full flex flex-1 gap-2 items-center cursor-pointer overflow-x-scroll scrollbar-hide py-2">
                     {pills.map((pill, index) => (
@@ -46,7 +46,7 @@ export default function FilterBar({
                             onClick={() => onPillChange(index)}
                             className={`px-2 text-body-sm py-2 rounded-full gap-2 flex items-center cursor-pointer whitespace-nowrap transition-colors ${activePill === index
                                 ? "bg-black text-white"
-                                : "bg-ink-3 text-black hover:bg-ink-5"
+                                : "bg-surface-subtle text-black hover:bg-surface-muted"
                                 }`}
                         >
                             <span className="px-[2px] py-[1px]">
@@ -61,7 +61,7 @@ export default function FilterBar({
                     {showSearch && (
                         <div
                             onClick={handleSearchToggle}
-                            className="cursor-pointer p-2 rounded-full hover:bg-ink-5 transition-colors"
+                            className="cursor-pointer p-2 rounded-full hover:bg-surface-muted transition-colors"
                         >
                             <svg
                                 width="20"
@@ -86,7 +86,7 @@ export default function FilterBar({
                     {showSort && (
                         <div
                             onClick={onSortClick}
-                            className="cursor-pointer p-2 rounded-full hover:bg-ink-5 transition-colors"
+                            className="cursor-pointer p-2 rounded-full hover:bg-surface-muted transition-colors"
                         >
                             <svg
                                 width="20"
@@ -108,7 +108,7 @@ export default function FilterBar({
 
             {/* Inline Search Input - Now properly positioned */}
             {isSearchVisible && (
-                <div className="pb-2 pt-1 border-t border-outline bg-white">
+                <div className="pb-2 pt-1 border-t border-outline bg-surface">
                     <SearchField
                         value={searchValue ?? ""}
                         onChange={(value) => onSearchChange?.(value)}

@@ -39,7 +39,7 @@ const ProductHeader = ({ title, isSeller, logoSrc, vendorTheme }: SmallHeaderPro
     isSeller?.pro && (
       <div
         className={`absolute top-0 left-0 right-0 w-full max-w-full lg:max-w-5xl lg:mx-auto shadow-md p-2 pt-4 flex flex-col ${
-          isSeller?.pro ? "h-[20vh] rounded-b-[20px]" : "bg-white"
+          isSeller?.pro ? "h-[20vh] rounded-b-[20px]" : "bg-surface"
         }`}
         style={{
           background:

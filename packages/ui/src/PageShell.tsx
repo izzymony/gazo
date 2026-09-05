@@ -100,7 +100,7 @@ export default function PageShell({
           {footerAction && (
             <div
               className={cn(
-                "bottom-0 w-full max-w-full border-t border-outline-subtle bg-white px-3 pb-5 z-sticky lg:mx-auto lg:max-w-5xl",
+                "bottom-0 w-full max-w-full border-t border-outline-subtle bg-surface px-3 pb-5 z-sticky lg:mx-auto lg:max-w-5xl",
                 footerPosition === "fixed" ? "fixed left-0 right-0" : "sticky"
               )}>
               {footerAction}

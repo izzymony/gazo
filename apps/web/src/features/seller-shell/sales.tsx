@@ -144,12 +144,12 @@ export default function SalesBody({ action }: { action: () => void }) {
             </p>
           </HeroHeader>
         }>
-      <div data-tour="sales-analytics" className="relative z-30 -mt-14 px-2 bg-white rounded-card p-2 flex flex-col gap-3 text-ink-60">
+      <div data-tour="sales-analytics" className="relative z-30 -mt-14 px-2 bg-surface rounded-card p-2 flex flex-col gap-3 text-foreground-secondary">
         <div className="flex items-center justify-between w-full">
           <button
             className={`${tab === 0
-              ? " bg-transparent  text-ink-90 border-[0.5px] border-ink-10 border-solid rounded-card py-1 "
-              : "font-normal text-ink-40"
+              ? " bg-transparent  text-foreground-primary border-[0.5px] border-outline border-solid rounded-card py-1 "
+              : "font-normal text-foreground-muted"
               } w-[48%] font-medium text-body-sm`}
             onClick={() => {
               setTab(0);
@@ -158,8 +158,8 @@ export default function SalesBody({ action }: { action: () => void }) {
           </button>
           <button
             className={`${tab === 1
-              ? " bg-transparent  text-ink-90 border-[0.5px] border-ink-10 border-solid rounded-card py-1 "
-              : "font-normal text-ink-40"
+              ? " bg-transparent  text-foreground-primary border-[0.5px] border-outline border-solid rounded-card py-1 "
+              : "font-normal text-foreground-muted"
               } w-[48%] font-medium text-body-sm`}
             onClick={() => {
               setTab(1);
@@ -169,7 +169,7 @@ export default function SalesBody({ action }: { action: () => void }) {
           </button>
         </div>
         {tab === 0 ? (
-          <div className="w-full bg-ink-3 rounded-field flex flex-col">
+          <div className="w-full bg-surface-subtle rounded-field flex flex-col">
             <div className="w-full border-b flex flex-col gap-2 p-3">
               <div className="flex flex-row justify-between items-center">
                 <p className="text-caption font-medium uppercase">
@@ -180,10 +180,10 @@ export default function SalesBody({ action }: { action: () => void }) {
                   onClick={() => router.push("/dashboard/analytics")}
                   className="text-caption font-medium uppercase flex items-center gap-1 cursor-pointer">
                   View Details{" "}
-                  <ChevronRight size={13} className="text-ink-60" />
+                  <ChevronRight size={13} className="text-foreground-secondary" />
                 </div>
               </div>
-              <p className="flex items-center gap-1 text-ink-90 font-medium text-h1 ">
+              <p className="flex items-center gap-1 text-foreground-primary font-medium text-h1 ">
                 ₦{formatNigerianCurrency(salesDashboardAnalytics.summary.revenue_generated)}
                 <TrendIndicator
                   percentChange={salesDashboardAnalytics.percent_change.revenue_generated}
@@ -218,7 +218,7 @@ export default function SalesBody({ action }: { action: () => void }) {
                         ? "Orders"
                         : "Sale"}
                   </p>
-                  <p className="flex items-center gap-1 text-ink-90 font-medium text-h2 ">
+                  <p className="flex items-center gap-1 text-foreground-primary font-medium text-h2 ">
                     {formatNigerianCurrency(_.val)}
                     <TrendIndicator
                       percentChange={_.change}
@@ -232,7 +232,7 @@ export default function SalesBody({ action }: { action: () => void }) {
             </div>
           </div>
         ) : (
-          <div className="w-full rounded-field bg-ink-3 flex flex-col ">
+          <div className="w-full rounded-field bg-surface-subtle flex flex-col ">
             <div className="w-full border-b p-3 flex flex-col gap-3">
               <div className="w-full flex justify-between items-center ">
                 <p className="text-caption font-medium uppercase">
@@ -243,12 +243,12 @@ export default function SalesBody({ action }: { action: () => void }) {
                   onClick={action}
                   className="text-caption font-medium uppercase flex items-center gap-1 cursor-pointer">
                   View Details{" "}
-                  <ChevronRight size={13} className="text-ink-60" />
+                  <ChevronRight size={13} className="text-foreground-secondary" />
                 </div>
               </div>
 
               <div className="flex flex-row items-center justify-between">
-                <p className="flex items-center gap-1 text-ink-90 font-medium text-h1 ">
+                <p className="flex items-center gap-1 text-foreground-primary font-medium text-h1 ">
                   ₦{walletAnalytics.available_balance}
                 </p>
                 <div
@@ -277,7 +277,7 @@ export default function SalesBody({ action }: { action: () => void }) {
                     {item.label}
                   </p>
 
-                  <p className="flex items-center gap-1 text-ink-90 font-medium text-h2 ">
+                  <p className="flex items-center gap-1 text-foreground-primary font-medium text-h2 ">
                     ₦ {item.val?.toLocaleString()}
                   </p>
                 </div>
@@ -296,7 +296,7 @@ export default function SalesBody({ action }: { action: () => void }) {
       {/* 7-day modal nudge for inactive users */}
       <NudgeBanner />
 
-      <div data-tour="quick-actions" className="w-full font-medium text-body text-ink-90 py-3">
+      <div data-tour="quick-actions" className="w-full font-medium text-body text-foreground-primary py-3">
         <p>Quick actions</p>
         <div className="w-full flex mt-3 gap-4">
           {[
@@ -321,17 +321,17 @@ export default function SalesBody({ action }: { action: () => void }) {
           ].map((_, index) => (
             <div
               onClick={() => router.push(_.path)}
-              className="cursor-pointer rounded-card bg-ink-3 p-3 flex flex-row items-center flex-1 gap-3 min-h-[60px] transition-all duration-200 active:scale-95 hover:bg-ink-5"
+              className="cursor-pointer rounded-card bg-surface-subtle p-3 flex flex-row items-center flex-1 gap-3 min-h-[60px] transition-all duration-200 active:scale-95 hover:bg-surface-muted"
               key={index}>
               <div>{_.icon}</div>
-              <p className="flex items-center text-ink-90 font-medium text-body w-[90%] ">
+              <p className="flex items-center text-foreground-primary font-medium text-body w-[90%] ">
                 {_.title}
               </p>
             </div>
           ))}
         </div>
       </div>
-      <Section className="pb-3 font-medium text-body text-ink-90">
+      <Section className="pb-3 font-medium text-body text-foreground-primary">
         <div data-tour="recent-activities" className="flex flex-col gap-3">
         <ListSectionHeader
           title="Recent activities"
@@ -341,7 +341,7 @@ export default function SalesBody({ action }: { action: () => void }) {
           {activitiesLoading ? (
             <div className="flex items-center justify-center py-4">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-error-foreground"></div>
-              <p className="ml-3 text-ink-60 text-body-sm">Loading activities...</p>
+              <p className="ml-3 text-foreground-secondary text-body-sm">Loading activities...</p>
             </div>
           ) : activities.length > 0 ? (
             <>
@@ -533,14 +533,14 @@ export const SocialButton = ({
       </svg>
     ),
     upload: (
-      <SquareArrowUpRight size={20} className="text-ink-90" />
+      <SquareArrowUpRight size={20} className="text-foreground-primary" />
     ),
   };
 
   return (
     <div
       onClick={action}
-      className="flex gap-3 items-center rounded-full border bg-white justify-center text-ink-60 text-body-lg font-normal tracking-wider py-3 px-5">
+      className="flex gap-3 items-center rounded-full border bg-surface justify-center text-foreground-secondary text-body-lg font-normal tracking-wider py-3 px-5">
       <div>{icons[text]}</div>
       <p>{sub}</p>
     </div>
@@ -556,7 +556,7 @@ export const Modall = ({
   <div
     onClick={action}
     className="flex-1 absolute top-0 bottom-0 left-0 right-0 bg-black/20 flex-col flex justify-end">
-    <div className="flex flex-col items-center bg-white rounded-t-3xl mb-[60px] px-4 pt-10 pb-10">
+    <div className="flex flex-col items-center bg-surface rounded-t-3xl mb-[60px] px-4 pt-10 pb-10">
       <div className="relative mb-3">
         <svg
           width="298"
@@ -610,10 +610,10 @@ export const Modall = ({
           />
         </div>
       </div>
-      <p className="text-center text-ink-90 text-h2 font-medium tracking-wider leading-[32px]">
+      <p className="text-center text-foreground-primary text-h2 font-medium tracking-wider leading-[32px]">
         Post a new spotlight
       </p>
-      <p className="text-center text-ink-60 text-body font-normal tracking-wider leading-[20px]">
+      <p className="text-center text-foreground-secondary text-body font-normal tracking-wider leading-[20px]">
         Reach more audience and engage with creative <br />
         media spotlights linked to your products.
       </p>

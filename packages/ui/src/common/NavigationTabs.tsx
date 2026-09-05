@@ -9,7 +9,7 @@ interface NavigationTabsProps {
 
 /**
  * Route-based tab bar. Mirrors the state-based `Tabs` sticky pattern exactly:
- * `sticky top-0 z-sticky bg-white`, no self-padding (inherits PageShell's px),
+ * `sticky top-0 z-sticky bg-surface`, no self-padding (inherits PageShell's px),
  * border lives on the buttons — so it pins under the header for the full scroll.
  */
 const NavigationTabs: React.FC<NavigationTabsProps> = ({ tabs, tabClass }) => {
@@ -23,7 +23,7 @@ const NavigationTabs: React.FC<NavigationTabsProps> = ({ tabs, tabClass }) => {
   return (
     <div
       className={cn(
-        "flex justify-between lg:justify-center sticky top-0 z-sticky bg-white",
+        "flex justify-between lg:justify-center sticky top-0 z-sticky bg-surface",
         tabClass
       )}>
       {tabs.map((tab, index) => (
@@ -34,7 +34,7 @@ const NavigationTabs: React.FC<NavigationTabsProps> = ({ tabs, tabClass }) => {
             "w-full lg:w-auto text-center py-2 md:py-3 px-4 md:px-6 lg:px-8 border-b-2 text-body md:text-body-lg transition-all",
             pathname === tab.path
               ? "border-outline-contrast text-foreground-primary font-medium"
-              : "border-transparent text-ink-30 font-normal hover:text-foreground-secondary hover:border-outline-strong"
+              : "border-transparent text-foreground-disabled font-normal hover:text-foreground-secondary hover:border-outline-strong"
           )}>
           {tab.label}
         </button>

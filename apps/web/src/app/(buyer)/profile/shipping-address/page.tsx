@@ -78,7 +78,7 @@ const Page = () => {
       }>
       <div className="space-y-1">
         <p className="font-medium text-h1">Select shipping profile</p>
-        <p className="text-caption font-normal text-ink-60">
+        <p className="text-caption font-normal text-foreground-secondary">
           Your order will be sent to the shipping information you choose.
         </p>
       </div>
@@ -86,8 +86,8 @@ const Page = () => {
       <Section>
         {shippingDetails.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-ink-60 text-body">No shipping profiles found</p>
-            <p className="text-ink-60 text-body-sm">Add your first shipping profile to get started</p>
+            <p className="text-foreground-secondary text-body">No shipping profiles found</p>
+            <p className="text-foreground-secondary text-body-sm">Add your first shipping profile to get started</p>
           </div>
         ) : (
           shippingDetails.map((profile) => (
@@ -96,7 +96,7 @@ const Page = () => {
               className={`relative ${
                 profile.id === singleShippingDetails?.id
                   ? "border-brandDeep"
-                  : "border-ink-10"
+                  : "border-outline"
               }`}>
               <div className="flex justify-between">
                 <div className="flex flex-col gap-1">
@@ -106,15 +106,15 @@ const Page = () => {
                       <CircleCheck size={12} className="text-brandDeep" />
                     </span>
                   )}
-                  <p className="font-normal text-ink-90 text-caption">
+                  <p className="font-normal text-foreground-primary text-caption">
                     {profile.shipping_user.firstname +
                       " " +
                       profile.shipping_user.lastname}
                   </p>
-                  <p className="text-caption font-normal text-ink-90">
+                  <p className="text-caption font-normal text-foreground-primary">
                     {profile.shipping_user.phone}
                   </p>
-                  <p className="text-caption font-normal text-ink-90">
+                  <p className="text-caption font-normal text-foreground-primary">
                     {profile.street}
                   </p>
                 </div>

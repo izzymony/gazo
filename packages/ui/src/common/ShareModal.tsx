@@ -102,7 +102,7 @@ export default function ShareModal({
               >
                 {option.icon}
               </div>
-              <span className="text-body-sm text-ink-80">
+              <span className="text-body-sm text-foreground-secondary">
                 {option.name}
               </span>
             </button>
@@ -110,8 +110,8 @@ export default function ShareModal({
         </div>
 
         {/* Copy Link Section */}
-        <div className="bg-ink-3 rounded-full flex items-center gap-3 pl-5 pr-1.5 py-1.5">
-          <span className="text-body text-ink-80 truncate flex-1">
+        <div className="bg-surface-subtle rounded-full flex items-center gap-3 pl-5 pr-1.5 py-1.5">
+          <span className="text-body text-foreground-secondary truncate flex-1">
             {shareUrl}
           </span>
           <button

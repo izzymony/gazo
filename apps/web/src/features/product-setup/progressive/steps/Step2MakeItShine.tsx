@@ -25,7 +25,7 @@ const Step2MakeItShine = ({
                     <H1 className="text-h1 text-start">
                         Make it Shine
                     </H1>
-                    <p className="text-body mt-3 text-ink-40 text-start">
+                    <p className="text-body mt-3 text-foreground-muted text-start">
                         Looking great! Let's add the details that sell 📝
                     </p>
 

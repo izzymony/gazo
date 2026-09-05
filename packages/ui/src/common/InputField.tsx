@@ -146,7 +146,7 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(function 
           error
             ? "border-error-border focus-within:ring-error-foreground"
             : "focus-within:ring-brandDeep",
-          disabled && "cursor-not-allowed bg-ink-3 opacity-60",
+          disabled && "cursor-not-allowed bg-surface-subtle opacity-60",
           className
         )}>
         {/* Input Field */}
@@ -268,7 +268,7 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(function 
               <BiChevronDown size={25} />
             </span>
             {isDropdownOpen && (
-              <div className="absolute left-0 top-full z-20 mt-1 h-[100px] w-full rounded-field border border-outline bg-white shadow-card">
+              <div className="absolute left-0 top-full z-20 mt-1 h-[100px] w-full rounded-field border border-outline bg-surface shadow-card">
                 {options.map((option) => (
                   <div
                     key={option.value}

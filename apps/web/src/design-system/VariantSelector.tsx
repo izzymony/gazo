@@ -61,8 +61,8 @@ const SelectVariants: React.FC<SelectVariantsProps> = ({ product, onVariantChang
 
         return (
           <div key={variant.id || variant.name}>
-            <p className="font-medium text-caption text-ink-60 mb-2">
-              {variant.name}: <span className="text-ink-60">{selectedValue}</span>
+            <p className="font-medium text-caption text-foreground-secondary mb-2">
+              {variant.name}: <span className="text-foreground-secondary">{selectedValue}</span>
             </p>
             <div className="flex gap-2 flex-wrap">
               {variant.types.map((value) => (
@@ -72,7 +72,7 @@ const SelectVariants: React.FC<SelectVariantsProps> = ({ product, onVariantChang
                   className={`cursor-pointer px-3 py-1 rounded-md text-xs font-medium transition-colors ${
                     selectedValue === value
                       ? "bg-brand text-brandInk"
-                      : "bg-ink-3 text-gray-700"
+                      : "bg-surface-subtle text-gray-700"
                   }
                  ${selectedValue !== value ? "hover:bg-gray-300" : ""}`}
                 >

@@ -36,7 +36,7 @@ const VendorNav = memo(({ isSeller }: Props) => {
     <BottomNav />
   ) : (
     <div
-      className="fixed bottom-5 left-1/2 -translate-x-1/2 rounded-pill h-11 bg-white z-sticky w-full max-w-[150px] flex justify-between items-center px-5 shadow-pop lg:hidden"
+      className="fixed bottom-5 left-1/2 -translate-x-1/2 rounded-pill h-11 bg-surface z-sticky w-full max-w-[150px] flex justify-between items-center px-5 shadow-pop lg:hidden"
     >
       {navLinks.map(({ Icon, route, dynamic }) => {
         const isActive = Array.isArray(route)
@@ -51,7 +51,7 @@ const VendorNav = memo(({ isSeller }: Props) => {
             prefetch
             key={Array.isArray(route) ? route[0] : route}
             className={`flex items-center flex-col transition-colors ${
-              isActive ? "text-brandDeep" : "text-ink-40"
+              isActive ? "text-brandDeep" : "text-foreground-muted"
             }`}>
             <div className="relative">
               <Icon size={24} />

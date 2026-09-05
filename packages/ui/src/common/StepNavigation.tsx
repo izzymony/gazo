@@ -12,7 +12,7 @@ export default function StepNavigation({
       {Array.from({ length: totalSteps }).map((_, index) => (
         <div
           key={index}
-          className={`h-1 flex-1 rounded-pill transition-colors ${step >= index + 1 ? "bg-brand" : "bg-ink-10"
+          className={`h-1 flex-1 rounded-pill transition-colors ${step >= index + 1 ? "bg-brand" : "bg-surface-strong"
             }`}
         />
       ))}

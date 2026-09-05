@@ -67,10 +67,10 @@ const ShippingOptionCard: React.FC<ShippingOptionCardProps> = ({
       onClick={onSelect}
       className={cn(
         "w-full text-left border rounded-card p-3 flex gap-3 items-start transition-colors",
-        selected ? "border-brandDeep bg-brand/10" : "border-ink-10 bg-white"
+        selected ? "border-brandDeep bg-brand/10" : "border-outline bg-surface"
       )}>
       {/* Courier logo, or a truck fallback */}
-      <div className="shrink-0 w-10 h-10 rounded-field bg-ink-3 flex items-center justify-center overflow-hidden">
+      <div className="shrink-0 w-10 h-10 rounded-field bg-surface-subtle flex items-center justify-center overflow-hidden">
         {logo && !logoFailed ? (
           // eslint-disable-next-line @next/next/no-img-element -- courier logos come from arbitrary external hosts; next/image can't enumerate them
           <img
@@ -81,29 +81,29 @@ const ShippingOptionCard: React.FC<ShippingOptionCardProps> = ({
             className="w-full h-full object-contain"
           />
         ) : (
-          <DeliveryTruck size={20} className="text-ink-60" />
+          <DeliveryTruck size={20} className="text-foreground-secondary" />
         )}
       </div>
 
       {/* Name + speed tag + subtitle + badges */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <p className="text-body font-medium text-ink-90">{name}</p>
+          <p className="text-body font-medium text-foreground-primary">{name}</p>
           {speedTag && (
-            <span className="text-caption px-2 py-0.5 rounded-pill bg-ink-3 text-ink-70">
+            <span className="text-caption px-2 py-0.5 rounded-pill bg-surface-subtle text-foreground-secondary">
               {speedTag}
             </span>
           )}
         </div>
         {option.description && (
-          <p className="text-body-sm text-ink-60 mt-0.5">{option.description}</p>
+          <p className="text-body-sm text-foreground-secondary mt-0.5">{option.description}</p>
         )}
         {badges.length > 0 && (
           <div className="flex gap-1.5 flex-wrap mt-1.5">
             {badges.map((b) => (
               <span
                 key={b}
-                className="text-caption px-2 py-0.5 rounded-pill bg-ink-3 text-ink-60">
+                className="text-caption px-2 py-0.5 rounded-pill bg-surface-subtle text-foreground-secondary">
                 {b}
               </span>
             ))}
@@ -114,11 +114,11 @@ const ShippingOptionCard: React.FC<ShippingOptionCardProps> = ({
       {/* Price + selected check */}
       <div className="shrink-0 flex flex-col items-end gap-1">
         {selected && <CircleCheck size={18} className="text-brandDeep" />}
-        <p className="text-body font-medium text-ink-90">
+        <p className="text-body font-medium text-foreground-primary">
           {formatCurrency(parseAmount(option.price))}
         </p>
         {showStruck && (
-          <p className="text-caption text-ink-40 line-through">
+          <p className="text-caption text-foreground-muted line-through">
             {formatCurrency(original)}
           </p>
         )}

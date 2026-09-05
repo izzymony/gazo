@@ -13,10 +13,10 @@ export default function Assets() {
             <div className="w-[10px] h-[10px] rounded-full bg-brand absolute bottom-0 right-0 border-2 border-white"></div>
           </div>
           <div className="flex-1">
-            <p className="line-clamp-2 text-ink-90 font-medium text-body-sm">
+            <p className="line-clamp-2 text-foreground-primary font-medium text-body-sm">
               Flash Sale! 20% off on your favorite sneakers for 2 hrs only.
             </p>
-            <p className="text-ink-60 text-caption">Yesterday</p>
+            <p className="text-foreground-secondary text-caption">Yesterday</p>
           </div>
         </div>
       </div>

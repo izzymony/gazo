@@ -5,7 +5,7 @@ import BackOnClick from "@/components/BackOnClick";
 
 export default function TermsofUse() {
   return (
-    <div className="flex bg-white justify-center w-full h-full overflow-y-scroll scrollbar-hide">
+    <div className="flex bg-surface justify-center w-full h-full overflow-y-scroll scrollbar-hide">
       <div className="border sm:w-[450px] w-full flex flex-col gap-6 p-4 ">
         <div className="flex items-center gap-2 -ml-2">
           <BackOnClick className=" cursor-pointer">
@@ -45,19 +45,19 @@ export default function TermsofUse() {
             Terms of Service
           </p>
         </div>
-        <div className="space-y-5 border-b border-b-ink-10 pb-6">
+        <div className="space-y-5 border-b border-b-outline pb-6">
           <div className="text-display font-medium leading-[45px] text-black">
             Vibaar
             <br />
             Terms of Service
           </div>
-          <p className="text-ink-90 text-body-sm leading-[16px] font-normal">
+          <p className="text-foreground-primary text-body-sm leading-[16px] font-normal">
             Effective Date: 1st December 2024
             <br />
             Last Updated: 1st December 2024
           </p>
         </div>
-        <span className="text-ink-90 text-body leading-[20px] tracking-wider font-normal">
+        <span className="text-foreground-primary text-body leading-[20px] tracking-wider font-normal">
           Welcome to Vibaar! These Terms of Service ("Terms") govern your
           access to and use of the Vibaar platform, including our website,
           mobile application, and related services (collectively, the
@@ -65,7 +65,7 @@ export default function TermsofUse() {
           by these Terms. If you do not agree with these Terms, please do not
           use the Platform.
         </span>
-        <div className="text-ink-90 text-body-sm leading-[16px] tracking-wider font-normal pb-20">
+        <div className="text-foreground-primary text-body-sm leading-[16px] tracking-wider font-normal pb-20">
           <span className="font-bold text-base">1. Overview of Vibaar</span>
           <br />
           <br />

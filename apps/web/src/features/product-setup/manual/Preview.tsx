@@ -147,7 +147,7 @@ export default function ProductsPreview({
       <div>
         {/* Image Carousel with Enhanced Swipe */}
         <div
-          className="w-full h-[45vh] relative overflow-hidden bg-ink-5 cursor-pointer"
+          className="w-full h-[45vh] relative overflow-hidden bg-surface-muted cursor-pointer"
           onTouchStart={(e) => handleStart(e.touches[0].clientX)}
           onTouchMove={(e) => {
             e.preventDefault();
@@ -200,7 +200,7 @@ export default function ProductsPreview({
           </div>
 
           {/* Image index display */}
-          <div className="absolute bottom-2 right-3 text-caption bg-ink-5 text-white p-2 rounded-full">
+          <div className="absolute bottom-2 right-3 text-caption bg-surface-muted text-white p-2 rounded-full">
             {currentImageIndex + 1} / {productPreview?.images?.length || 1}
           </div>
 
@@ -236,12 +236,12 @@ export default function ProductsPreview({
 
             <div onClick={handleShareClick}>
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black/5">
-                <PiShareFatThin size={20} className="text-ink-90" />
+                <PiShareFatThin size={20} className="text-foreground-primary" />
               </span>
             </div>
             <div onClick={handleLikeClick}>
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black/5">
-                <MdFavoriteBorder size={20} className="text-ink-90" />
+                <MdFavoriteBorder size={20} className="text-foreground-primary" />
               </span>
             </div>
           </div>
@@ -253,7 +253,7 @@ export default function ProductsPreview({
 
             {productPreview?.oldPrice && +productPreview.oldPrice > 0 && (
               <>
-                <span className="ml-2 mt-1 text-ink-60 line-through text-body-sm font-normal">
+                <span className="ml-2 mt-1 text-foreground-secondary line-through text-body-sm font-normal">
                   {formatCurrency(
                     productPreview?.oldPrice ? +productPreview.oldPrice : 0
                   )}
@@ -273,7 +273,7 @@ export default function ProductsPreview({
                   <FaStar size={14} className="text-warning-foreground" />
                 </div>
               ))}
-            <p className="text-ink-40 text-body font-normal">(5 sold)</p>
+            <p className="text-foreground-muted text-body font-normal">(5 sold)</p>
           </div>
         </div>
 
@@ -292,7 +292,7 @@ export default function ProductsPreview({
                   {variant?.values?.map((option: string, optionIndex: number) => (
                     <button
                       key={optionIndex}
-                      className={`px-4 h-[22px] text-body-sm bg-ink-3 rounded-full ${(selectedVariant[variant?.name as string] || "") ===
+                      className={`px-4 h-[22px] text-body-sm bg-surface-subtle rounded-full ${(selectedVariant[variant?.name as string] || "") ===
                         option
                         ? "bg-brand text-brandInk"
                         : ""
@@ -316,7 +316,7 @@ export default function ProductsPreview({
           initiallyOpen={true}
           className="!px-[20px]">
           <div className="pb-2 rounded-card">
-            <p className="text-body-sm font-normal text-ink-70 line-clamp-3">
+            <p className="text-body-sm font-normal text-foreground-secondary line-clamp-3">
               {truncatedDescription}
             </p>
             {productPreview?.description &&
@@ -362,11 +362,11 @@ export default function ProductsPreview({
               />
               <div className="ml-4">
                 <h3 className="font-medium text-body-sm">{store?.name}</h3>
-                <p className="text-ink-50 text-caption font-normal flex items-center gap-1">
+                <p className="text-foreground-muted text-caption font-normal flex items-center gap-1">
                   {store?.category} ·{" "}
                   <FaStar size={12} className="text-warning-foreground" />
                   5.4 · 100k{" "}
-                  <FiUsers size={12} className="text-ink-60" />
+                  <FiUsers size={12} className="text-foreground-secondary" />
                 </p>
               </div>
 
@@ -374,7 +374,7 @@ export default function ProductsPreview({
                 Follow
               </div>
             </div>
-            <p className="text-body-sm font-normal mt-2 text-ink-70">
+            <p className="text-body-sm font-normal mt-2 text-foreground-secondary">
               {store?.description}
             </p>
 
@@ -382,7 +382,7 @@ export default function ProductsPreview({
               {productPreview?.collections?.map((col: string, index: number) => (
                 <div
                   key={index}
-                  className="bg-ink-10 rounded-full px-3 py-[2px] text-caption">
+                  className="bg-surface-strong rounded-full px-3 py-[2px] text-caption">
                   {col}
                 </div>
               ))}

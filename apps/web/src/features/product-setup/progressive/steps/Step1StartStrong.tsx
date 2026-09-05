@@ -105,7 +105,7 @@ const Step1StartStrong = ({ formik }: Step1Props) => {
                     <H1 className="text-h1 text-start">
                         Start Strong
                     </H1>
-                    <p className="text-body mt-3 text-ink-40 text-start">
+                    <p className="text-body mt-3 text-foreground-muted text-start">
                         You're creating something amazing! ✨
                     </p>
                 </div>
@@ -125,7 +125,7 @@ const Step1StartStrong = ({ formik }: Step1Props) => {
                                                 ? "border-brandDeep border-dashed"
                                                 : draggedIndex === index
                                                 ? "border-brandDeep opacity-50"
-                                                : "border-ink-10"
+                                                : "border-outline"
                                         }`}
                                         draggable
                                         onDragStart={() => handleDragStart(index)}
@@ -152,10 +152,10 @@ const Step1StartStrong = ({ formik }: Step1Props) => {
                                                     handleDeleteImage(index);
                                                     setSelectedImageIndex(null);
                                                 }}
-                                                className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-card transition-shadow"
+                                                className="absolute top-1 right-1 bg-surface rounded-full p-1 shadow-card transition-shadow"
                                                 aria-label="Delete image"
                                             >
-                                                <X className="h-3 w-3 text-ink-60" />
+                                                <X className="h-3 w-3 text-foreground-secondary" />
                                             </button>
                                         )}
 
@@ -178,7 +178,7 @@ const Step1StartStrong = ({ formik }: Step1Props) => {
 
                     {/* Add Image Button */}
                     <div className="w-full">
-                        <label className="block w-full bg-ink-3 px-4 py-4 font-medium rounded-card text-body text-brandDeep border-2 border-dashed border-ink-10 hover:border-brandDeep transition-colors cursor-pointer group">
+                        <label className="block w-full bg-surface-subtle px-4 py-4 font-medium rounded-card text-body text-brandDeep border-2 border-dashed border-outline hover:border-brandDeep transition-colors cursor-pointer group">
                             <div className="flex items-center justify-center gap-2">
                                 <input
                                     type="file"
@@ -195,9 +195,9 @@ const Step1StartStrong = ({ formik }: Step1Props) => {
 
                     {/* Image Counter */}
                     {formik.values?.images && formik.values.images.length > 0 && (
-                        <div className="mt-2 text-body-sm text-ink-60 text-center">
+                        <div className="mt-2 text-body-sm text-foreground-secondary text-center">
                             {formik.values.images.length} image{formik.values.images.length !== 1 ? 's' : ''} added
-                            <span className="ml-2 text-caption text-ink-40">
+                            <span className="ml-2 text-caption text-foreground-muted">
                                 • Drag to reorder
                             </span>
                         </div>

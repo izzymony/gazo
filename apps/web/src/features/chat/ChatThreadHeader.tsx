@@ -18,9 +18,9 @@ export default function ChatThreadHeader({
   onBack: () => void;
 }) {
   return (
-    <div className="absolute lg:sticky lg:top-0 bg-white w-full flex flex-col z-sticky">
+    <div className="absolute lg:sticky lg:top-0 bg-surface w-full flex flex-col z-sticky">
       <div className="w-full lg:max-w-5xl lg:mx-auto pt-3 pb-0 px-4 lg:px-5">
-        <div className="flex flex-row items-center gap-2 bg-white h-[36px]">
+        <div className="flex flex-row items-center gap-2 bg-surface h-[36px]">
           <IconButton
             icon={ArrowLeft}
             label="Back"
@@ -37,7 +37,7 @@ export default function ChatThreadHeader({
             alt={participant.name}
             className="w-8 h-8 rounded-full object-cover flex-shrink-0"
           />
-          <p className="font-medium text-body-lg text-ink-90 flex-1 min-w-0 truncate">
+          <p className="font-medium text-body-lg text-foreground-primary flex-1 min-w-0 truncate">
             {participant.name || "Vibaar user"}
           </p>
           <IconButton icon={MoreVertical} label="Options" size="sm" />

@@ -51,8 +51,8 @@ const CartItem = ({
   decrement: (val: string) => void;
 }) => {
   return (
-    <div className="bg-ink-3 rounded-field p-1 mt-3">
-      <div className="flex gap-2 mb-4 bg-white p-3 rounded-field">
+    <div className="bg-surface-subtle rounded-field p-1 mt-3">
+      <div className="flex gap-2 mb-4 bg-surface p-3 rounded-field">
         <div className="h-[60px] w-[60px]">
           <img
             src={cart.image || "/PRODUCT IMAGE (2).png"}
@@ -63,7 +63,7 @@ const CartItem = ({
         <div className="flex flex-col w-full gap-3">
           <div>
             <p className="text-body-sm font-normal">{cart.title}</p>
-            <p className="text-body-sm font-normal text-ink-40">
+            <p className="text-body-sm font-normal text-foreground-muted">
               Color: {cart.color}
             </p>
           </div>
@@ -75,7 +75,7 @@ const CartItem = ({
                   icon={Delete}
                   label="Remove item"
                   onClick={() => decrement(cart.id)}
-                  className="bg-ink-3"
+                  className="bg-surface-subtle"
                   iconClassName="text-error-foreground"
                   iconSize={18}
                 />
@@ -84,7 +84,7 @@ const CartItem = ({
                   icon={Minus}
                   label="Decrease quantity"
                   onClick={() => decrement(cart.id)}
-                  className="bg-ink-3"
+                  className="bg-surface-subtle"
                   iconSize={18}
                 />
               )}
@@ -93,7 +93,7 @@ const CartItem = ({
                 icon={Plus}
                 label="Increase quantity"
                 onClick={() => increment(cart.id)}
-                className="bg-ink-3"
+                className="bg-surface-subtle"
                 iconSize={18}
               />
             </div>
@@ -102,9 +102,9 @@ const CartItem = ({
       </div>
 
       <div className="w-full p-2 flex flex-col gap-3">
-        <div className="flex items-center text-body-sm text-ink-60 ">
+        <div className="flex items-center text-body-sm text-foreground-secondary ">
           {delivery.title}
-          <span className="ml-auto font-medium text-ink-90">
+          <span className="ml-auto font-medium text-foreground-primary">
             {delivery.price}
             {"   "}
             <button onClick={action} className="text-brandDeep font-medium">
@@ -112,9 +112,9 @@ const CartItem = ({
             </button>
           </span>
         </div>
-        <div className="flex items-center text-body-sm text-ink-60 ">
+        <div className="flex items-center text-body-sm text-foreground-secondary ">
           Arrives by:{" "}
-          <span className="ml-auto font-medium text-ink-90">
+          <span className="ml-auto font-medium text-foreground-primary">
             {delivery.estimate}
           </span>
         </div>
@@ -302,11 +302,11 @@ const ReviewOrder = () => {
   //   // setLoading(true);
   //   return (
   //     <div className="flex-1 p-3 h-screen w-screen flex justify-center items-center">
-  //       <div className="border bg-white rounded-2xl p-3 flex flex-col gap-3">
-  //         <p className="text-body-lg text-ink-90 font-semibold">
+  //       <div className="border bg-surface rounded-2xl p-3 flex flex-col gap-3">
+  //         <p className="text-body-lg text-foreground-primary font-semibold">
   //           Create a shipping addres
   //         </p>
-  //         <p className="text-body text-ink-90 font-normal">
+  //         <p className="text-body text-foreground-primary font-normal">
   //           To continue please ensure you have a shipping address created
   //         </p>
   //         <div className="flex w-full gap-2">
@@ -319,7 +319,7 @@ const ReviewOrder = () => {
   //           <button
   //             onClick={() => router.push("/cart/shipping-profile/new")}
   //             type="button"
-  //             className="w-1/2 py-3 rounded-2xl bg-white border border-brandDeep text-brandDeep text-body">
+  //             className="w-1/2 py-3 rounded-2xl bg-surface border border-brandDeep text-brandDeep text-body">
   //             cancel
   //           </button>
   //         </div>
@@ -382,7 +382,7 @@ const ReviewOrder = () => {
       footerAction={
         <div className="flex items-center gap-4">
           <div className="shrink-0">
-            <p className="text-ink-40 text-body-sm">Total ({quantity}):</p>
+            <p className="text-foreground-muted text-body-sm">Total ({quantity}):</p>
             <p className="font-medium">{formatCurrency(totals)}</p>
           </div>
           <Button
@@ -620,10 +620,10 @@ const ReviewOrder = () => {
                       <Gift size={16} className="text-brandInk" />
                     </div>
                     <div>
-                      <p className="font-medium text-body text-ink-90">
+                      <p className="font-medium text-body text-foreground-primary">
                         Use Rewards Credit
                       </p>
-                      <p className="text-body-sm text-ink-40">
+                      <p className="text-body-sm text-foreground-muted">
                         {formatCurrency(totalCredit)} available
                       </p>
                     </div>
@@ -650,7 +650,7 @@ const ReviewOrder = () => {
 
             <div className="mt-4">
               <p className="mb-3 text-body-sm font-normal">Shipping method</p>
-              <div className="p-2 rounded-field border flex flex-col gap-2 text-body-sm font-normal text-ink-90">
+              <div className="p-2 rounded-field border flex flex-col gap-2 text-body-sm font-normal text-foreground-primary">
                 <span className="border rounded-full px-4 py-1 text-caption border-brandDeep bg-brand/10 text-brandDeep w-[max-content]">
                   Default
                 </span>

@@ -53,7 +53,7 @@ const SmallHeader: React.FC<SmallHeaderProps> = ({
   return (
     <div
       className={`sticky top-0 w-full shadow-md p-2 z-sticky flex flex-col ${
-        isSeller?.pro ? "" : "bg-white"
+        isSeller?.pro ? "" : "bg-surface"
       }`}
       style={{
         background: isSeller?.pro ? (

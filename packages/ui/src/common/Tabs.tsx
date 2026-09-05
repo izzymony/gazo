@@ -34,7 +34,7 @@ const Tabs: React.FC<TabsProps> = ({
       <div
         style={stickyTop !== undefined ? { top: stickyTop } : undefined}
         className={cn(
-          "flex justify-between lg:justify-center sticky top-0 z-sticky bg-white",
+          "flex justify-between lg:justify-center sticky top-0 z-sticky bg-surface",
           tabClass
         )}>
         {tabs.map((tab, index) => (
@@ -46,7 +46,7 @@ const Tabs: React.FC<TabsProps> = ({
               focusRing,
               activeTab === index
                 ? "border-outline-contrast text-foreground-primary font-medium"
-                : "border-transparent text-ink-30 font-normal hover:text-foreground-secondary hover:border-outline-strong"
+                : "border-transparent text-foreground-disabled font-normal hover:text-foreground-secondary hover:border-outline-strong"
             )}>
             {tab}
           </button>

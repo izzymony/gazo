@@ -184,12 +184,12 @@ Enter "${username}" in the Referral ID field when signing up.`;
         </div>
 
         {/* ===== CREDIT ROWS - Like Wallet Pending Balance ===== */}
-        <div className="flex flex-col text-ink-60">
-          <div className="w-full rounded-field bg-ink-3 flex flex-col">
+        <div className="flex flex-col text-foreground-secondary">
+          <div className="w-full rounded-field bg-surface-subtle flex flex-col">
             {/* Shopping Credit Row */}
-            <div className="w-full border-b border-ink-10 flex justify-between items-center gap-2 p-3">
+            <div className="w-full border-b border-outline flex justify-between items-center gap-2 p-3">
               <div className="items-center flex gap-2">
-                <ShoppingBag size={18} className="text-ink-60" />
+                <ShoppingBag size={18} className="text-foreground-secondary" />
                 <p className="text-body-sm font-medium">Shopping Credit</p>
               </div>
               <div className="items-center flex gap-2">
@@ -201,7 +201,7 @@ Enter "${username}" in the Referral ID field when signing up.`;
             {/* Withdrawable Credit Row */}
             <div className="w-full flex justify-between items-center gap-2 p-3">
               <div className="items-center flex gap-2">
-                <Wallet size={18} className="text-ink-60" />
+                <Wallet size={18} className="text-foreground-secondary" />
                 <p className="text-body-sm font-medium">Withdrawable Credit</p>
               </div>
               <div className="items-center flex gap-2">
@@ -215,8 +215,8 @@ Enter "${username}" in the Referral ID field when signing up.`;
 
         {/* ===== PENDING EARNINGS - Row style matching above ===== */}
         {referralInfo && referralInfo.pending_earnings > 0 && (
-          <div className="flex flex-col text-ink-60">
-            <div className="w-full rounded-field bg-ink-3 flex flex-col">
+          <div className="flex flex-col text-foreground-secondary">
+            <div className="w-full rounded-field bg-surface-subtle flex flex-col">
               <div className="w-full flex justify-between items-center gap-2 p-3">
                 <div className="items-center flex gap-2">
                   <Clock size={18} className="text-warning-foreground" />
@@ -234,25 +234,25 @@ Enter "${username}" in the Referral ID field when signing up.`;
 
         {/* ===== REFERRAL SUMMARY - Static ===== */}
         <div className="w-full">
-          <p className="text-body text-ink-90 font-medium mb-2">Referral Summary</p>
+          <p className="text-body text-foreground-primary font-medium mb-2">Referral Summary</p>
           <div className="w-full flex gap-2">
             {/* Total Referrals Card */}
-            <div className="rounded-field bg-ink-3 p-3 flex-1">
-              <p className="text-ink-90 font-medium text-caption">
+            <div className="rounded-field bg-surface-subtle p-3 flex-1">
+              <p className="text-foreground-primary font-medium text-caption">
                 Total Referrals
               </p>
-              <p className="text-ink-90 font-normal text-h2">
+              <p className="text-foreground-primary font-normal text-h2">
                 {referralInfo?.total_referrals || 0}
               </p>
               {referralInfo && referralInfo.pending_referrals > 0 && (
-                <p className="text-caption text-ink-40">
+                <p className="text-caption text-foreground-muted">
                   {referralInfo.pending_referrals} pending
                 </p>
               )}
             </div>
             {/* Total Earned Card */}
-            <div className="rounded-field bg-ink-3 p-3 flex-1">
-              <p className="text-ink-90 font-medium text-caption">
+            <div className="rounded-field bg-surface-subtle p-3 flex-1">
+              <p className="text-foreground-primary font-medium text-caption">
                 Total Earned
               </p>
               <p className="text-success-foreground font-normal text-h2">
@@ -263,12 +263,12 @@ Enter "${username}" in the Referral ID field when signing up.`;
         </div>
 
         {/* ===== REFERRAL ID SECTION ===== */}
-        <div className="bg-white border border-ink-10 rounded-card p-4">
-          <p className="text-ink-40 text-caption font-normal mb-2">
+        <div className="bg-surface border border-outline rounded-card p-4">
+          <p className="text-foreground-muted text-caption font-normal mb-2">
             Your Referral ID
           </p>
           <div className="flex items-center justify-between">
-            <p className="text-h1 font-mono font-semibold tracking-wider text-ink-90">
+            <p className="text-h1 font-mono font-semibold tracking-wider text-foreground-primary">
               {referralCode}
             </p>
             <button
@@ -282,9 +282,9 @@ Enter "${username}" in the Referral ID field when signing up.`;
         </div>
 
         {/* ===== HOW IT WORKS ===== */}
-        <div className="bg-white border border-ink-10 rounded-card p-4">
-          <p className="text-body text-ink-90 font-medium mb-3">How Referrals Work</p>
-          <div className="space-y-2 text-body-sm text-ink-60">
+        <div className="bg-surface border border-outline rounded-card p-4">
+          <p className="text-body text-foreground-primary font-medium mb-3">How Referrals Work</p>
+          <div className="space-y-2 text-body-sm text-foreground-secondary">
             <div className="flex gap-2 items-start">
               <span className="w-5 h-5 bg-brand text-brandInk rounded-full flex items-center justify-center text-caption flex-shrink-0">
                 1
@@ -314,11 +314,11 @@ Enter "${username}" in the Referral ID field when signing up.`;
 
         {/* Referred By Section */}
         {referralInfo?.referred_by && (
-          <div className="bg-white border border-ink-10 rounded-card p-4">
+          <div className="bg-surface border border-outline rounded-card p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-caption text-ink-40 uppercase tracking-wide">Referred by</p>
-                <p className="text-body text-ink-90 font-medium mt-0.5">
+                <p className="text-caption text-foreground-muted uppercase tracking-wide">Referred by</p>
+                <p className="text-body text-foreground-primary font-medium mt-0.5">
                   {referralInfo.referred_by}
                 </p>
               </div>
@@ -327,7 +327,7 @@ Enter "${username}" in the Referral ID field when signing up.`;
               </div>
             </div>
             {!referralInfo.referral_activated && (
-              <p className="text-caption text-ink-60 mt-2">
+              <p className="text-caption text-foreground-secondary mt-2">
                 Complete your first order to activate rewards!
               </p>
             )}
@@ -335,7 +335,7 @@ Enter "${username}" in the Referral ID field when signing up.`;
         )}
 
         {/* ===== TERMS ===== */}
-        <p className="text-caption text-ink-40 text-center px-4">
+        <p className="text-caption text-foreground-muted text-center px-4">
           Credits never expire. No earning limit. 50% of referral earnings
           withdrawable (min ₦10,000).
         </p>

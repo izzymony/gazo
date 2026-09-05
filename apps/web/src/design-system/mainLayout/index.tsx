@@ -43,16 +43,16 @@ export default function MainLayout({
             </div>
             {/* Buttons Section */}
             {showBtn && (
-              <div className={`fixed bottom-0 left-0 right-0 w-full max-w-full lg:max-w-5xl lg:mx-auto pb-5 px-3 bg-white border-t border-gray-100 z-sticky ${btnClass}`}>
+              <div className={`fixed bottom-0 left-0 right-0 w-full max-w-full lg:max-w-5xl lg:mx-auto pb-5 px-3 bg-surface border-t border-gray-100 z-sticky ${btnClass}`}>
                 {otpCheckMailNotification && (
-                  <p className="text-body text-ink-60 font-normal text-start pb-8">
+                  <p className="text-body text-foreground-secondary font-normal text-start pb-8">
                     If you haven't received the mail try checking your <br />
                     spam folder or resending it.
                   </p>
                 )}
 
                 {showDivider && (
-                  <hr className="w-full text-ink-60" />
+                  <hr className="w-full text-foreground-secondary" />
                 )}
 
                 {/* Content Before Button */}
@@ -124,16 +124,16 @@ export default function MainLayout({
 
             {/* Buttons Section */}
             {showBtn && (
-              <div className={`fixed bottom-0 left-0 right-0 w-full max-w-full lg:max-w-5xl lg:mx-auto pb-5 px-3 bg-white border-t border-gray-100 z-sticky ${btnClass}`}>
+              <div className={`fixed bottom-0 left-0 right-0 w-full max-w-full lg:max-w-5xl lg:mx-auto pb-5 px-3 bg-surface border-t border-gray-100 z-sticky ${btnClass}`}>
                 {otpCheckMailNotification && (
-                  <p className="text-body text-ink-60 font-normal text-start pb-8">
+                  <p className="text-body text-foreground-secondary font-normal text-start pb-8">
                     If you haven't received the mail try checking your <br />
                     spam folder or resending it.
                   </p>
                 )}
 
                 {showDivider && (
-                  <hr className="w-full text-ink-60" />
+                  <hr className="w-full text-foreground-secondary" />
                 )}
 
                 {/* Content Before Button */}

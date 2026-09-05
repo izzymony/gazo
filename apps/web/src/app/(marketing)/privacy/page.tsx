@@ -6,7 +6,7 @@ import BackOnClick from "@/components/BackOnClick";
 
 const Page = () => {
   return (
-    <div className="flex bg-white justify-center w-full h-full overflow-y-scroll scrollbar-hide">
+    <div className="flex bg-surface justify-center w-full h-full overflow-y-scroll scrollbar-hide">
       <div className="border sm:w-[450px] w-full flex flex-col gap-6 p-4 ">
         <div className="flex items-center gap-2 -ml-2">
           <BackOnClick className=" cursor-pointer">
@@ -47,20 +47,20 @@ const Page = () => {
           </p>
         </div>
 
-        <div className="space-y-5 border-b border-b-ink-10 pb-6">
+        <div className="space-y-5 border-b border-b-outline pb-6">
           <div className="text-display font-medium leading-[45px] text-black">
             Vibaar
             <br />
             Privacy Policy
           </div>
-          <p className="text-ink-90 text-body-sm leading-[16px] font-normal">
+          <p className="text-foreground-primary text-body-sm leading-[16px] font-normal">
             Effective Date: 1st December 2024
             <br />
             Last Updated: 1st December 2024
           </p>
         </div>
 
-        <span className="text-ink-90 text-body leading-[20px] tracking-wider font-normal">
+        <span className="text-foreground-primary text-body leading-[20px] tracking-wider font-normal">
           Welcome to Vibaar! Your privacy is important to us. This Privacy
           Policy explains how Vibaar ("we", "us", or "our") collects, uses,
           discloses and protects your personal information when you use our
@@ -69,7 +69,7 @@ const Page = () => {
           terms outlined in this policy.
         </span>
 
-        <div className="text-ink-90 text-body-sm leading-[16px] tracking-wider font-normal pb-20">
+        <div className="text-foreground-primary text-body-sm leading-[16px] tracking-wider font-normal pb-20">
           <span className="font-bold text-base">1. Information We Collect</span>
           <br />
           <br />

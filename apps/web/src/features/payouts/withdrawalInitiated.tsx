@@ -57,27 +57,27 @@ export default function WithdrawalInitiated({
           </svg>
         </div>
         <div className="flex justify-center items-center flex-col gap-2">
-          <p className="text-h1 font-bold text-ink-90 text-center">
+          <p className="text-h1 font-bold text-foreground-primary text-center">
             Withdrawal Initiated!
           </p>
-          <p className="text-body font-normal text-ink-60 text-center">
+          <p className="text-body font-normal text-foreground-secondary text-center">
             We are working on your transfer! Your money should enter your
             account shortly.
           </p>
         </div>
         <div className="p-3 border gap-3 flex flex-col bg-brand/10 w-full border-brandDeep rounded-field">
           <div className="flex flex-row justify-between items-center">
-            <p className="text-ink-60 text-body-sm font-normal">Withdrawal</p>
-            <p className="text-ink-90 text-body-sm font-medium">NGN {amount}</p>
+            <p className="text-foreground-secondary text-body-sm font-normal">Withdrawal</p>
+            <p className="text-foreground-primary text-body-sm font-medium">NGN {amount}</p>
           </div>
           <div className="flex flex-row justify-between items-center">
-            <p className="text-ink-60 text-body-sm font-normal">To:</p>
+            <p className="text-foreground-secondary text-body-sm font-normal">To:</p>
             <div className="items-end flex flex-col">
-              <p className="text-ink-90 text-body-sm font-medium">
+              <p className="text-foreground-primary text-body-sm font-medium">
                 {data.bankname.slice(0, 3) || "ACC"}-Ending in {"  "}
                 {data.accountnumber.slice(-4)}
               </p>
-              <p className="text-ink-60 text-body-sm font-medium">
+              <p className="text-foreground-secondary text-body-sm font-medium">
                 {data.accountname || "Account Name"}
               </p>
             </div>

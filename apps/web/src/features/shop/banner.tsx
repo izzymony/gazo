@@ -6,8 +6,8 @@ export default function Banner() {
       </div>
       <div className="flex gap-1 items-center absolute bottom-[2px] right-0 left-0 justify-center w-full">
         <div className="w-1 h-1 rounded-full bg-brandInk"></div>
-        <div className="w-3 h-1 rounded-full bg-white"></div>
-        <div className="w-1 h-1 rounded-full bg-white"></div>
+        <div className="w-3 h-1 rounded-full bg-surface"></div>
+        <div className="w-1 h-1 rounded-full bg-surface"></div>
       </div>
       <div className="w-[152px] h-[152px] rounded-full bg-[#03030348] justify-center flex-col top-[50px] relative ps-3 pt-[14px] -right-4">
         <svg

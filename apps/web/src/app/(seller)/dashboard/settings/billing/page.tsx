@@ -29,9 +29,9 @@ const Billing = () => {
                         <p className='text-brandDeep text-body-sm'>Change plan</p>
                     </div>
 
-                    <p className="text-ink-40 text-body">₦2,300/month</p>
+                    <p className="text-foreground-muted text-body">₦2,300/month</p>
 
-                    <p className='text-body'> <span className="text-ink-60"> Next billing:</span>  20 Jul 2024</p>
+                    <p className='text-body'> <span className="text-foreground-secondary"> Next billing:</span>  20 Jul 2024</p>
                 </Surface>
             </Section>
 
@@ -41,9 +41,9 @@ const Billing = () => {
                         <div className="flex items-center space-x-3">
                             <img src={'/images/vendor/visa.png'} alt="Visa" className="w-8 h-5 object-contain" />
                             <div>
-                                <span className='text-body font-medium text-ink-90'>Mastercard-1243</span>
+                                <span className='text-body font-medium text-foreground-primary'>Mastercard-1243</span>
                                 <span className="text-brandDeep ml-2 border border-brandDeep rounded-pill px-2 bg-brand/10 text-caption font-normal">Default</span>
-                                <p className="text-body font-normal text-ink-60">02/29</p>
+                                <p className="text-body font-normal text-foreground-secondary">02/29</p>
                             </div>
                         </div>
                     </div>
@@ -55,9 +55,9 @@ const Billing = () => {
                         <div className="flex items-center space-x-3">
                             <img src={'/images/vendor/mastercard.png'} alt="Mastercard" className="w-8 h-5 object-contain" />
                             <div>
-                                <span className='text-body font-medium text-ink-90'>Visacard-1243</span>
+                                <span className='text-body font-medium text-foreground-primary'>Visacard-1243</span>
                                 <span className="text-brandDeep ml-2 border border-brandDeep rounded-pill px-2 bg-brand/10 text-caption font-normal">Default</span>
-                                <p className="text-body font-normal text-ink-60">02/29</p>
+                                <p className="text-body font-normal text-foreground-secondary">02/29</p>
                             </div>
                         </div>
                     </div>

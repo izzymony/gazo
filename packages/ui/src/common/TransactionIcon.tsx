@@ -47,7 +47,7 @@ interface TransactionIconProps {
  * TransactionIcon — the transaction badge (HugeIcons).
  *
  * Replaces the hand-rolled inline-SVG `SelectIcon`. Same construction as the
- * activity rows: a neutral `bg-ink-5` circle behind the glyph. The glyph itself
+ * activity rows: a neutral `bg-surface-muted` circle behind the glyph. The glyph itself
  * is coloured (by money direction); only the circle background is neutral.
  */
 export default function TransactionIcon({
@@ -61,7 +61,7 @@ export default function TransactionIcon({
   return (
     <div
       className={cn(
-        "rounded-full flex items-center justify-center flex-shrink-0 bg-ink-5",
+        "rounded-full flex items-center justify-center flex-shrink-0 bg-surface-muted",
         GLYPH_COLOR[type] ?? GLYPH_COLOR.pending,
         box
       )}>

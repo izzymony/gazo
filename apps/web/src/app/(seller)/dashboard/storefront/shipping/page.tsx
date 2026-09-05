@@ -48,8 +48,8 @@ const serialize = (z: Zones, partner: boolean) => JSON.stringify({ z, partner })
 // A quiet leading icon in a rounded container, shared by every row so the
 // screen reads as one system.
 const RowIcon = ({ icon: Icon }: { icon: typeof DeliveryTruck }) => (
-  <div className="shrink-0 w-9 h-9 rounded-field bg-ink-3 flex items-center justify-center">
-    <Icon size={18} className="text-ink-60" />
+  <div className="shrink-0 w-9 h-9 rounded-field bg-surface-subtle flex items-center justify-center">
+    <Icon size={18} className="text-foreground-secondary" />
   </div>
 );
 
@@ -96,7 +96,7 @@ const EtaPresets = ({
               "h-9 px-3 rounded-full border text-body-sm transition-colors",
               selected
                 ? "border-brandDeep bg-brand/5 text-brandDeep font-medium"
-                : "border-ink-10 text-ink-60"
+                : "border-outline text-foreground-secondary"
             )}>
             {preset}
           </button>
@@ -117,7 +117,7 @@ const CovPill = ({
     className={cn(
       "text-caption font-medium px-2.5 py-1 rounded-full shrink-0",
       tone === "ok" && "bg-success-surface text-success-foreground",
-      tone === "off" && "bg-ink-3 text-ink-60",
+      tone === "off" && "bg-surface-subtle text-foreground-secondary",
       tone === "warn" && "bg-orange-50 text-orange-600"
     )}>
     {label}
@@ -153,14 +153,14 @@ const CoverageStrip = ({
   return (
     <Surface>
       <div className="flex items-center gap-2 mb-1">
-        <DeliveryTruck size={18} className="text-ink-90" />
-        <p className="text-body font-medium text-ink-90">Where buyers can order</p>
+        <DeliveryTruck size={18} className="text-foreground-primary" />
+        <p className="text-body font-medium text-foreground-primary">Where buyers can order</p>
       </div>
-      <div className="divide-y divide-ink-5">
+      <div className="divide-y divide-outline-subtle">
         <div className="flex items-center justify-between gap-3 py-2">
           <div className="min-w-0">
-            <p className="text-body-sm text-ink-90">In {sellerState}</p>
-            {localOk && <p className="text-caption text-ink-40">{via(true)}</p>}
+            <p className="text-body-sm text-foreground-primary">In {sellerState}</p>
+            {localOk && <p className="text-caption text-foreground-muted">{via(true)}</p>}
           </div>
           {localOk ? (
             <CovPill label="Covered" tone="ok" />
@@ -170,9 +170,9 @@ const CoverageStrip = ({
         </div>
         <div className="flex items-center justify-between gap-3 py-2">
           <div className="min-w-0">
-            <p className="text-body-sm text-ink-90">Other states</p>
+            <p className="text-body-sm text-foreground-primary">Other states</p>
             {interCovered && (
-              <p className="text-caption text-ink-40">{via(interSelf)}</p>
+              <p className="text-caption text-foreground-muted">{via(interSelf)}</p>
             )}
           </div>
           {interCovered ? (
@@ -183,9 +183,9 @@ const CoverageStrip = ({
         </div>
         <div className="flex items-center justify-between gap-3 py-2">
           <div className="min-w-0">
-            <p className="text-body-sm text-ink-90">International</p>
+            <p className="text-body-sm text-foreground-primary">International</p>
             {intlCovered && (
-              <p className="text-caption text-ink-40">{via(intlSelf)}</p>
+              <p className="text-caption text-foreground-muted">{via(intlSelf)}</p>
             )}
           </div>
           {intlCovered ? (
@@ -256,17 +256,17 @@ const ZoneRow = ({
           className="flex-1 min-w-0 flex items-center gap-3 text-left">
           <RowIcon icon={Icon} />
           <div className="flex-1 min-w-0">
-            <p className="text-body font-medium text-ink-90 truncate">{title}</p>
+            <p className="text-body font-medium text-foreground-primary truncate">{title}</p>
             <p
               className={cn(
                 "text-body-sm mt-0.5",
-                configured ? "text-ink-60" : "text-ink-40"
+                configured ? "text-foreground-secondary" : "text-foreground-muted"
               )}>
               {summary}
             </p>
           </div>
           {required && (
-            <span className="text-caption text-ink-40 shrink-0">Required</span>
+            <span className="text-caption text-foreground-muted shrink-0">Required</span>
           )}
           {!required && !configured && (
             <span className="text-body-sm font-medium text-brandDeep shrink-0 flex items-center gap-0.5">
@@ -275,7 +275,7 @@ const ZoneRow = ({
             </span>
           )}
           {(required || configured) && (
-            <ChevronRight size={18} className="text-ink-20 shrink-0" />
+            <ChevronRight size={18} className="text-foreground-disabled shrink-0" />
           )}
         </button>
         {!required && configured && (
@@ -289,8 +289,8 @@ const ZoneRow = ({
       </div>
 
       {expanded && (
-        <div className="mt-4 pt-4 border-t border-dashed border-ink-10">
-          <p className="text-caption text-ink-60 mb-1.5">Delivery rate</p>
+        <div className="mt-4 pt-4 border-t border-dashed border-outline">
+          <p className="text-caption text-foreground-secondary mb-1.5">Delivery rate</p>
           <InputField
             type="text"
             inputMode="numeric"
@@ -300,7 +300,7 @@ const ZoneRow = ({
             placeholder="0"
             showNairaSymbol
           />
-          <p className="text-caption text-ink-60 mb-2 mt-4">Delivery time</p>
+          <p className="text-caption text-foreground-secondary mb-2 mt-4">Delivery time</p>
           <EtaPresets
             value={draft?.eta ?? ""}
             onChange={onDraftEta}
@@ -314,7 +314,7 @@ const ZoneRow = ({
               <button
                 type="button"
                 onClick={onRemove}
-                className="text-body-sm text-ink-40 shrink-0">
+                className="text-body-sm text-foreground-muted shrink-0">
                 Remove
               </button>
             )}
@@ -502,7 +502,7 @@ const Page = () => {
           </Button>
         </div>
       }>
-      <p className="text-body-sm text-ink-60">
+      <p className="text-body-sm text-foreground-secondary">
         Set how you deliver. Buyers see the right option at checkout based on where
         they are.
       </p>
@@ -515,7 +515,7 @@ const Page = () => {
 
       <Section title="Your delivery">
         <Surface>
-          <div className="divide-y divide-ink-5">
+          <div className="divide-y divide-outline-subtle">
             {ZONE_META.map((m) => (
               <ZoneRow
                 key={m.key}
@@ -543,8 +543,8 @@ const Page = () => {
           <div className="flex items-center gap-3">
             <RowIcon icon={DeliveryTruck} />
             <div className="flex-1 min-w-0">
-              <p className="text-body font-medium text-ink-90">Courier partners</p>
-              <p className="text-body-sm text-ink-60">
+              <p className="text-body font-medium text-foreground-primary">Courier partners</p>
+              <p className="text-body-sm text-foreground-secondary">
                 Live, tracked courier rates, quoted per address
               </p>
             </div>
@@ -564,8 +564,8 @@ const Page = () => {
         ariaLabel="Discard changes">
         <div className="space-y-4">
           <div>
-            <p className="text-h2 font-medium text-ink-90">Discard changes?</p>
-            <p className="text-body-sm text-ink-60 mt-1">
+            <p className="text-h2 font-medium text-foreground-primary">Discard changes?</p>
+            <p className="text-body-sm text-foreground-secondary mt-1">
               You&apos;ll lose the delivery details you just edited.
             </p>
           </div>

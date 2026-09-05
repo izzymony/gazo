@@ -63,32 +63,32 @@ const OrderComp = ({
         <img
           src={product?.image ? getMobileCompatibleImageUrl(product?.image[0]) : ""}
           alt="Product"
-          className="object-cover h-10 w-10 rounded-field border border-ink-20"
+          className="object-cover h-10 w-10 rounded-field border border-outline-strong"
         />
         <div className="w-[100%]">
           <div className="flex items-center gap-3">
-            <span className="text-body font-medium text-ink-90 truncate max-w-[180px]" title={order?.order?.invoice}>
+            <span className="text-body font-medium text-foreground-primary truncate max-w-[180px]" title={order?.order?.invoice}>
               #{order?.order?.invoice}
             </span>
-            <div className=" font-medium text-ink-90 bg-ink-3 flex gap-2 items-center p-1 px-2 rounded-field">
+            <div className=" font-medium text-foreground-primary bg-surface-subtle flex gap-2 items-center p-1 px-2 rounded-field">
               <p className="flex items-center text-caption">
                 {order?.quantity}
               </p>{" "}
-              <IoCubeOutline size={20} className="text-ink-90" />
+              <IoCubeOutline size={20} className="text-foreground-primary" />
             </div>
-            <p className="text-caption font-medium text-ink-40">
+            <p className="text-caption font-medium text-foreground-muted">
               {order?.created_at && formatDate(new Date(order?.created_at))}
             </p>
-            <p className="ml-auto font-medium text-ink-90 text-body">
+            <p className="ml-auto font-medium text-foreground-primary text-body">
               {formatCurrency(order?.price)}
             </p>
           </div>
-          <div className="text-body-sm text-ink-90">
+          <div className="text-body-sm text-foreground-primary">
             {product ? `${product.category?.name}...` : ""}
           </div>
 
           <div className="flex justify-between w-full mt-1">
-            <div className="font-medium text-ink-60 text-body-sm">
+            <div className="font-medium text-foreground-secondary text-body-sm">
               @{product ? `${product.title?.slice(0, 10)}...` : ""}
             </div>
             {order?.seller_activity && (

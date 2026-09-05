@@ -39,13 +39,13 @@ export const BankCard = ({
         id: id,
       })
     }
-    className="justify-between items-center flex gap-4 border border-ink-10 rounded-field py-3 ps-3 pe-3">
-    <div className="w-10 h-10 rounded-field bg-white border border-ink-10 flex items-center justify-center shrink-0">
-      <Bank size={22} className="text-ink-90" />
+    className="justify-between items-center flex gap-4 border border-outline rounded-field py-3 ps-3 pe-3">
+    <div className="w-10 h-10 rounded-field bg-surface border border-outline flex items-center justify-center shrink-0">
+      <Bank size={22} className="text-foreground-primary" />
     </div>
     <div className="flex-1">
       <div className="flex gap-2 items-center">
-        <p className="text-body text-ink-90 font-medium">
+        <p className="text-body text-foreground-primary font-medium">
           {bankname.slice(0, 3) || "ACC"}-Ending in {"  "}
           {accountnumber.slice(-4)}
         </p>
@@ -55,11 +55,11 @@ export const BankCard = ({
           </span>
         )}
       </div>
-      <p className="text-caption text-ink-60 font-normal">
+      <p className="text-caption text-foreground-secondary font-normal">
         {accountname || "acc"}
       </p>
     </div>
-    <ChevronRight size={20} className="text-ink-90 shrink-0" />
+    <ChevronRight size={20} className="text-foreground-primary shrink-0" />
   </div>
 );
 
@@ -85,7 +85,7 @@ export default function SelectAccount({
         <Header showBack onBackClick={goBack} customText="Select account" />
       }>
       <Section>
-        <p className="text-ink-90 font-medium text-h1">
+        <p className="text-foreground-primary font-medium text-h1">
           Which account would you like to withdraw to?
         </p>
       </Section>
