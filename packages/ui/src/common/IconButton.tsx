@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vibaar/utils";
@@ -39,12 +41,18 @@ const ICON_SIZE: Record<NonNullable<VariantProps<typeof iconButtonVariants>["siz
   lg: 24,
 };
 
-type IconButtonProps = {
+/**
+ * Native <button> attributes are spread onto the element, matching Button, so
+ * aria-*, id, form, data-* and the rest work without enumeration.
+ */
+type IconButtonProps = Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  "className" | "type" | "disabled" | "aria-label"
+> & {
   /** Icon component from `../icons`. */
   icon: React.ComponentType<IconProps>;
   /** Accessible name — required since the button has no visible text. */
   label: string;
-  onClick?: () => void;
   className?: string;
   iconClassName?: string;
   /** Override the size-derived icon dimension when a design needs it. */
@@ -53,26 +61,38 @@ type IconButtonProps = {
   type?: "button" | "submit" | "reset";
 } & VariantProps<typeof iconButtonVariants>;
 
-export default function IconButton({
-  icon: Icon,
-  label,
-  onClick,
-  className = "",
-  iconClassName,
-  iconSize,
-  disabled = false,
-  type = "button",
-  variant = "plain",
-  size = "md",
-}: IconButtonProps) {
+const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(function IconButton(
+  {
+    icon: Icon,
+    label,
+    className = "",
+    iconClassName,
+    iconSize,
+    disabled = false,
+    type = "button",
+    variant = "plain",
+    size = "md",
+    // Pulled out of `rest` because it collides with a value this component
+    // controls; `rest` is spread first so the controlled values win.
+    style,
+    ...rest
+  },
+  ref
+) {
   return (
     <button
+      {...rest}
+      ref={ref}
       type={type}
-      onClick={onClick}
       disabled={disabled}
+      // `label` is the whole point of this primitive: an icon-only control with
+      // no accessible name is unusable, so it is required and not overridable.
       aria-label={label}
-      className={cn(iconButtonVariants({ variant, size }), className)}>
+      className={cn(iconButtonVariants({ variant, size }), className)}
+      style={style}>
       <Icon size={iconSize ?? ICON_SIZE[size ?? "md"]} className={iconClassName} />
     </button>
   );
-}
+});
+
+export default IconButton;
