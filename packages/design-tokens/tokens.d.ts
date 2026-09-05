@@ -29,5 +29,7 @@ export const semanticColorSteps: Readonly<{
 export const neutralRoleSteps: Readonly<{
   foreground: { primary: 900; secondary: 700; muted: 500; disabled: 400; inverse: 50 };
   outline: { subtle: 100; DEFAULT: 200; strong: 300; emphasis: 400; contrast: 900 };
+  /** `DEFAULT` is the literal "white", not a neutral step — a card must read as raised on a tinted page. */
+  surface: { DEFAULT: "white"; subtle: 50; muted: 100; strong: 200; inverse: 900 };
 }>;
 export const projectLiteralColorNames: readonly string[];
