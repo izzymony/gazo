@@ -3,7 +3,12 @@ import { cn } from "@/lib/utils";
 import { ORDER_STATUS, BADGE_HUE } from "@/features/orders/orderStatus";
 
 /**
- * Shared seller-dashboard StatusBadge (text pill).
+ * Order/entity status pill.
+ *
+ * Lives in features/orders because it is order-domain, not seller-only — the
+ * buyer order list and order detail render the same statuses. It previously
+ * sat under features/seller-dashboard, which is why the buyer side grew its own
+ * 20-entry raw-hex copy instead of importing this.
  *
  * Consolidates the 3 former near-identical copies (orders / products / customers).
  * Order-status hues come from the shared `ORDER_STATUS` config so the pill and the

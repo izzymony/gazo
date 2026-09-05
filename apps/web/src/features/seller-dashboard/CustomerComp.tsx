@@ -5,7 +5,7 @@ import React from "react";
 import { CustomerRanking } from "@/store/businessStore";
 import { formatNigerianCurrency, formatTimeAgo } from "@/lib/utils";
 import UserProfileImage from "@vibaar/ui/common/UserProfileImage";
-import StatusBadge from "@/features/seller-dashboard/StatusBadge";
+import StatusBadge from "@/features/orders/StatusBadge";
 
 /**
  * Shared customer-ranking row. Consolidates the two former copies (the live

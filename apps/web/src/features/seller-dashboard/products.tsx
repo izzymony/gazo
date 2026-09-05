@@ -11,7 +11,7 @@ import Section from "@vibaar/ui/common/Section";
 import { useRouter } from "next/navigation";
 import useBusinessStore, { BusinessProduct } from "@/store/businessStore";
 import useAuthStore from "@/store/authStore";
-import StatusBadge from "@/features/seller-dashboard/StatusBadge";
+import StatusBadge from "@/features/orders/StatusBadge";
 
 interface ProductProps {
   product: BusinessProduct;

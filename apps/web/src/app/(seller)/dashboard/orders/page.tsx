@@ -16,7 +16,7 @@ import useAuthStore from "@/store/authStore";
 import { OrderDatas } from "@/lib/order";
 import useShippingStore from "@/store/shippingStore";
 import useProductStore from "@/store/productStore";
-import StatusBadge from "@/features/seller-dashboard/StatusBadge";
+import StatusBadge from "@/features/orders/StatusBadge";
 import { deriveSellerStatus } from "@/features/orders/orderStatus";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 

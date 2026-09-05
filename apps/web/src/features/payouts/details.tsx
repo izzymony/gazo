@@ -10,7 +10,7 @@ import Section from "@vibaar/ui/common/Section";
 import Button from "@vibaar/ui/common/Button";
 import DetailRow from "@vibaar/ui/common/DetailRow";
 import DetailList from "@vibaar/ui/common/DetailList";
-import StatusBadge from "@/features/seller-dashboard/StatusBadge";
+import StatusBadge from "@/features/orders/StatusBadge";
 
 export default function WithdrawalDetails({
   action = () => {},

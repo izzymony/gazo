@@ -8,6 +8,8 @@ import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Dialog from "@vibaar/ui/common/Dialog";
 import { useRouter } from "next/navigation";
+import StatusBadge from "@/features/orders/StatusBadge";
+import StarRating from "@/features/orders/StarRating";
 import useOrderStore from "@/store/orderStore";
 import { formatCurrency, getMobileCompatibleImageUrl } from "@/lib/utils";
 import useBusinessStore from "@/store/businessStore";
@@ -53,36 +55,16 @@ const RatingComponent = ({
         Rate this item
       </p>
 
-      <div className="flex gap-1 items-center">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <svg
-            key={star}
-            onClick={action}
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill={star <= rate ? "var(--warning)" : "var(--ink-5)"} // Dynamic fill color
-            stroke={star <= rate ? "var(--ink-5)" : "var(--warning)"} // Dynamic stroke color
-            strokeWidth={2}
-            className="w-6 h-6 cursor-pointer">
-            <path
-              d="M12 2.75l3.09 6.26 6.91 1-5 4.87 1.18 6.88L12 17.77l-6.18 3.25 1.18-6.88-5-4.87 6.91-1L12 2.75z"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-            />
-          </svg>
-        ))}
-      </div>
+      <StarRating value={rate} onRate={action} />
     </div>
   );
 };
 
 const OrderAgainButton = ({ action }: { action: () => void }) => {
   return (
-    <button
-      onClick={action}
-      className=" border border-brandDeep bg-white text-brandDeep text-body font-normal rounded-full w-full p-1 justify-center items-center">
+    <Button onClick={action} variant="bordered" size="sm" fullWidth={false} className="w-full">
       Order again
-    </button>
+    </Button>
   );
 };
 
@@ -182,42 +164,12 @@ const Page = () => {
     }, 100);
   };
   console.log(newOrders);
-  // Comprehensive status mapping handling all backend variations and Figma specs
-  const picker: any = {
-    // Blue statuses (initial states)
-    "order placed": { primary: "#155DFC", secondary: "#DBEAFE" },
-    "new order received": { primary: "#155DFC", secondary: "#DBEAFE" },
-    
-    // Teal/Cyan status (payment)
-    "payment confirmed": { primary: "#02A29E", secondary: "#E9FFFE" },
-    
-    // Yellow statuses (processing)
-    "processing for shipping": { primary: "#FFCC00", secondary: "#FFFAE5" },
-    "shipping started": { primary: "#FFCC00", secondary: "#FFFAE5" }, // Backend variation
-    "shipping confirmed": { primary: "#FFCC00", secondary: "#FFFAE5" }, // Backend variation
-    "shipment created & assigned to a courier": { primary: "#FFCC00", secondary: "#FFFAE5" },
-    "ready for shipping": { primary: "#FFCC00", secondary: "#FFFAE5" }, // Backend variation
-    
-    // Orange status (rider movement)
-    "rider on the way to vendor": { primary: "#FE9A00", secondary: "#FEF3C6" },
-    
-    // Purple status (in transit)
-    "order picked up & in transit": { primary: "#AD46FF", secondary: "#F3E8FF" },
-    "order picked up": { primary: "#AD46FF", secondary: "#F3E8FF" }, // Backend variation
-    "order in transit": { primary: "#AD46FF", secondary: "#F3E8FF" }, // Backend variation
-    "package picked up": { primary: "#AD46FF", secondary: "#F3E8FF" }, // Backend variation
-    
-    // Blue status (delivery)
-    "out for delivery": { primary: "#2B7FFF", secondary: "#DBEAFE" },
-    
-    // Green status (completed)
-    "order delivered": { primary: "#00C950", secondary: "#EAFFF6" },
-    
-    // Red statuses (cancelled/failed)
-    "order cancelled": { primary: "#FB2C36", secondary: "#FFE2E2" },
-    "delivery attempt failed": { primary: "#FB2C36", secondary: "#FFE2E2" },
-    "order returned to vendor": { primary: "#FB2C36", secondary: "#FFE2E2" },
-  };
+  // Order-status colour lives in ONE place: features/orders/orderStatus.
+  // This screen used to carry its own 20-entry map of raw hex primary/secondary
+  // pairs, applied through an inline style — 33 of this file's drift findings.
+  // StatusBadge reads the shared config, so the buyer pill and the seller pill
+  // can no longer disagree.
+
   useEffect(() => {
     console.log("🔍 Orders page authentication debug:", {
       user: user ? { id: user.id, email: user.email, isAuthenticated: !!user } : null,
@@ -296,17 +248,6 @@ const Page = () => {
                 order.buyer_activity.length - 1
               ].title.toLowerCase()
             : "order placed"; // Default to "order placed" if no activities
-          // Debug logging to identify status mismatch
-          if (!picker[checker]) {
-            console.log("⚠️ No matching status for:", checker, "Order ID:", order.id);
-            console.log("Available statuses:", Object.keys(picker));
-            console.log("Buyer activity:", order.buyer_activity);
-          }
-          const pick = picker[checker] || {
-            primary: "#155DFC",  // Default to "order placed" blue instead of black
-            secondary: "#DBEAFE",
-          };
-          //(pick);
           const productName = products.find((it) => it.id === order.product_id);
           // This user's own review for the product — drives the before/after
           // rating states (not the product's aggregate).
@@ -382,18 +323,13 @@ const Page = () => {
                             .time
                         : ""
                     )}>
-                    <div
-                      className={`justify-center items-center flex text-center font-normal text-caption leading-[10px] px-2 py-[3px] rounded-full border`}
-                      style={{
-                        color: pick.primary,
-                        borderColor: pick.primary,
-                        backgroundColor: pick.secondary,
-                      }}>
-                      {order.buyer_activity && order.buyer_activity.length > 0
-                        ? order.buyer_activity[order.buyer_activity.length - 1]
-                            .title
-                        : "Order Placed"}
-                    </div>
+                    <StatusBadge
+                      status={
+                        order.buyer_activity && order.buyer_activity.length > 0
+                          ? order.buyer_activity[order.buyer_activity.length - 1].title
+                          : "Order Placed"
+                      }
+                    />
                   </OrderCard>
                   <OrderCard text="Order ID:">
                     <p className="text-caption text-ink-90 font-medium leading-[10px]">
@@ -472,25 +408,7 @@ const Page = () => {
           </div>
 
           {/* Star Rating */}
-          <div className="flex gap-2 items-center">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <svg
-                key={star}
-                onClick={() => setRating(star)}
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill={rating >= star ? "var(--warning)" : "var(--ink-5)"}
-                stroke={rating >= star ? "var(--warning)" : "var(--ink-20)"}
-                strokeWidth={1.5}
-                className="w-10 h-10 cursor-pointer">
-                <path
-                  d="M12 2.75l3.09 6.26 6.91 1-5 4.87 1.18 6.88L12 17.77l-6.18 3.25 1.18-6.88-5-4.87 6.91-1L12 2.75z"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                />
-              </svg>
-            ))}
-          </div>
+          <StarRating value={rating} onRate={setRating} size="lg" />
 
           {/* Feedback + chips (grouped) */}
           <div className="space-y-2">
