@@ -26,7 +26,7 @@
  */
 import { spawn } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, renameSync, statSync } from "node:fs";
-import { createConnection } from "node:net";
+import { portIsListening } from "../../../scripts/assert-no-dev-server.mjs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -55,33 +55,7 @@ const die = (msg) => {
   process.exit(1);
 };
 
-function endpointIsListening(host, port) {
-  return new Promise((resolvePort) => {
-    const socket = createConnection({ host, port });
-    let settled = false;
-    const finish = (listening) => {
-      if (settled) return;
-      settled = true;
-      socket.removeAllListeners();
-      socket.destroy();
-      resolvePort(listening);
-    };
-    socket.setTimeout(500);
-    socket.once("connect", () => finish(true));
-    socket.once("error", () => finish(false));
-    socket.once("timeout", () => finish(false));
-  });
-}
 
-async function portIsListening(port) {
-  // Next may bind either loopback family. Checking IPv4 alone misses a server
-  // listening on ::1 and allows a build to invalidate that server's .next.
-  const results = await Promise.all([
-    endpointIsListening("127.0.0.1", port),
-    endpointIsListening("::1", port),
-  ]);
-  return results.some(Boolean);
-}
 
 async function assertNoDevServer() {
   if (await portIsListening(DEV_PORT)) {
