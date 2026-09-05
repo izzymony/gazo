@@ -68,6 +68,14 @@ const RATCHETED = [
 ];
 const ADVISORY = ["native-button", "inline-svg", "dynamic-classname"];
 
+/**
+ * Test sources are not a production surface. A fixture that uses an inline
+ * style or a raw hex to exercise a component is not design drift, and counting
+ * it means the suite fights the ratchet. Applied to BOTH the main scan and the
+ * adoption scan — it was previously wired into adoption only.
+ */
+const isTestSource = (file) => /(^|[/\\])__tests__([/\\])|\.(test|spec)\.[^.]+$/.test(file);
+
 // ---------------------------------------------------------------------------
 // Tailwind: the source of truth for "is this class real?"
 // ---------------------------------------------------------------------------
@@ -310,7 +318,6 @@ function duplicateClassStrings(perFileStrings, min = 3) {
  */
 function componentAdoption() {
   const components = new Map(); // rel path without extension -> Set(importers)
-  const isTestSource = (file) => /(^|[/\\])__tests__([/\\])|\.test\.[^.]+$/.test(file);
 
   for (const file of sourceFiles(UI_SRC)) {
     if (isTestSource(file)) continue;
@@ -357,6 +364,7 @@ const cssClasses = handWrittenCssClasses();
 const allFindings = [];
 const perFileStrings = [];
 for (const file of SCAN_ROOTS.flatMap((root) => [...sourceFiles(root)])) {
+  if (isTestSource(file)) continue;
   const src = readFileSync(file, "utf8");
   const rel = relative(REPO_ROOT, file);
   const exempt = new Set(

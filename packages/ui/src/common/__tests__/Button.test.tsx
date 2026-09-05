@@ -193,7 +193,7 @@ describe("Button", () => {
       expect(screen.getByRole("button", { name: "Save your changes" })).toBeInTheDocument();
     });
 
-    it("still stops propagation so a tappable parent does not also fire", async () => {
+    it("bubbles normally — a native button does not swallow its click", async () => {
       const onParent = jest.fn();
       const onClick = jest.fn();
       render(
@@ -204,7 +204,69 @@ describe("Button", () => {
       );
       await userEvent.click(screen.getByRole("button"));
       expect(onClick).toHaveBeenCalledTimes(1);
+      expect(onParent).toHaveBeenCalledTimes(1);
+    });
+
+    it("swallows the click only when stopPropagation is opted into", async () => {
+      const onParent = jest.fn();
+      render(
+        // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
+        <div onClick={onParent}>
+          <Button onClick={() => {}} stopPropagation>
+            Inner
+          </Button>
+        </div>
+      );
+      await userEvent.click(screen.getByRole("button"));
       expect(onParent).not.toHaveBeenCalled();
+    });
+
+    it("merges a caller style over the internal one instead of replacing it", () => {
+      render(
+        <Button onClick={() => {}} style={{ marginTop: "8px" }}>
+          Styled
+        </Button>
+      );
+      const btn = screen.getByRole("button");
+      expect(btn).toHaveStyle({ marginTop: "8px" });
+      // Internal style survives — `rest` used to be spread last and wipe it.
+      // (Asserted on userSelect, not touchAction: jsdom silently drops
+      // properties it does not implement, touch-action among them.)
+      expect(btn).toHaveStyle({ userSelect: "none" });
+    });
+
+    it("lets loading win over a caller aria-busy={false}", () => {
+      render(
+        <Button onClick={() => {}} loading aria-busy={false}>
+          Save
+        </Button>
+      );
+      expect(screen.getByRole("button")).toHaveAttribute("aria-busy", "true");
+    });
+
+    it("keeps the caller aria-busy when not loading", () => {
+      render(
+        <Button onClick={() => {}} aria-busy>
+          Save
+        </Button>
+      );
+      expect(screen.getByRole("button")).toHaveAttribute("aria-busy", "true");
+    });
+
+    it("submits a form it is NOT inside, via form=", async () => {
+      const onSubmit = jest.fn((e: React.FormEvent) => e.preventDefault());
+      render(
+        <>
+          <form id="external-form" onSubmit={onSubmit} />
+          <Button type="submit" form="external-form">
+            Save
+          </Button>
+        </>
+      );
+      await userEvent.click(screen.getByRole("button", { name: "Save" }));
+      // This is the shape the PageShell footerAction call sites need: the CTA
+      // renders outside the form, so DOM ancestry cannot associate them.
+      expect(onSubmit).toHaveBeenCalledTimes(1);
     });
 
     it("fires haptic feedback exactly once per click", async () => {

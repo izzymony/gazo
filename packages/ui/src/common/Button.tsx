@@ -1,4 +1,6 @@
-import React from 'react';
+"use client";
+
+import React from "react";
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@vibaar/utils';
 
@@ -51,6 +53,14 @@ type ButtonProps = Omit<
   loadingText?: string; // Optional custom loading text
   disabled?: boolean; // Non-interactive + dimmed (uses the cva `disabled:opacity-50`)
   hapticFeedback?: boolean; // Enable/disable haptic feedback
+  /**
+   * Swallow the click instead of letting it bubble. OFF by default: a native
+   * button bubbles, and a component should not silently change that for every
+   * consumer. Nothing in the app relied on it — a scan for a Button rendered
+   * inside a parent with its own onClick returned zero real cases. Opt in only
+   * where a genuinely tappable ancestor would otherwise double-fire.
+   */
+  stopPropagation?: boolean;
 } & VariantProps<typeof buttonVariants>;
 
 // Spinner component for loading state
@@ -109,6 +119,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
     size = "md",
     fullWidth = true,
     hapticFeedback = true, // Enable by default for better mobile UX
+    stopPropagation = false,
+    // Pulled out of `rest` because each one collides with a value this
+    // component controls. `rest` is spread FIRST below so these win.
+    style,
+    "aria-label": ariaLabel,
+    "aria-busy": ariaBusy,
     ...rest
   },
   ref
@@ -117,9 +133,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
     // NOTE: no preventDefault(). It used to be unconditional, which meant a
     // `type="submit"` button never actually submitted its form — every call
     // site worked around it by wiring formik.handleSubmit into onClick.
-    // stopPropagation IS kept: buttons sit inside tappable cards and rows that
-    // would otherwise fire their own handler too.
-    event.stopPropagation();
+    if (stopPropagation) event.stopPropagation();
 
     if (loading || disabled) return;
     if (hapticFeedback) triggerHapticFeedback("light");
@@ -128,12 +142,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
 
   return (
     <button
+      // `rest` FIRST so every attribute this component controls is applied
+      // after it and cannot be clobbered. Previously `{...rest}` came last,
+      // which let a caller's `style` replace the whole internal style object
+      // and a caller's `aria-busy` override the loading state.
+      {...rest}
       ref={ref}
-      // Touch is handled by the native click. The previous onTouchStart +
-      // onTouchEnd pair fired haptics twice per tap, and onTouchEnd's
-      // preventDefault suppressed the synthesized click — which would have
-      // stopped form submission on touch devices. Press feedback comes from the
-      // cva `active:` classes instead.
       onClick={handleClick}
       className={cn(
         buttonVariants({ variant, size, fullWidth }),
@@ -153,14 +167,15 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
         touchAction: "manipulation",
         userSelect: "none",
         WebkitUserSelect: "none",
+        // Caller style merges over the internal one rather than replacing it.
+        ...style,
       }}
       type={type}
       disabled={loading || disabled}
-      aria-busy={loading}
-      // A caller-supplied aria-label always wins; the loading fallback only
-      // applies when the caller gave none.
-      aria-label={rest["aria-label"] ?? (loading ? loadingText || "Loading, please wait" : undefined)}
-      {...rest}
+      // Loading is a fact about the control, so it wins; otherwise the caller's
+      // value stands.
+      aria-busy={loading ? true : ariaBusy}
+      aria-label={ariaLabel ?? (loading ? loadingText || "Loading, please wait" : undefined)}
     >
       {loading ? (
         <span className="flex items-center gap-2">

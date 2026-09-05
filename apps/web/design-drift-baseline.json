@@ -25,7 +25,7 @@
       "deferred": 53
     },
     "native-button": {
-      "live": 70,
+      "live": 71,
       "deferred": 47
     },
     "inline-svg": {
@@ -941,7 +941,7 @@
     "native-button|packages/ui/src/animated/SlideContent.tsx|<button>": 1,
     "native-button|packages/ui/src/AnimatedHeader.tsx|<button>": 1,
     "native-button|packages/ui/src/common/Accordion.tsx|<button>": 1,
-    "native-button|packages/ui/src/common/Button.tsx|<button>": 1,
+    "native-button|packages/ui/src/common/Button.tsx|<button>": 2,
     "native-button|packages/ui/src/common/DropdownMenu.tsx|<button>": 1,
     "native-button|packages/ui/src/common/header/BackButton.tsx|<button>": 1,
     "native-button|packages/ui/src/common/IconButton.tsx|<button>": 1,
