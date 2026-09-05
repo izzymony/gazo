@@ -136,7 +136,8 @@ export default function CollectionComponent({
                 <button
                   type="button"
                   onClick={() => handleRemoveCollection(collection)}
-                  className="text-caption flex items-center focus:outline-none h-2">
+                  aria-label={`Remove ${collection}`}
+                  className="text-caption flex items-center h-2 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40 focus-visible:ring-offset-1">
                   ✕
                 </button>
               </span>

@@ -686,7 +686,11 @@ const VariationFieldWithProperties = ({
             placeholder="Size"
           />
         </div>
-        <button onClick={() => onRemove(variation.id)} className="p-1 hover:bg-surface-muted rounded flex-shrink-0">
+        <button
+          type="button"
+          onClick={() => onRemove(variation.id)}
+          aria-label={`Remove the ${variation.name || "option"} option`}
+          className="p-1 hover:bg-surface-muted rounded flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40 focus-visible:ring-offset-1">
           <CloseIcon />
         </button>
       </div>
@@ -697,8 +701,10 @@ const VariationFieldWithProperties = ({
           <div key={value} className="bg-surface-subtle rounded-full px-3 h-[22px] text-body flex items-center gap-2">
             <span className="text-foreground-secondary">{value}</span>
             <button
+              type="button"
               onClick={() => removeValue(value)}
-              className="hover:bg-surface-strong rounded-full p-0.5"
+              aria-label={`Remove ${value}`}
+              className="hover:bg-surface-strong rounded-full p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40 focus-visible:ring-offset-1"
             >
               <X size={12} />
             </button>
@@ -730,6 +736,7 @@ const VariationFieldWithProperties = ({
       <div className="border-t border-outline-subtle pt-4">
         <button
           onClick={() => setIsCustomSectionExpanded(!isCustomSectionExpanded)}
+          aria-expanded={isCustomSectionExpanded}
           className={`flex items-center justify-between w-full py-2 hover:bg-surface-subtle rounded transition-colors ${isCustomSectionExpanded ? 'mb-3' : 'mb-0'}`}
         >
           <div className="flex items-center gap-2">
@@ -951,8 +958,10 @@ const VariationFieldWithProperties = ({
 
                       {/* Remove Option */}
                       <button
+                        type="button"
                         onClick={() => removeValue(value)}
-                        className="p-1 hover:bg-surface-muted rounded flex-shrink-0"
+                        aria-label={`Remove ${value}`}
+                        className="p-1 hover:bg-surface-muted rounded flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40 focus-visible:ring-offset-1"
                       >
                         <CloseIcon />
                       </button>
@@ -1279,6 +1288,7 @@ export default function EnhancedProductOptions({
         <div className="flex items-center justify-between border-b border-outline-subtle">
           <button
             onClick={() => setIsProductOptionsCollapsed(!isProductOptionsCollapsed)}
+            aria-expanded={!isProductOptionsCollapsed}
             className="flex items-center gap-3 flex-1"
           >
             <h2 className="text-body-lg font-medium text-foreground-primary">Product options</h2>
@@ -1396,6 +1406,7 @@ export default function EnhancedProductOptions({
                         {/* Variant Header - Clickable */}
                         <button
                           onClick={() => toggleSection(sectionKey)}
+                          aria-expanded={!isCollapsed}
                           className="flex items-center justify-between py-2 w-full text-left hover:bg-surface-subtle rounded transition-colors"
                         >
                           <span className="text-body font-medium text-foreground-primary">

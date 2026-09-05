@@ -140,7 +140,8 @@ const SearchInput = ({
               <button
                 type="button"
                 onClick={action ? action : () => setSearchTerm("")}
-                className="text-black text-sm">
+                aria-label="Clear search"
+                className="text-black text-sm rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40 focus-visible:ring-offset-1">
                 X
               </button>
             )}
