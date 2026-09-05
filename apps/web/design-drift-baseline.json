@@ -2,15 +2,15 @@
   "counts": {
     "unknown-utility": {
       "live": 0,
-      "deferred": 30
+      "deferred": 22
     },
     "raw-hex": {
       "live": 186,
       "deferred": 107
     },
     "arbitrary-utility": {
-      "live": 283,
-      "deferred": 599
+      "live": 280,
+      "deferred": 603
     },
     "legacy-type-scale": {
       "live": 33,
@@ -33,7 +33,7 @@
       "deferred": 78
     },
     "dynamic-classname": {
-      "live": 59,
+      "live": 51,
       "deferred": 31
     }
   },
@@ -123,6 +123,7 @@
     "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|bg-[#242424]": 4,
     "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|bg-[#6b0f21]": 1,
     "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|bg-[#ffb86a]": 1,
+    "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|bg-[rgba(255,229,0,0.25)]": 1,
     "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|bg-[rgba(255,255,255,0.05)]": 1,
     "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|bg-[rgba(255,255,255,0.08)]": 1,
     "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|bg-[rgba(255,255,255,0.1)]": 1,
@@ -273,9 +274,12 @@
     "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|scale-[0.85]": 4,
     "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|scale-y-[-100%]": 4,
     "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|shadow-[0px_0px_24px_0px_rgba(37,38,40,0.25)]": 1,
+    "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|shadow-[0px_2px_24px_0px_rgba(255,229,0,0.08)]": 1,
     "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|shadow-[0px_4px_11px_0px_rgba(255,204,35,0.5)]": 1,
     "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|shadow-[0px_4px_12px_0px_rgba(0,99,247,0.5)]": 1,
+    "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|shadow-[0px_4px_12px_0px_rgba(255,229,0,0.5)]": 1,
     "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|shadow-[0px_4px_12px_0px_rgba(37,244,238,0.5)]": 1,
+    "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|shadow-[4px_8px_24px_0px_rgba(255,229,0,0.2)]": 1,
     "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|size-[14px]": 1,
     "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|size-[16px]": 3,
     "arbitrary-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|size-[18px]": 5,
@@ -387,10 +391,9 @@
     "arbitrary-utility|apps/web/src/design-system/mainLayout/index.tsx|mt-[120px]": 1,
     "arbitrary-utility|apps/web/src/design-system/mainLayout/index.tsx|mt-[90px]": 1,
     "arbitrary-utility|apps/web/src/design-system/mainLayout/index.tsx|pb-[100px]": 1,
+    "arbitrary-utility|apps/web/src/features/auth/AuthOptionButton.tsx|h-[52px]": 1,
     "arbitrary-utility|apps/web/src/features/auth/signin/SignInOverview.tsx|h-[240px]": 1,
-    "arbitrary-utility|apps/web/src/features/auth/signin/SignInOverview.tsx|h-[52px]": 1,
     "arbitrary-utility|apps/web/src/features/auth/signin/SignInOverview.tsx|min-h-[100dvh]": 1,
-    "arbitrary-utility|apps/web/src/features/auth/signin/SignInOverview.tsx|w-[180px]": 1,
     "arbitrary-utility|apps/web/src/features/auth/signin/UserContactForm.tsx|leading-[24px]": 1,
     "arbitrary-utility|apps/web/src/features/auth/signin/UserContactForm.tsx|tracking-[0px]": 1,
     "arbitrary-utility|apps/web/src/features/auth/signup/Otp.tsx|leading-[20px]": 1,
@@ -400,12 +403,10 @@
     "arbitrary-utility|apps/web/src/features/auth/signup/ProfileSetup.tsx|leading-[24px]": 1,
     "arbitrary-utility|apps/web/src/features/auth/signup/ProfileSetup.tsx|tracking-[0.5px]": 1,
     "arbitrary-utility|apps/web/src/features/auth/signup/SignUpOverview.tsx|h-[240px]": 1,
-    "arbitrary-utility|apps/web/src/features/auth/signup/SignUpOverview.tsx|h-[52px]": 1,
     "arbitrary-utility|apps/web/src/features/auth/signup/SignUpOverview.tsx|leading-[20px]": 1,
     "arbitrary-utility|apps/web/src/features/auth/signup/SignUpOverview.tsx|leading-[24px]": 1,
     "arbitrary-utility|apps/web/src/features/auth/signup/SignUpOverview.tsx|min-h-[100dvh]": 1,
     "arbitrary-utility|apps/web/src/features/auth/signup/SignUpOverview.tsx|tracking-[0.5px]": 1,
-    "arbitrary-utility|apps/web/src/features/auth/signup/SignUpOverview.tsx|w-[180px]": 1,
     "arbitrary-utility|apps/web/src/features/auth/signup/UserContactForm.tsx|leading-[20px]": 1,
     "arbitrary-utility|apps/web/src/features/auth/signup/UserContactForm.tsx|leading-[28px]": 1,
     "arbitrary-utility|apps/web/src/features/auth/signup/UserContactForm.tsx|tracking-[0.5px]": 1,
@@ -659,12 +660,6 @@
     "dynamic-classname|apps/web/src/design-system/selecticons.tsx|text-body font-medium ${colorClass}": 1,
     "dynamic-classname|apps/web/src/design-system/VariantSelector.tsx|cursor-pointer px-3 py-1 rounded-md text-xs font-medium transition-colors ${\n   ": 1,
     "dynamic-classname|apps/web/src/features/auth/authenthecate.tsx|p-2 h-10 justify-center items-center flex font-medium w-full text-body-sm rounde": 1,
-    "dynamic-classname|apps/web/src/features/auth/signin/SignInOverview.tsx|text-center text-body font-normal ${option.isPrimary ? \"text-white\" : \"\"} ${isLo": 1,
-    "dynamic-classname|apps/web/src/features/auth/signin/SignInOverview.tsx|text-center text-body-lg font-medium ${option.isPrimary ? \"text-white\" : \"\"} ${i": 1,
-    "dynamic-classname|apps/web/src/features/auth/signin/SignInOverview.tsx|text-foreground-primary flex flex-row justify-center items-center cursor-pointer": 2,
-    "dynamic-classname|apps/web/src/features/auth/signup/SignUpOverview.tsx|text-center text-body font-normal ${option.isPrimary ? \"text-white\" : \"\"} ${isLo": 1,
-    "dynamic-classname|apps/web/src/features/auth/signup/SignUpOverview.tsx|text-center text-body-lg font-medium ${option.isPrimary ? \"text-white\" : \"\"} ${i": 1,
-    "dynamic-classname|apps/web/src/features/auth/signup/SignUpOverview.tsx|text-foreground-primary flex flex-row justify-center items-center cursor-pointer": 2,
     "dynamic-classname|apps/web/src/features/onboarding/SetupChecklist.tsx|text-body-sm ${\n                            step.completed\n                     ": 1,
     "dynamic-classname|apps/web/src/features/onboarding/SetupChecklist.tsx|text-ink-40 transition-transform duration-200 ${\n                checklistMinimi": 1,
     "dynamic-classname|apps/web/src/features/product-setup/edit/EditProductSetup.tsx|relative flex-shrink-0 w-24 h-24 rounded-card overflow-hidden border cursor-move": 1,
@@ -1105,9 +1100,6 @@
     "raw-palette-color|apps/web/src/hooks/LocationModalImpl.tsx|text-gray-400": 3,
     "raw-palette-color|apps/web/src/hooks/LocationModalImpl.tsx|text-gray-500": 2,
     "raw-palette-color|apps/web/src/hooks/LocationModalImpl.tsx|text-gray-900": 2,
-    "unknown-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|bg-[rgba(255,…  (arbitrary value contains spaces — Tailwind needs _)": 1,
-    "unknown-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|hover:shadow-[0px_-10px_40px_rgba(255,…  (arbitrary value contains spaces — Tailwind needs _)": 1,
-    "unknown-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|hover:shadow-[6px_10px_32px_0px_rgba(255,…  (arbitrary value contains spaces — Tailwind needs _)": 1,
     "unknown-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|mask-alpha": 2,
     "unknown-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|mask-intersect": 2,
     "unknown-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|mask-no-clip": 2,
@@ -1116,11 +1108,6 @@
     "unknown-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|mask-position-[0px_-0.656px]": 1,
     "unknown-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|mask-size-[14px_14px]": 1,
     "unknown-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|mask-size-[75.215px_59.516px]": 1,
-    "unknown-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|md:shadow-[0px_5.333px_15.998px_0px_rgba(255,…  (arbitrary value contains spaces — Tailwind needs _)": 1,
-    "unknown-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|object-50%-50%": 10,
-    "unknown-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|shadow-[0px_2px_24px_0px_rgba(255,…  (arbitrary value contains spaces — Tailwind needs _)": 1,
-    "unknown-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|shadow-[0px_4px_12px_0px_rgba(255,…  (arbitrary value contains spaces — Tailwind needs _)": 1,
-    "unknown-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|shadow-[4px_8px_24px_0px_rgba(255,…  (arbitrary value contains spaces — Tailwind needs _)": 1,
-    "unknown-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|sm:shadow-[0px_5px_14px_0px_rgba(255,…  (arbitrary value contains spaces — Tailwind needs _)": 1
+    "unknown-utility|apps/web/src/app/(marketing)/landing/components/HeroSection.tsx|object-50%-50%": 10
   }
 }
