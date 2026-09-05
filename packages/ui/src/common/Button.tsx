@@ -3,6 +3,7 @@
 import React from "react";
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@vibaar/utils';
+import { focusRing } from "../styles";
 
 // Button variant system.
 //   variant  — filled (primary CTA) · bordered (secondary/outline) · ghost (tertiary/text)
@@ -11,7 +12,10 @@ import { cn } from '@vibaar/utils';
 // Default render (filled / md / fullWidth) is byte-identical to the previous
 // component, so existing footerAction buttons are unchanged.
 const buttonVariants = cva(
-  "max-w-full disabled:opacity-50 flex flex-row gap-2 justify-center items-center text-center rounded-full font-medium touch-manipulation transition-all duration-200",
+  cn(
+    "max-w-full disabled:opacity-50 flex flex-row gap-2 justify-center items-center text-center rounded-full font-medium touch-manipulation transition-all duration-200",
+    focusRing
+  ),
   {
     variants: {
       variant: {

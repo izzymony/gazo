@@ -1,5 +1,6 @@
 import React from "react";
 import { cn } from "@vibaar/utils";
+import { peerFocusRing } from "../styles";
 
 interface Option {
   label: string;
@@ -61,9 +62,11 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
                 value={option.value}
                 checked={selectedValue === option.value}
                 onChange={(e) => onChange(e.target.value)}
-                className="hidden"
+                className="sr-only peer"
               />
-              <Indicator selected={selectedValue === option.value} />
+              <span className={`${peerFocusRing} rounded-full`}>
+                <Indicator selected={selectedValue === option.value} />
+              </span>
               <div className="flex flex-col">
                 <p className="font-normal text-body text-foreground-primary">
                   {option.label}
@@ -98,9 +101,11 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
             value={option.value}
             checked={selectedValue === option.value}
             onChange={(e) => onChange(e.target.value)}
-            className="hidden"
+            className="sr-only peer"
           />
-          <Indicator selected={selectedValue === option.value} />
+          <span className={`${peerFocusRing} rounded-full`}>
+                <Indicator selected={selectedValue === option.value} />
+              </span>
           <span className="text-body text-foreground-primary">{option.label}</span>
         </label>
       ))}

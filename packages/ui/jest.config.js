@@ -22,6 +22,8 @@ module.exports = {
     // @vibaar/utils is a raw-TS workspace pkg — map to source so @swc/jest
     // transpiles it rather than jest choking on untransformed TS in node_modules.
     "^@vibaar/utils$": "<rootDir>/../utils/src/index.ts",
+    // @hugeicons/react is ESM-only and resolves to an empty module under CJS.
+    "^@hugeicons/react$": "<rootDir>/test-stubs/hugeicons-react.tsx",
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
   },
   testMatch: [

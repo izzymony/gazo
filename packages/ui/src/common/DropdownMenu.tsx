@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useRef } from "react";
+import { focusRingInset } from "../styles";
 import { BsThreeDots } from "../icons";
 
 interface Option {
@@ -49,7 +50,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ options }) => {
           {options.map((option, index) => (
             <li key={index}>
               <button
-                className="w-full px-4 py-2 text-left hover:bg-gray-100 focus:outline-none"
+                className={`w-full px-4 py-2 text-left hover:bg-ink-3 ${focusRingInset}`}
                 onClick={(e) => {
                   e.stopPropagation(); // don't bubble to a selectable card ancestor
                   option.onClick(); // Call the specific action

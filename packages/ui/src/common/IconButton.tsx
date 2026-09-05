@@ -3,7 +3,8 @@
 import React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vibaar/utils";
-import { IconProps } from "../icons";
+import { focusRing } from "../styles";
+import type { IconProps } from "../icons";
 
 // Icon-button system — the single primitive for "an icon in a tappable container".
 // Standardises touch-target size, icon scale, radius, and hover/active states so
@@ -13,7 +14,10 @@ import { IconProps } from "../icons";
 //             icon on hero/colored bg) · filled (brand pill) · soft (brand tint pill)
 //   size    — sm 32px · md 36px (default, meets 36px touch min) · lg 44px
 const iconButtonVariants = cva(
-  "inline-flex items-center justify-center shrink-0 rounded-full transition-colors duration-200 disabled:opacity-50 disabled:pointer-events-none touch-manipulation cursor-pointer",
+  cn(
+    "inline-flex items-center justify-center shrink-0 rounded-full transition-colors duration-200 disabled:opacity-50 disabled:pointer-events-none touch-manipulation cursor-pointer",
+    focusRing
+  ),
   {
     variants: {
       variant: {

@@ -7,6 +7,11 @@ import userEvent from "@testing-library/user-event";
 jest.mock("../../icons", () => ({
   BiChevronDown: () => null,
   CiSearch: () => null,
+  // The password toggle and product adornment now render real library icons
+  // instead of inline SVGs, so the stub has to cover them too.
+  MdVisibility: () => null,
+  MdVisibilityOff: () => null,
+  Package: () => null,
 }));
 jest.mock("../PasswordCriteria", () => ({ __esModule: true, default: () => null }));
 
