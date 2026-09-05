@@ -4,6 +4,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import OrderLineItem from "@/features/orders/OrderLineItem";
+import DetailRow from "@vibaar/ui/common/DetailRow";
 import { PiCube, CircleCheck, ChevronUp, ChevronDown } from "@vibaar/ui/icons";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
@@ -126,53 +128,6 @@ const ActivityCard = ({
   );
 };
 
-const ItemCard = ({
-  name,
-  quantity,
-  image,
-  price,
-  variant,
-}: {
-  name: string;
-  quantity: number;
-  image: string;
-  price: number;
-  variant?: string;
-}) => {
-  return (
-    <div className="w-full flex space-x-3 border-ink-10 border rounded-field p-2">
-      <img
-        src={image} // Dynamic product image
-        className="w-[60px] h-[60px] object-cover rounded-field border"
-        alt={name}
-      />
-      <div className="flex-1 flex-col flex justify-between">
-        <p className="text-ink-90 font-normal text-body-sm">{name}</p>
-        {variant && (
-          <div className="flex text-ink-40 text-body-sm font-medium space-x-4">
-            <p>{variant}</p>
-          </div>
-        )}
-        <div className="flex text-ink-60 text-body-sm font-medium space-x-4">
-          <p> {formatCurrency(price)}</p>
-          <p className="text-ink-90">x {quantity}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Sales = ({ item1, item2 }: { item1: string; item2: number }) => {
-  return (
-    <div className="flex justify-between items-center">
-      <p className="text-ink-60 text-body-sm font-normal">{item1}</p>
-      <p className="text-ink-90 text-body-sm font-medium">
-        {formatCurrency(item2)}
-      </p>
-    </div>
-  );
-};
-
 const Cards = ({
   order,
   products,
@@ -192,7 +147,7 @@ const Cards = ({
         </p>
       </div>
       <div className="gap-3">
-        <ItemCard
+        <OrderLineItem bordered
           name={productName?.title as string}
           quantity={order.quantity}
           image={
@@ -203,23 +158,17 @@ const Cards = ({
         />
       </div>
       <div className="border border-ink-10 rounded-card p-3 gap-2 flex flex-col">
-        <Sales
-          item1={`Subtotal: ${order.quantity} items`}
-          item2={order.order?.sub_total || (order.price * order.quantity)}
+        <DetailRow
+          label={`Subtotal: ${order.quantity} items`}
+          value={formatCurrency(order.order?.sub_total || (order.price * order.quantity))}
         />
-        <Sales
-          item1="Discount:"
-          item2={
+        <DetailRow label="Discount:" value={formatCurrency(
             productName?.original_price
               ? +productName?.original_price - +order.price
               : 0
-          }
-        />
-        <Sales
-          item1="Shipping:"
-          item2={order.shipping_option?.price ? +order.shipping_option.price.slice(3) : 0}
-        />
-        <Sales item1="Total:" item2={order.order?.total || ((order.price * order.quantity) + (order.shipping_option?.price ? +order.shipping_option.price.slice(3) : 0))} />
+          )} />
+        <DetailRow label="Shipping:" value={formatCurrency(order.shipping_option?.price ? +order.shipping_option.price.slice(3) : 0)} />
+        <DetailRow label={"Total:"} value={formatCurrency(order.order?.total || ((order.price * order.quantity) + (order.shipping_option?.price ? +order.shipping_option.price.slice(3) : 0)))} />
       </div>
     </div>
   );

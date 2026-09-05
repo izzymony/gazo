@@ -10,6 +10,8 @@ import Dialog from "@vibaar/ui/common/Dialog";
 import { useRouter } from "next/navigation";
 import StatusBadge from "@/features/orders/StatusBadge";
 import StarRating from "@/features/orders/StarRating";
+import OrderLineItem from "@/features/orders/OrderLineItem";
+import DetailRow from "@vibaar/ui/common/DetailRow";
 import useOrderStore from "@/store/orderStore";
 import { formatCurrency, getMobileCompatibleImageUrl } from "@/lib/utils";
 import useBusinessStore from "@/store/businessStore";
@@ -26,21 +28,6 @@ import InputField from "@vibaar/ui/common/InputField";
 import { OrderDatas } from "@/lib/order";
 import { formatTimestamp } from "@/lib/converter";
 import { ProductData } from "@/lib/types";
-
-const OrderCard = ({
-  children,
-  text,
-}: {
-  children: ReactNode;
-  text: string;
-}) => {
-  return (
-    <div className="flex justify-between items-center">
-      <p className="text-caption font-normal text-ink-60">{text}</p>
-      {children}
-    </div>
-  );
-};
 
 const RatingComponent = ({
   action,
@@ -263,28 +250,16 @@ const Page = () => {
                     router.push(`/orders/${order.id}`);
                   }}
                   className="flex space-x-3 bg-white rounded-field p-2 cursor-pointer">
-                  <img
-                    src={
+                  <OrderLineItem
+                    image={
                       productName?.image
                         ? getMobileCompatibleImageUrl(productName.image[0])
-                        : "/PRODUCT IMAGE (2).png"
+                        : undefined
                     }
-                    className="w-[60px] h-[60px] object-cover rounded-field border"
-                    alt={productName?.title ? productName.title : ""}
+                    name={productName?.title ?? ""}
+                    price={order.price}
+                    quantity={order.quantity}
                   />
-                  <div className="flex-1 flex-col flex justify-between">
-                    <p className="text-ink-90 font-normal text-body-sm">
-                      {productName?.title ? productName.title : ""}
-                    </p>
-                    {/* <div className="flex text-ink-40 text-body-sm font-medium space-x-4">
-                      <p>Color: Red</p>
-                      <p>Size: {productName?.title ? productName. : ""}</p>
-                    </div> */}
-                    <div className="flex text-ink-60 text-body-sm font-medium space-x-4">
-                      <p> {formatCurrency(order.price)}</p>
-                      <p className="text-ink-90">x {order.quantity}</p>
-                    </div>
-                  </div>
                 </div>
 
                 {order.buyer_activity &&
@@ -316,8 +291,8 @@ const Page = () => {
                   )}
 
                 <div className="px-2 pb-2 pt-2 space-y-1">
-                  <OrderCard
-                    text={formatTimestamp(
+                  <DetailRow
+                    label={formatTimestamp(
                       order.buyer_activity
                         ? order.buyer_activity[order.buyer_activity.length - 1]
                             .time
@@ -330,21 +305,21 @@ const Page = () => {
                           : "Order Placed"
                       }
                     />
-                  </OrderCard>
-                  <OrderCard text="Order ID:">
+                  </DetailRow>
+                  <DetailRow label="Order ID:">
                     <p className="text-caption text-ink-90 font-medium leading-[10px]">
                       {order.order.invoice}
                     </p>
-                  </OrderCard>
+                  </DetailRow>
                   {order.buyer_activity &&
                     order.buyer_activity[
                       order.buyer_activity.length - 1
                     ].title.toLowerCase() !== "order delivered" && (
-                      <OrderCard text="Arrives by:">
+                      <DetailRow label="Arrives by:">
                         <p className="text-caption text-ink-90 font-medium leading-[10px]">
                           ~ {order.shipping_option.delivery_days}
                         </p>
-                      </OrderCard>
+                      </DetailRow>
                     )}
                 </div>
               </div>
