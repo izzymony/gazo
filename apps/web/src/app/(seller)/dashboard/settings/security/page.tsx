@@ -4,7 +4,7 @@ import { IoIosArrowForward, CiLock, LockPassword } from "@vibaar/ui/icons";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Button from "@vibaar/ui/common/Button";
-import Card from "@vibaar/ui/common/Card";
+import Surface from "@vibaar/ui/common/Surface";
 import Section from "@vibaar/ui/common/Section";
 import { useRouter } from "next/navigation";
 
@@ -22,7 +22,7 @@ const Security = () => {
       }>
       {/* content only — shell owns the mt-11/px-4 lg:px-5 offset+padding */}
       <Section>
-        <Card className="flex justify-between items-center">
+        <Surface className="flex justify-between items-center">
           <div
             className="flex gap-2 items-center cursor-pointer"
             onClick={() => router.push(`/dashboard/settings/change-password`)}>
@@ -30,14 +30,14 @@ const Security = () => {
             <p className="text-ink-60 text-body">Change Password</p>
           </div>
           <IoIosArrowForward />
-        </Card>
-        <Card className="flex justify-between items-center">
+        </Surface>
+        <Surface className="flex justify-between items-center">
           <div className="flex gap-2 items-center cursor-pointer">
             <CiLock />
             <p className="text-ink-60 text-body">2 step authentication</p>
           </div>
           <IoIosArrowForward />
-        </Card>
+        </Surface>
       </Section>
     </PageShell>
   );

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Section from "@vibaar/ui/common/Section";
-import Card from "@vibaar/ui/common/Card";
+import Surface from "@vibaar/ui/common/Surface";
 import { ChevronRight, Bank, LockPassword } from "@vibaar/ui/icons";
 
 export default function Page() {
@@ -19,7 +19,7 @@ export default function Page() {
         />
       }>
       <Section>
-        <Card
+        <Surface
           onClick={() => router.push("/dashboard/payouts")}
           className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
@@ -29,9 +29,9 @@ export default function Page() {
             </p>
           </div>
           <ChevronRight className="text-ink-40" />
-        </Card>
+        </Surface>
 
-        <Card
+        <Surface
           onClick={() => {}}
           className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
@@ -41,7 +41,7 @@ export default function Page() {
             </p>
           </div>
           <ChevronRight className="text-ink-40" />
-        </Card>
+        </Surface>
       </Section>
     </PageShell>
   );

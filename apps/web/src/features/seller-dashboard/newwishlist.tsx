@@ -7,7 +7,7 @@ import useProductStore from "@/store/productStore";
 // import useBusinessStore from "@/store/businessStore";
 // import { BusinessData } from "@/lib/types";
 import Explore from "@/features/shop/explorecard";
-import Card from "@/features/shop/ccard";
+import Surface from "@/features/shop/ccard";
 
 const WishlistNew = () => {
   const router = useRouter();
@@ -36,14 +36,14 @@ const WishlistNew = () => {
           <Explore title="Bags">
             <div className="overflow-y-scroll scrollbar-hide flex flex-row">
               {[1, 2, 3, 4, 5, 6, 7].map((it) => (
-                <Card key={it} liked={liked} setLiked={setLiked} />
+                <Surface key={it} liked={liked} setLiked={setLiked} />
               ))}
             </div>
           </Explore>
           <Explore title="Bags">
             <div className="overflow-y-scroll scrollbar-hide flex flex-row">
               {[1, 2, 3, 4, 5, 6, 7].map((it) => (
-                <Card key={it} liked={liked} setLiked={setLiked} />
+                <Surface key={it} liked={liked} setLiked={setLiked} />
               ))}
             </div>
           </Explore>

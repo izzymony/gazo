@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import { cn } from "@vibaar/utils";
 import { focusRing } from "../styles";
 
-interface CardProps {
+interface SurfaceProps {
   children: ReactNode;
   className?: string;
   /** When set the whole card becomes a real button — focusable and keyboard-operable. */
@@ -12,7 +12,15 @@ interface CardProps {
 }
 
 /**
- * Card — the canonical bordered surface (design-system content layer).
+ * Surface — the canonical bordered container.
+ *
+ * Named `Card` until it became clear the name was actively misleading: this app
+ * has at least seven things a person would call a card — the shop product card
+ * (ccard/fluidcard), the storefront explore card, the dashboard stat card, the
+ * order card, the transaction card and the shipping-option card — and this
+ * component is none of them. It is the plain bordered box those cards could be
+ * built ON, used today mostly for settings and wallet rows. `Surface` says that;
+ * `Card` implied it was the product card and nobody reached for it.
  *
  * Replaces the ad-hoc `border border-outline rounded-xl p-3 px-4` /
  * `py-3 px-2` markup that drifted page-to-page. One border, one radius
@@ -23,7 +31,7 @@ interface CardProps {
  * which is not focusable, exposes no role and ignores Enter and Space — the
  * same defect Checkbox and the auth CTAs had.
  */
-export default function Card({ children, className, onClick, ariaLabel }: CardProps) {
+export default function Surface({ children, className, onClick, ariaLabel }: SurfaceProps) {
   const base = "border border-outline rounded-card bg-white p-4";
 
   if (!onClick) {

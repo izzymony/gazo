@@ -16,7 +16,7 @@ const entries = [
   ["common/Avatar", "primitive"],
   ["common/BottomModal", "component"],
   ["common/Button", "primitive"],
-  ["common/Card", "primitive"],
+  ["common/Surface", "primitive"],
   ["common/Checkbox", "primitive"],
   ["common/ComingSoonPill", "component"],
   ["common/DetailList", "component"],

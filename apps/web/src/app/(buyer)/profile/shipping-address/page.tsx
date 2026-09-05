@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Button from "@vibaar/ui/common/Button";
-import Card from "@vibaar/ui/common/Card";
+import Surface from "@vibaar/ui/common/Surface";
 import Section from "@vibaar/ui/common/Section";
 import { CircleCheck } from "@vibaar/ui/icons";
 import { useRouter } from "next/navigation";
@@ -91,7 +91,7 @@ const Page = () => {
           </div>
         ) : (
           shippingDetails.map((profile) => (
-            <Card
+            <Surface
               key={profile.id}
               className={`relative ${
                 profile.id === singleShippingDetails?.id
@@ -135,7 +135,7 @@ const Page = () => {
                   ]}
                 />
               </div>
-            </Card>
+            </Surface>
           ))
         )}
       </Section>

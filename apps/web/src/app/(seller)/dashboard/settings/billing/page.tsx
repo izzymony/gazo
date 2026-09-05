@@ -5,7 +5,7 @@ import { BsThreeDots, MdOutlineAddCard } from "@vibaar/ui/icons";
 import { useRouter } from 'next/navigation';
 import PageShell from '@vibaar/ui/PageShell'
 import Header from '@/design-system/common/Header'
-import Card from '@vibaar/ui/common/Card'
+import Surface from '@vibaar/ui/common/Surface'
 import Section from '@vibaar/ui/common/Section'
 
 
@@ -23,7 +23,7 @@ const Billing = () => {
             />
           }>
             <Section title="Current plan">
-                <Card>
+                <Surface>
                     <div className='flex justify-between'>
                         <p className='font-medium'>Booster</p>
                         <p className='text-brandDeep text-body-sm'>Change plan</p>
@@ -32,11 +32,11 @@ const Billing = () => {
                     <p className="text-ink-40 text-body">₦2,300/month</p>
 
                     <p className='text-body'> <span className="text-ink-60"> Next billing:</span>  20 Jul 2024</p>
-                </Card>
+                </Surface>
             </Section>
 
             <Section title="Billing cards">
-                <Card className="flex justify-between items-center">
+                <Surface className="flex justify-between items-center">
                     <div className="flex flex-col">
                         <div className="flex items-center space-x-3">
                             <img src={'/images/vendor/visa.png'} alt="Visa" className="w-8 h-5 object-contain" />
@@ -49,8 +49,8 @@ const Billing = () => {
                     </div>
 
                     <BsThreeDots className='cursor-pointer' />
-                </Card>
-                <Card className="flex justify-between items-center">
+                </Surface>
+                <Surface className="flex justify-between items-center">
                     <div className="flex flex-col">
                         <div className="flex items-center space-x-3">
                             <img src={'/images/vendor/mastercard.png'} alt="Mastercard" className="w-8 h-5 object-contain" />
@@ -63,7 +63,7 @@ const Billing = () => {
                     </div>
 
                     <BsThreeDots className='cursor-pointer' />
-                </Card>
+                </Surface>
                 <div className="flex justify-end">
                     <p
                         className="cursor-pointer text-brandDeep flex items-center text-body-sm font-medium"

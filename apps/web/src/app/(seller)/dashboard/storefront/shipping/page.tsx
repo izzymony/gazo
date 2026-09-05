@@ -5,7 +5,7 @@ import PageShell from "@vibaar/ui/PageShell";
 import Header from "@/design-system/common/Header";
 import Button from "@vibaar/ui/common/Button";
 import Section from "@vibaar/ui/common/Section";
-import Card from "@vibaar/ui/common/Card";
+import Surface from "@vibaar/ui/common/Surface";
 import Switch from "@vibaar/ui/common/Switch";
 import InputField from "@vibaar/ui/common/InputField";
 import Dialog from "@vibaar/ui/common/Dialog";
@@ -151,7 +151,7 @@ const CoverageStrip = ({
   const intlCovered = intlSelf || partnerEnabled;
 
   return (
-    <Card>
+    <Surface>
       <div className="flex items-center gap-2 mb-1">
         <DeliveryTruck size={18} className="text-ink-90" />
         <p className="text-body font-medium text-ink-90">Where buyers can order</p>
@@ -204,7 +204,7 @@ const CoverageStrip = ({
           </p>
         </div>
       )}
-    </Card>
+    </Surface>
   );
 };
 
@@ -514,7 +514,7 @@ const Page = () => {
       />
 
       <Section title="Your delivery">
-        <Card>
+        <Surface>
           <div className="divide-y divide-ink-5">
             {ZONE_META.map((m) => (
               <ZoneRow
@@ -535,11 +535,11 @@ const Page = () => {
               />
             ))}
           </div>
-        </Card>
+        </Surface>
       </Section>
 
       <Section title="Courier partners">
-        <Card>
+        <Surface>
           <div className="flex items-center gap-3">
             <RowIcon icon={DeliveryTruck} />
             <div className="flex-1 min-w-0">
@@ -555,7 +555,7 @@ const Page = () => {
               onChange={(e) => setPartnerEnabled(e.target.checked)}
             />
           </div>
-        </Card>
+        </Surface>
       </Section>
 
       <Dialog
