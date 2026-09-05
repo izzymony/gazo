@@ -94,6 +94,15 @@ module.exports = {
           emphasis: "rgb(var(--outline-emphasis-rgb) / <alpha-value>)",
           contrast: "rgb(var(--outline-contrast-rgb) / <alpha-value>)",
         },
+        // The background counterpart to `foreground` and `outline`. DEFAULT is
+        // pure white so a card still reads as raised on a tinted page.
+        surface: {
+          DEFAULT: "rgb(var(--surface-default-rgb) / <alpha-value>)",
+          subtle: "rgb(var(--surface-subtle-rgb) / <alpha-value>)",
+          muted: "rgb(var(--surface-muted-rgb) / <alpha-value>)",
+          strong: "rgb(var(--surface-strong-rgb) / <alpha-value>)",
+          inverse: "rgb(var(--surface-inverse-rgb) / <alpha-value>)",
+        },
         ink: {
           3: "var(--ink-3)",
           5: "var(--ink-5)",

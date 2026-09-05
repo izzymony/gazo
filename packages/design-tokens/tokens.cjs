@@ -47,6 +47,21 @@ const neutralRoleSteps = {
     emphasis: 400,
     contrast: 900,
   },
+  /**
+   * Backgrounds. The missing third of the trio — `foreground` and `outline`
+   * existed, so text and borders had a role to reach for while backgrounds had
+   * nothing: the app improvised with bg-white (98), bg-ink-3 (74), bg-ink-5
+   * (31) and raw bg-[#hex] (15). `surface` is the page/card ground; the tints
+   * step up from it. Note DEFAULT is pure white, not neutral-50 — a card on a
+   * neutral-50 page still has to read as raised.
+   */
+  surface: {
+    DEFAULT: "white",
+    subtle: 50,
+    muted: 100,
+    strong: 200,
+    inverse: 900,
+  },
 };
 
 const semanticColor = (role, tone) => {
@@ -78,6 +93,12 @@ const color = {
     Object.entries(neutralRoleSteps.outline).map(([role, step]) => [
       role,
       tailwindColors.neutral[step],
+    ])
+  ),
+  surface: Object.fromEntries(
+    Object.entries(neutralRoleSteps.surface).map(([role, step]) => [
+      role,
+      step === "white" ? "#FFFFFF" : tailwindColors.neutral[step],
     ])
   ),
   ink: {
@@ -174,7 +195,9 @@ const cssVariables = {
     Object.entries(neutralRoleSteps).flatMap(([family, roles]) =>
       Object.entries(roles).map(([role, step]) => [
         `--${family}-${role === "DEFAULT" ? "default" : role}-rgb`,
-        neutralScale[step],
+        // `surface.DEFAULT` is pure white, which is not a step on the neutral
+        // scale — a card on a neutral-50 page still has to read as raised.
+        step === "white" ? "255 255 255" : neutralScale[step],
       ])
     )
   ),
