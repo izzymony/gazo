@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { cn } from "@vibaar/utils";
+import { focusRingInset } from "../styles";
 
 interface ListItemProps {
   /** Left visual — an icon badge / avatar. Rendered in a fixed 40px slot so
@@ -16,6 +17,8 @@ interface ListItemProps {
   /** Small unread dot pinned to the leading badge. */
   showDot?: boolean;
   onClick?: () => void;
+  /** Accessible name when the row is interactive and `title` is not a string. */
+  ariaLabel?: string;
   className?: string;
 }
 
@@ -38,14 +41,22 @@ export default function ListItem({
   trailing,
   showDot,
   onClick,
+  ariaLabel,
   className,
 }: ListItemProps) {
+  // An interactive row renders a real <button>. It was a <div onClick>, which
+  // is not focusable, exposes no role and ignores Enter and Space — the same
+  // defect Surface and the auth CTAs had.
+  const Element = onClick ? "button" : "div";
+
   return (
-    <div
-      onClick={onClick}
+    <Element
+      {...(onClick
+        ? { type: "button" as const, onClick, "aria-label": ariaLabel }
+        : {})}
       className={cn(
-        "flex items-start gap-3 py-3 bg-surface transition-colors",
-        onClick && "cursor-pointer hover:bg-surface-subtle",
+        "flex items-start gap-3 py-3 bg-surface transition-colors w-full",
+        onClick && cn("cursor-pointer text-left hover:bg-surface-subtle", focusRingInset),
         className
       )}>
       {leading && (
@@ -67,6 +78,6 @@ export default function ListItem({
         )}
         {meta && <p className="text-caption text-foreground-muted">{meta}</p>}
       </div>
-    </div>
+    </Element>
   );
 }
