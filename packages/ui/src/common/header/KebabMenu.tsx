@@ -1,5 +1,8 @@
 "use client";
 
+import { cn } from "@vibaar/utils";
+import { focusRing } from "../../styles";
+
 import dynamic from "next/dynamic";
 
 // Lazy-load: ExpandableIconMenu pulls in framer-motion, and this menu lives in
@@ -40,7 +43,17 @@ const KebabMenu = ({ isOpen, setIsOpen, store }: KebabMenuProps) => (
         x: store?.x_profile || ""
       }}
     />
-    <div onClick={() => setIsOpen(!isOpen)}>
+    {/* Was a <div onClick>: not focusable, no role, and ignoring Enter and
+        Space — so the storefront overflow menu was mouse-only. It also
+        declared no expanded state, unlike DropdownMenu which does the same job
+        with full semantics. */}
+    <button
+      type="button"
+      onClick={() => setIsOpen(!isOpen)}
+      aria-label={isOpen ? "Close store menu" : "Open store menu"}
+      aria-haspopup="menu"
+      aria-expanded={isOpen}
+      className={cn("rounded-full", focusRing)}>
       <svg
         width="36"
         height="37"
@@ -67,7 +80,7 @@ const KebabMenu = ({ isOpen, setIsOpen, store }: KebabMenuProps) => (
             y="8.32031"
             width="20"
             height="20"
-            fill="#D9D9D9"
+            fill="currentColor"
           />
         </mask>
         <g mask="url(#mask0_7046_239079)">
@@ -77,7 +90,7 @@ const KebabMenu = ({ isOpen, setIsOpen, store }: KebabMenuProps) => (
           />
         </g>
       </svg>
-    </div>
+    </button>
   </div>
 );
 
