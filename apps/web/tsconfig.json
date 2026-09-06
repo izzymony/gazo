@@ -33,8 +33,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/components/storeSetup/GoogleAddressInput",
-    ".next-verify/types/**/*.ts"
+    "src/components/storeSetup/GoogleAddressInput"
   ],
   "exclude": [
     "node_modules"
