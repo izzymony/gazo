@@ -68,7 +68,27 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ options, ariaLabel = "Open 
       </button>
 
       {isOpen && (
-        <ul role="menu" className="absolute right-0 z-dropdown mt-5 w-40 rounded-lg border border-outline bg-surface text-body-sm shadow-pop">
+        <ul
+          role="menu"
+          onKeyDown={(event) => {
+            const items = Array.from(
+              event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="menuitem"]')
+            );
+            const at = items.indexOf(document.activeElement as HTMLButtonElement);
+            const step =
+              event.key === "ArrowDown" ? 1 : event.key === "ArrowUp" ? -1 : 0;
+            if (step) {
+              event.preventDefault();
+              items[(at + step + items.length) % items.length]?.focus();
+            } else if (event.key === "Home") {
+              event.preventDefault();
+              items[0]?.focus();
+            } else if (event.key === "End") {
+              event.preventDefault();
+              items[items.length - 1]?.focus();
+            }
+          }}
+          className="absolute right-0 z-dropdown mt-5 w-40 rounded-lg border border-outline bg-surface text-body-sm shadow-pop">
           {options.map((option, index) => (
             <li key={index} role="none">
               <button

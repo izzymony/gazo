@@ -65,7 +65,9 @@ export default function TransactionIcon({
         GLYPH_COLOR[type] ?? GLYPH_COLOR.pending,
         box
       )}>
-      <HugeiconsIcon icon={glyph} size={glyphPx} strokeWidth={2} />
+      <HugeiconsIcon icon={glyph} size={glyphPx} strokeWidth={2} aria-hidden="true" />
+      {/* Money direction was conveyed by glyph colour alone. */}
+      <span className="sr-only">{type === "credit" ? "Credit" : type === "debit" ? "Debit" : "Pending"}</span>
     </div>
   );
 }

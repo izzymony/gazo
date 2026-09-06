@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
 import { cn } from "@vibaar/utils";
-import { focusRing } from "../styles";
+import { focusRing, tabBar, tabBarItem, tabBarItemActive, tabBarItemIdle } from "../styles";
 
 interface NavigationTabsProps {
   tabs: { label: string; path: string }[];
@@ -32,7 +32,7 @@ const NavigationTabs: React.FC<NavigationTabsProps> = ({ tabs, tabClass, ariaLab
     <nav
       aria-label={ariaLabel}
       className={cn(
-        "flex justify-between lg:justify-center sticky top-0 z-sticky bg-surface",
+        tabBar,
         tabClass
       )}>
       {tabs.map((tab) => {
@@ -43,11 +43,11 @@ const NavigationTabs: React.FC<NavigationTabsProps> = ({ tabs, tabClass, ariaLab
             href={tab.path}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "w-full lg:w-auto text-center py-2 md:py-3 px-4 md:px-6 lg:px-8 border-b-2 text-body md:text-body-lg transition-all",
+              tabBarItem,
               focusRing,
               active
-                ? "border-outline-contrast text-foreground-primary font-medium"
-                : "border-transparent text-foreground-disabled font-normal hover:text-foreground-secondary hover:border-outline-strong"
+                ? tabBarItemActive
+                : tabBarItemIdle
             )}>
             {tab.label}
           </Link>

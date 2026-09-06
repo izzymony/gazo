@@ -21,6 +21,8 @@ interface ListItemProps {
    * unread row read identically to a read one.
    */
   dotLabel?: string;
+  /** Render wrapped in an <li> for use inside `List`. */
+  asListItem?: boolean;
   onClick?: () => void;
   /** Accessible name when the row is interactive and `title` is not a string. */
   ariaLabel?: string;
@@ -46,6 +48,7 @@ export default function ListItem({
   trailing,
   showDot,
   dotLabel = "Unread",
+  asListItem = false,
   onClick,
   ariaLabel,
   className,
@@ -55,7 +58,7 @@ export default function ListItem({
   // defect Surface and the auth CTAs had.
   const Element = onClick ? "button" : "div";
 
-  return (
+  const row = (
     <Element
       {...(onClick
         ? { type: "button" as const, onClick, "aria-label": ariaLabel }
@@ -88,4 +91,6 @@ export default function ListItem({
       </div>
     </Element>
   );
+
+  return asListItem ? <li>{row}</li> : row;
 }

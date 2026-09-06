@@ -33,10 +33,16 @@ const TrendIndicator = ({
         className
       )}>
       {trendData.displayText}
+      {/* Direction was carried by colour plus an arrow that only renders when
+          showArrow is set — so without it, up and down read identically. */}
+      {trendData.displayText !== "0%" && trendData.displayText !== "New store" && (
+        <span className="sr-only">{trendData.isPositive ? "increase" : "decrease"}</span>
+      )}
       {trendData.showArrow && (
         <Image
           src={trendData.isPositive ? "/icons/trending_up.svg" : "/icons/trending_down.svg"}
-          alt={trendData.isPositive ? "trending up" : "trending down"}
+          alt=""
+          aria-hidden="true"
           width={15}
           height={16}
           className="inline-block"

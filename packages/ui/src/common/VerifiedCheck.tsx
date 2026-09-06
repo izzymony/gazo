@@ -20,7 +20,7 @@ export default function VerifiedCheck({
   return (
     <span
       title="Verified seller"
-      aria-label="Verified seller"
+      aria-label="Verified"
       className={cn("inline-flex shrink-0", className)}>
       <VerifiedBadge size={size} className="text-info-foreground" />
     </span>
