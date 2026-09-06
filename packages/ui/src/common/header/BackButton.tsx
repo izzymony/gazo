@@ -1,8 +1,12 @@
 "use client";
 
+import { cn } from "@vibaar/utils";
+
 interface BackButtonProps {
   /** Click handler (e.g. router.back()) */
   onClick?: () => void;
+  /** Accessible name. Defaults to "Go back". */
+  ariaLabel?: string;
   /** Unique SVG mask id — preserved per-caller so the rendered DOM is byte-for-byte identical */
   maskId: string;
   /** Optional wrapper className (callers currently pass none) */
@@ -18,8 +22,18 @@ interface BackButtonProps {
  * (arrow over a translucent circle) are visually different and intentionally
  * NOT consolidated here.
  */
-const BackButton = ({ onClick, maskId, className }: BackButtonProps) => (
-  <div onClick={onClick} className={className}>
+const BackButton = ({ onClick, maskId, className, ariaLabel = "Go back" }: BackButtonProps) => (
+  // Was a <div onClick>: not focusable, no role, and ignoring Enter and Space —
+  // so the back affordance on the storefront and product headers was
+  // mouse-only. The wrapper is bare either way, so this is visually identical.
+  <button
+    type="button"
+    onClick={onClick}
+    aria-label={ariaLabel}
+    className={cn(
+      "rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40 focus-visible:ring-offset-1",
+      className
+    )}>
     <svg
       width="36"
       height="36"
@@ -33,7 +47,7 @@ const BackButton = ({ onClick, maskId, className }: BackButtonProps) => (
         y="8"
         width="20"
         height="20">
-        <rect x="8" y="8" width="20" height="20" fill="#D9D9D9" />
+        <rect x="8" y="8" width="20" height="20" fill="currentColor" />
       </mask>
       <g mask={`url(#${maskId})`}>
         <path
@@ -44,7 +58,7 @@ const BackButton = ({ onClick, maskId, className }: BackButtonProps) => (
         />
       </g>
     </svg>
-  </div>
+  </button>
 );
 
 export default BackButton;
