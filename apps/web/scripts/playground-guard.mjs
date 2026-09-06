@@ -25,7 +25,7 @@
  * into package.json rather than relying on lifecycle hooks.
  */
 import { spawn } from "node:child_process";
-import { existsSync, readdirSync, readFileSync, renameSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, renameSync, rmSync, statSync } from "node:fs";
 import { portIsListening } from "../../../scripts/assert-no-dev-server.mjs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -87,6 +87,17 @@ function park() {
   }
   if (!existsSync(LIVE_DIR)) return false; // nothing to park (CI, fresh clone)
   renameSync(LIVE_DIR, PARKED_DIR);
+  // A dev server that has served the playground leaves generated route types
+  // behind in .next/types. Those import the very files we just parked, so the
+  // build's type-check fails on paths that no longer exist. They are generated
+  // artefacts and dev recreates them on demand.
+  for (const dir of [".next", process.env.NEXT_DIST_DIR].filter(Boolean)) {
+    const stale = join(APP_ROOT, dir, "types", "app", "(dev)");
+    if (existsSync(stale)) {
+      rmSync(stale, { recursive: true, force: true });
+      say(`cleared stale generated types in ${dir}/types/app/(dev)`);
+    }
+  }
   say("playground parked out of the app tree for this build");
   return true;
 }

@@ -1,5 +1,5 @@
 "use client";
-import React, { ReactNode, useState, useRef, useEffect } from "react";
+import React, { ReactNode, useState, useRef, useEffect, useId } from "react";
 import ReactDOM from "react-dom";
 import { cn } from "@vibaar/utils";
 
@@ -9,6 +9,13 @@ type DialogProps = {
   children: ReactNode;
   /** extra classes for the content panel */
   className?: string;
+  /**
+   * Visible dialog title. Rendered as a heading and wired to the dialog via
+   * aria-labelledby, which is the accessible name a screen reader announces on
+   * open. Prefer this over `ariaLabel`.
+   */
+  title?: React.ReactNode;
+  /** Accessible name when the dialog has no visible title. */
   ariaLabel?: string;
 };
 
@@ -24,8 +31,9 @@ type DialogProps = {
  *   - prefers-reduced-motion respected
  * Visually identical to the old BottomModal; only behaviour/a11y is added.
  */
-const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, children, className = "", ariaLabel }) => {
+const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, children, className = "", title, ariaLabel }) => {
   const panelRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
   const previouslyFocused = useRef<HTMLElement | null>(null);
   const [startY, setStartY] = useState<number | null>(null);
   const [translateY, setTranslateY] = useState(0);
@@ -115,7 +123,10 @@ const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, children, className = 
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-label={ariaLabel}
+        // A dialog with no accessible name announces only "dialog". Prefer the
+        // visible title; fall back to ariaLabel only when there is none.
+        aria-labelledby={title ? titleId : undefined}
+        aria-label={title ? undefined : ariaLabel}
         tabIndex={-1}
         className={cn(
           "w-full lg:max-w-md lg:rounded-2xl bg-white rounded-t-xl p-4 lg:p-6 shadow-lg transition-transform duration-300 motion-reduce:transition-none outline-none",
@@ -129,6 +140,11 @@ const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, children, className = 
       >
         {/* Drag indicator — mobile only */}
         <div className="w-12 h-1 bg-surface-strong rounded-full mx-auto mb-4 lg:hidden" />
+        {title && (
+          <h2 id={titleId} className="mb-3 text-h2 font-semibold text-foreground-primary">
+            {title}
+          </h2>
+        )}
         <div>{children}</div>
       </div>
     </div>,

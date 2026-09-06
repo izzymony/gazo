@@ -10,6 +10,8 @@ interface Option {
 }
 
 interface RadioGroupProps {
+  /** Accessible name for the group as a whole. */
+  label?: string;
   options: Option[];
   name: string;
   selectedValue: string | null;
@@ -37,6 +39,7 @@ const Indicator = ({ selected }: { selected: boolean }) => (
  */
 const RadioGroup: React.FC<RadioGroupProps> = ({
   options,
+  label,
   name,
   selectedValue,
   onChange,
@@ -45,7 +48,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 }) => {
   if (orientation === "column") {
     return (
-      <div className={cn("flex flex-col gap-4", className)}>
+      <div role="radiogroup" aria-label={label} className={cn("flex flex-col gap-4", className)}>
         {options.map((option) => (
           <label
             key={option.value}
@@ -90,7 +93,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
   }
 
   return (
-    <div className={cn("flex gap-2 items-center w-full", className)}>
+    <div role="radiogroup" aria-label={label} className={cn("flex gap-2 items-center w-full", className)}>
       {options.map((option) => (
         <label
           key={option.value}

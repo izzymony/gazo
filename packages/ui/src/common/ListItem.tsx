@@ -16,6 +16,11 @@ interface ListItemProps {
   trailing?: ReactNode;
   /** Small unread dot pinned to the leading badge. */
   showDot?: boolean;
+  /**
+   * Text announced when `showDot` is set. The dot alone is purely visual, so an
+   * unread row read identically to a read one.
+   */
+  dotLabel?: string;
   onClick?: () => void;
   /** Accessible name when the row is interactive and `title` is not a string. */
   ariaLabel?: string;
@@ -40,6 +45,7 @@ export default function ListItem({
   meta,
   trailing,
   showDot,
+  dotLabel = "Unread",
   onClick,
   ariaLabel,
   className,
@@ -63,7 +69,9 @@ export default function ListItem({
         <div className="relative flex-shrink-0 w-10 h-10 flex items-center justify-center">
           {leading}
           {showDot && (
-            <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-brand rounded-full border-2 border-white" />
+            <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-brand rounded-full border-2 border-white">
+              <span className="sr-only">{dotLabel}</span>
+            </span>
           )}
         </div>
       )}
