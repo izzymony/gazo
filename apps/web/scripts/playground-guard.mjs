@@ -61,7 +61,11 @@ async function assertNoDevServer() {
   // A build writing to its own distDir cannot corrupt the .next a dev server is
   // reading, so the interlock does not apply.
   if (process.env.NEXT_DIST_DIR && process.env.NEXT_DIST_DIR !== ".next") {
-    say(`building into ${process.env.NEXT_DIST_DIR} — dev server on ${DEV_PORT} is unaffected`);
+    say(
+      `building into ${process.env.NEXT_DIST_DIR} — a dev server's .next is not touched. ` +
+        `NOTE: the playground directory is still parked for the duration, so a running dev ` +
+        `server loses its /local-design-system routes until restarted.`
+    );
     return;
   }
   if (await portIsListening(DEV_PORT)) {

@@ -1,8 +1,16 @@
 /**
  * Explicit inventory of @vibaar/ui's current surface.
  *
- * This is classification, not certification: `candidate` means the module is
- * shipped today but has not completed design-system review. Documentation and
+ * Classification AND certification. `candidate` means shipped but not signed
+ * off; `stable` means it has cleared a real bar — a specimen documenting its
+ * variants and states, a behavioural test suite, and no accessibility defect
+ * recorded against it.
+ *
+ * Six of thirty-five meet that bar today. Documenting the library is what
+ * revealed why: most components carry a recorded a11y gap — an unnamed dialog,
+ * a menu without arrow-key roving, a rating conveyed by colour alone, a section
+ * title that is a <p>. Those are listed on each specimen and are the work that
+ * turns candidate into stable. Documentation and
  * tooling use this stable denominator instead of treating every TSX file as an
  * equivalent public component.
  */
@@ -15,14 +23,14 @@ const entries = [
   ["common/ActivityItem", "component"],
   ["common/Avatar", "primitive"],
   ["common/BottomModal", "component"],
-  ["common/Button", "primitive"],
+  ["common/Button", "primitive", "stable"],
   ["common/Surface", "primitive"],
   ["common/Checkbox", "primitive"],
   ["common/ComingSoonPill", "component"],
   ["common/DetailList", "component"],
   ["common/DetailRow", "component"],
   ["common/Dialog", "component"],
-  ["common/DisclosureButton", "primitive"],
+  ["common/DisclosureButton", "primitive", "stable"],
   ["common/DropdownMenu", "component"],
   ["common/EmptyState", "pattern"],
   ["common/ErrorState", "pattern"],
@@ -32,7 +40,7 @@ const entries = [
   ["common/header/KebabMenu", "component"],
   ["common/HeaderSlides", "pattern"],
   ["common/HeroHeader", "pattern"],
-  ["common/IconButton", "primitive"],
+  ["common/IconButton", "primitive", "stable"],
   ["common/InputField", "primitive"],
   ["common/inputs", "internal"],
   ["common/ListItem", "component"],
@@ -47,25 +55,26 @@ const entries = [
   ["common/StepNavigation", "component"],
   ["common/StoreLogo", "component"],
   ["common/StoreStatusBadge", "component"],
-  ["common/Switch", "primitive"],
+  ["common/Switch", "primitive", "stable"],
   ["common/Tabs", "component"],
   ["common/TransactionIcon", "component"],
   ["common/TrendIndicator", "component"],
-  ["common/Typography", "primitive"],
+  ["common/Typography", "primitive", "stable"],
   ["common/UserProfileImage", "component"],
   ["common/VerifiedCheck", "component"],
   ["ConfettiCelebration", "pattern"],
   ["icons/index", "asset"],
   ["modal/Modal", "deprecated"],
-  ["PageShell", "pattern"],
+  ["PageShell", "pattern", "stable"],
   ["slidingcomponent", "pattern"],
   ["svg", "asset"],
 ];
 
-const uiRegistry = entries.map(([source, kind]) => ({
+const uiRegistry = entries.map(([source, kind, status]) => ({
   source,
   kind,
-  status: kind === "internal" ? "internal" : kind === "deprecated" ? "deprecated" : "candidate",
+  status:
+    kind === "internal" ? "internal" : kind === "deprecated" ? "deprecated" : status || "candidate",
 }));
 
 module.exports = { uiRegistry };
