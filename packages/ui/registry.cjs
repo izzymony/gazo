@@ -6,13 +6,16 @@
  * variants and states, a behavioural test suite, and no accessibility defect
  * recorded against it.
  *
- * Six of thirty-five meet that bar today. Documenting the library is what
- * revealed why: most components carry a recorded a11y gap — an unnamed dialog,
- * a menu without arrow-key roving, a rating conveyed by colour alone, a section
- * title that is a <p>. Those are listed on each specimen and are the work that
- * turns candidate into stable. Documentation and
- * tooling use this stable denominator instead of treating every TSX file as an
- * equivalent public component.
+ * 36 of 37 meet that bar today; InputField is the last candidate. Documenting
+ * the library is what revealed the work: most components carried a recorded
+ * a11y gap — an unnamed dialog, a menu without arrow-key roving, a rating
+ * conveyed by colour alone, a section title that is a <p> — and closing those
+ * is what turned candidate into stable. Documentation and tooling use this
+ * stable denominator instead of treating every TSX file as an equivalent
+ * public component.
+ *
+ * A `stable` rating is earned against real usage, not in isolation: a component
+ * the app does not import has not been tested by anything that matters.
  */
 const entries = [
   ["animated/AnimatedImages", "pattern"],
