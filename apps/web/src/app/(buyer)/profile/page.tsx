@@ -190,7 +190,7 @@ const Page = () => {
                 <MenuItem
                   icon={<CreditCard size={20} />}
                   label="Payment details"
-                  onClick={() => toast("Payment methods coming soon", { icon: "🔜" })}
+                  onClick={() => router.push("/dashboard/settings/billing")}
                 />
                 <MenuItem
                   icon={<Settings size={20} />}

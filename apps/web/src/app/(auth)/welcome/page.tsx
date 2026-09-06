@@ -11,7 +11,6 @@ import { paginatedFetcher } from "./pagination";
 import Image from "next/image";
 import Button from "@vibaar/ui/common/Button";
 import { toast } from "sonner";
-import ComingSoonPill from "@vibaar/ui/common/ComingSoonPill";
 import { CircleCheck } from "@vibaar/ui/icons";
 
 export default function Welcome() {
@@ -68,10 +67,7 @@ export default function Welcome() {
 
     try {
       if (activeTab === "buy") {
-        // TEMPORARY: Marketplace disabled - coming soon
-        // DISABLED: router.push("/shop");
-        toast.error("Marketplace coming soon!");
-        setIsNavigating(false);
+        router.push("/shop");
         return;
       }
 
@@ -179,20 +175,20 @@ export default function Welcome() {
             <div className="flex justify-center">
               <div className="flex bg-surface-muted rounded-full p-1 w-full max-w-sm">
                 {[
-                  { key: "sell", label: "I want to sell", disabled: false },
-                  { key: "buy", label: "I want to buy", disabled: true }
+                  { key: "sell", label: "I want to sell" },
+                  { key: "buy", label: "I want to buy" },
                 ].map((option) => (
                   <button
                     key={option.key}
-                    onClick={() => !option.disabled && handleTabClick(option.key)}
-                    disabled={option.disabled}
-                    className={`flex-1 py-2 px-3 rounded-full text-body-sm font-medium transition-all duration-200 relative flex items-center justify-center gap-1 ${
+                    type="button"
+                    onClick={() => handleTabClick(option.key)}
+                    aria-pressed={activeTab === option.key}
+                    className={`relative flex flex-1 items-center justify-center gap-1 rounded-full px-3 py-2 text-body-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40 ${
                       activeTab === option.key
                         ? "bg-surface text-brandDeep shadow-card"
                         : "text-foreground-secondary"
-                    } ${option.disabled ? "opacity-50 cursor-not-allowed" : ""}`}>
+                    }`}>
                     <span>{option.label}</span>
-                    {option.disabled && <ComingSoonPill />}
                   </button>
                 ))}
               </div>

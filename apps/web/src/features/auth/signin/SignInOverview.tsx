@@ -325,35 +325,27 @@ export default function SignInOverview() {
                         );
                       })}
                     </ul>
-                    {/* TEMPORARY: Marketplace disabled - coming soon */}
-                    {/* <div className="mt-2">
-                      <div
-                        onClick={buttonLoading.exploreMarketplace ? undefined : handleExploreMarketplaceClick}
-                        className={`text-foreground-primary flex flex-row justify-between items-center cursor-pointer border border-outline hover:border-brand h-[52px] rounded-full mx-auto min-w-[180px] ${buttonLoading.exploreMarketplace ? "opacity-70 cursor-not-allowed" : ""}`}>
-                        <div
-                          className="flex flex-row justify-between items-center mx-auto w-[180px]"
-                          aria-busy={buttonLoading.exploreMarketplace}
-                          aria-label={buttonLoading.exploreMarketplace ? "Loading Explore Marketplace..." : undefined}>
-                          {buttonLoading.exploreMarketplace ? (
-                            <LoadingSpinner color="currentColor" />
-                          ) : (
-                            <Image
-                              src="/icons/shopping_cart.svg"
-                              alt="Shopping Cart"
-                              width={24}
-                              height={24}
-                              className="mr-2"
-                            />
-                          )}
-                          <p className={`text-body font-normal ${buttonLoading.exploreMarketplace ? "ml-2" : ""}`}>
-                            Explore Marketplace
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-center text-foreground-secondary text-body-sm font-normal mt-3">
+                                        <div className="mt-2">
+                      <Button
+                        onClick={handleExploreMarketplaceClick}
+                        loading={buttonLoading.exploreMarketplace}
+                        loadingText="Explore Marketplace"
+                        variant="bordered"
+                        fullWidth={false}
+                        className="mx-auto w-full max-w-xs">
+                        <Image
+                          src="/icons/shopping_cart.svg"
+                          alt=""
+                          aria-hidden="true"
+                          width={24}
+                          height={24}
+                        />
+                        Explore Marketplace
+                      </Button>
+                      <p className="mt-3 text-center text-body-sm font-normal text-foreground-secondary">
                         Discover Instagram vendors and products
                       </p>
-                    </div> */}
+                    </div>
                   </div>
                   <div className="mt-auto">
                     <Footer />
@@ -399,30 +391,23 @@ export default function SignInOverview() {
                         })}
                       </ul>
 
-                      {/* TEMPORARY: Marketplace disabled - coming soon */}
-                      {/* Explore Marketplace Button */}
-                      {/* <div
-                        onClick={buttonLoading.exploreMarketplace ? undefined : handleExploreMarketplaceClick}
-                        className={`text-foreground-primary flex flex-row justify-center items-center cursor-pointer border border-outline hover:border-brand h-14 rounded-full ${buttonLoading.exploreMarketplace ? "opacity-70 cursor-not-allowed" : ""}`}>
-                        <div
-                          className="flex flex-row justify-center items-center gap-2"
-                          aria-busy={buttonLoading.exploreMarketplace}
-                          aria-label={buttonLoading.exploreMarketplace ? "Loading Explore Marketplace..." : undefined}>
-                          {buttonLoading.exploreMarketplace ? (
-                            <LoadingSpinner color="currentColor" />
-                          ) : (
-                            <>
-                              <Image
-                                src="/icons/shopping_cart.svg"
-                                alt="Shopping Cart"
-                                width={20}
-                                height={20}
-                              />
-                              <p className="text-body-lg font-medium">Explore MarketPlace</p>
-                            </>
-                          )}
-                        </div>
-                      </div> */}
+                                            {/* Explore Marketplace Button */}
+                      <Button
+                        onClick={handleExploreMarketplaceClick}
+                        loading={buttonLoading.exploreMarketplace}
+                        loadingText="Explore Marketplace"
+                        variant="bordered"
+                        fullWidth={false}
+                        className="w-full">
+                        <Image
+                          src="/icons/shopping_cart.svg"
+                          alt=""
+                          aria-hidden="true"
+                          width={24}
+                          height={24}
+                        />
+                        Explore Marketplace
+                      </Button>
                     </div>
 
                     {/* Bottom Section - Footer */}

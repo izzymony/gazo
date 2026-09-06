@@ -158,13 +158,9 @@ const Selling = () => {
             icon={<Shield size={20} />}
           />
 
-          {/* Coming soon */}
-          <div className="pt-3">
-            <p className="text-body-sm text-foreground-muted">Coming soon</p>
-          </div>
           <Sellercard
             text="Billing"
-            action={() => toast("Billing coming soon", { icon: "🔜" })}
+            action={() => router.push(`/dashboard/settings/billing`)}
             icon={<Invoice size={20} />}
           />
           <Sellercard
@@ -191,12 +187,12 @@ const Selling = () => {
           />
           <Sellercard
             text="Privacy Policy"
-            action={() => toast("Privacy Policy coming soon", { icon: "🔜" })}
+            action={() => router.push(`/privacy`)}
             icon={<PrivacyLock size={20} />}
           />
           <Sellercard
             text="Terms of service"
-            action={() => toast("Terms of Service coming soon", { icon: "🔜" })}
+            action={() => router.push(`/terms`)}
             icon={<LegalDoc size={20} />}
           />
 

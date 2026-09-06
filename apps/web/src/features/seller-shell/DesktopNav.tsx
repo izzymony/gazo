@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-import ComingSoonPill from "@vibaar/ui/common/ComingSoonPill";
 import {
   Home,
   Package,
@@ -124,13 +123,11 @@ export default function DesktopNav() {
 
       {/* Bottom Section - Switch to Buyer & Help */}
       <div className="pt-6 border-t border-outline space-y-2">
-        {/* Switch to Buying Button - TEMPORARY: Disabled (Marketplace coming soon) */}
+        {/* Switch to Buying */}
         <button
-          onClick={() => {
-            // DISABLED: router.push("/shop");
-          }}
-          disabled
-          className="w-full flex items-center gap-2 px-4 py-3 rounded-full bg-brand text-brandInk transition-colors shadow-pop opacity-50 cursor-not-allowed relative">
+          type="button"
+          onClick={() => router.push("/shop")}
+          className="relative flex w-full items-center gap-2 rounded-full bg-brand px-4 py-3 text-brandInk shadow-pop transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40 focus-visible:ring-offset-1">
           <Image
             src="/icons/Switch-to-buying.svg"
             alt="Switch to buying"
@@ -139,7 +136,6 @@ export default function DesktopNav() {
             className="w-5 h-5"
           />
           <span className="text-body font-medium">Switch to buying</span>
-          <ComingSoonPill className="ml-auto" />
         </button>
 
         {/* Help & Support Button */}
