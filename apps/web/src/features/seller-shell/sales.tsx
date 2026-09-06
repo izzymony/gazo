@@ -25,6 +25,7 @@ import { iconFor, formatTime } from "@/features/notifications/notificationDispla
 import ActivityItem from "@vibaar/ui/common/ActivityItem";
 import StoreStatusBadge from "@vibaar/ui/common/StoreStatusBadge";
 import NudgeBanner from "@/features/onboarding/NudgeBanner";
+import List from "@vibaar/ui/common/List";
 
 // Lazy-load the onboarding widgets — they pull in framer-motion and render only
 // conditionally (new sellers), so this keeps framer-motion out of the dashboard's
@@ -344,10 +345,11 @@ export default function SalesBody({ action }: { action: () => void }) {
               <p className="ml-3 text-foreground-secondary text-body-sm">Loading activities...</p>
             </div>
           ) : activities.length > 0 ? (
-            <>
+            <List label="Recent activities" className="divide-y-0">
               {activities.map((n) => (
                 <ActivityItem
                   key={n.id}
+                  asListItem
                   icon={iconFor(n)}
                   title={n.title}
                   message={n.message}
@@ -356,7 +358,7 @@ export default function SalesBody({ action }: { action: () => void }) {
                   onClick={() => handleActivityClick(n)}
                 />
               ))}
-            </>
+            </List>
           ) : (
             <div className="py-12">
               <EmptyState

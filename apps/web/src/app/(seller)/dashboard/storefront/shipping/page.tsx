@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import useBusinessStore from "@/store/businessStore";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import Badge from "@vibaar/ui/common/Badge";
 
 type ZoneKey = "local" | "interstate" | "international";
 // A zone's stored shape (maps 1:1 onto backend ZoneRate). "Configured" is
@@ -106,6 +107,11 @@ const EtaPresets = ({
   );
 };
 
+/**
+ * Coverage marker. Its private ok/off/warn vocabulary and colour table — one of
+ * which (`bg-orange-50 text-orange-600`) was raw palette and below the contrast
+ * bar — are gone; it now names a shared tone and lets `Badge` render it.
+ */
 const CovPill = ({
   label,
   tone,
@@ -113,15 +119,11 @@ const CovPill = ({
   label: string;
   tone: "ok" | "off" | "warn";
 }) => (
-  <span
-    className={cn(
-      "text-caption font-medium px-2.5 py-1 rounded-full shrink-0",
-      tone === "ok" && "bg-success-surface text-success-foreground",
-      tone === "off" && "bg-surface-subtle text-foreground-secondary",
-      tone === "warn" && "bg-orange-50 text-orange-600"
-    )}>
+  <Badge
+    tone={tone === "ok" ? "success" : tone === "warn" ? "orange" : "neutral"}
+    className="shrink-0 font-medium">
     {label}
-  </span>
+  </Badge>
 );
 
 // The outcome, up top: what checkout will actually offer, derived from the SAME
@@ -196,7 +198,7 @@ const CoverageStrip = ({
         </div>
       </div>
       {!interCovered && (
-        <div className="mt-3 flex items-start gap-2 bg-orange-50 text-orange-600 rounded-field px-3 py-2">
+        <div className="mt-3 flex items-start gap-2 bg-hue-orange-surface text-hue-orange-foreground rounded-field px-3 py-2">
           <AiOutlineInfoCircle size={15} className="mt-0.5 shrink-0" />
           <p className="text-caption">
             Buyers outside {sellerState} can&apos;t check out — turn on courier
@@ -492,8 +494,8 @@ const Page = () => {
       footerAction={
         <div className="w-full">
           {dirty && (
-            <p className="text-caption text-orange-600 text-center mb-2 flex items-center justify-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 inline-block" />
+            <p className="text-caption text-hue-orange-foreground text-center mb-2 flex items-center justify-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-hue-orange-foreground inline-block" />
               Unsaved changes
             </p>
           )}

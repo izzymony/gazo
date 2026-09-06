@@ -26,11 +26,50 @@ const brandRoleSteps = {
 const brandNeutralRoleSteps = {
   ink: 950,
 };
+/**
+ * The four roles every tone carries. One shape for semantic tones and
+ * categorical hues alike, so a tinted label can be built the same way whatever
+ * it means: `surface` behind it, `border` around it, `foreground` for the text,
+ * `surfaceStrong` when the same tone has to read as a filled icon circle.
+ *
+ * `foreground` is the 700 step, NOT 600. At 600 the text failed WCAG AA in
+ * every context it actually shipped in — green-600 on green-50 measured 3.15:1
+ * and on plain white 3.30:1, against the 4.5:1 small-text bar; amber was worse
+ * at 3.07/3.19. Three of the four semantic tones were failing. At 700 all ten
+ * tones clear 4.5:1 on white, on `surface` AND on `surfaceStrong`, which is why
+ * one foreground role covers all three contexts instead of needing a separate
+ * on-tint colour. Verified numerically, not by eye — re-check with the same
+ * three ratios before changing any step here.
+ */
+const toneRoleSteps = { foreground: 700, surface: 50, surfaceStrong: 100, border: 200 };
+
+/**
+ * Semantic tones — these MEAN something (an error is red because it failed).
+ */
 const semanticColorSteps = {
-  success: { family: "green", foreground: 600, surface: 50, border: 200 },
-  error: { family: "red", foreground: 600, surface: 50, border: 200 },
-  warning: { family: "amber", foreground: 600, surface: 50, border: 200 },
-  info: { family: "blue", foreground: 600, surface: 50, border: 200 },
+  success: { family: "green", ...toneRoleSteps },
+  error: { family: "red", ...toneRoleSteps },
+  warning: { family: "amber", ...toneRoleSteps },
+  info: { family: "blue", ...toneRoleSteps },
+};
+
+/**
+ * Categorical hues — these DISTINGUISH rather than mean. The order timeline
+ * needs ~8 mutually distinguishable stage colours (placed → paid → preparing →
+ * transit → delivering → delivered), which the four semantic tones cannot
+ * supply without pretending that "in transit" is a warning.
+ *
+ * They exist as tokens so that need stops being met with raw palette classes:
+ * `bg-teal-50 text-teal-700 border-teal-600` was hardcoded per hue in the app,
+ * which is exactly how the badge family fragmented in the first place.
+ */
+const categoricalColorSteps = {
+  teal: { family: "teal", ...toneRoleSteps },
+  orange: { family: "orange", ...toneRoleSteps },
+  purple: { family: "purple", ...toneRoleSteps },
+  sky: { family: "sky", ...toneRoleSteps },
+  indigo: { family: "indigo", ...toneRoleSteps },
+  emerald: { family: "emerald", ...toneRoleSteps },
 };
 const neutralRoleSteps = {
   foreground: {
@@ -64,10 +103,26 @@ const neutralRoleSteps = {
   },
 };
 
-const semanticColor = (role, tone) => {
-  const { family, ...steps } = semanticColorSteps[role];
-  return tailwindColors[family][steps[tone]];
+/** `surfaceStrong` -> `surface-strong`. CSS variables and Tailwind keys across
+ *  this file are kebab-case; only the JS object keys are camel. */
+const kebab = (name) => name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+
+/** Resolve one tone's role to its hex, from either tone map. */
+const toneColor = (role, roleName) => {
+  const { family, ...steps } = semanticColorSteps[role] ?? categoricalColorSteps[role];
+  return tailwindColors[family][steps[roleName]];
 };
+
+/** Expand a tone-steps map into `{ tone: { foreground, surface, ... } }`. */
+const buildTones = (stepsMap) =>
+  Object.fromEntries(
+    Object.keys(stepsMap).map((role) => [
+      role,
+      Object.fromEntries(
+        Object.keys(toneRoleSteps).map((roleName) => [roleName, toneColor(role, roleName)])
+      ),
+    ])
+  );
 
 const channelsToHex = (channels) =>
   `#${channels
@@ -113,28 +168,8 @@ const color = {
    * `bg-overlay/40`, not another token.
    */
   overlay: "#000000",
-  status: {
-    success: {
-      foreground: semanticColor("success", "foreground"),
-      surface: semanticColor("success", "surface"),
-      border: semanticColor("success", "border"),
-    },
-    error: {
-      foreground: semanticColor("error", "foreground"),
-      surface: semanticColor("error", "surface"),
-      border: semanticColor("error", "border"),
-    },
-    warning: {
-      foreground: semanticColor("warning", "foreground"),
-      surface: semanticColor("warning", "surface"),
-      border: semanticColor("warning", "border"),
-    },
-    info: {
-      foreground: semanticColor("info", "foreground"),
-      surface: semanticColor("info", "surface"),
-      border: semanticColor("info", "border"),
-    },
-  },
+  status: buildTones(semanticColorSteps),
+  hue: buildTones(categoricalColorSteps),
 };
 
 const tokens = {
@@ -201,8 +236,21 @@ const cssVariables = {
   ),
   "--overlay-rgb": rgbChannels(color.overlay),
   ...Object.fromEntries(
-    Object.entries(color.status).flatMap(([role, tones]) =>
-      Object.entries(tones).map(([tone, value]) => [`--${role}-${tone}-rgb`, rgbChannels(value)])
+    Object.entries(color.status).flatMap(([role, roles]) =>
+      Object.entries(roles).map(([roleName, value]) => [
+        `--${role}-${kebab(roleName)}-rgb`,
+        rgbChannels(value),
+      ])
+    )
+  ),
+  // Categorical hues are namespaced `--hue-*` so a token can never be confused
+  // with the Tailwind palette colour of the same name (`hue-teal` vs `teal`).
+  ...Object.fromEntries(
+    Object.entries(color.hue).flatMap(([role, roles]) =>
+      Object.entries(roles).map(([roleName, value]) => [
+        `--hue-${role}-${kebab(roleName)}-rgb`,
+        rgbChannels(value),
+      ])
     )
   ),
   ...Object.fromEntries(Object.entries(tokens.radius).map(([name, value]) => [`--radius-${name}`, value])),
@@ -219,6 +267,8 @@ module.exports = {
   brandRoleSteps,
   brandNeutralRoleSteps,
   semanticColorSteps,
+  categoricalColorSteps,
+  toneRoleSteps,
   neutralRoleSteps,
   projectLiteralColorNames,
 };

@@ -1,6 +1,6 @@
 import React from "react";
-import { cn } from "@/lib/utils";
-import { ORDER_STATUS, BADGE_HUE } from "@/features/orders/orderStatus";
+import Badge, { type BadgeTone } from "@vibaar/ui/common/Badge";
+import { ORDER_STATUS } from "@/features/orders/orderStatus";
 
 /**
  * Order/entity status pill.
@@ -10,11 +10,11 @@ import { ORDER_STATUS, BADGE_HUE } from "@/features/orders/orderStatus";
  * sat under features/seller-dashboard, which is why the buyer side grew its own
  * 20-entry raw-hex copy instead of importing this.
  *
- * Consolidates the 3 former near-identical copies (orders / products / customers).
- * Order-status hues come from the shared `ORDER_STATUS` config so the pill and the
- * timeline `OrderStatusIcon` can never drift out of sync; product/customer statuses
- * are kept local. Colors are Tailwind-palette utility classes (no hex, no bespoke
- * tokens) — each hue maps to a literal class string so Tailwind's JIT keeps them.
+ * It now owns only the DECISION (which status reads as which tone) and defers
+ * every appearance question to the shared `Badge`. It used to carry its own
+ * `BADGE_HUE` table of literal palette classes — one of four independent
+ * tone-to-colour systems in the app, and the reason a green pill and a teal
+ * pill had visibly different border weights.
  */
 
 type BadgeSize = "sm" | "md";
@@ -25,34 +25,25 @@ interface StatusBadgeProps {
   size?: BadgeSize;
 }
 
-// Size variants — control text + padding independent of color.
-const SIZE_STYLES: Record<BadgeSize, string> = {
-  sm: "text-caption px-2 py-[1px]",
-  md: "text-body-sm px-2.5 py-0.5",
-};
-
-// Non-order statuses (product / customer) → hue. Order statuses resolve via the
-// shared ORDER_STATUS config. Keys lowercased.
-const EXTRA_HUE: Record<string, string> = {
+/**
+ * Non-order statuses (product / customer) → tone. Order statuses resolve via
+ * the shared ORDER_STATUS config, so the pill and the timeline icon cannot
+ * drift apart. Keys lowercased.
+ */
+const EXTRA_TONE: Record<string, BadgeTone> = {
   active: "emerald", // product
-  draft: "ink", // product (neutral)
+  draft: "neutral", // product
   new: "teal", // customer (distinct from "new order received")
   returning: "indigo", // customer
 };
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = "sm" }) => {
   const key = status.toLowerCase();
-  const hue = ORDER_STATUS[key]?.hue ?? EXTRA_HUE[key] ?? "blue";
-  const styles = BADGE_HUE[hue] ?? BADGE_HUE.blue;
+  const tone = ORDER_STATUS[key]?.tone ?? EXTRA_TONE[key] ?? "info";
   return (
-    <span
-      className={cn(
-        "inline-flex w-fit items-center whitespace-nowrap rounded-pill border border-solid leading-none",
-        SIZE_STYLES[size],
-        styles
-      )}>
+    <Badge tone={tone} size={size}>
       {status}
-    </span>
+    </Badge>
   );
 };
 

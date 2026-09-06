@@ -13,6 +13,7 @@ import Explore from "./explorecard";
 import TopVendor from "./topvendor";
 import Navicard from "./navigacard";
 import { usePathname } from "next/navigation";
+import Badge from "@vibaar/ui/common/Badge";
 
 const navLinks = [
   {
@@ -512,9 +513,9 @@ export default function Shop({
                   <div className="w-full py-2 px-4 rounded-t-full bg-[#03030348] z-[1px]">
                     <div className="gap-1 flex flex-col z-50">
                       <div className="flex justify-between">
-                        <div className="bg-[#F9E75F] flex justify-center items-center text-black text-caption leading-[12px] tracking-wider h-[12px] rounded-full px-3 ">
+                        <Badge tone="brand" variant="solid" className="tracking-wider">
                           Deals
-                        </div>
+                        </Badge>
                       </div>
                       <p className=" line-clamp-2 text-white font-medium text-body-sm">
                         What you see is what you get

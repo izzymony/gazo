@@ -1,21 +1,21 @@
 import React from 'react';
-import { cn } from "@vibaar/utils";
+import Badge from "./Badge";
 
 interface ComingSoonPillProps {
+  /** Override the label — "Soon" was hardcoded, so "Coming soon" needed a second component. */
+  children?: React.ReactNode;
   className?: string;
 }
 
-const ComingSoonPill: React.FC<ComingSoonPillProps> = ({ className = '' }) => {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-pill border border-info-border bg-info-surface px-2 py-0.5 text-body-sm font-medium text-info-foreground",
-        className
-      )}
-    >
-      Soon
-    </span>
-  );
-};
+/**
+ * "Not yet available" marker = the shared `Badge` preset for unreleased
+ * surfaces. `info` rather than `warning`: nothing is wrong, it simply is not
+ * here yet.
+ */
+const ComingSoonPill: React.FC<ComingSoonPillProps> = ({ children = "Soon", className = '' }) => (
+  <Badge tone="info" size="md" className={className}>
+    {children}
+  </Badge>
+);
 
 export default ComingSoonPill;

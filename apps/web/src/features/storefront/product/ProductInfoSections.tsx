@@ -4,6 +4,7 @@ import StoreLogo from "@vibaar/ui/common/StoreLogo";
 import VerifiedCheck from "@vibaar/ui/common/VerifiedCheck";
 import { FaStar, FiUsers } from "@vibaar/ui/icons";
 import { StoreData } from "@/lib/types";
+import Badge from "@vibaar/ui/common/Badge";
 
 /**
  * Self-contained accordion sections extracted from the Product god-page (W4.4).
@@ -81,7 +82,7 @@ export function ProductVendorInfo({
               {store?.name}
               <VerifiedCheck verified={store?.is_verified} size={13} />
             </h3>
-            <p className="text-gray-500 text-caption font-normal flex items-center gap-1">
+            <p className="text-foreground-muted text-caption font-normal flex items-center gap-1">
               {store?.category} · <FaStar /> {store?.average_rating || "0.0"} ·{" "}
               {store?.followers_count || "0"} <FiUsers />
             </p>
@@ -95,12 +96,9 @@ export function ProductVendorInfo({
 
         <div className="flex flex-wrap gap-3 mt-3">
           {collections?.map((col: string, index: number) => (
-            <div
-              key={index}
-              className="bg-gray-200 rounded-full px-3 py-1 text-body-sm"
-            >
+            <Badge key={index} size="md">
               {col}
-            </div>
+            </Badge>
           ))}
         </div>
       </div>

@@ -15,6 +15,7 @@ import {
   type AppNotification,
 } from "@/hooks/useNotifications";
 import { iconFor, formatTime } from "@/features/notifications/notificationDisplay";
+import List from "@vibaar/ui/common/List";
 
 // Side-appropriate filter pills. Notification.Type is coarse (order / promo /
 // system_alert), so each side maps those three to labels that fit that mode.
@@ -122,17 +123,20 @@ export default function NotificationFeed({ side }: { side: "buyer" | "seller" })
           ) : (
             <div className="flex flex-col mt-2 pb-24">
               {filtered.length > 0 ? (
-                filtered.map((n) => (
-                  <ActivityItem
-                    key={n.id}
-                    icon={iconFor(n)}
-                    title={n.title}
-                    message={n.message}
-                    time={formatTime(n.createdAt)}
-                    unread={!n.isRead}
-                    onClick={() => handleClick(n)}
-                  />
-                ))
+                <List label="Notifications" className="divide-y-0">
+                  {filtered.map((n) => (
+                    <ActivityItem
+                      key={n.id}
+                      asListItem
+                      icon={iconFor(n)}
+                      title={n.title}
+                      message={n.message}
+                      time={formatTime(n.createdAt)}
+                      unread={!n.isRead}
+                      onClick={() => handleClick(n)}
+                    />
+                  ))}
+                </List>
               ) : (
                 <div className="py-12">
                   <EmptyState

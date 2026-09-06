@@ -10,6 +10,26 @@ const cssVariableScale = (name, scale) =>
   );
 
 /**
+ * Map a family of tones (`{ success: { foreground, surface, ... } }`) onto the
+ * CSS variables tokens.cjs emits for them. Declared with an `<alpha-value>`
+ * slot, never a bare `var()` — see the note on the colours block below.
+ */
+const toneScale = (tones, prefix = "") =>
+  Object.fromEntries(
+    Object.entries(tones).map(([tone, roles]) => [
+      tone,
+      Object.fromEntries(
+        Object.keys(roles).map((role) => {
+          // Both the Tailwind key and the variable are kebab, so the utility
+          // reads `bg-success-surface-strong` — matching `bg-surface-strong`.
+          const key = role.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+          return [key, `rgb(var(--${prefix}${tone}-${key}-rgb) / <alpha-value>)`];
+        })
+      ),
+    ])
+  );
+
+/**
  * @vibaar/design-tokens — canonical Tailwind mapping for the values in
  * tokens.cjs. Consumers use this preset and import `tokens.css`; both outputs
  * therefore come from the same source rather than relying on an app-local copy.
@@ -113,26 +133,13 @@ module.exports = {
         // tsc/lint/build. `ink-*` is deliberately NOT converted: those tokens
         // are already alpha (--ink-50 is 50% black), so a modifier would
         // compound into a silent double-dim rather than fail loudly.
-        success: {
-          foreground: "rgb(var(--success-foreground-rgb) / <alpha-value>)",
-          surface: "rgb(var(--success-surface-rgb) / <alpha-value>)",
-          border: "rgb(var(--success-border-rgb) / <alpha-value>)",
-        },
-        error: {
-          foreground: "rgb(var(--error-foreground-rgb) / <alpha-value>)",
-          surface: "rgb(var(--error-surface-rgb) / <alpha-value>)",
-          border: "rgb(var(--error-border-rgb) / <alpha-value>)",
-        },
-        warning: {
-          foreground: "rgb(var(--warning-foreground-rgb) / <alpha-value>)",
-          surface: "rgb(var(--warning-surface-rgb) / <alpha-value>)",
-          border: "rgb(var(--warning-border-rgb) / <alpha-value>)",
-        },
-        info: {
-          foreground: "rgb(var(--info-foreground-rgb) / <alpha-value>)",
-          surface: "rgb(var(--info-surface-rgb) / <alpha-value>)",
-          border: "rgb(var(--info-border-rgb) / <alpha-value>)",
-        },
+        // Semantic tones, generated from the token source rather than listed by
+        // hand — a role added in tokens.cjs (as `surfaceStrong` was) reaches
+        // Tailwind automatically instead of silently existing only as a CSS var.
+        ...toneScale(tokens.color.status),
+        // Categorical hues, namespaced so `hue-teal-surface` can never be
+        // mistaken for — or collide with — the Tailwind palette's `teal`.
+        hue: toneScale(tokens.color.hue, "hue-"),
         // `text-black` (39 uses) and `bg-black` (30) historically meant a SOFT
         // black — the old ink-90, #000000E5 — not pure black. Now that the ink
         // ramp is gone it aliases the neutral role that replaced it, so those

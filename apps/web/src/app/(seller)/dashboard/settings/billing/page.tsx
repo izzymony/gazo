@@ -7,6 +7,7 @@ import PageShell from '@vibaar/ui/PageShell'
 import Header from '@/design-system/common/Header'
 import Surface from '@vibaar/ui/common/Surface'
 import Section from '@vibaar/ui/common/Section'
+import Badge from "@vibaar/ui/common/Badge";
 
 
 
@@ -42,7 +43,7 @@ const Billing = () => {
                             <img src={'/images/vendor/visa.png'} alt="Visa" className="w-8 h-5 object-contain" />
                             <div>
                                 <span className='text-body font-medium text-foreground-primary'>Mastercard-1243</span>
-                                <span className="text-brandDeep ml-2 border border-brandDeep rounded-pill px-2 bg-brand/10 text-caption font-normal">Default</span>
+                                <Badge tone="brand" className="ml-2">Default</Badge>
                                 <p className="text-body font-normal text-foreground-secondary">02/29</p>
                             </div>
                         </div>
@@ -56,7 +57,7 @@ const Billing = () => {
                             <img src={'/images/vendor/mastercard.png'} alt="Mastercard" className="w-8 h-5 object-contain" />
                             <div>
                                 <span className='text-body font-medium text-foreground-primary'>Visacard-1243</span>
-                                <span className="text-brandDeep ml-2 border border-brandDeep rounded-pill px-2 bg-brand/10 text-caption font-normal">Default</span>
+                                <Badge tone="brand" className="ml-2">Default</Badge>
                                 <p className="text-body font-normal text-foreground-secondary">02/29</p>
                             </div>
                         </div>

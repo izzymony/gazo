@@ -6,6 +6,7 @@ import EmptyState from "@vibaar/ui/common/EmptyState";
 import Loader from "@vibaar/ui/common/Loader";
 import { BubbleChat } from "@vibaar/ui/icons";
 import { relativeTime } from "./relativeTime";
+import Badge from "@vibaar/ui/common/Badge";
 
 /* eslint-disable @next/next/no-img-element */
 /**
@@ -76,9 +77,13 @@ export default function ChatList({
                 {c.last_message || "Say hello 👋"}
               </p>
               {c.unread_count > 0 && (
-                <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-brand text-brandInk text-micro font-semibold flex items-center justify-center">
+                <Badge
+                  tone="brand"
+                  variant="solid"
+                  srLabel="unread"
+                  className="flex-shrink-0 min-w-5 h-5 justify-center px-1.5 font-semibold">
                   {c.unread_count > 9 ? "9+" : c.unread_count}
-                </span>
+                </Badge>
               )}
             </div>
           </div>

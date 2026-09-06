@@ -10,6 +10,7 @@ import useBusinessStore from "@/store/businessStore";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { Bank, BsThreeDots } from "@vibaar/ui/icons";
+import Badge from "@vibaar/ui/common/Badge";
 
 const AccountCard = ({
   accountname,
@@ -43,9 +44,7 @@ const AccountCard = ({
             {`${bankname}-Ending in ${accountnumber.slice(-4)}`}
           </p>
           {defaults && (
-            <span className="rounded-pill bg-brand/10 text-brandDeep text-caption font-medium px-2 py-0.5">
-              Default
-            </span>
+            <Badge tone="brand">Default</Badge>
           )}
         </div>
         <p className="text-body text-foreground-secondary font-normal">

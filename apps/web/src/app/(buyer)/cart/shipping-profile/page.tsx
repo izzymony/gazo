@@ -12,6 +12,7 @@ import useShippingStore from "@/store/shippingStore";
 import useAuthStore from "@/store/authStore";
 import useOrderStore from "@/store/orderStore";
 import { toast } from "sonner";
+import Badge from "@vibaar/ui/common/Badge";
 
 const Page = () => {
   const router = useRouter();
@@ -106,10 +107,9 @@ const Page = () => {
               <div className="flex justify-between">
                 <div className="flex flex-col gap-1">
                   {profile.id === singleShippingDetails?.id && (
-                    <span className="flex flex-row items-center w-[max-content] gap-1 bg-brand/10 text-brandDeep text-caption px-2 rounded-pill border border-brandDeep tracking-[0.5px]">
-                      Default{" "}
-                      <CircleCheck size={12} className="text-brandDeep" />
-                    </span>
+                    <Badge tone="brand" icon={<CircleCheck size={12} />}>
+                      Default
+                    </Badge>
                   )}
                   <p className="font-normal text-foreground-primary text-caption">
                     {profile.shipping_user.firstname +

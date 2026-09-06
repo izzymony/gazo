@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { Check, Copy, FaStar, Add } from "@vibaar/ui/icons";
 import IconButton from "@vibaar/ui/common/IconButton";
 import { getPublicProductUrl, getPublicStoreUrl } from "@/lib/shareUrls";
+import Badge from "@vibaar/ui/common/Badge";
 
 // Move shareOptions inside component to access businessProduct
 
@@ -396,12 +397,15 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
           <VendorHeader isSeller={isSeller} />
           {isNewStore && (
             <div className="absolute top-4 right-4 z-10">
-              <div className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-caption px-3 py-1.5 rounded-pill font-medium shadow-card ring-1 ring-white/20 backdrop-blur-sm">
-                <div className="flex items-center space-x-1">
-                  <div className="w-1.5 h-1.5 bg-surface rounded-full animate-pulse"></div>
-                  <span>LIVE</span>
-                </div>
-              </div>
+              <Badge
+                tone="success"
+                variant="solid"
+                className="shadow-card"
+                icon={
+                  <span className="w-1.5 h-1.5 bg-surface rounded-full animate-pulse motion-reduce:animate-none" />
+                }>
+                LIVE
+              </Badge>
             </div>
           )}
         </div>

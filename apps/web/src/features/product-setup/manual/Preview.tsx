@@ -16,6 +16,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { BsThreeDotsVertical, MdFavoriteBorder, PiShareFatThin, FaStar, FiUsers } from "@vibaar/ui/icons";
 import { toast } from "sonner";
+import Badge from "@vibaar/ui/common/Badge";
 
 type VariantOption = string | number | boolean;
 
@@ -383,11 +384,9 @@ export default function ProductsPreview({
 
             <div className="flex flex-wrap gap-3 mt-3">
               {productPreview?.collections?.map((col: string, index: number) => (
-                <div
-                  key={index}
-                  className="bg-surface-strong rounded-full px-3 py-[2px] text-caption">
+                <Badge key={index}>
                   {col}
-                </div>
+                </Badge>
               ))}
             </div>
           </div>

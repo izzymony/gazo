@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { FormikProps } from "formik";
 import { ImageProps, VariantDetail, Variation } from "@/lib/types";
 import useBusinessStore from "@/store/businessStore";
+import Badge from "@vibaar/ui/common/Badge";
 
 interface CollectionComponentProps {
   // Receives Formik instances of different value shapes across the product-setup
@@ -129,9 +130,10 @@ export default function CollectionComponent({
 
           <div className="flex items-center flex-wrap gap-2">
             {formik.values.tags?.map((collection: string, index: number) => (
-              <span
+              <Badge
                 key={index}
-                className="bg-surface-strong flex flex-row items-center gap-2 text-foreground-secondary text-body-sm px-4 rounded-full space-x-2">
+                size="md"
+                className="gap-2 pe-2">
                 {collection}
                 <button
                   type="button"
@@ -140,7 +142,7 @@ export default function CollectionComponent({
                   className="text-caption flex items-center h-2 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40 focus-visible:ring-offset-1">
                   ✕
                 </button>
-              </span>
+              </Badge>
             ))}
           </div>
 

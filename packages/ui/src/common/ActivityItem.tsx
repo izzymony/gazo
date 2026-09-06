@@ -12,6 +12,8 @@ interface ActivityItemProps {
   /** Unread → bolder title + a dot on the badge. */
   unread?: boolean;
   onClick?: () => void;
+  /** Render as an <li> for use inside `List`. Passed through to ListItem. */
+  asListItem?: boolean;
 }
 
 /**
@@ -28,9 +30,11 @@ export default function ActivityItem({
   time,
   unread,
   onClick,
+  asListItem = false,
 }: ActivityItemProps) {
   return (
     <ListItem
+      asListItem={asListItem}
       onClick={onClick}
       showDot={unread}
       leading={

@@ -22,6 +22,7 @@ const entries = [
   ["common/Accordion", "component", "stable"],
   ["common/ActivityItem", "component", "stable"],
   ["common/Avatar", "primitive", "stable"],
+  ["common/Badge", "primitive", "stable"],
   ["common/BottomModal", "component", "stable"],
   ["common/Button", "primitive", "stable"],
   ["common/Surface", "primitive", "stable"],

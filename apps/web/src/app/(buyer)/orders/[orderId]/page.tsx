@@ -33,6 +33,7 @@ import DispatchContactCard from "@/features/orders/DispatchContactCard";
 import { formatTimeAgos, formatTimestamp } from "@/lib/converter";
 import { OrderDatas } from "@/lib/order";
 import { ProductData } from "@/lib/types";
+import Badge from "@vibaar/ui/common/Badge";
 
 const ActivityTop = ({ title, date }: { title: string; date: string }) => {
   return (
@@ -185,9 +186,7 @@ const Shipping = ({
     <div className="mt-4">
       <p className="mb-3 text-body-sm font-normal">Shipping profile</p>
       <div className="p-2 rounded-field border flex flex-col gap-2 text-body font-normal">
-        <span className="border-[0.5px] rounded-full font-normal px-3 py-[2px] text-body-sm border-brandDeep bg-brand/10 text-brandDeep w-[max-content]">
-          Default
-        </span>
+        <Badge tone="brand" size="md">Default</Badge>
         <p>
           {singleShippingDetails.shipping_user?.firstname +
             " " +

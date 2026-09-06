@@ -25,6 +25,7 @@ import { Client } from "@/lib/client";
 import { RewardsInfo } from "@/lib/types";
 import { trackCheckoutStep, trackAddShippingInfo, trackAddPaymentInfo, trackCheckoutError } from "@/lib/analytics";
 import { ORDER_ON_SUCCESS } from "@/lib/flags";
+import Badge from "@vibaar/ui/common/Badge";
 
 const CartItem = ({
   cart,
@@ -651,9 +652,7 @@ const ReviewOrder = () => {
             <div className="mt-4">
               <p className="mb-3 text-body-sm font-normal">Shipping method</p>
               <div className="p-2 rounded-field border flex flex-col gap-2 text-body-sm font-normal text-foreground-primary">
-                <span className="border rounded-full px-4 py-1 text-caption border-brandDeep bg-brand/10 text-brandDeep w-[max-content]">
-                  Default
-                </span>
+                <Badge tone="brand" size="md">Default</Badge>
                 <p>
                   {singleShippingDetails?.shipping_user?.firstname +
                     " " +

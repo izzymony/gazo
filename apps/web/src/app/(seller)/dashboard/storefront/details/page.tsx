@@ -828,7 +828,7 @@ const Page = () => {
                 error={formik.errors.storeTag}
                 disabled={!!store?.tag}
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-foreground-muted mt-1">
                 {store?.tag
                   ? `Your store link: vibaar.com/@${store.tag} · locked once set`
                   : "Lowercase letters, numbers and hyphens. This becomes your public store link and can't be changed later."}

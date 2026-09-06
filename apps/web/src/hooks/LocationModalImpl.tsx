@@ -178,12 +178,12 @@ export default function LocationModal({
         </h2>
 
         {/* Clean input styling - no border conflicts */}
-        <div className="bg-gray-50 rounded-xl px-4 py-3 flex items-center space-x-3 mb-6">
-          <CiSearch className="text-gray-400 text-xl" />
+        <div className="bg-surface-subtle rounded-xl px-4 py-3 flex items-center space-x-3 mb-6">
+          <CiSearch className="text-foreground-disabled text-xl" />
           <input
             type="text"
             placeholder="Search address or enter manually"
-            className="flex-1 bg-transparent outline-none text-gray-900 placeholder-gray-500"
+            className="flex-1 bg-transparent outline-none text-foreground-primary placeholder-gray-500"
             value={search}
             onChange={(e: any) => setSeacrh(e.currentTarget.value)}
             onKeyDown={(e) => {
@@ -225,9 +225,9 @@ export default function LocationModal({
         {/* Results */}
         <div className="space-y-2">
           {!isGoogleLoaded ? (
-            <div className="text-center text-gray-500 py-4">
+            <div className="text-center text-foreground-muted py-4">
               <div>Loading Google Maps...</div>
-              <div className="text-xs mt-2 text-gray-400">
+              <div className="text-xs mt-2 text-foreground-disabled">
                 API Key: {process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ? '✅ Present' : '❌ Missing'}
               </div>
             </div>
@@ -236,14 +236,14 @@ export default function LocationModal({
               <div
                 key={item.place_id}
                 onClick={() => retrieveLocation(item.place_id)}
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-surface-subtle cursor-pointer border-b border-outline-subtle last:border-b-0"
               >
                 <img
                   className="w-5 h-5 object-cover flex-shrink-0"
                   src={"/images/location.png"}
                   alt="Location"
                 />
-                <span className="flex-1 text-gray-900 text-sm">
+                <span className="flex-1 text-foreground-primary text-sm">
                   {item.name}
                 </span>
               </div>
@@ -251,7 +251,7 @@ export default function LocationModal({
           ) : search.length > 0 ? (
             <>
               {suggestions.length === 0 && (
-                <div className="text-center text-gray-500 py-2">
+                <div className="text-center text-foreground-muted py-2">
                   No locations found from Google Maps
                 </div>
               )}
@@ -303,7 +303,7 @@ export default function LocationModal({
               </div>
             </>
           ) : (
-            <div className="text-center text-gray-400 py-4">
+            <div className="text-center text-foreground-disabled py-4">
               Type to search for locations...
             </div>
           )}

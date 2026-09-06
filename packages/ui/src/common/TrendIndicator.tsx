@@ -2,6 +2,7 @@
 
 import { cn, formatTrendForNigerianMarket } from "@vibaar/utils";
 import Image from "next/image";
+import Badge from "./Badge";
 
 interface TrendIndicatorProps {
   percentChange: number | string;
@@ -11,6 +12,13 @@ interface TrendIndicatorProps {
   className?: string;
 }
 
+/**
+ * Trend movement = the shared `Badge` preset for a period-on-period change.
+ *
+ * `plain` variant — a trend sits inline beside the figure it qualifies, so a
+ * chip container would fight the metric for attention. It owns the direction →
+ * tone decision and the Nigerian-market formatting; Badge owns the rest.
+ */
 const TrendIndicator = ({
   percentChange,
   currentValue,
@@ -18,29 +26,21 @@ const TrendIndicator = ({
   storeCreatedAt,
   className = ""
 }: TrendIndicatorProps) => {
-  const trendData = formatTrendForNigerianMarket(percentChange, currentValue, isNewStore, storeCreatedAt);
+  const trend = formatTrendForNigerianMarket(percentChange, currentValue, isNewStore, storeCreatedAt);
+  const isFlat = trend.displayText === "0%" || trend.displayText === "New store";
 
   return (
-    <span
-      className={cn(
-        "flex items-center gap-1 text-caption",
-        trendData.displayText === "0%"
-          ? "text-foreground-muted"
-          : trendData.isPositive
-            ? "text-success-foreground"
-            : "text-error-foreground",
-        trendData.displayText === "New store" && "font-normal",
-        className
-      )}>
-      {trendData.displayText}
-      {/* Direction was carried by colour plus an arrow that only renders when
-          showArrow is set — so without it, up and down read identically. */}
-      {trendData.displayText !== "0%" && trendData.displayText !== "New store" && (
-        <span className="sr-only">{trendData.isPositive ? "increase" : "decrease"}</span>
-      )}
-      {trendData.showArrow && (
+    <Badge
+      tone={isFlat ? "neutral" : trend.isPositive ? "success" : "error"}
+      variant="plain"
+      // Direction was carried by colour plus an arrow that only renders when
+      // showArrow is set — so without it, up and down read identically.
+      srLabel={isFlat ? undefined : trend.isPositive ? "increase" : "decrease"}
+      className={cn(trend.displayText === "New store" && "font-normal", className)}>
+      {trend.displayText}
+      {trend.showArrow && (
         <Image
-          src={trendData.isPositive ? "/icons/trending_up.svg" : "/icons/trending_down.svg"}
+          src={trend.isPositive ? "/icons/trending_up.svg" : "/icons/trending_down.svg"}
           alt=""
           aria-hidden="true"
           width={15}
@@ -48,7 +48,7 @@ const TrendIndicator = ({
           className="inline-block"
         />
       )}
-    </span>
+    </Badge>
   );
 };
 

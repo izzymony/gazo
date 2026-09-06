@@ -1,4 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
+import Badge from "@vibaar/ui/common/Badge";
+
 export default function Card({
   liked,
   setLiked,
@@ -19,9 +21,9 @@ export default function Card({
           />
           <div className="absolute flex flex-col justify-between top-0 bottom-0 left-0 right-0 flex-1">
             <div className="flex justify-between ps-1">
-              <div className="bg-brand rounded-full flex justify-center items-center text-center text-brandInk text-body-sm px-2 h-4 mt-1">
+              <Badge tone="brand" variant="solid" size="md" className="mt-1">
                 20% Off
-              </div>
+              </Badge>
               <div
                 className={`cursor-pointer mt-3 me-2`}
                 onClick={(e) => {
@@ -209,9 +211,9 @@ export function Cards({
           />
           <div className="absolute flex flex-col justify-between top-0 bottom-0 left-0 right-0 flex-1">
             <div className="flex justify-between ps-1">
-              <div className="bg-brand rounded-full flex justify-center items-center text-center text-brandInk text-body-sm px-2 h-4 mt-1">
+              <Badge tone="brand" variant="solid" size="md" className="mt-1">
                 20% Off
-              </div>
+              </Badge>
               <div
                 className={`cursor-pointer mt-3 me-2`}
                 onClick={(e) => {
