@@ -7,6 +7,11 @@ import bundleAnalyzer from '@next/bundle-analyzer';
 const withBundleAnalyzer = bundleAnalyzer({ enabled: process.env.ANALYZE === 'true' });
 
 const nextConfig = {
+  // Build output directory. Overridable so a verification build can run without
+  // replacing the .next a concurrent dev server is reading — two sessions share
+  // this app, and a plain build silently corrupts the running one (it 404s on
+  // layout.css and main-app.js and renders unstyled). Defaults to .next.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
   // Transpile raw-TS workspace packages consumed from packages/* (M1 extraction).
   transpilePackages: ['@vibaar/types', '@vibaar/api-client', '@vibaar/ui'],

@@ -38,7 +38,7 @@ const LIVE_DIR = join(APP_ROOT, "src", "app", "(dev)");
 const PARKED_DIR = join(APP_ROOT, ".playground-parked");
 
 /** Build outputs to scan, relative to the app root. */
-const BUILD_OUTPUTS = [".next", ".open-next"];
+const BUILD_OUTPUTS = [process.env.NEXT_DIST_DIR || ".next", ".open-next"];
 /** Directories inside a build output that are pure cache and safe to skip. */
 const SKIP_DIRS = new Set(["cache"]);
 /**
@@ -58,6 +58,12 @@ const die = (msg) => {
 
 
 async function assertNoDevServer() {
+  // A build writing to its own distDir cannot corrupt the .next a dev server is
+  // reading, so the interlock does not apply.
+  if (process.env.NEXT_DIST_DIR && process.env.NEXT_DIST_DIR !== ".next") {
+    say(`building into ${process.env.NEXT_DIST_DIR} — dev server on ${DEV_PORT} is unaffected`);
+    return;
+  }
   if (await portIsListening(DEV_PORT)) {
     die(
       `port ${DEV_PORT} is active. A Next build replaces .next while the dev server is still reading it, ` +

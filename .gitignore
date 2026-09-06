@@ -64,3 +64,6 @@ apps/web/.playground-parked/
 # drift audit report — regenerated on every run, never committed (the reviewed
 # BASELINE at apps/web/design-drift-baseline.json is what is version-controlled)
 apps/web/.drift/
+
+# isolated verification build output (see NEXT_DIST_DIR in apps/web/next.config.mjs)
+apps/web/.next-verify/
