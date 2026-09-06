@@ -21,8 +21,21 @@ assert.equal(
   "brand-500 must be the canonical brand colour"
 );
 
+// Every neutral role aliases a step on Tailwind's neutral scale, with ONE
+// deliberate exception: `surface.DEFAULT` is pure white, which is not a step on
+// that scale. A card has to read as raised on a neutral-50 page, and collapsing
+// that distinction would flatten every settings screen. The exception is
+// asserted explicitly rather than skipped, so it cannot silently become
+// something else.
+assert.equal(
+  tokens.color.surface.DEFAULT,
+  "#FFFFFF",
+  "surface (DEFAULT) must be pure white, not a neutral step — see comment above"
+);
+
 for (const [family, roles] of Object.entries(neutralRoleSteps)) {
   for (const [role, step] of Object.entries(roles)) {
+    if (step === "white") continue; // asserted above
     assert.equal(
       tokens.color[family][role],
       tailwindColors.neutral[step],
