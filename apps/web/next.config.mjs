@@ -13,6 +13,14 @@ const nextConfig = {
   // layout.css and main-app.js and renders unstyled). Defaults to .next.
   distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
+  // /landing rendered the same hero as / in every shipped build, so it was a
+  // crawlable duplicate of the homepage. A permanent redirect consolidates that
+  // history rather than throwing it away. (The /v2 preview route needs no such
+  // treatment — it was never committed, so it never shipped, and it carried
+  // noindex throughout.)
+  async redirects() {
+    return [{ source: '/landing', destination: '/', permanent: true }];
+  },
   // Transpile raw-TS workspace packages consumed from packages/* (M1 extraction).
   transpilePackages: ['@vibaar/types', '@vibaar/api-client', '@vibaar/ui'],
   // Allow mobile devices to access dev server

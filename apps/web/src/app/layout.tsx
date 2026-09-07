@@ -8,8 +8,8 @@ import { outfit } from "./fonts";
 // One self-hosted brand face (see ./fonts): Outfit, for display and body alike.
 
 export const metadata: Metadata = {
-  title: "Vibaar - Sell Smarter on Instagram & TikTok",
-  description: "Create your free online store in minutes. Accept payments, manage orders, and grow your business on social media. Built for Nigerian entrepreneurs.",
+  title: "Vibaar — Turn your attention into income",
+  description: "Turn social attention into protected, paid, trackable orders — a storefront for Instagram and TikTok sellers that takes payment and tracks delivery.",
   generator: "Next.js",
   manifest: "/manifest.json",
   icons: {
@@ -28,16 +28,16 @@ export const metadata: Metadata = {
   ],
   metadataBase: new URL('https://vibaar.com'),
   openGraph: {
-    title: "Vibaar - Sell Smarter on Instagram & TikTok",
-    description: "Create your free online store in minutes. Accept payments, manage orders, and grow your business on social media.",
+    title: "Vibaar — Turn your attention into income",
+    description: "Turn social attention into protected, paid, trackable orders — a storefront for Instagram and TikTok sellers that takes payment and tracks delivery.",
     url: 'https://vibaar.com',
     siteName: 'Vibaar',
     images: [
       {
-        url: '/og-image.png',
+        url: '/og/og-default.jpg',
         width: 1200,
         height: 630,
-        alt: 'Vibaar - Your Social Commerce Platform',
+        alt: 'Vibaar — turn your attention into income',
       },
     ],
     locale: 'en_NG',
@@ -45,9 +45,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Vibaar - Sell Smarter on Instagram & TikTok",
-    description: "Create your free online store in minutes. Accept payments, manage orders, and grow your business on social media.",
-    images: ['/og-image.png'],
+    title: "Vibaar — Turn your attention into income",
+    description: "Turn social attention into protected, paid, trackable orders — a storefront for Instagram and TikTok sellers that takes payment and tracks delivery.",
+    images: ['/og/og-default.jpg'],
   },
 };
 
