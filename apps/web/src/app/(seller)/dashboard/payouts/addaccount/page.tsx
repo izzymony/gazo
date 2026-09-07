@@ -8,7 +8,7 @@ import useBusinessStore, { BankData } from "@/store/businessStore";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Section from "@vibaar/ui/common/Section";
 import Button from "@vibaar/ui/common/Button";
 
@@ -64,9 +64,8 @@ export default function Page() {
     <PageShell
       header={
         <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="Add Payout Accounts"
+          onBack={() => router.back()}
+          title="Add Payout Accounts"
         />
       }
       footerAction={

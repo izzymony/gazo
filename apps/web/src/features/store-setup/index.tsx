@@ -7,7 +7,8 @@ import StoreDetails from "./StoreDetails";
 import { useEffect, useState } from "react";
 import useBusinessStore from "@/store/businessStore";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
+import StepNavigation from "@vibaar/ui/common/StepNavigation";
 import Image from "next/image";
 import Button from "@vibaar/ui/common/Button";
 import { ChevronRight } from "@vibaar/ui/icons";
@@ -292,15 +293,12 @@ const CreateStore = () => {
     <PageShell
       header={
         <Header
-          showBack
-          showStepNavigation
-          step={step}
-          totalSteps={2}
-          customText={`${step === 1
+          onBack={handleBack}
+          title={`${step === 1
             ? "Enter your store details"
             : step === 2 && "Store address"
             } `}
-          onBackClick={handleBack}
+          progress={<StepNavigation step={step} totalSteps={2} />}
         />
       }
       footerAction={

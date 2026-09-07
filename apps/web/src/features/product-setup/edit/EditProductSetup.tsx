@@ -12,7 +12,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Loader from "@vibaar/ui/common/Loader";
 import Button from "@vibaar/ui/common/Button";
 import DisclosureButton from "@vibaar/ui/common/DisclosureButton";
@@ -633,9 +633,8 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
         <PageShell
             header={
                 <Header
-                    showBack
-                    customText="Edit Product"
-                    onBackClick={() => router.back()}
+                  onBack={() => router.back()}
+                  title="Edit Product"
                 />
             }
             contentClassName="px-0"

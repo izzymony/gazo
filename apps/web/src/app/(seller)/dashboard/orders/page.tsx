@@ -5,7 +5,9 @@
 import React, { useEffect, useState } from "react";
 import DataSort from "@/features/seller-dashboard/datasort";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
+import IconButton from "@vibaar/ui/common/IconButton";
+import { BsThreeDotsVertical } from "@vibaar/ui/icons";
 import Button from "@vibaar/ui/common/Button";
 import { IoCubeOutline, DeliveryTruck } from "@vibaar/ui/icons";
 import { useRouter } from "next/navigation";
@@ -171,8 +173,8 @@ const Page = () => {
     <PageShell
       header={
         <Header
-          showMenu
-          customText="Orders"
+          title="Orders"
+          trailing={<IconButton icon={BsThreeDotsVertical} label="Menu" />}
         />
       }>
       <DataSort

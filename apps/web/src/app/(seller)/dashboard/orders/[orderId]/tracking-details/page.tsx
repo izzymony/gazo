@@ -6,7 +6,9 @@ import Checkbox from "@vibaar/ui/common/Checkbox";
 import Button from "@vibaar/ui/common/Button";
 import Section from "@vibaar/ui/common/Section";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
+import IconButton from "@vibaar/ui/common/IconButton";
+import { BiArrowBack, BsThreeDotsVertical } from "@vibaar/ui/icons";
 import { AiOutlineInfoCircle } from "@vibaar/ui/icons";
 
 const TrackingDetails = () => {
@@ -33,7 +35,11 @@ const TrackingDetails = () => {
 
   return (
     <PageShell
-      header={<Header showBack showMenu customText="Order 00001" />}
+      header={<Header
+                leading={<IconButton icon={BiArrowBack} label="Go back" className="mr-1 -ml-2" />}
+                title="Order 00001"
+                trailing={<IconButton icon={BsThreeDotsVertical} label="Menu" />}
+              />}
       footerAction={<Button onClick={() => {}}>Mark order as shipped</Button>}>
       <Section className="space-y-4">
         <InputField

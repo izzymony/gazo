@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect } from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Button from "@vibaar/ui/common/Button";
 import Surface from "@vibaar/ui/common/Surface";
 import Section from "@vibaar/ui/common/Section";
@@ -67,9 +67,8 @@ const Page = () => {
     <PageShell
       header={
         <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="My Shipping profiles"
+          onBack={() => router.back()}
+          title="My Shipping profiles"
         />
       }
       footerAction={

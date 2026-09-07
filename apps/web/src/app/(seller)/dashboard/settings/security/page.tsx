@@ -2,7 +2,7 @@
 import React from "react";
 import { IoIosArrowForward, CiLock, LockPassword } from "@vibaar/ui/icons";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Button from "@vibaar/ui/common/Button";
 import Surface from "@vibaar/ui/common/Surface";
 import Section from "@vibaar/ui/common/Section";
@@ -13,7 +13,10 @@ const Security = () => {
   return (
     <PageShell
       header={
-        <Header showBack onBackClick={() => router.back()} customText="Security" />
+        <Header
+          onBack={() => router.back()}
+          title="Security"
+        />
       }
       footerAction={
         <Button type="submit" onClick={() => {}}>

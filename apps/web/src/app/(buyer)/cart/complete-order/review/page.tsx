@@ -5,7 +5,9 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
+import StepNavigation from "@vibaar/ui/common/StepNavigation";
+import { BsThreeDotsVertical } from "@vibaar/ui/icons";
 import IconButton from "@vibaar/ui/common/IconButton";
 import { Minus, Plus, Delete, Gift } from "@vibaar/ui/icons";
 import ShippingOptionCard from "@/design-system/common/ShippingOptionCard";
@@ -371,13 +373,10 @@ const ReviewOrder = () => {
     <PageShell
       header={
         <Header
-          showBack
-          customText="Complete order"
-          showMenu
-          step={1}
-          totalSteps={2}
-          showStepNavigation
-          onBackClick={() => router.back()}
+          onBack={() => router.back()}
+          title="Complete order"
+          trailing={<IconButton icon={BsThreeDotsVertical} label="Menu" />}
+          progress={<StepNavigation step={1} totalSteps={2} />}
         />
       }
       footerAction={

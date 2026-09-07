@@ -8,7 +8,9 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import Loader from "@vibaar/ui/common/Loader";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
+import BrandLogo from "@vibaar/ui/common/BrandLogo";
+import StepNavigation from "@vibaar/ui/common/StepNavigation";
 import Button from "@vibaar/ui/common/Button";
 import Otp from "@/features/auth/signup/Otp";
 import CreateNewPassword from "./CreateNewPassword";
@@ -145,12 +147,7 @@ export default function ForgotPasswordComp() {
                         <PageShell
                             header={
                                 <Header
-                                    showBack
-                                    showLogo
-                                    showStepNavigation
-                                    step={step}
-                                    totalSteps={3}
-                                    onBackClick={() => {
+                                  onBack={() => {
                                         if (step > 1) {
                                             setStep(1);
                                             router.push(`?step=${1}`);
@@ -158,6 +155,8 @@ export default function ForgotPasswordComp() {
                                             router.push(`/`);
                                         }
                                     }}
+                                  title={<BrandLogo />}
+                                  progress={<StepNavigation step={step} totalSteps={3} />}
                                 />
                             }
                             footerAction={

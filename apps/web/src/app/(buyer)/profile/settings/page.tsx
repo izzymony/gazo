@@ -2,7 +2,7 @@
 import React from "react";
 
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Surface from "@vibaar/ui/common/Surface";
 import Section from "@vibaar/ui/common/Section";
 import { ChevronRight, CiLock, Bell } from "@vibaar/ui/icons";
@@ -14,9 +14,8 @@ const Security = () => {
     <PageShell
       header={
         <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="Settings"
+          onBack={() => router.back()}
+          title="Settings"
         />
       }>
       <Section>

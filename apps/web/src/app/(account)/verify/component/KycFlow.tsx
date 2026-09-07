@@ -5,7 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
+import StepNavigation from "@vibaar/ui/common/StepNavigation";
 import Button from "@vibaar/ui/common/Button";
 import InputField from "@vibaar/ui/common/InputField";
 import useBusinessStore from "@/store/businessStore";
@@ -144,7 +145,10 @@ export default function KycFlow() {
   if (phase === "error") {
     return (
       <PageShell
-        header={<Header showBack onBackClick={() => setPhase("wizard")} customText="Verification" />}
+        header={<Header
+                  onBack={() => setPhase("wizard")}
+                  title="Verification"
+                />}
         footerAction={<Button onClick={handleSubmit}>Try again</Button>}>
         <div className="flex flex-col items-center gap-4 pt-10 text-center">
           <span className="flex h-20 w-20 items-center justify-center rounded-full bg-brand/10">
@@ -166,7 +170,10 @@ export default function KycFlow() {
   if (phase === "intro") {
     return (
       <PageShell
-        header={<Header showBack onBackClick={() => router.back()} customText="Get verified" />}
+        header={<Header
+                  onBack={() => router.back()}
+                  title="Get verified"
+                />}
         footerAction={
           <Button onClick={() => { setPhase("wizard"); setStep(1); }}>
             Start verification
@@ -195,12 +202,9 @@ export default function KycFlow() {
   // ---- wizard ----
   const stepHeader = (
     <Header
-      showBack
-      onBackClick={back}
-      customText="Verify your identity"
-      showStepNavigation
-      step={step}
-      totalSteps={4}
+      onBack={back}
+      title="Verify your identity"
+      progress={<StepNavigation step={step} totalSteps={4} />}
     />
   );
 
@@ -481,7 +485,7 @@ function StatusScreen({
 
   return (
     <PageShell
-      header={<Header customText="Verification" />}
+      header={<Header title="Verification" />}
       footerAction={
         rejected ? (
           <Button onClick={onResubmit}>Resubmit</Button>

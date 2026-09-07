@@ -2,7 +2,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import { useRouter, useSearchParams } from "next/navigation";
 import useOrderStore from "@/store/orderStore";
 import { formatCurrency } from "@/lib/utils";
@@ -146,7 +146,7 @@ const PaymentSucceful = () => {
   if (paymentStatus === "failed") {
     return (
       <PageShell
-        header={<Header showBack onBackClick={() => router.back()} />}>
+        header={<Header onBack={() => router.back()} />}>
         <div className="w-full flex flex-col items-center text-center">
           <div className="w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center mb-6 mt-10">
             <span className="text-brandDeep text-h1 font-semibold">!</span>
@@ -173,7 +173,7 @@ const PaymentSucceful = () => {
 
   return (
     <PageShell
-      header={<Header showBack onBackClick={() => router.back()} />}>
+      header={<Header onBack={() => router.back()} />}>
       <div className="w-full">
         <div className="w-full flex justify-center items-center mb-6">
           <svg

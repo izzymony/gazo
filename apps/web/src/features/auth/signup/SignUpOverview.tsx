@@ -15,7 +15,9 @@ import { signupOptions } from "@/lib/conts";
 import AuthOptionButton, { type AuthOption } from "../AuthOptionButton";
 import H1 from "@vibaar/ui/common/Typography";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
+import BrandLogo from "@vibaar/ui/common/BrandLogo";
+import StepNavigation from "@vibaar/ui/common/StepNavigation";
 import Button from "@vibaar/ui/common/Button";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -686,15 +688,11 @@ export default function SignUpOverview() {
             <PageShell
               header={
                 <Header
-                  showBack
-                  showLogo
-                  showStepNavigation
-                  step={!isOtpEnabled && step >= 2 ? step - 1 : step} // Adjust step number when OTP is skipped
-                  totalSteps={isOtpEnabled ? 4 : 3} // 3 steps without OTP, 4 with OTP
-                  customText={prefill === 'true' ? "Complete Account Setup" : ""}
-                  onBackClick={() => {
+                  onBack={() => {
                     router.back();
                   }}
+                  title={<BrandLogo />}
+                  progress={<StepNavigation step={!isOtpEnabled && step >= 2 ? step - 1 : step} totalSteps={isOtpEnabled ? 4 : 3} />}
                 />
               }
               footerAction={

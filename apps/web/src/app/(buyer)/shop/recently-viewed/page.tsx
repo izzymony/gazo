@@ -1,6 +1,6 @@
 "use client";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import { BusinessData } from "@/lib/types";
 import { storePath, productPath } from "@/lib/urlHelpers";
@@ -54,9 +54,8 @@ const Page = () => {
     <PageShell
       header={
         <Header
-          showBack
-          customText="Recently viewed vendors"
-          onBackClick={() => router.back()}
+          onBack={() => router.back()}
+          title="Recently viewed vendors"
         />
       }>
       {recent.length > 0 ? (

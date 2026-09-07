@@ -4,7 +4,7 @@ import InputField from '@vibaar/ui/common/InputField';
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import PageShell from '@vibaar/ui/PageShell';
-import Header from '@/design-system/common/Header';
+import Header from "@vibaar/ui/common/Header";
 import Button from '@vibaar/ui/common/Button';
 import Section from '@vibaar/ui/common/Section';
 import { Check } from '@vibaar/ui/icons';
@@ -72,9 +72,8 @@ const Page = () => {
         <PageShell
           header={
             <Header
-              showBack
-              onBackClick={() => router.back()}
-              customText="Store Address"
+              onBack={() => router.back()}
+              title="Store Address"
             />
           }
           footerAction={

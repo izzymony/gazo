@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Section from "@vibaar/ui/common/Section";
 import Surface from "@vibaar/ui/common/Surface";
 import { ChevronRight, Bank, LockPassword } from "@vibaar/ui/icons";
@@ -13,9 +13,8 @@ export default function Page() {
     <PageShell
       header={
         <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="Wallet Settings"
+          onBack={() => router.back()}
+          title="Wallet Settings"
         />
       }>
       <Section>

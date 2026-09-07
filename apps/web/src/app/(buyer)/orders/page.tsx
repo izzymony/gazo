@@ -5,7 +5,9 @@
 "use client";
 import React, { ReactNode, useEffect, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
+import IconButton from "@vibaar/ui/common/IconButton";
+import { BsThreeDotsVertical } from "@vibaar/ui/icons";
 import Dialog from "@vibaar/ui/common/Dialog";
 import { useRouter } from "next/navigation";
 import StatusBadge from "@/features/orders/StatusBadge";
@@ -335,10 +337,9 @@ const Page = () => {
     <PageShell
       header={
         <Header
-          showBack
-          customText="Cart and Orders"
-          showMenu
-          onBackClick={() => router.back()}
+          onBack={() => router.back()}
+          title="Cart and Orders"
+          trailing={<IconButton icon={BsThreeDotsVertical} label="Menu" />}
         />
       }>
       <div className="w-full">

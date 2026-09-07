@@ -7,7 +7,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Button from "@vibaar/ui/common/Button";
 import Section from "@vibaar/ui/common/Section";
 
@@ -37,9 +37,8 @@ const Page = () => {
     <PageShell
       header={
         <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="Add new card"
+          onBack={() => router.back()}
+          title="Add new card"
         />
       }
       footerAction={

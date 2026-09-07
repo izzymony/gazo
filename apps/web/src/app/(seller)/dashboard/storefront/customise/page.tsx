@@ -2,7 +2,7 @@
 
 import { ColoredPattern } from "@/features/seller-dashboard/coloredpattern";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Button from "@vibaar/ui/common/Button";
 import Section from "@vibaar/ui/common/Section";
 import useBusinessStore from "@/store/businessStore";
@@ -167,9 +167,8 @@ const Page: React.FC = () => {
     <PageShell
       header={
         <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="Appearance"
+          onBack={() => router.back()}
+          title="Appearance"
         />
       }
       footerAction={

@@ -11,7 +11,8 @@ import * as Yup from "yup";
 import { toast } from "sonner";
 
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
+import StepNavigation from "@vibaar/ui/common/StepNavigation";
 import Button from "@vibaar/ui/common/Button";
 import Loader from "@vibaar/ui/common/Loader";
 import useAuthStore from "@/store/authStore";
@@ -343,12 +344,7 @@ export default function ProgressiveProductSetup() {
         <PageShell
             header={
                 <Header
-                    showBack
-                    showStepNavigation
-                    step={step}
-                    totalSteps={3}
-                    customText="Add Product"
-                    onBackClick={() => {
+                  onBack={() => {
                         if (step === 3) {
                             router.back();
                         } else if (step > 1) {
@@ -357,6 +353,8 @@ export default function ProgressiveProductSetup() {
                             router.back();
                         }
                     }}
+                  title="Add Product"
+                  progress={<StepNavigation step={step} totalSteps={3} />}
                 />
             }
             footerAction={

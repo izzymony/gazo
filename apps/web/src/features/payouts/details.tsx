@@ -5,7 +5,7 @@ import useBusinessStore from "@/store/businessStore";
 import { useRouter } from "next/navigation";
 import TransactionIcon from "@vibaar/ui/common/TransactionIcon";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Section from "@vibaar/ui/common/Section";
 import Button from "@vibaar/ui/common/Button";
 import DetailRow from "@vibaar/ui/common/DetailRow";
@@ -49,13 +49,10 @@ export default function WithdrawalDetails({
     <PageShell
       header={
         <Header
-          showBack
-          onBackClick={
-            base
+          onBack={base
               ? () => router.push("/dashboard")
-              : () => router.push("/dashboard")
-          }
-          customText="Transaction details"
+              : () => router.push("/dashboard")}
+          title="Transaction details"
         />
       }
       footerAction={

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Button from "@vibaar/ui/common/Button";
 import Section from "@vibaar/ui/common/Section";
 import Surface from "@vibaar/ui/common/Surface";
@@ -489,7 +489,10 @@ const Page = () => {
   return (
     <PageShell
       header={
-        <Header showBack onBackClick={handleBack} customText="Shipping Method" />
+        <Header
+          onBack={handleBack}
+          title="Shipping Method"
+        />
       }
       footerAction={
         <div className="w-full">

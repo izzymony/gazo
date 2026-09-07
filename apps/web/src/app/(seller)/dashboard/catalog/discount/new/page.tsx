@@ -10,7 +10,9 @@ import InputField from "@vibaar/ui/common/InputField";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
+import IconButton from "@vibaar/ui/common/IconButton";
+import { BsThreeDotsVertical } from "@vibaar/ui/icons";
 import Accordion from "@vibaar/ui/common/Accordion";
 import Dialog from "@vibaar/ui/common/Dialog";
 import { useRouter } from "next/navigation";
@@ -122,10 +124,9 @@ function Page() {
     <PageShell
       header={
         <Header
-          showBack
-          showMenu
-          customText="Create Discount"
-          onBackClick={() => router.back()}
+          onBack={() => router.back()}
+          title="Create Discount"
+          trailing={<IconButton icon={BsThreeDotsVertical} label="Menu" />}
         />
       }
       footerAction={

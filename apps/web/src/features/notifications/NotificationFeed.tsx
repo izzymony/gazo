@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import Button from "@vibaar/ui/common/Button";
 import FilterBar from "@vibaar/ui/common/FilterBar";
@@ -85,7 +85,10 @@ export default function NotificationFeed({ side }: { side: "buyer" | "seller" })
 
   return (
     <PageShell
-      header={<Header showBack customText="Notifications" onBackClick={() => router.back()} />}
+      header={<Header
+                onBack={() => router.back()}
+                title="Notifications"
+              />}
     >
       <div className="flex flex-col w-full h-full relative">
         <div className="w-full">

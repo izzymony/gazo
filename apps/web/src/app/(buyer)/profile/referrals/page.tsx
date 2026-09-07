@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Button from "@vibaar/ui/common/Button";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import useAuthStore from "@/store/authStore";
@@ -101,9 +101,8 @@ Enter "${username}" in the Referral ID field when signing up.`;
 
   const referralHeader = (
     <Header
-      showBack
-      customText="Rewards & Referrals"
-      onBackClick={() => router.back()}
+      onBack={() => router.back()}
+      title="Rewards & Referrals"
     />
   );
 

@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Button from "@vibaar/ui/common/Button";
 import { Check } from "@vibaar/ui/icons";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -204,9 +204,8 @@ const Page = () => {
     <PageShell
       header={
         <Header
-          showBack
-          customText="Add shipping profile"
-          onBackClick={() => router.back()}
+          onBack={() => router.back()}
+          title="Add shipping profile"
         />
       }
       footerAction={

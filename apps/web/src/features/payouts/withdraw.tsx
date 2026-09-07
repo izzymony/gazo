@@ -4,7 +4,7 @@ import { useState } from "react";
 import useBusinessStore from "@/store/businessStore";
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Section from "@vibaar/ui/common/Section";
 import Button from "@vibaar/ui/common/Button";
 import BottomModal from "@vibaar/ui/common/BottomModal";
@@ -47,9 +47,8 @@ export default function Withdraw({
     <PageShell
       header={
         <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="Withdraw Funds"
+          onBack={() => router.back()}
+          title="Withdraw Funds"
         />
       }
       footerAction={

@@ -8,7 +8,7 @@ import OrderLineItem from "@/features/orders/OrderLineItem";
 import DetailRow from "@vibaar/ui/common/DetailRow";
 import { PiCube, CircleCheck, ChevronUp, ChevronDown } from "@vibaar/ui/icons";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Dialog from "@vibaar/ui/common/Dialog";
 import useOrderStore from "@/store/orderStore";
 import { useParams } from "next/navigation";
@@ -347,9 +347,8 @@ const Order = () => {
       <PageShell
         header={
           <Header
-            showBack
-            customText="Order"
-            onBackClick={() => router.back()}
+            onBack={() => router.back()}
+            title="Order"
           />
         }>
         <div className="w-full flex flex-col items-center text-center mt-20">
@@ -413,10 +412,9 @@ const Order = () => {
       <PageShell
         header={
           <Header
-            showBack
-            onBackClick={() => router.push("/orders")}
-            customText={`Order #${newOrder?.order?.invoice}`}
-            showEmer
+            onBack={() => router.push("/orders")}
+            title={`Order #${newOrder?.order?.invoice}`}
+            trailing={<Emergency />}
           />
         }>
         <div className="h-full w-full">

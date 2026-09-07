@@ -11,36 +11,23 @@ export interface StoreTheme {
   pattern?: string;
 }
 
+/**
+ * Props the legacy `MainLayout` forwards to a Header. Only the subset its one
+ * caller (shop/spotlights) actually sets — the tab bar, pill bar, skip link,
+ * logoDisplayCenter and searchComponent props that used to live here were set
+ * by nothing anywhere in the app.
+ *
+ * New screens use PageShell + Header's slots directly; this exists to keep
+ * MainLayout working until its last caller migrates.
+ */
 export interface HeaderProps {
   showBack?: boolean;
-  showLogo?: boolean;
-  showSkip?: boolean;
-  showMenu?: boolean;
   customText?: string;
   onBackClick?: () => void;
-  handleMenu?: () => void;
-  skipLink?: string;
-  showStepNavigation?: boolean;
-  step?: number;
-  totalSteps?: number;
-  logoDisplayCenter?: boolean;
-  showTab?: boolean;
-  tabs?: string[];
-  activeTab?: number;
-  onTabChange?: (value: number) => void;
-  showPillBar?: boolean;
-  pillTabs?: string[];
-  activePill?: number;
-  onPillChange?: (index: number) => void;
-  searchComponent?: boolean;
+  /** Shows a search icon that toggles the title out for a search field. */
   showSearch?: boolean;
-  handleSearchClick?: () => void;
   showInput?: boolean;
-  showEmer?: boolean;
-  isMenu?: boolean;
-  showNotification?: boolean;
-  notificationCount?: number;
-  onNotificationClick?: () => void;
+  handleSearchClick?: () => void;
 }
 
 export interface MainLayoutProps {

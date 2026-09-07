@@ -3,7 +3,7 @@
 
 import React, { useEffect } from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Button from "@vibaar/ui/common/Button";
 import { useRouter } from "next/navigation";
 import DropdownMenu from "@vibaar/ui/common/DropdownMenu";
@@ -78,9 +78,8 @@ const Page = () => {
     <PageShell
       header={
         <Header
-          showBack
-          customText="Shipping profile"
-          onBackClick={() => router.back()}
+          onBack={() => router.back()}
+          title="Shipping profile"
         />
       }
       footerAction={

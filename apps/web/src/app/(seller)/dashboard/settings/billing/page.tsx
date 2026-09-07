@@ -4,7 +4,7 @@ import React from 'react'
 import { BsThreeDots, MdOutlineAddCard } from "@vibaar/ui/icons";
 import { useRouter } from 'next/navigation';
 import PageShell from '@vibaar/ui/PageShell'
-import Header from '@/design-system/common/Header'
+import Header from "@vibaar/ui/common/Header";
 import Surface from '@vibaar/ui/common/Surface'
 import Section from '@vibaar/ui/common/Section'
 import Badge from "@vibaar/ui/common/Badge";
@@ -18,9 +18,8 @@ const Billing = () => {
         <PageShell
           header={
             <Header
-              showBack
-              onBackClick={() => router.back()}
-              customText="Billing"
+              onBack={() => router.back()}
+              title="Billing"
             />
           }>
             <Section title="Current plan">

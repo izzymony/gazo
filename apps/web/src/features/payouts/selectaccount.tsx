@@ -5,7 +5,7 @@ import useBusinessStore from "@/store/businessStore";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Section from "@vibaar/ui/common/Section";
 import Button from "@vibaar/ui/common/Button";
 import { Bank, ChevronRight } from "@vibaar/ui/icons";
@@ -82,7 +82,10 @@ export default function SelectAccount({
   return (
     <PageShell
       header={
-        <Header showBack onBackClick={goBack} customText="Select account" />
+        <Header
+          onBack={goBack}
+          title="Select account"
+        />
       }>
       <Section>
         <p className="text-foreground-primary font-medium text-h1">

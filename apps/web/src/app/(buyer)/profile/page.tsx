@@ -6,7 +6,10 @@ import Selling from "@/features/seller-dashboard/selling";
 import Buying from "@/features/seller-dashboard/buying";
 import VendorNav from "@/features/storefront/VendorNav";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
+import Badge from "@vibaar/ui/common/Badge";
+import IconButton from "@vibaar/ui/common/IconButton";
+import { Bell, BsThreeDotsVertical } from "@vibaar/ui/icons";
 import Button from "@vibaar/ui/common/Button";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/store/authStore";
@@ -92,17 +95,32 @@ const Page = () => {
       <PageShell
         header={
           <Header
-            showBack
-            showMenu
-            isMenu={false}
-            customText="Profile"
-            handleMenu={openModal}
-            showNotification={!!user}
-            notificationCount={unreadCount}
-            onNotificationClick={() => router.push("/notification")}
-            onBackClick={() => {
+            onBack={() => {
               router.push("/shop");
             }}
+            title="Profile"
+            trailing={
+              <>
+                {!!user && (
+                  <span className="relative">
+                    <IconButton
+                      icon={Bell}
+                      label="Notifications"
+                      onClick={() => router.push("/notification")}
+                    />
+                    {unreadCount > 0 && (
+                      <Badge
+                        tone="error"
+                        variant="solid"
+                        className="absolute -top-1 -right-1 min-w-[18px] h-[18px] justify-center px-1 ring-1 ring-white">
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </Badge>
+                    )}
+                  </span>
+                )}
+                <IconButton icon={BsThreeDotsVertical} label="Menu" onClick={openModal} />
+              </>
+            }
           />
         }>
         <div className="pb-28">

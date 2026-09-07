@@ -4,7 +4,7 @@
 "use client";
 
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Tabs from "@vibaar/ui/common/Tabs";
 import VendorNav from "@/features/storefront/VendorNav";
 import ChatList from "@/features/chat/ChatList";
@@ -44,7 +44,10 @@ export default function Inbox() {
   return (
     <PageShell
       header={
-        <Header showBack customText="Inbox" onBackClick={() => router.back()} />
+        <Header
+          onBack={() => router.back()}
+          title="Inbox"
+        />
       }>
       {!user ? (
         <div className="flex flex-col items-center justify-center px-8 py-16 text-center">

@@ -7,7 +7,8 @@ import React, { useEffect, useState } from "react";
 import OrderLineItem from "@/features/orders/OrderLineItem";
 import DetailRow from "@vibaar/ui/common/DetailRow";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
+import { Emergency } from "@vibaar/ui/svg";
 import Button from "@vibaar/ui/common/Button";
 import Dialog from "@vibaar/ui/common/Dialog";
 import InputField from "@vibaar/ui/common/InputField";
@@ -391,10 +392,9 @@ const Order = ({ params }: { params: { orderId: string } }) => {
     <PageShell
       header={
         <Header
-          showBack
-          customText={`Order #${newOrder?.order?.invoice}`}
-          onBackClick={() => router.push("/dashboard/orders")}
-          showEmer
+          onBack={() => router.push("/dashboard/orders")}
+          title={`Order #${newOrder?.order?.invoice}`}
+          trailing={<Emergency />}
         />
       }
       footerAction={

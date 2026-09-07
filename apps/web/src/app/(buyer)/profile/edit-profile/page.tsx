@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import InputField from "@vibaar/ui/common/InputField";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Button from "@vibaar/ui/common/Button";
 import Section from "@vibaar/ui/common/Section";
 import { useFormik } from "formik";
@@ -151,9 +151,8 @@ const Page = () => {
     <PageShell
       header={
         <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="Edit Profile"
+          onBack={() => router.back()}
+          title="Edit Profile"
         />
       }
       footerAction={

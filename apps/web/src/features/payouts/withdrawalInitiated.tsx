@@ -2,7 +2,7 @@
 "use client";
 
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Section from "@vibaar/ui/common/Section";
 import Button from "@vibaar/ui/common/Button";
 
@@ -23,7 +23,7 @@ export default function WithdrawalInitiated({
   return (
     <PageShell
       header={
-        <Header showBack onBackClick={() => action("withdraw")} />
+        <Header onBack={() => action("withdraw")} />
       }
       footerAction={
         <Button onClick={() => action("details")}>View details</Button>

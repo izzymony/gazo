@@ -1,5 +1,11 @@
+"use client";
+
 import Link from "next/link";
-import Header from "@/design-system/common/Header";
+import { useState } from "react";
+import Header from "@vibaar/ui/common/Header";
+import IconButton from "@vibaar/ui/common/IconButton";
+import { CiSearch } from "@vibaar/ui/icons";
+import SearchInput from "@/features/storefront/SearchInput";
 import Footer from "@vibaar/ui/common/Footer";
 import Button from "@vibaar/ui/common/Button";
 import { MainLayoutProps } from "@/lib/types";
@@ -26,10 +32,40 @@ export default function MainLayout({
   afterButtonContent,
   addSpace = false,
 }: MainLayoutProps) {
+  // The search term used to live inside Header itself, which is why Header —
+  // a design-system component — imported an app feature. The state belongs
+  // with the composition that needs it, not in the shared primitive.
+  const [searchTerm, setSearchTerm] = useState("");
   return (
     <>
-      {/* Conditionally render Header */}
-      {headerProps && <Header {...headerProps} />}
+      {/* The one caller (shop/spotlights) toggles the title out for a search
+          field. That behaviour is composed here from Header's slots rather than
+          living behind showSearch/showInput flags inside Header. */}
+      {headerProps && (
+        <Header
+          onBack={headerProps.showBack ? headerProps.onBackClick : undefined}
+          leading={
+            headerProps.showInput ? (
+              <SearchInput
+                showArrow
+                onBackClick={headerProps.handleSearchClick}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+              />
+            ) : undefined
+          }
+          title={headerProps.showInput ? undefined : headerProps.customText}
+          trailing={
+            headerProps.showSearch ? (
+              <IconButton
+                icon={CiSearch}
+                label="Search"
+                onClick={headerProps.handleSearchClick}
+              />
+            ) : undefined
+          }
+        />
+      )}
       <div
         className={
           headerProps

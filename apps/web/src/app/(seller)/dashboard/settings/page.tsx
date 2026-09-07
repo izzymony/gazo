@@ -1,7 +1,9 @@
 "use client";
 import Selling from "@/features/seller-dashboard/selling";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
+import IconButton from "@vibaar/ui/common/IconButton";
+import { Menu } from "@vibaar/ui/icons";
 import ModeSwitch from "@/design-system/common/ModeSwitch";
 
 const Page = () => {
@@ -9,9 +11,8 @@ const Page = () => {
     <PageShell
       header={
         <Header
-          showMenu
-          isMenu
-          customText="Settings"
+          title="Settings"
+          trailing={<IconButton icon={Menu} label="Menu" />}
         />
       }>
       <Selling />

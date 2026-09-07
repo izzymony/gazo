@@ -5,7 +5,7 @@
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Section from "@vibaar/ui/common/Section";
 import Button from "@vibaar/ui/common/Button";
 
@@ -79,7 +79,10 @@ export default function Confirm({
   return (
     <PageShell
       header={
-        <Header showBack onBackClick={goBack} customText="Confirm Withdraw" />
+        <Header
+          onBack={goBack}
+          title="Confirm Withdraw"
+        />
       }
       footerAction={<Button onClick={handleConfirm}>Confirm</Button>}>
       <Section>

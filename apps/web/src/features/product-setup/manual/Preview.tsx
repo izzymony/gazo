@@ -5,7 +5,7 @@ import DisclosureButton from "@vibaar/ui/common/DisclosureButton";
 import Button from "@vibaar/ui/common/Button";
 import ShareModal from "@vibaar/ui/common/ShareModal";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import SelectVariants from "@/design-system/VariantSelector";
 import ImageCarousel from "@/features/storefront/carousel";
 import { Variation } from "@/lib/types";
@@ -135,9 +135,8 @@ export default function ProductsPreview({
     <PageShell
       header={
         <Header
-          showBack
-          customText="Product Preview"
-          onBackClick={() => setIsPreviewOpen(false)}
+          onBack={() => setIsPreviewOpen(false)}
+          title="Product Preview"
         />
       }
       contentClassName="px-0"
