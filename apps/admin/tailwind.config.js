@@ -2,9 +2,13 @@
 module.exports = {
   darkMode: ["class"],
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    // ONE glob for the whole source tree rather than a list of the directories
+    // that happen to hold components. In web, the enumerated form silently
+    // purged the address picker's hover states because `src/hooks` was never
+    // listed. Nothing catches that — tsc, lint and the build all pass and the
+    // classes are simply absent. `./src/pages` here has not existed since the
+    // App Router move.
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     container: {

@@ -6,13 +6,14 @@ import type { Config } from "tailwindcss";
 const config: Config = {
   presets: [require("@vibaar/design-tokens/preset")],
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-    // W4.6: components moved into features/ and design-system/ — Tailwind must
-    // scan these or their utility classes get purged (unstyled UI).
-    "./src/features/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/design-system/**/*.{js,ts,jsx,tsx,mdx}",
+    // ONE glob for the whole app source, deliberately not a list of the
+    // directories that happen to hold components today. The enumerated form
+    // silently purged CSS twice: `./src/pages` had not existed since the App
+    // Router move, while `./src/hooks` was never listed — so the address
+    // picker's hover and active states (LocationModalImpl, used on both the
+    // seller and buyer shipping flows) emitted no CSS at all. Nothing catches
+    // that: tsc, lint and the build all pass, the classes are simply absent.
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
     // @vibaar/ui primitives live outside this app — scan them or their utility
     // classes get purged (unstyled UI). Kept in sync as the design-system moves.
     "../../packages/ui/src/**/*.{js,ts,jsx,tsx,mdx}",

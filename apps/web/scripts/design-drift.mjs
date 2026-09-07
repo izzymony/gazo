@@ -104,6 +104,51 @@ function tailwindValidator() {
 }
 
 /**
+ * Every source file that writes a className must be reachable by a Tailwind
+ * `content` glob, or its classes are purged and simply never render.
+ *
+ * This is invisible to every other gate: tsc, lint and the build all pass, and
+ * the utility is absent from the stylesheet. It has bitten twice — `./src/pages`
+ * outlived the App Router move, and `./src/hooks` was never listed at all, so
+ * the address picker's hover and active states emitted no CSS on both the
+ * seller and buyer shipping flows.
+ *
+ * Reports directories holding className strings that no glob covers, and globs
+ * whose base directory no longer exists (the stale entry that hides the gap).
+ */
+function contentCoverage() {
+  const config = require_("tailwindcss/resolveConfig")(
+    require_("tailwindcss/lib/lib/load-config").loadConfig(join(APP_ROOT, "tailwind.config.ts"))
+  );
+  const globs = (Array.isArray(config.content) ? config.content : config.content?.files) ?? [];
+
+  const staleGlobs = [];
+  const globDirs = [];
+  for (const glob of globs) {
+    if (typeof glob !== "string") continue;
+    const base = glob.split("*")[0].replace(/\/+$/, "");
+    const abs = base.startsWith("/") ? base : join(APP_ROOT, base);
+    if (!existsSync(abs)) staleGlobs.push(glob);
+    else globDirs.push(abs);
+  }
+
+  // Directories under src/ that hold a className but sit under no glob.
+  const uncovered = new Set();
+  for (const file of sourceFiles(join(APP_ROOT, "src"))) {
+    if (!globDirs.some((dir) => file.startsWith(dir + "/"))) {
+      let src = "";
+      try {
+        src = readFileSync(file, "utf8");
+      } catch {
+        continue;
+      }
+      if (/className\s*=/.test(src)) uncovered.add(relative(APP_ROOT, dirname(file)));
+    }
+  }
+  return { staleGlobs, uncoveredDirs: [...uncovered].sort() };
+}
+
+/**
  * Class names defined by hand in the app's own CSS (globals.css,
  * responsive-utils.css, vendor themes). These are real classes that Tailwind
  * knows nothing about, so they must not be reported as unknown utilities.
@@ -408,6 +453,7 @@ for (const f of allFindings) counts[f.category][f.bucket]++;
 const adoption = componentAdoption();
 const orphans = [...adoption.entries()].filter(([, importers]) => importers.size === 0).map(([k]) => k);
 const duplicates = duplicateClassStrings(perFileStrings);
+const coverage = contentCoverage();
 
 /**
  * Per-finding fingerprints. Category totals alone let a NEW violation hide
@@ -429,6 +475,7 @@ const report = {
     .filter((f) => f.category === "unknown-utility")
     .map((f) => `${f.file}:${f.line}  ${f.detail}`),
   orphanComponents: orphans,
+  contentCoverage: coverage,
   componentAdoption: [...adoption.entries()]
     .map(([component, importers]) => {
       const productionImporters = [...importers].sort();
@@ -463,6 +510,11 @@ if (unknown.length) {
   console.log(`\n  DEAD CLASSES — these emit no CSS at all (${unknown.length}):`);
   for (const u of unknown.slice(0, 30)) console.log(`    ${u}`);
   if (unknown.length > 30) console.log(`    …and ${unknown.length - 30} more`);
+}
+if (coverage.staleGlobs.length || coverage.uncoveredDirs.length) {
+  console.log("\n  TAILWIND CONTENT COVERAGE — classes here are purged and never render:");
+  for (const dir of coverage.uncoveredDirs) console.log(`    uncovered  ${dir}`);
+  for (const glob of coverage.staleGlobs) console.log(`    stale glob ${glob}  (base directory does not exist)`);
 }
 if (orphans.length) console.log(`\n  Never-imported @vibaar/ui components: ${orphans.join(", ")}`);
 if (duplicates.length)
