@@ -16,6 +16,7 @@ import useBusinessStore, { BusinessProduct } from "@/store/businessStore";
 import { productPath } from "@/lib/urlHelpers";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { useRoutePrefetch } from "@/hooks/useRoutePrefetch";
+import Spinner from "@vibaar/ui/common/Spinner";
 
 export const truncateTextByLength = (
   text: string | undefined,
@@ -249,7 +250,7 @@ const AllProducts = ({
           ref={sentinelRef}
           className="flex h-12 w-full items-center justify-center">
           {productsLoadingMore && (
-            <span className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-transparent" />
+            <Spinner className="text-foreground-muted" />
           )}
         </div>
       )}

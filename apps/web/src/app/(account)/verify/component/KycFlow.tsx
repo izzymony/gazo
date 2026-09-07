@@ -20,6 +20,7 @@ import {
   Shield,
   User,
 } from "@vibaar/ui/icons";
+import Loader from "@vibaar/ui/common/Loader";
 
 const ID_TYPES = [
   { value: "nin", label: "NIN slip", sub: "National Identification Number", Icon: IdentityCard },
@@ -108,9 +109,7 @@ export default function KycFlow() {
   // ---- loading ----
   if (!ready) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-outline-strong border-t-brand" />
-      </div>
+      <Loader />
     );
   }
 

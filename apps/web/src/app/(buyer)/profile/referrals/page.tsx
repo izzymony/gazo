@@ -19,6 +19,7 @@ import {
   CircleCheck,
   FaStar,
 } from "@vibaar/ui/icons";
+import Loader from "@vibaar/ui/common/Loader";
 
 export default function ReferralsPage() {
   const router = useRouter();
@@ -127,9 +128,7 @@ Enter "${username}" in the Referral ID field when signing up.`;
   if (isLoading) {
     return (
       <PageShell header={referralHeader}>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brandDeep"></div>
-        </div>
+        <Loader variant="inline" className="h-64" />
       </PageShell>
     );
   }

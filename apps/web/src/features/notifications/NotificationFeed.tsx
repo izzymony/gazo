@@ -16,6 +16,7 @@ import {
 } from "@/hooks/useNotifications";
 import { iconFor, formatTime } from "@/features/notifications/notificationDisplay";
 import List from "@vibaar/ui/common/List";
+import Loader from "@vibaar/ui/common/Loader";
 
 // Side-appropriate filter pills. Notification.Type is coarse (order / promo /
 // system_alert), so each side maps those three to labels that fit that mode.
@@ -116,10 +117,7 @@ export default function NotificationFeed({ side }: { side: "buyer" | "seller" })
               </EmptyState>
             </div>
           ) : isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-error-foreground" />
-              <p className="ml-3 text-foreground-secondary">Loading...</p>
-            </div>
+            <Loader variant="inline" text="Loading..." className="py-12" />
           ) : (
             <div className="flex flex-col mt-2 pb-24">
               {filtered.length > 0 ? (

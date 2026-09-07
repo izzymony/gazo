@@ -56,6 +56,7 @@ const entries = [
   ["common/RadioGroup", "component", "stable"],
   ["common/SearchField", "component", "stable"],
   ["common/Section", "primitive", "stable"],
+  ["common/Spinner", "primitive", "stable"],
   ["common/ShareModal", "pattern"],
   ["common/StepNavigation", "component", "stable"],
   ["common/StoreLogo", "component", "stable"],

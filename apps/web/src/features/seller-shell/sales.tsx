@@ -340,10 +340,7 @@ export default function SalesBody({ action }: { action: () => void }) {
         />
         <div className="flex flex-col">
           {activitiesLoading ? (
-            <div className="flex items-center justify-center py-4">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-error-foreground"></div>
-              <p className="ml-3 text-foreground-secondary text-body-sm">Loading activities...</p>
-            </div>
+            <Loader variant="inline" text="Loading activities..." className="py-4" />
           ) : activities.length > 0 ? (
             <List label="Recent activities" className="divide-y-0">
               {activities.map((n) => (

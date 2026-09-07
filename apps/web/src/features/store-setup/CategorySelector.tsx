@@ -6,6 +6,7 @@ import Dialog from "@vibaar/ui/common/Dialog";
 import { BiChevronDown, X } from "@vibaar/ui/icons";
 import { categories as productCategories, storeCategories, getCategoryEmoji } from "@/lib/category";
 import { useCategories } from "@/hooks/useCategories";
+import Loader from "@vibaar/ui/common/Loader";
 
 interface CategorySelectorProps {
   mode: 'store' | 'product';
@@ -192,10 +193,7 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
             
             {/* Loading state */}
             {mode === 'product' && categoriesLoading && (
-              <div className="p-4 text-center">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-outline-contrast mx-auto"></div>
-                <p className="text-foreground-muted mt-2">Loading categories...</p>
-              </div>
+              <Loader variant="inline" text="Loading categories..." className="p-4" />
             )}
             
             {/* Error state */}
