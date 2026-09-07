@@ -36,11 +36,11 @@ export default function ProductCTA({
     <div className="z-30 absolute bottom-0 pb-2 lg:pb-6 bg-surface w-full px-2.5 md:px-6 lg:px-8 border-t pt-2.5 lg:pt-6 flex gap-2 items-center lg:max-w-5xl lg:left-1/2 lg:-translate-x-1/2">
       {isSeller ? (
         <div className="flex justify-center gap-4 w-full">
-          <Button onClick={onEdit} variant="bordered" className="!mt-2 my-5 ">
+          <Button onClick={onEdit} variant="bordered" className="mt-2 my-5">
             Edit Product
           </Button>
 
-          <Button onClick={onShare} variant="filled" className=" !mt-2 my-5 ">
+          <Button onClick={onShare} variant="filled" className="mt-2 my-5">
             <PiShareFatThin className="text-h2 fill-[white]" />
             Share Product
           </Button>
@@ -70,7 +70,7 @@ export default function ProductCTA({
           <Button
             onClick={onBuyNow}
             disabled={isOutOfStock}
-            className="!m-0 !mx-auto">
+            className="m-0 mx-auto">
             {isOutOfStock ? "Out of stock" : "Buy now"}
           </Button>
 

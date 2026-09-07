@@ -316,7 +316,7 @@ export default function ProductsPreview({
         <Accordion
           title="Product description"
           initiallyOpen={true}
-          className="!px-[20px]">
+          className="px-5">
           <div className="pb-2 rounded-card">
             <p className="text-body-sm font-normal text-foreground-secondary line-clamp-3">
               {truncatedDescription}
@@ -352,7 +352,7 @@ export default function ProductsPreview({
         <Accordion
           title="About this vendor"
           initiallyOpen={true}
-          className="!px-[20px]">
+          className="px-5">
           <div className=" pb-2 rounded-card">
             <div className="flex items-center mt-2">
               <Image

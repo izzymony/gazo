@@ -111,7 +111,7 @@ export default function NotificationFeed({ side }: { side: "buyer" | "seller" })
                 title="Sign in to see your notifications"
                 subtitle="Your orders, payments and updates appear here once you sign in."
               >
-                <div className="mt-6 w-full max-w-[220px]">
+                <div className="w-full max-w-[220px]">
                   <Button onClick={() => router.push("/signin")}>Sign in</Button>
                 </div>
               </EmptyState>

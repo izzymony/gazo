@@ -64,7 +64,7 @@ export default function MainLayout({
                       <Button
                         type={buttonType}
                         loading={isButtonLoading}
-                        // className="!mt-0"
+                        // className="mt-0"
                         onClick={() => onClickBtn?.()}>
                         {buttonText}
                       </Button>
@@ -145,7 +145,7 @@ export default function MainLayout({
                       <Button
                         type={buttonType}
                         loading={isButtonLoading}
-                        // className="!mt-0"
+                        // className="mt-0"
                         onClick={() => onClickBtn?.()}>
                         {buttonText}
                       </Button>

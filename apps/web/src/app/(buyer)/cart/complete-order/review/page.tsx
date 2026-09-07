@@ -669,7 +669,7 @@ const ReviewOrder = () => {
                     setLoading(true);
                     router.push("/cart/shipping-profile");
                   }}
-                  className="text-body-sm !px-5 !py-1 !w-full !mt-3">
+                  className="text-body-sm px-5 py-1 w-full mt-3">
                   Change Shipping Details
                 </Button>
               </div>

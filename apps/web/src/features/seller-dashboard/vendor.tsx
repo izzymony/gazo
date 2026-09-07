@@ -100,7 +100,8 @@ const Vendor = () => {
             variant="bordered"
             type="button"
             onClick={() => router.push("/shop")}
-            className="text-body-sm !px-5 py-1 !w-[max-content]">
+            size="sm"
+            fullWidth={false}>
             Explore vendors
           </Button>
         </EmptyState>
@@ -121,7 +122,7 @@ const Vendor = () => {
                 return (
                   <div
                     key={store.business}
-                    className="mb-4 p-2 rounded-field shadow-md !bg-cover !bg-no-repeat border border-outline"
+                    className="mb-4 p-2 rounded-field shadow-md bg-cover bg-no-repeat border border-outline"
                     style={{
                       backgroundSize: "cover",
                       backgroundRepeat: "no-repeat !important",

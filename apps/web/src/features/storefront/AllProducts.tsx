@@ -161,7 +161,7 @@ const AllProducts = ({
             <Button
               variant="filled"
               onClick={() => router.push("/dashboard/catalog/product/create")}
-              className="max-w-[max-content] !mt-2">
+              className="max-w-max mt-2">
               <FaPlus className="mr-2" />
               {isNewStore ? "Add first product" : "Add a product to store"}
             </Button>

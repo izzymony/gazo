@@ -27,7 +27,7 @@ export function ProductDescription({
     <Accordion
       title="Product description"
       initiallyOpen={true}
-      className="!px-[20px] lg:!px-0"
+      className="px-5 lg:px-0"
     >
       <div className="pb-2 rounded-lg">
         <p className="text-body-sm font-normal text-foreground-secondary line-clamp-3">
@@ -65,7 +65,7 @@ export function ProductVendorInfo({
     <Accordion
       title="About this vendor"
       initiallyOpen={true}
-      className="!px-[20px] lg:!px-0"
+      className="px-5 lg:px-0"
     >
       <div className=" pb-2 rounded-lg">
         <div className="flex items-center mt-2">

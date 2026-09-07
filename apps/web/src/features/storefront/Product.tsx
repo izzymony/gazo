@@ -800,7 +800,7 @@ const Product = ({
           <Accordion
             title="Ratings & Reviews"
             initiallyOpen={true}
-            className="!px-[20px] lg:!px-0 pb-24 lg:pb-4">
+            className="px-5 lg:px-0 pb-24 lg:pb-4">
             {product?.product_rating && product.product_rating.length > 0 ? (
               product.product_rating.map((item: any, index: number) => (
                 <Rating

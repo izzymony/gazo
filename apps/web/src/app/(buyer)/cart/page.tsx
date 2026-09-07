@@ -348,7 +348,8 @@ const Page = () => {
             variant="bordered"
             type="button"
             onClick={() => router.push("/shop")}
-            className="text-body-sm !px-5 py-1 !w-[max-content]">
+            size="sm"
+            fullWidth={false}>
             Explore vendors
           </Button>
         </EmptyState>

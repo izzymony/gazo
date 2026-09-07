@@ -644,7 +644,7 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     <Button
                         variant="bordered"
                         onClick={() => router.back()}
-                        className="flex-1 !mt-0">
+                        className="flex-1 mt-0">
                         Cancel
                     </Button>
                     <Button
@@ -660,7 +660,7 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                             formik.handleSubmit();
                         }}
                         loading={isLoading}
-                        className="flex-1 !mt-0"
+                        className="flex-1 mt-0"
                         type="button">
                         {isLoading ? "Updating..." : "Update Product"}
                     </Button>

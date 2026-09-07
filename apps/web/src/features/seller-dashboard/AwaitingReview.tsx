@@ -27,7 +27,8 @@ const AwaitingReview = () => {
     onClick={handleExploreVendors} 
     loading={isNavigatingToVendors}
     loadingText="Loading vendors..."
-    className="text-body-sm !px-5 py-1 !w-[max-content]"
+    size="sm"
+            fullWidth={false}
   >
     Explore vendors
   </Button>
