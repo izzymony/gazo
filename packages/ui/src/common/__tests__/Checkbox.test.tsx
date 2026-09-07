@@ -5,7 +5,6 @@ import Accordion from "../Accordion";
 import Loader from "../Loader";
 import DetailRow from "../DetailRow";
 import DetailList from "../DetailList";
-import ComingSoonPill from "../ComingSoonPill";
 import StoreStatusBadge from "../StoreStatusBadge";
 import VerifiedCheck from "../VerifiedCheck";
 
@@ -87,10 +86,6 @@ describe("Badges", () => {
     expect(screen.getByLabelText("Verified")).toBeInTheDocument();
   });
 
-  it("ComingSoonPill states its own label", () => {
-    render(<ComingSoonPill />);
-    expect(screen.getByText("Soon")).toBeInTheDocument();
-  });
 
   it("StoreStatusBadge does not rely on colour alone", () => {
     render(<StoreStatusBadge isActive />);

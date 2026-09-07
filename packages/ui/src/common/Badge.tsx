@@ -124,8 +124,8 @@ const TONE: Record<BadgeTone, { soft: string; solid: string; plain: string; dot:
 
 /** `chip` covers both container variants (soft and solid share their metrics). */
 const SIZE: Record<BadgeSize, { chip: string; plain: string; dot: string }> = {
-  sm: { chip: "text-caption px-2 py-[1px]", plain: "text-caption", dot: "w-1.5 h-1.5" },
-  md: { chip: "text-body-sm px-2.5 py-0.5", plain: "text-body-sm", dot: "w-2 h-2" },
+  sm: { chip: "text-caption px-2 py-[1px]", plain: "text-caption", dot: "w-2 h-2" },
+  md: { chip: "text-body-sm px-2.5 py-0.5", plain: "text-body-sm", dot: "w-2.5 h-2.5" },
 };
 
 export interface BadgeProps {
@@ -182,8 +182,11 @@ export default function Badge({
   return (
     <span
       className={cn(
-        "inline-flex w-fit items-center whitespace-nowrap leading-none",
-        (dot || icon) && "gap-1",
+        // gap is unconditional: it only acts between children, so it is a
+        // no-op on a text-only badge and the spacing for a dot, an icon, or
+        // a trailing node (the TrendIndicator arrow) without the caller
+        // knowing which slot it landed in.
+        "inline-flex w-fit items-center gap-1 whitespace-nowrap leading-none",
         variant === "soft" && cn("rounded-pill border border-solid", toneStyles.soft, sizeStyles.chip),
         variant === "solid" && cn("rounded-pill font-medium", toneStyles.solid, sizeStyles.chip),
         variant === "plain" && cn(toneStyles.plain, sizeStyles.plain),

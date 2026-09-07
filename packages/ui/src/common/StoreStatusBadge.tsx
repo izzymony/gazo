@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@vibaar/utils";
 import Badge from "./Badge";
 
 interface StoreStatusBadgeProps {
@@ -20,7 +21,9 @@ const StoreStatusBadge = ({ isActive = true, className = "" }: StoreStatusBadgeP
     tone={isActive ? "success" : "neutral"}
     variant="plain"
     dot
-    className={className}>
+    // The shipped label was medium weight; Badge's plain variant is
+    // weightless by design, so the preset states it.
+    className={cn("font-medium", className)}>
     {isActive ? "Live" : "Inactive"}
   </Badge>
 );

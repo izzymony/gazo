@@ -30,7 +30,6 @@ const entries = [
   ["common/Button", "primitive", "stable"],
   ["common/Surface", "primitive", "stable"],
   ["common/Checkbox", "primitive", "stable"],
-  ["common/ComingSoonPill", "component", "stable"],
   ["common/DetailList", "component", "stable"],
   ["common/DetailRow", "component", "stable"],
   ["common/Dialog", "component", "stable"],

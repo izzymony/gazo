@@ -1,7 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import Badge from "../Badge";
 import StoreStatusBadge from "../StoreStatusBadge";
-import ComingSoonPill from "../ComingSoonPill";
 
 describe("Badge", () => {
   it("renders its label", () => {
@@ -81,6 +80,27 @@ describe("Badge", () => {
     });
   });
 
+  describe("layout", () => {
+    // Regression: gap was conditional on dot/icon, so a trailing child — the
+    // trend arrow — touched its label. gap only acts between children, so it
+    // costs nothing on a text-only badge and must always be present.
+    it("spaces a trailing child from the label without being told about it", () => {
+      render(
+        <Badge tone="success" variant="plain">
+          12%
+          <svg data-testid="arrow" />
+        </Badge>
+      );
+      expect(screen.getByTestId("arrow").parentElement).toHaveClass("gap-1");
+    });
+
+    it("keeps the sm dot at 8px — the size StoreStatusBadge shipped with", () => {
+      render(<Badge tone="success" dot>Live</Badge>);
+      const dot = screen.getByText("Live").querySelector("[aria-hidden='true']");
+      expect(dot).toHaveClass("w-2", "h-2");
+    });
+  });
+
   describe("presets stay thin", () => {
     it("StoreStatusBadge maps live/inactive onto tones, not its own colours", () => {
       const { rerender } = render(<StoreStatusBadge isActive />);
@@ -89,11 +109,9 @@ describe("Badge", () => {
       expect(screen.getByText("Inactive")).toHaveClass("text-foreground-secondary");
     });
 
-    it("ComingSoonPill defaults to Soon but no longer hardcodes it", () => {
-      const { rerender } = render(<ComingSoonPill />);
-      expect(screen.getByText("Soon")).toHaveClass("bg-info-surface");
-      rerender(<ComingSoonPill>Coming soon</ComingSoonPill>);
-      expect(screen.getByText("Coming soon")).toBeInTheDocument();
+    it("StoreStatusBadge keeps its medium weight — plain badges are weightless by design", () => {
+      render(<StoreStatusBadge isActive />);
+      expect(screen.getByText("Live")).toHaveClass("font-medium");
     });
   });
 });
