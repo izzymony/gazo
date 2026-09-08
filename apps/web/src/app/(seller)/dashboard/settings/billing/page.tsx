@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
 import React from 'react'
-import { BsThreeDots, MdOutlineAddCard } from "@vibaar/ui/icons";
+import { MdOutlineAddCard } from "@vibaar/ui/icons";
 import { useRouter } from 'next/navigation';
 import PageShell from '@vibaar/ui/PageShell'
 import Header from "@vibaar/ui/common/Header";
@@ -48,7 +48,6 @@ const Billing = () => {
                         </div>
                     </div>
 
-                    <BsThreeDots className='cursor-pointer' />
                 </Surface>
                 <Surface className="flex justify-between items-center">
                     <div className="flex flex-col">
@@ -62,7 +61,6 @@ const Billing = () => {
                         </div>
                     </div>
 
-                    <BsThreeDots className='cursor-pointer' />
                 </Surface>
                 <div className="flex justify-end">
                     <p

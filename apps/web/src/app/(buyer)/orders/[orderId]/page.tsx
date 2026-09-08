@@ -34,6 +34,7 @@ import { formatTimeAgos, formatTimestamp } from "@/lib/converter";
 import { OrderDatas } from "@/lib/order";
 import { ProductData } from "@/lib/types";
 import Badge from "@vibaar/ui/common/Badge";
+import { supportWhatsAppUrl } from "@/lib/support";
 
 const ActivityTop = ({ title, date }: { title: string; date: string }) => {
   return (
@@ -414,7 +415,16 @@ const Order = () => {
           <Header
             onBack={() => router.push("/orders")}
             title={`Order #${newOrder?.order?.invoice}`}
-            trailing={<Emergency />}
+            trailing={
+              <a
+                href={supportWhatsAppUrl(`Hi, I need help with order #${newOrder?.order?.invoice ?? ""}`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Get help with this order"
+                className="inline-flex items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40">
+                <Emergency />
+              </a>
+            }
           />
         }>
         <div className="h-full w-full">

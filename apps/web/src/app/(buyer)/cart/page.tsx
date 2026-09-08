@@ -4,7 +4,6 @@
 import React, { useEffect, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@vibaar/ui/common/Header";
-import { BsThreeDotsVertical } from "@vibaar/ui/icons";
 import { useRouter } from "next/navigation";
 import useOrderStore from "@/store/orderStore";
 import { formatCurrency } from "@/lib/utils";
@@ -454,7 +453,6 @@ const Page = () => {
         <Header
           onBack={() => router.back()}
           title="Cart and Orders"
-          trailing={<IconButton icon={BsThreeDotsVertical} label="Menu" />}
         />
       }
       footerAction={

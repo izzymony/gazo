@@ -239,7 +239,7 @@ export default function WalletBody({ action }: { action: () => void }) {
             },
           ].map((_, index) => (
             <div
-              className="cursor-pointer rounded-field bg-surface-subtle p-3 flex-1 items-center gap-2"
+              className="rounded-field bg-surface-subtle p-3 flex-1 items-center gap-2"
               key={index}>
               <p className="flex items-center text-foreground-primary font-medium text-caption w-[90%] ">
                 {_.title}

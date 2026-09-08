@@ -12,6 +12,7 @@ import {
   IconProps,
 } from "@vibaar/ui/icons";
 import Spinner from "@vibaar/ui/common/Spinner";
+import { supportWhatsAppUrl } from "@/lib/support";
 
 type NavLink = {
   Icon: React.ComponentType<IconProps>;
@@ -122,10 +123,14 @@ export default function DesktopNav() {
         </button>
 
         {/* Help & Support Button */}
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-field hover:bg-surface-muted text-foreground-secondary transition-colors">
+        <a
+          href={supportWhatsAppUrl()}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-field hover:bg-surface-muted text-foreground-secondary transition-colors">
           <HelpSquare size={20} />
           <span className="text-body font-medium">Help &amp; Support</span>
-        </button>
+        </a>
       </div>
     </nav>
   );

@@ -3,9 +3,7 @@
 import React, { useEffect, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@vibaar/ui/common/Header";
-import IconButton from "@vibaar/ui/common/IconButton";
 import StepNavigation from "@vibaar/ui/common/StepNavigation";
-import { BsThreeDotsVertical } from "@vibaar/ui/icons";
 import VendorNav from "@/features/storefront/VendorNav";
 import { FaStar, MdFavoriteBorder } from "@vibaar/ui/icons";
 import { useParams, useRouter } from "next/navigation";
@@ -99,7 +97,6 @@ const OrderConfirmed = () => {
         <Header
           onBack={() => router.back()}
           title="Complete order"
-          trailing={<IconButton icon={BsThreeDotsVertical} label="Menu" />}
           progress={<StepNavigation step={2} totalSteps={2} />}
         />
       }>

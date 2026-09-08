@@ -4,7 +4,6 @@ import useBusinessStore from "@/store/businessStore";
 import useAuthStore from "@/store/authStore";
 import StoreLogo from "@vibaar/ui/common/StoreLogo";
 import { useRewardsInfo } from "@/hooks/useRewardsInfo";
-import { toast } from "sonner";
 import {
   ChevronRight,
   Store,
@@ -14,16 +13,14 @@ import {
   DeliveryTruck,
   Shield,
   Invoice,
-  Bell,
-  HelpSquare,
   BubbleChat,
-  Book,
   PrivacyLock,
   LegalDoc,
   Logout,
   Gift,
   FaStar,
 } from "@vibaar/ui/icons";
+import { supportWhatsAppUrl } from "@/lib/support";
 
 const Sellercard = ({
   text,
@@ -164,26 +161,9 @@ const Selling = () => {
             icon={<Invoice size={20} />}
           />
           <Sellercard
-            text="Notifications settings"
-            action={() =>
-              toast("Notification settings coming soon", { icon: "🔜" })
-            }
-            icon={<Bell size={20} />}
-          />
-          <Sellercard
-            text="FAQs"
-            action={() => toast("FAQs coming soon", { icon: "🔜" })}
-            icon={<HelpSquare size={20} />}
-          />
-          <Sellercard
             text="Contact Us"
-            action={() => toast("Contact Us coming soon", { icon: "🔜" })}
+            action={() => window.open(supportWhatsAppUrl(), "_blank", "noopener")}
             icon={<BubbleChat size={20} />}
-          />
-          <Sellercard
-            text="Visit our blog"
-            action={() => toast("Blog coming soon", { icon: "🔜" })}
-            icon={<Book size={20} />}
           />
           <Sellercard
             text="Privacy Policy"

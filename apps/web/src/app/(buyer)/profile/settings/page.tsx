@@ -28,8 +28,10 @@ const Security = () => {
           </div>
           <ChevronRight size={20} className="text-foreground-primary" />
         </Surface>
-        <Surface className="flex justify-between items-center">
-          <div className="flex gap-3 items-center cursor-pointer">
+        <Surface
+          className="flex justify-between items-center"
+          onClick={() => router.push("/notification")}>
+          <div className="flex gap-3 items-center">
             <Bell size={20} className="text-foreground-primary" />
             <p className="text-foreground-secondary text-body">Notifications</p>
           </div>

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import useChatStore, { Conversation } from "@/store/chatStore";
-import { Add, Send } from "@vibaar/ui/icons";
+import { Send } from "@vibaar/ui/icons";
 
 /**
  * Message input bar — mounted in PageShell.footerAction by the thread routes.
@@ -29,12 +29,6 @@ export default function ChatComposer({
 
   return (
     <div className="flex items-center gap-2 rounded-pill p-2 bg-surface-subtle">
-      <button
-        type="button"
-        aria-label="Add attachment"
-        className="text-foreground-primary flex-shrink-0">
-        <Add size={22} />
-      </button>
       <input
         type="text"
         value={draft}

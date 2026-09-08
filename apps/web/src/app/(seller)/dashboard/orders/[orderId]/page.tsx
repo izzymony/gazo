@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import OrderLineItem from "@/features/orders/OrderLineItem";
 import DetailRow from "@vibaar/ui/common/DetailRow";
@@ -32,6 +33,7 @@ import { OrderDatas } from "@/lib/order";
 import { formatTimeAgos, formatTimestamp } from "@/lib/converter";
 import { Client } from "@/lib/client";
 import UserProfileImage from "@vibaar/ui/common/UserProfileImage";
+import { supportWhatsAppUrl } from "@/lib/support";
 
 const ActivityTop = ({ title, date }: { title: string; date: string }) => {
   return (
@@ -172,11 +174,13 @@ const Cards = ({ order, buyerInfo }: { order: OrderDatas; buyerInfo?: {user_name
               {buyerInfo?.isGuest ? buyerInfo?.user_name : `@${buyerInfo?.user_name || "customer"}`}
             </p>
           </div>
-          <button
-            type="button"
-            className="border border-brandDeep text-brandDeep rounded-full py-1 px-2 text-caption font-medium">
+          {/* Chat has no "start a thread with this buyer" API yet, so this
+              opens the inbox, where the order's thread lives if one exists. */}
+          <Link
+            href="/dashboard/inbox"
+            className="border border-brandDeep text-brandDeep rounded-full py-1 px-2 text-caption font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40">
             Send a message
-          </button>
+          </Link>
         </div>
       </div>
     </div>
@@ -394,7 +398,16 @@ const Order = ({ params }: { params: { orderId: string } }) => {
         <Header
           onBack={() => router.push("/dashboard/orders")}
           title={`Order #${newOrder?.order?.invoice}`}
-          trailing={<Emergency />}
+          trailing={
+              <a
+                href={supportWhatsAppUrl(`Hi, I need help with order #${newOrder?.order?.invoice ?? ""}`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Get help with this order"
+                className="inline-flex items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40">
+                <Emergency />
+              </a>
+            }
         />
       }
       footerAction={

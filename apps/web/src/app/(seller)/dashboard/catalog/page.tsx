@@ -7,8 +7,6 @@ import Discount from "@/features/seller-dashboard/discount";
 import Link from "next/link";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@vibaar/ui/common/Header";
-import IconButton from "@vibaar/ui/common/IconButton";
-import { BsThreeDotsVertical } from "@vibaar/ui/icons";
 import Button from "@vibaar/ui/common/Button";
 import { SquareArrowUpRight, Plus } from "@vibaar/ui/icons";
 import Tabs from "@vibaar/ui/common/Tabs";
@@ -60,7 +58,6 @@ const Page = () => {
         header={
           <Header
             title="Catalog"
-            trailing={<IconButton icon={BsThreeDotsVertical} label="Menu" />}
           />
         }>
           <Tabs

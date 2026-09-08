@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import Header from "@vibaar/ui/common/Header";
 import IconButton from "@vibaar/ui/common/IconButton";
-import { ArrowLeft, MoreVertical } from "@vibaar/ui/icons";
+import { ArrowLeft } from "@vibaar/ui/icons";
 import { getMobileCompatibleImageUrl } from "@/lib/utils";
 import { ChatParticipant } from "@/store/chatStore";
 
@@ -50,7 +50,6 @@ export default function ChatThreadHeader({
           </span>
         </span>
       }
-      trailing={<IconButton icon={MoreVertical} label="Options" size="sm" />}
     />
   );
 }

@@ -7,7 +7,6 @@ import React, { ReactNode, useEffect, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@vibaar/ui/common/Header";
 import IconButton from "@vibaar/ui/common/IconButton";
-import { BsThreeDotsVertical } from "@vibaar/ui/icons";
 import Dialog from "@vibaar/ui/common/Dialog";
 import { useRouter } from "next/navigation";
 import StatusBadge from "@/features/orders/StatusBadge";
@@ -77,7 +76,7 @@ const ReviewIcon = ({
             fill={"rgb(var(--warning-foreground-rgb))"} // Dynamic fill color
             stroke={"rgb(var(--warning-foreground-rgb))"} // Dynamic stroke color
             strokeWidth={2}
-            className="w-[14px] h-[14px] cursor-pointer">
+            className="w-[14px] h-[14px]">
             <path
               d="M12 2.75l3.09 6.26 6.91 1-5 4.87 1.18 6.88L12 17.77l-6.18 3.25 1.18-6.88-5-4.87 6.91-1L12 2.75z"
               strokeLinejoin="round"
@@ -339,7 +338,6 @@ const Page = () => {
         <Header
           onBack={() => router.back()}
           title="Cart and Orders"
-          trailing={<IconButton icon={BsThreeDotsVertical} label="Menu" />}
         />
       }>
       <div className="w-full">

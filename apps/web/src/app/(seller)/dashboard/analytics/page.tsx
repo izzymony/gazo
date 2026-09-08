@@ -6,8 +6,6 @@ import Customer from "@/features/seller-dashboard/customers";
 // import Engagement from "@/features/seller-dashboard/engagement";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@vibaar/ui/common/Header";
-import IconButton from "@vibaar/ui/common/IconButton";
-import { BsThreeDotsVertical } from "@vibaar/ui/icons";
 import Tabs from "@vibaar/ui/common/Tabs";
 
 const Page = () => {
@@ -28,7 +26,6 @@ const Page = () => {
       header={
         <Header
           title="Analytics"
-          trailing={<IconButton icon={BsThreeDotsVertical} label="Menu" />}
         />
       }>
         <Tabs

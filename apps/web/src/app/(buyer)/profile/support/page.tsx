@@ -6,12 +6,11 @@ import Surface from "@vibaar/ui/common/Surface";
 import Section from "@vibaar/ui/common/Section";
 import {
   ChevronRight,
-  HelpSquare,
   BubbleChat,
-  Book,
   Globe,
 } from "@vibaar/ui/icons";
 import { useRouter } from "next/navigation";
+import { supportWhatsAppUrl } from "@/lib/support";
 
 const Security = () => {
   const router = useRouter();
@@ -24,33 +23,26 @@ const Security = () => {
         />
       }>
       <Section>
+        {/* The FAQs row used to route to /dashboard/settings/change-password —
+            a SELLER route, from the buyer side, labelled FAQs. No FAQ exists, so
+            the row is gone rather than sent somewhere wrong. */}
         <Surface
           className="flex justify-between items-center"
-          onClick={() => router.push(`/dashboard/settings/change-password`)}>
-          <div className="flex gap-2 items-center cursor-pointer">
-            <HelpSquare size={20} className="text-foreground-primary" />
-            <p className="text-foreground-secondary text-body">FAQs</p>
-          </div>
-          <ChevronRight size={20} className="text-foreground-primary" />
-        </Surface>
-        <Surface className="flex justify-between items-center">
-          <div className="flex gap-2 items-center cursor-pointer">
+          onClick={() => window.open(supportWhatsAppUrl(), "_blank", "noopener")}
+          ariaLabel="Contact us on WhatsApp">
+          <div className="flex gap-2 items-center">
             <BubbleChat size={20} className="text-foreground-primary" />
-            <p className="text-foreground-secondary text-body">Contact Us</p>
+            <p className="text-foreground-secondary text-body">Contact us on WhatsApp</p>
           </div>
           <ChevronRight size={20} className="text-foreground-primary" />
         </Surface>
-        <Surface className="flex justify-between items-center">
-          <div className="flex gap-2 items-center cursor-pointer">
-            <Book size={20} className="text-foreground-primary" />
-            <p className="text-foreground-secondary text-body">Visit our blog</p>
-          </div>
-          <ChevronRight size={20} className="text-foreground-primary" />
-        </Surface>
-        <Surface className="flex justify-between items-center">
-          <div className="flex gap-2 items-center cursor-pointer">
+        <Surface
+          className="flex justify-between items-center"
+          onClick={() => router.push("/")}
+          ariaLabel="Visit our website">
+          <div className="flex gap-2 items-center">
             <Globe size={20} className="text-foreground-primary" />
-            <p className="text-foreground-secondary text-body">Visit our Website</p>
+            <p className="text-foreground-secondary text-body">Visit our website</p>
           </div>
           <ChevronRight size={20} className="text-foreground-primary" />
         </Surface>
