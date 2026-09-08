@@ -9,7 +9,8 @@ import { PiShareFatThin } from "@vibaar/ui/icons";
 import StoreLogo from "@vibaar/ui/common/StoreLogo";
 import BackButton from "@vibaar/ui/common/header/BackButton";
 import KebabMenu from "@vibaar/ui/common/header/KebabMenu";
-import { getStoreColor, DEFAULT_PATTERN } from "@/lib/bannerUtils";
+import { bannerBackground } from "@/lib/bannerUtils";
+import BannerPattern from "@/features/storefront/BannerPattern";
 
 interface SmallHeaderProps {
   title: string | undefined;
@@ -55,37 +56,22 @@ const SmallHeader: React.FC<SmallHeaderProps> = ({
       className={`sticky top-0 w-full shadow-md p-2 z-sticky flex flex-col ${
         isSeller?.pro ? "" : "bg-surface"
       }`}
-      style={{
-        background: isSeller?.pro ? (
-          activeTheme.backgroundType === "color"
-            ? (activeTheme.backgroundColor || getStoreColor(title || store?.name || "Store"))
-            : (activeTheme.backgroundImage ? `url(${activeTheme.backgroundImage})` : getStoreColor(title || store?.name || "Store"))
-        ) : "white",
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "center",
-        backgroundSize: "cover",
-      }}
+      style={
+        isSeller?.pro
+          ? bannerBackground(activeTheme, title || store?.name)
+          : { background: "white" }
+      }
     >
-      {isSeller?.pro && activeTheme.backgroundType === "color" && (
-        <Image
-          src={activeTheme.pattern || DEFAULT_PATTERN}
-          alt="Pattern"
-          width={0}
-          height={0}
-          className="absolute inset-0 w-full h-full object-cover z-10"
-          style={{
-            opacity: 1, // Adjust as needed for visibility
-          }}
-        />
-      )}
+      {isSeller?.pro && <BannerPattern theme={activeTheme} />}
 
+      {/* Scrim, so white text reads over any seller colour or photo. Was a
+          raw #00000080 / #0000004D; `overlay` is the token for exactly this. */}
       {isSeller?.pro && (
         <div
-          className="absolute inset-0 z-20"
-          style={{
-            background:
-              activeTheme.backgroundType === "color" ? "#00000080" : "#0000004D",
-          }}></div>
+          className={`absolute inset-0 z-20 ${
+            activeTheme.backgroundType === "color" ? "bg-overlay/50" : "bg-overlay/30"
+          }`}
+        />
       )}
       <div className="w-full max-w-full lg:max-w-5xl lg:mx-auto z-[20]">
       <div className="flex items-center justify-between px-3 md:px-6 lg:px-8">

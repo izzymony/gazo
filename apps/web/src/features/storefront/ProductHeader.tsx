@@ -6,7 +6,8 @@ import useBusinessStore from "@/store/businessStore";
 import { useRouter } from "next/navigation";
 import StoreLogo from "@vibaar/ui/common/StoreLogo";
 import BackButton from "@vibaar/ui/common/header/BackButton";
-import { getStoreColor, DEFAULT_PATTERN } from "@/lib/bannerUtils";
+import { bannerBackground } from "@/lib/bannerUtils";
+import BannerPattern from "@/features/storefront/BannerPattern";
 
 interface SmallHeaderProps {
   logoSrc?: string;
@@ -41,36 +42,16 @@ const ProductHeader = ({ title, isSeller, logoSrc, vendorTheme }: SmallHeaderPro
         className={`absolute top-0 left-0 right-0 w-full max-w-full lg:max-w-5xl lg:mx-auto shadow-md p-2 pt-4 flex flex-col ${
           isSeller?.pro ? "h-[20vh] rounded-b-[20px]" : "bg-surface"
         }`}
-        style={{
-          background:
-            activeTheme.backgroundType === "color"
-              ? (activeTheme.backgroundColor || getStoreColor(title || "Store"))
-              : (activeTheme.backgroundImage ? `url(${activeTheme.backgroundImage})` : getStoreColor(title || "Store")),
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-        }}
+        style={bannerBackground(activeTheme, title)}
       >
-        {activeTheme.backgroundType === "color" && (
-          <Image
-            src={activeTheme.pattern || DEFAULT_PATTERN}
-            alt="Pattern"
-            width={0}
-            height={0}
-            className="absolute inset-0 w-[24px] h-[24px] object-cover z-10 rounded-b-[20px]"
-            style={{
-              opacity: 1, // Adjust as needed for visibility
-            }}
-          />
-        )}
+        <BannerPattern theme={activeTheme} className="w-[24px] h-[24px] rounded-b-[20px]" />
 
-        {/* Gradient Overlay */}
+        {/* Scrim, so white text reads over any seller colour or photo. */}
         <div
-          className="absolute inset-0 z-20 rounded-b-[20px]"
-          style={{
-            background:
-              activeTheme.backgroundType === "color" ? "#00000080" : "#0000004D",
-          }}></div>
+          className={`absolute inset-0 z-20 rounded-b-[20px] ${
+            activeTheme.backgroundType === "color" ? "bg-overlay/50" : "bg-overlay/30"
+          }`}
+        />
         <div className="w-full max-w-full lg:max-w-5xl lg:mx-auto z-[20]">
         <div className="flex items-center justify-between px-3 md:px-6 lg:px-8 z-[20]">
           <BackButton onClick={() => router.back()} maskId="mask0_7921_18564" />

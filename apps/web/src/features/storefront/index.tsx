@@ -26,6 +26,7 @@ import { Check, Copy, FaStar, Add } from "@vibaar/ui/icons";
 import IconButton from "@vibaar/ui/common/IconButton";
 import { getPublicProductUrl, getPublicStoreUrl } from "@/lib/shareUrls";
 import Badge from "@vibaar/ui/common/Badge";
+import { vendorThemeFrom } from "@/lib/bannerUtils";
 
 // Move shareOptions inside component to access businessProduct
 
@@ -381,12 +382,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
             isFollowed={isFollowed}
             isSeller={isSeller}
             vendorStore={currentStore}
-            vendorTheme={{
-              backgroundColor: currentStore?.business_setting?.personalised_settings?.background_color,
-              backgroundImage: currentStore?.business_setting?.personalised_settings?.background_image,
-              backgroundType: currentStore?.business_setting?.personalised_settings?.background_state || "color",
-              pattern: currentStore?.business_setting?.personalised_settings?.background_pattern
-            }}
+            vendorTheme={vendorThemeFrom(currentStore)}
             onFollowClick={() => {
               setIsFollowed(!isFollowed);
             }}

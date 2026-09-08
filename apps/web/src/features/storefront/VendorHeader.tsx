@@ -12,7 +12,8 @@ import StoreLogo from "@vibaar/ui/common/StoreLogo";
 import VerifiedCheck from "@vibaar/ui/common/VerifiedCheck";
 import ShareModal from "@vibaar/ui/common/ShareModal";
 import { getPublicStoreUrl } from "@/lib/shareUrls";
-import { getStoreColor, DEFAULT_PATTERN } from "@/lib/bannerUtils";
+import { bannerBackground, vendorThemeFrom } from "@/lib/bannerUtils";
+import BannerPattern from "@/features/storefront/BannerPattern";
 
 interface HeaderProp {
   label?: string;
@@ -41,12 +42,7 @@ function VendorHeader({ isSeller }: HeaderProp) {
 
   // Use ONLY vendor's actual theme data - DO NOT fall back to global theme
   // Global theme is for the logged-in seller's store, not for viewing other vendors
-  const vendorTheme = {
-    backgroundColor: store?.business_setting?.personalised_settings?.background_color,
-    backgroundImage: store?.business_setting?.personalised_settings?.background_image,
-    backgroundType: store?.business_setting?.personalised_settings?.background_state || "color",
-    pattern: store?.business_setting?.personalised_settings?.background_pattern
-  };
+  const vendorTheme = vendorThemeFrom(store);
   //(store);
   const { unfollowBusiness, followBusiness } = useAuthStore();
   //(id);
@@ -109,27 +105,8 @@ function VendorHeader({ isSeller }: HeaderProp) {
       {/* {isSeller?.pro ? ( */}
       <div
         className="relative pt-2 flex flex-col rounded-b-[20px] w-full"
-        style={{
-          background:
-            vendorTheme.backgroundType === "color"
-              ? (vendorTheme.backgroundColor || getStoreColor(store?.name || "Store"))
-              : (vendorTheme.backgroundImage ? `url(${vendorTheme.backgroundImage})` : getStoreColor(store?.name || "Store")),
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-        }}>
-        {vendorTheme.backgroundType === "color" && (
-          <Image
-            src={vendorTheme.pattern || DEFAULT_PATTERN}
-            alt="Pattern"
-            width={0}
-            height={0}
-            className="absolute inset-0 w-full h-full object-cover z-10  rounded-b-[20px]"
-            style={{
-              opacity: 1,
-            }}
-          />
-        )}
+        style={bannerBackground(vendorTheme, store?.name)}>
+        <BannerPattern theme={vendorTheme} className="rounded-b-[20px]" />
 
         {/* Gradient Overlay - darker at bottom for text contrast */}
         <div
