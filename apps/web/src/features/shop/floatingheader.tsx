@@ -1,3 +1,22 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+
+const TABS = ["Spotlights", "Shop"] as const;
+
+/**
+ * The Spotlights / Shop switcher that floats over the marketplace hero.
+ *
+ * Not a header despite the name — it is a two-option toggle, so it renders as
+ * a group of real buttons carrying `aria-pressed`. It was a pair of `<div
+ * onClick>`: not focusable, no role, and ignoring Enter and Space, so the
+ * marketplace could not be switched from the keyboard at all.
+ *
+ * Its `z-[999999999999999999px]` also did nothing. A length unit on an integer
+ * property is invalid, so browsers dropped the declaration and the element fell
+ * back to `z-index: auto` — and because the class DOES compile, the drift audit
+ * could not see it either. It stacks on the `sticky` token now.
+ */
 export default function FloatingHeader({
   show,
   setShow,
@@ -6,51 +25,22 @@ export default function FloatingHeader({
   setShow: (val: string) => void;
 }) {
   return (
-    <div className="w-full flex justify-center items-center gap-5 absolute right-0 left-0 z-[999999999999999999px]">
-      <div
-        onClick={() => setShow("Spotlights")}
-        className={
-          show === "Spotlights"
-            ? "px-1 pt-4 pb-2 border-b-2 border-b-black text-black text-center justify-center items-center"
-            : "px-1 pt-4 pb-2 hover:border-b-2 hover:border-b-black text-gray-300 hover:text-black text-center justify-center items-center"
-        }>
-        Spotlights
-      </div>
-      <div
-        onClick={() => setShow("Shop")}
-        className={
-          show === "Shop"
-            ? "px-1 pt-4 pb-2 border-b-2 border-b-black text-black text-center justify-center items-center"
-            : "px-1 pt-4 pb-2 hover:border-b-2 hover:border-b-black text-gray-300 hover:text-black text-center justify-center items-center"
-        }>
-        Shop
-      </div>
-    </div>
-  );
-}
-
-export function SegmentedTabs({
-  show,
-  setShow,
-  data,
-}: {
-  show: string;
-  setShow: (val: string) => void;
-  data: string[];
-}) {
-  return (
-    <div className="w-full flex justify-center items-center gap-5">
-      {data.map((its) => (
-        <div
-          key={its}
-          onClick={() => setShow(its)}
-          className={
-            show === its
-              ? "px-1 pt-4 pb-3 flex-1 border-b-2 border-b-black text-black text-center justify-center items-center"
-              : "px-1 pt-4 pb-3 flex-1 text-gray-300 text-center justify-center items-center"
-          }>
-          {its}
-        </div>
+    <div className="w-full flex justify-center items-center gap-5 absolute right-0 left-0 z-sticky">
+      {TABS.map((tab) => (
+        <button
+          key={tab}
+          type="button"
+          aria-pressed={show === tab}
+          onClick={() => setShow(tab)}
+          className={cn(
+            "px-1 pt-4 pb-2 text-center justify-center items-center border-b-2 transition-colors",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40",
+            show === tab
+              ? "border-b-outline-contrast text-foreground-primary"
+              : "border-b-transparent text-foreground-disabled hover:border-b-outline-contrast hover:text-foreground-primary"
+          )}>
+          {tab}
+        </button>
       ))}
     </div>
   );

@@ -1,14 +1,19 @@
+/* eslint-disable @next/next/no-img-element */
+import Header from "@vibaar/ui/common/Header";
 import IconButton from "@vibaar/ui/common/IconButton";
 import { ArrowLeft, MoreVertical } from "@vibaar/ui/icons";
 import { getMobileCompatibleImageUrl } from "@/lib/utils";
 import { ChatParticipant } from "@/store/chatStore";
 
-/* eslint-disable @next/next/no-img-element */
 /**
- * Self-positioning chat header for PageShell's `header` slot. It MUST carry the
- * same `absolute lg:sticky top-0 z-sticky` wrapper as the shared Header — the
- * shell offsets content by mt-16 expecting the header to position itself, so a
- * plain (non-positioned) node collides with that offset.
+ * Chat thread header = the shared `Header` preset for a conversation.
+ *
+ * It owns one decision — that a chat's title is a participant's avatar beside
+ * their name — and nothing about chrome. It used to reimplement the header
+ * outright, including a hand-copied positioning wrapper its own comment warned
+ * "MUST" stay in step with the shared one. It existed only because the old
+ * Header took `customText: string`, which cannot hold an avatar; now that the
+ * title slot takes a node, there is nothing left to fork.
  */
 export default function ChatThreadHeader({
   participant,
@@ -18,16 +23,19 @@ export default function ChatThreadHeader({
   onBack: () => void;
 }) {
   return (
-    <div className="absolute lg:sticky lg:top-0 bg-surface w-full flex flex-col z-sticky">
-      <div className="w-full lg:max-w-5xl lg:mx-auto pt-3 pb-0 px-4 lg:px-5">
-        <div className="flex flex-row items-center gap-2 bg-surface h-[36px]">
-          <IconButton
-            icon={ArrowLeft}
-            label="Back"
-            size="sm"
-            className="-ml-2"
-            onClick={onBack}
-          />
+    <Header
+      // The chat back control is the small arrow, not the header default.
+      leading={
+        <IconButton
+          icon={ArrowLeft}
+          label="Back"
+          size="sm"
+          className="-ml-2"
+          onClick={onBack}
+        />
+      }
+      title={
+        <span className="flex flex-1 min-w-0 items-center gap-2 ml-2">
           <img
             src={
               participant.avatar
@@ -37,12 +45,12 @@ export default function ChatThreadHeader({
             alt={participant.name}
             className="w-8 h-8 rounded-full object-cover flex-shrink-0"
           />
-          <p className="font-medium text-body-lg text-foreground-primary flex-1 min-w-0 truncate">
+          <span className="font-medium text-body-lg text-foreground-primary flex-1 min-w-0 truncate">
             {participant.name || "Vibaar user"}
-          </p>
-          <IconButton icon={MoreVertical} label="Options" size="sm" />
-        </div>
-      </div>
-    </div>
+          </span>
+        </span>
+      }
+      trailing={<IconButton icon={MoreVertical} label="Options" size="sm" />}
+    />
   );
 }
