@@ -42,11 +42,24 @@ const BUILD_OUTPUTS = [process.env.NEXT_DIST_DIR || ".next", ".open-next"];
 /** Directories inside a build output that are pure cache and safe to skip. */
 const SKIP_DIRS = new Set(["cache"]);
 /**
- * Path fragments that must never appear in build output. "(dev)" is the route
- * group; the segment name is matched separately so a rename of the leaf route
- * still trips the second needle.
+ * Path fragments that must never appear in build output.
+ *
+ * The playground: "(dev)" is the route group, and the segment name is matched
+ * separately so a rename of the leaf route still trips the second needle.
+ *
+ * Draft routes: a `page.draft.tsx` is only a route when `draft.tsx` is in
+ * `pageExtensions`, which next.config does in development and never in a
+ * production build. That is a config flag rather than a missing file, so it is
+ * one edit away from silently shipping — these needles make the build fail
+ * loudly instead. They are checked against the route manifests, which name
+ * every app route even when emitted filenames are hashed.
+ *
+ * The playground and the drafts differ in one important way: the playground is
+ * GITIGNORED and `assert-untracked` fails if it is ever committed, whereas
+ * drafts are TRACKED on purpose — they are planned work waiting to be picked
+ * up. Only the build-output rule applies to them.
  */
-const NEEDLES = ["(dev)", "local-design-system"];
+const NEEDLES = ["(dev)", "local-design-system", "shop/new", "features/shop/_draft"];
 const DEV_PORT = 3000;
 
 const say = (msg) => console.log(`[playground-guard] ${msg}`);
@@ -165,14 +178,24 @@ function assertBuildClean() {
   }
 
   if (hits.length) {
+    // Name the likely cause per kind, because the two have different fixes: a
+    // playground hit means parking failed, a draft hit means the route was
+    // built as a page (pageExtensions), and either can also be a STALE output
+    // directory left by an earlier build — .open-next in particular survives a
+    // .next-only rebuild and is what gets deployed.
+    const draftHit = hits.some((h) => h.includes("shop/new") || h.includes("_draft"));
+    const cause = draftHit
+      ? "A draft route was built as a page. Check `pageExtensions` in next.config.mjs — `draft.tsx` must be excluded outside development."
+      : "The playground was NOT parked correctly.";
     die(
-      `the local-only playground leaked into the build output:\n  ` +
+      `local-only routes leaked into the build output:\n  ` +
         hits.slice(0, 20).join("\n  ") +
         (hits.length > 20 ? `\n  …and ${hits.length - 20} more` : "") +
-        `\n\nThe build was NOT parked correctly. Do not deploy this output.`
+        `\n\n${cause}\nIf these paths look old, the output directory is stale — remove it and rebuild.` +
+        `\nDo not deploy this output.`
     );
   }
-  say(`build output clean — no playground route in ${BUILD_OUTPUTS.join(" / ")}`);
+  say(`build output clean — no playground or draft route in ${BUILD_OUTPUTS.join(" / ")}`);
 }
 
 function git(args) {

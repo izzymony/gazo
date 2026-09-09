@@ -11,7 +11,7 @@ import SearchInput from "@/features/storefront/SearchInput";
 import Card, { Cards } from "./ccard";
 import Explore from "./explorecard";
 import TopVendor from "./topvendor";
-import Navicard from "./navigacard";
+import Navicard from "../navigacard";
 import { usePathname } from "next/navigation";
 import Badge from "@vibaar/ui/common/Badge";
 

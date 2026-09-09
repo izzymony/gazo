@@ -1,4 +1,4 @@
-import AllVendorsDetails from "@/features/shop/vendors";
+import AllVendorsDetails from "@/features/shop/_draft/vendors";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default async function page() {

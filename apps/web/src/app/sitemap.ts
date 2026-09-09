@@ -59,7 +59,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${BASE}/`, changeFrequency: "weekly", priority: 1 },
     { url: `${BASE}/shop`, changeFrequency: "daily", priority: 0.9 },
-    { url: `${BASE}/shop/new`, changeFrequency: "daily", priority: 0.7 },
     { url: `${BASE}/shop/spotlights`, changeFrequency: "daily", priority: 0.7 },
     // Standing pages. Linked from every footer, so they were crawlable but
     // absent from the map.

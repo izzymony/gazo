@@ -5,7 +5,7 @@
 
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { navLinks } from "@/features/shop/spotlights";
+import { navLinks } from "@/features/shop/spotlightNav";
 import Navicard from "@/features/shop/navigacard";
 import FluidCard from "@/features/shop/fluidcard";
 import Image from "next/image";
