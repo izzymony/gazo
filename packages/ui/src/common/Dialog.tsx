@@ -2,6 +2,7 @@
 import React, { ReactNode, useState, useRef, useEffect, useId } from "react";
 import ReactDOM from "react-dom";
 import { cn } from "@vibaar/utils";
+import useModalBehaviour from "./useModalBehaviour";
 
 type DialogProps = {
   isOpen: boolean;
@@ -34,7 +35,6 @@ type DialogProps = {
 const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, children, className = "", title, ariaLabel }) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
-  const previouslyFocused = useRef<HTMLElement | null>(null);
   const [startY, setStartY] = useState<number | null>(null);
   const [translateY, setTranslateY] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(0);
@@ -58,46 +58,10 @@ const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, children, className = 
     };
   }, [isOpen]);
 
-  // a11y: scroll-lock, Escape-to-close, focus trap + restore
-  useEffect(() => {
-    if (!isOpen) return;
-    previouslyFocused.current = document.activeElement as HTMLElement | null;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const focusTimer = window.setTimeout(() => panelRef.current?.focus(), 0);
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-        return;
-      }
-      if (e.key === "Tab" && panelRef.current) {
-        const focusables = panelRef.current.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        );
-        if (focusables.length === 0) {
-          e.preventDefault();
-          return;
-        }
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = prevOverflow;
-      window.clearTimeout(focusTimer);
-      previouslyFocused.current?.focus?.();
-    };
-  }, [isOpen, onClose]);
+  // Escape, scroll-lock, focus trap and focus restore — shared with the
+  // product image viewer, which needs the same behaviour behind different
+  // chrome. See useModalBehaviour.
+  useModalBehaviour({ isOpen, onClose, panelRef });
 
   const handleTouchStart = (e: React.TouchEvent) => setStartY(e.touches[0].clientY);
   const handleTouchMove = (e: React.TouchEvent) => {

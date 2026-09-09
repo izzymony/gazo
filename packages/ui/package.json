@@ -14,7 +14,10 @@
       "types": "./registry.d.ts",
       "default": "./registry.cjs"
     },
-    "./*": "./src/*.tsx"
+    "./*": [
+      "./src/*.tsx",
+      "./src/*.ts"
+    ]
   },
   "dependencies": {
     "@hugeicons/core-free-icons": "^4.2.3",

@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import useModalBehaviour from "@vibaar/ui/common/useModalBehaviour";
+import IconButton from "@vibaar/ui/common/IconButton";
+import { X } from "@vibaar/ui/icons";
 import { getMobileCompatibleImageUrl } from "@/lib/utils";
 
 const ImageCarousel = ({
@@ -25,6 +28,15 @@ const ImageCarousel = ({
   const [hasMoved, setHasMoved] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const previousImagesRef = useRef<string[]>([]);
+  const fullscreenRef = useRef<HTMLDivElement>(null);
+  const closeFullscreen = useCallback(() => setIsFullscreen(false), []);
+
+  // Escape, scroll-lock, focus trap and focus restore — the same behaviour
+  // Dialog gets, behind this viewer's own full-bleed chrome. It previously
+  // hand-rolled the first two and omitted the rest, so the viewer had no
+  // dialog role, focus could Tab out to the page underneath, and closing
+  // dropped you back at the top of the product page.
+  useModalBehaviour({ isOpen: isFullscreen, onClose: closeFullscreen, panelRef: fullscreenRef });
 
   const SWIPE_THRESHOLD = 0.25; // 25% of image width to trigger swipe
   const VELOCITY_THRESHOLD = 0.3; // Velocity needed for quick swipe
@@ -116,28 +128,6 @@ const ImageCarousel = ({
       };
     }
   }, [isDragging, startX, translateX]);
-
-  // Handle ESC key to close fullscreen
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isFullscreen) {
-        setIsFullscreen(false);
-      }
-    };
-
-    if (isFullscreen) {
-      document.addEventListener('keydown', handleKeyDown);
-      // Prevent body scroll when fullscreen is open
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'unset';
-    };
-  }, [isFullscreen]);
 
   // Auto-scroll only when images array actually changes (not on initial load)
   useEffect(() => {
@@ -326,22 +316,21 @@ const ImageCarousel = ({
 
       {/* Fullscreen Modal */}
       {isFullscreen && (
-        <div className="fixed inset-0 bg-black z-modal flex items-center justify-center">
-          {/* Close Button */}
-          <button
-            onClick={() => setIsFullscreen(false)}
-            className="absolute top-4 right-4 z-modal w-10 h-10 rounded-full bg-black bg-opacity-50 text-white flex items-center justify-center"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M18 6L6 18M6 6L18 18"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
+        <div
+          ref={fullscreenRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Product images"
+          tabIndex={-1}
+          className="fixed inset-0 bg-overlay z-modal flex items-center justify-center outline-none">
+          {/* Close — was an unnamed <button> wrapping a bare SVG, so it
+              announced nothing at all. */}
+          <IconButton
+            icon={X}
+            label="Close image viewer"
+            onClick={closeFullscreen}
+            className="absolute top-4 right-4 z-modal bg-overlay/50 text-white"
+          />
 
           {/* Fullscreen Image Container */}
           <div className="w-full h-full flex items-center justify-center px-4">

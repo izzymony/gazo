@@ -69,12 +69,14 @@ const entries = [
   ["common/TrendIndicator", "component", "stable"],
   ["common/Typography", "primitive", "stable"],
   ["common/UserProfileImage", "component", "stable"],
+  ["common/useModalBehaviour", "internal"],
   ["common/VerifiedCheck", "component", "stable"],
   ["ConfettiCelebration", "pattern"],
   ["icons/index", "asset"],
   ["modal/Modal", "deprecated"],
   ["PageShell", "pattern", "stable"],
   ["slidingcomponent", "pattern"],
+  ["styles", "internal"],
   ["svg", "asset"],
 ];
 

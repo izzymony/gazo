@@ -10,8 +10,11 @@ function sourceModules(dir) {
     if (entry.isDirectory()) {
       return entry.name === "__tests__" ? [] : sourceModules(path);
     }
-    if (!entry.name.endsWith(".tsx") || entry.name.endsWith(".test.tsx")) return [];
-    return [relative(sourceRoot, path).replaceAll("\\", "/").replace(/\.tsx$/, "")];
+    // Both extensions: the package exports non-JSX modules too (hooks, shared
+    // style constants), and the export map resolves either. Counting only .tsx
+    // made a registered .ts module look like a stale entry.
+    if (!/\.tsx?$/.test(entry.name) || /\.test\.tsx?$/.test(entry.name)) return [];
+    return [relative(sourceRoot, path).replaceAll("\\", "/").replace(/\.tsx?$/, "")];
   });
 }
 
