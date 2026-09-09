@@ -38,7 +38,7 @@ const entries = [
   ["common/DropdownMenu", "component", "stable"],
   ["common/EmptyState", "pattern"],
   ["common/ErrorState", "pattern"],
-  ["common/FilterBar", "pattern"],
+  ["common/FilterBar", "component", "stable"],
   ["common/Footer", "pattern"],
   ["common/Header", "component", "stable"],
   ["common/header/BackButton", "component", "stable"],
