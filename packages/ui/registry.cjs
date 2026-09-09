@@ -57,6 +57,7 @@ const entries = [
   ["common/PasswordCriteria", "component", "stable"],
   ["common/RadioGroup", "component", "stable"],
   ["common/SearchField", "component", "stable"],
+  ["common/SelectableCard", "primitive", "stable"],
   ["common/Section", "primitive", "stable"],
   ["common/Spinner", "primitive", "stable"],
   ["common/ShareModal", "pattern"],

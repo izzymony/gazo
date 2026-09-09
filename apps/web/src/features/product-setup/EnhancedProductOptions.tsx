@@ -724,12 +724,15 @@ const VariationFieldWithProperties = ({
           className="flex-1 text-body text-foreground-secondary bg-transparent border-none outline-none p-0 min-w-0"
         />
         {newValue && (
-          <button
+          <Button
+            variant="link"
+            size="md"
+            fullWidth={false}
             onClick={addValue}
-            className="text-brandDeep text-body font-medium hover:underline flex-shrink-0"
+            className="flex-shrink-0"
           >
             Add
-          </button>
+          </Button>
         )}
       </div>
 

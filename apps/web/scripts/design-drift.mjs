@@ -252,7 +252,16 @@ function scanBalanced(src, start) {
  * live code and its prose reported as dead classes.
  */
 function stripComments(src) {
-  return src.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "));
+  // Block comments first, then line comments. Both are blanked rather than
+  // deleted so every reported line number still points at the real line.
+  //
+  // Line comments matter: prose inside one is not code, but the class scanner
+  // reads quoted text, so a comment explaining a variant with examples like
+  // "Change" or "Resend code" had those words reported as dead utilities. The
+  // `[^:"'\`]` guard keeps `https://…` and any `//` inside a string intact.
+  return src
+    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "))
+    .replace(/(^|[^:"'\`\\])\/\/[^\n]*/g, (m, lead) => lead + " ".repeat(m.length - lead.length));
 }
 
 function extractClassStrings(input) {

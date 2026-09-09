@@ -26,6 +26,12 @@ const buttonVariants = cva(
           "border border-brandDeep text-brandDeep bg-surface hover:bg-surface-subtle active:bg-surface-muted",
         ghost:
           "bg-transparent text-brandDeep hover:bg-surface-subtle active:bg-surface-muted",
+        // A text-only action sitting inside prose or beside a field — "Change",
+        // "Resend code", "Add another". Eight screens hand-rolled a bare
+        // <button className="text-brandDeep font-medium"> because the filled,
+        // bordered and ghost variants all draw a pill, and a pill is wrong
+        // there. It keeps the underline on hover so it still reads as an action.
+        link: "bg-transparent text-brandDeep underline-offset-4 hover:underline active:opacity-70",
       },
       size: {
         sm: "py-1.5 px-4 text-body-sm",
@@ -37,6 +43,11 @@ const buttonVariants = cva(
         false: "w-fit",
       },
     },
+    compoundVariants: [
+      // `size` is declared after `variant`, so its padding would otherwise win.
+      // A link action has no box, so it carries none of it.
+      { variant: "link", class: "p-0 rounded-none gap-1" },
+    ],
     defaultVariants: { variant: "filled", size: "md", fullWidth: true },
   }
 );

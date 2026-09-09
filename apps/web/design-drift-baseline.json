@@ -1,7 +1,7 @@
 {
   "counts": {
     "unknown-utility": {
-      "live": 0,
+      "live": 1,
       "deferred": 0
     },
     "unknown-css-var": {
@@ -29,8 +29,8 @@
       "deferred": 21
     },
     "native-button": {
-      "live": 54,
-      "deferred": 41
+      "live": 52,
+      "deferred": 40
     },
     "inline-svg": {
       "live": 47,
@@ -568,10 +568,9 @@
     "legacy-type-scale|packages/ui/src/common/HeaderSlides.tsx|text-sm": 1,
     "native-button|apps/web/src/app/(account)/verify/component/KycFlow.tsx|<button>": 4,
     "native-button|apps/web/src/app/(auth)/welcome/page.tsx|<button>": 1,
-    "native-button|apps/web/src/app/(buyer)/cart/complete-order/review/page.tsx|<button>": 3,
+    "native-button|apps/web/src/app/(buyer)/cart/complete-order/review/page.tsx|<button>": 2,
     "native-button|apps/web/src/app/(buyer)/cart/order-confirmed/[id]/page.tsx|<button>": 1,
     "native-button|apps/web/src/app/(buyer)/cart/payment-successful/page.tsx|<button>": 3,
-    "native-button|apps/web/src/app/(buyer)/cart/shipping-profile/page.tsx|<button>": 1,
     "native-button|apps/web/src/app/(buyer)/inbox/component/sort.tsx|<button>": 3,
     "native-button|apps/web/src/app/(buyer)/orders/[orderId]/page.tsx|<button>": 2,
     "native-button|apps/web/src/app/(buyer)/orders/page.tsx|<button>": 1,
@@ -596,7 +595,7 @@
     "native-button|apps/web/src/features/orders/StarRating.tsx|<button>": 1,
     "native-button|apps/web/src/features/payouts/withdraw.tsx|<button>": 1,
     "native-button|apps/web/src/features/product-setup/edit/EditProductSetup.tsx|<button>": 1,
-    "native-button|apps/web/src/features/product-setup/EnhancedProductOptions.tsx|<button>": 14,
+    "native-button|apps/web/src/features/product-setup/EnhancedProductOptions.tsx|<button>": 13,
     "native-button|apps/web/src/features/product-setup/manual/Preview.tsx|<button>": 2,
     "native-button|apps/web/src/features/product-setup/manual/ProductCollection.tsx|<button>": 3,
     "native-button|apps/web/src/features/product-setup/progressive/steps/Step1StartStrong.tsx|<button>": 1,
@@ -813,6 +812,7 @@
     "raw-palette-color|apps/web/src/features/storefront/Product.tsx|border-gray-100": 1,
     "raw-palette-color|apps/web/src/features/storefront/StorefrontSkeleton.tsx|bg-gray-100": 4,
     "raw-palette-color|apps/web/src/features/storefront/StorefrontSkeleton.tsx|bg-gray-200": 5,
-    "raw-palette-color|apps/web/src/features/storefront/StorefrontSkeleton.tsx|bg-gray-300": 1
+    "raw-palette-color|apps/web/src/features/storefront/StorefrontSkeleton.tsx|bg-gray-300": 1,
+    "unknown-utility|packages/ui/src/common/Button.tsx|link": 1
   }
 }

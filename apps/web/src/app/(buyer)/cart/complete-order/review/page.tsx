@@ -109,9 +109,9 @@ const CartItem = ({
           <span className="ml-auto font-medium text-foreground-primary">
             {delivery.price}
             {"   "}
-            <button onClick={action} className="text-brandDeep font-medium">
+            <Button variant="link" size="md" fullWidth={false} onClick={action}>
               {delivery.title ? "Change" : "Select"}
-            </button>
+            </Button>
           </span>
         </div>
         <div className="flex items-center text-body-sm text-foreground-secondary ">

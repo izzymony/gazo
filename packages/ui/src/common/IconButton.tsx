@@ -24,6 +24,11 @@ const iconButtonVariants = cva(
         plain: "text-foreground-primary hover:bg-surface-muted active:bg-surface-strong",
         muted: "text-foreground-secondary hover:bg-surface-muted active:bg-surface-strong",
         onDark: "text-white hover:bg-surface/10 active:bg-surface/20",
+        // Chrome sitting ON a photograph — a wishlist heart on a product image,
+        // a close control over a full-bleed viewer. It carries its own scrim
+        // because the image underneath is not a known colour.
+        overlay:
+          "bg-overlay/15 text-white backdrop-blur-sm hover:bg-overlay/30 active:bg-overlay/40",
         // On a brand-yellow surface. White here is 1.28:1 — invisible.
         onBrand: "text-brandInk hover:bg-brandInk/10 active:bg-brandInk/20",
         filled: "bg-brand text-brandInk hover:bg-brandHover active:bg-brandHover",

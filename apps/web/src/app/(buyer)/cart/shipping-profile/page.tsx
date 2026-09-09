@@ -145,12 +145,15 @@ const Page = () => {
             </div>
           ))}
 
-          <button
-            className="flex items-center gap-2 text-brandDeep text-body-sm font-medium mt-4"
+          <Button
+            variant="link"
+            size="sm"
+            fullWidth={false}
+            className="mt-4"
             onClick={() => router.push("/cart/shipping-profile/new")}>
             <Plus size={18} />
             Add a new delivery address
-          </button>
+          </Button>
         </div>
       </div>
     </PageShell>
