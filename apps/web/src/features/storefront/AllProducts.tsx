@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import React from "react";
-import { FaPlus, Heart, ShoppingCartAdd, FaStar } from "@vibaar/ui/icons";
+import { FaPlus } from "@vibaar/ui/icons";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import EmptyState from "@vibaar/ui/common/EmptyState";
@@ -9,7 +9,7 @@ import Button from "@vibaar/ui/common/Button";
 import Loader from "@vibaar/ui/common/Loader";
 import useProductStore from "@/store/productStore";
 import useOrderStore from "@/store/orderStore";
-import { formatCurrency, getMobileCompatibleImageUrl } from "@/lib/utils";
+import { getMobileCompatibleImageUrl } from "@/lib/utils";
 import { buildSimpleCartItem, productHasVariants, trackSimpleAddToCart } from "@/lib/cart";
 import { ProductData } from "@/lib/types";
 import useBusinessStore, { BusinessProduct } from "@/store/businessStore";
@@ -17,6 +17,7 @@ import { productPath } from "@/lib/urlHelpers";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { useRoutePrefetch } from "@/hooks/useRoutePrefetch";
 import Spinner from "@vibaar/ui/common/Spinner";
+import ProductCard from "./ProductCard";
 
 export const truncateTextByLength = (
   text: string | undefined,
@@ -185,61 +186,23 @@ const AllProducts = ({
                 ? `/dashboard/catalog/product/${item.id}`
                 : productPath(stor, item);
               return (
-                <div key={index} className="cursor-pointer group">
-                  <div
-                    className="gap-2 items-center flex flex-col transition-transform hover:scale-[1.02]"
-                    onClick={() => handleProductClick(item)}
-                    onMouseEnter={() => prefetch(href)}
-                    onTouchStart={() => prefetch(href)}>
-                    <div className="relative w-full aspect-square rounded-field lg:rounded-card overflow-hidden">
-                      <img
-                        src={
-                          item?.image
-                            ? getMobileCompatibleImageUrl(item?.image[0])
-                            : "/PRODUCT IMAGE (2).png"
-                        }
-                        alt={item?.title || ""}
-                        className="w-full h-full object-cover shadow-sm group-hover:shadow-md transition-shadow"
-                      />
-                      <button
-                        aria-label="Add to wishlist"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleLikeClick(item.id + "");
-                        }}
-                        className="absolute top-1 right-2 h-9 w-9 flex justify-center items-center rounded-full bg-black/15 backdrop-blur-sm">
-                        <Heart
-                          size={20}
-                          className={spotlighted ? "text-brandDeep" : "text-white"}
-                        />
-                      </button>
-                      <button
-                        aria-label="Add to cart"
-                        onClick={(e) => handleAddToCart(e, item)}
-                        className="absolute bottom-2 right-2 h-9 w-9 flex justify-center items-center rounded-full bg-surface/20 backdrop-blur-sm">
-                        <ShoppingCartAdd size={20} className="text-brandDeep" />
-                      </button>
-                    </div>
-
-                    <div className="w-full">
-                      <p className="text-caption w-full line-clamp-1 font-medium">
-                        {item?.title}
-                      </p>
-                      <p className="text-caption text-foreground-muted font-medium line-through">
-                        {formatCurrency(item?.old_price ? +item.old_price : 0)}
-                      </p>
-                      <div className="flex justify-between">
-                        <p className="text-caption font-medium">
-                          {formatCurrency(item?.price ? +item.price : 0)}
-                        </p>
-                        <div className="flex gap-1 items-center">
-                          <FaStar size={12} className="text-warning-foreground" />
-                          <p className="text-caption text-foreground-muted">{rate}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <ProductCard
+                  key={item.id ?? index}
+                  href={href}
+                  title={item?.title || ""}
+                  imageSrc={
+                    item?.image
+                      ? getMobileCompatibleImageUrl(item?.image[0])
+                      : "/PRODUCT IMAGE (2).png"
+                  }
+                  price={item?.price ? +item.price : 0}
+                  oldPrice={item?.old_price ? +item.old_price : undefined}
+                  rating={rate}
+                  saved={spotlighted}
+                  onSave={() => handleLikeClick(item.id + "")}
+                  onAddToCart={(event) => handleAddToCart(event, item)}
+                  onPrefetch={() => prefetch(href)}
+                />
               );
             }
           )}
