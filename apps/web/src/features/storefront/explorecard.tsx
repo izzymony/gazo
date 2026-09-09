@@ -94,7 +94,11 @@ export default function ExploreCard({
     : "#1e293b"; // Fallback dark color if no product images available
 
   return (
-    <div
+    // A section rather than a button: it CONTAINS buttons (follow, each
+    // product, each like), and nesting interactive elements inside a button is
+    // invalid. The store name below carries the card's own activation.
+    <section
+      aria-label={bussinessName}
       className="mb-2 rounded-[20px] lg:rounded-[24px] h-[212px] md:h-[240px] lg:h-[260px] w-full shadow-md lg:shadow-lg overflow-hidden relative cursor-pointer transition-transform hover:scale-[1.02] hover:shadow-xl"
       style={{
         backgroundSize: "cover",
@@ -102,7 +106,6 @@ export default function ExploreCard({
         backgroundRepeat: "no-repeat",
         background: cardBackground,
       }}
-      onClick={cardAction}
       onMouseEnter={onPrefetch}
       onTouchStart={onPrefetch}>
       {/* Overlay for text contrast */}
@@ -125,13 +128,18 @@ export default function ExploreCard({
               </div>
 
               <div>
-                <p className="text-xs font-normal text-white capitalize line-clamp-1">
-                  {bussinessName}
+                <p className="text-body-sm font-normal text-white capitalize line-clamp-1">
+                  <button
+                    type="button"
+                    onClick={cardAction}
+                    className="text-left after:absolute after:inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-sm">
+                    {bussinessName}
+                  </button>
                 </p>
-                <p className="text-[#ffffff91] font-normal text-caption capitalize">
+                <p className="text-white/60 font-normal text-caption capitalize">
                   {category}
                 </p>
-                <div className="font-normal text-caption flex items-center gap-1 text-[#ffffff91] capitalize">
+                <div className="font-normal text-caption flex items-center gap-1 text-white/60 capitalize">
                   <svg
                     width="8"
                     height="8"
@@ -214,19 +222,23 @@ export default function ExploreCard({
             //(spt);
             return (
               <div
-                onClick={(e) => smallCardAction(e, item)}
                 onMouseEnter={() => onPrefetchProduct?.(item)}
                 onTouchStart={() => onPrefetchProduct?.(item)}
                 key={item.id}
-                className="p-2 rounded-field lg:rounded-card flex gap-2 items-center cursor-pointer bg-surface/10 backdrop-blur-md min-w-[200px] w-[200px] border border-white/20 shadow-sm flex-shrink-0">
+                className="relative p-2 rounded-field lg:rounded-card flex gap-2 items-center cursor-pointer bg-surface/10 backdrop-blur-md min-w-[200px] w-[200px] border border-white/20 shadow-sm flex-shrink-0">
                 <img
-                  alt={item.title || "Product"}
+                  alt=""
                   src={item.image ? getMobileCompatibleImageUrl(item?.image[0]) : image}
                   className="w-[55px] h-[70px] lg:w-[60px] lg:h-[80px] object-cover rounded-lg lg:rounded-xl border border-white/10 flex-shrink-0"
                 />
                 <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-                  <p className="text-caption line-clamp-1 font-normal text-[#FFFFFF]">
-                    {item.title}
+                  <p className="text-caption line-clamp-1 font-normal text-white">
+                    <button
+                      type="button"
+                      onClick={(e) => smallCardAction(e, item)}
+                      className="text-left after:absolute after:inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-sm">
+                      {item.title}
+                    </button>
                   </p>
                   <div className="flex items-center gap-1 text-micro mb-2">
                     <svg
@@ -258,7 +270,7 @@ export default function ExploreCard({
                   </div>
                   <div className="flex items-end justify-between mt-1">
                     <div className="flex flex-col">
-                      <p className="text-micro font-normal line-through text-[#ffffff91]">
+                      <p className="text-micro font-normal line-through text-white/60">
                         {item.old_price}
                       </p>
                       <p className="text-xs font-normal text-[#FFFFFF]">
@@ -266,7 +278,15 @@ export default function ExploreCard({
                       </p>
                     </div>
                     {/* like button */}
-                    <div onClick={() => item.id && handleLikeClick(item.id)} className="flex-shrink-0">
+                    <button
+                      type="button"
+                      aria-label={spt ? `Remove ${item.title || "product"} from wishlist` : `Add ${item.title || "product"} to wishlist`}
+                      aria-pressed={spt}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (item.id) handleLikeClick(item.id);
+                      }}
+                      className="relative z-10 flex-shrink-0 cursor-pointer rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
                       {spt ? (
                         <svg
                           width="20"
@@ -346,7 +366,7 @@ export default function ExploreCard({
                           </g>
                         </svg>
                       )}
-                    </div>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -354,6 +374,6 @@ export default function ExploreCard({
           })}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
