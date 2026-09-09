@@ -9,7 +9,7 @@
     "lint": "next lint",
     "build:check": "node scripts/playground-guard.mjs run -- next build",
     "type-check": "tsc --noEmit",
-    "test": "jest",
+    "test": "jest && node scripts/design-drift.mjs --check",
     "cf:build": "CF_BUILD=1 node scripts/playground-guard.mjs run -- opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion",
     "cf:preview": "CF_BUILD=1 node scripts/playground-guard.mjs run -- opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion && opennextjs-cloudflare preview",
     "cf:deploy": "CF_BUILD=1 node scripts/playground-guard.mjs run -- opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion && opennextjs-cloudflare deploy",

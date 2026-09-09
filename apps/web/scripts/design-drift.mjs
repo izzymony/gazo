@@ -66,8 +66,17 @@ const RATCHETED = [
   "legacy-type-scale",
   "raw-palette-color",
   "inline-style",
+  // The REPLICA categories. These were advisory — they printed a number and
+  // failed nothing, which is exactly why there are 85 hand-rolled buttons and
+  // 108 non-interactive onClicks: a new one could always land with every gate
+  // green. Ratcheted, they can only ever go down, so "edit the component and
+  // every occurrence moves" becomes a property the build defends rather than a
+  // claim that decays.
+  "native-button",
+  "inline-svg",
+  "non-interactive-onclick",
 ];
-const ADVISORY = ["native-button", "inline-svg", "dynamic-classname"];
+const ADVISORY = ["dynamic-classname"];
 
 /**
  * Test sources are not a production surface. A fixture that uses an inline
@@ -296,6 +305,33 @@ function extractClassStrings(input) {
 
 const CANDIDATE = /^-?[a-z][a-z0-9]*(?:[-/:.[\]()#%!,+&>~*_a-z0-9]*)$/i;
 
+/**
+ * The full opening tag starting at `index`, brace- and string-aware.
+ *
+ * A regex cannot do this: an attribute value like `onClick={() => f(a > b)}`
+ * contains both `>` and nested braces, so `<div[^>]*>` stops in the middle of
+ * the handler and the check silently misses every element that has one.
+ */
+function readTag(src, index) {
+  let depth = 0;
+  let quote = null;
+  // Bounded: an opening tag is never this long, and without a limit an
+  // unbalanceable brace makes every call scan to end-of-file — quadratic on a
+  // 1,600-line component.
+  const limit = Math.min(src.length, index + 4000);
+  for (let i = index; i < limit; i += 1) {
+    const c = src[i];
+    if (quote) {
+      if (c === quote && src[i - 1] !== "\\") quote = null;
+    } else if (c === '"' || c === "'" || c === "`") {
+      quote = c;
+    } else if (c === "{") depth += 1;
+    else if (c === "}") depth -= 1;
+    else if (c === ">" && depth === 0) return src.slice(index, i + 1);
+  }
+  return src.slice(index, limit);
+}
+
 function analyseFile(path, src, isRealClass, cssClasses, exemptions, knownVars) {
   const rel = relative(REPO_ROOT, path);
   const findings = [];
@@ -352,8 +388,33 @@ function analyseFile(path, src, isRealClass, cssClasses, exemptions, knownVars) 
   for (const m of src.matchAll(/var\((--[\w-]+)\)/g)) {
     if (!knownVars.has(m[1]) && !declaredHere.has(m[1])) add("unknown-css-var", m.index, m[1]);
   }
-  for (const m of src.matchAll(/<button\b/g)) add("native-button", m.index, "<button>");
-  for (const m of src.matchAll(/<svg\b/g)) add("inline-svg", m.index, "<svg>");
+  // The REPLICA checks below ask "did you hand-roll something the design system
+  // already provides?". Inside the design system there is nothing to reach for:
+  // Button must render a <button>, the icon set must contain <svg>, and
+  // penalising the primitives for being primitives would make the number mean
+  // the opposite of what it says. Library quality is held by its own test
+  // suites and by the other categories, which still apply here.
+  const isLibraryInternal = rel.startsWith("packages/ui/src/");
+
+  if (!isLibraryInternal) {
+    for (const m of src.matchAll(/<button\b/g)) add("native-button", m.index, "<button>");
+    for (const m of src.matchAll(/<svg\b/g)) add("inline-svg", m.index, "<svg>");
+  }
+
+  // An onClick on an element that is not interactive. It is not focusable, has
+  // no role, and ignores Enter and Space — so the affordance exists for a mouse
+  // and for nobody else. This was the single most common defect across the
+  // app's surfaces and nothing measured it: the buyer nav, the marketplace
+  // vendor card, the product tile, the filter pills and the shop switcher all
+  // shipped it. Gestures are excluded — a drag surface legitimately listens for
+  // a pointer, and its keyboard path is a separate affordance.
+  for (const m of src.matchAll(/<(div|span|p|li|section|article|img|label)\b/g)) {
+    if (isLibraryInternal) break;
+    const tag = readTag(src, m.index);
+    if (!/\bonClick=/.test(tag)) continue;
+    if (/\bonTouch(Start|Move|End)=|\bonMouseDown=|\bonDrag/.test(tag)) continue;
+    add("non-interactive-onclick", m.index, `<${m[1]} onClick>`);
+  }
 
   return findings;
 }
