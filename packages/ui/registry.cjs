@@ -52,6 +52,7 @@ const entries = [
   ["common/ListItem", "component", "stable"],
   ["common/ListSectionHeader", "component", "stable"],
   ["common/Loader", "primitive", "stable"],
+  ["common/NavItem", "primitive", "stable"],
   ["common/NavigationTabs", "component", "stable"],
   ["common/PasswordCriteria", "component", "stable"],
   ["common/RadioGroup", "component", "stable"],
