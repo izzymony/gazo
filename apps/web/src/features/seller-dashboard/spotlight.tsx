@@ -10,6 +10,7 @@ import EmptyState from "@vibaar/ui/common/EmptyState";
 import { useRouter } from "next/navigation";
 import useBusinessStore, { BusinessProduct } from "@/store/businessStore";
 import useAuthStore from "@/store/authStore";
+import Link from "next/link";
 
 interface StatusBadgeProps {
   status: number;
@@ -54,11 +55,7 @@ const ProductComp: React.FC<ProductProps> = ({ product }: ProductProps) => {
   const { store } = useBusinessStore();
 
   return (
-    <div
-      className="space-y-4 cursor-pointer"
-      onClick={() =>
-        router.push(`/dashboard/catalog/product/${product?.id}`)
-      }>
+    <Link href={`/dashboard/catalog/product/${product?.id}`} className="space-y-4 cursor-pointer">
       <div className="flex justify-between gap-2">
         <img
           src={product.image ? getMobileCompatibleImageUrl(product.image[0]) : ""}
@@ -96,7 +93,7 @@ const ProductComp: React.FC<ProductProps> = ({ product }: ProductProps) => {
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

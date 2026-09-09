@@ -812,7 +812,6 @@
     "raw-palette-color|apps/web/src/features/storefront/Product.tsx|border-gray-100": 1,
     "raw-palette-color|apps/web/src/features/storefront/StorefrontSkeleton.tsx|bg-gray-100": 4,
     "raw-palette-color|apps/web/src/features/storefront/StorefrontSkeleton.tsx|bg-gray-200": 5,
-    "raw-palette-color|apps/web/src/features/storefront/StorefrontSkeleton.tsx|bg-gray-300": 1,
-    "unknown-utility|packages/ui/src/common/Button.tsx|link": 1
+    "raw-palette-color|apps/web/src/features/storefront/StorefrontSkeleton.tsx|bg-gray-300": 1
   }
 }

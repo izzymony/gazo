@@ -19,6 +19,11 @@ const buttonVariants = cva(
   ),
   {
     variants: {
+      size: {
+        sm: "py-1.5 px-4 text-body-sm",
+        md: "py-3 px-4 text-body",
+        lg: "py-4 px-6 text-body-lg",
+      },
       variant: {
         filled:
           "bg-brand text-brandInk hover:bg-brandHover active:bg-brandHover",
@@ -31,23 +36,15 @@ const buttonVariants = cva(
         // <button className="text-brandDeep font-medium"> because the filled,
         // bordered and ghost variants all draw a pill, and a pill is wrong
         // there. It keeps the underline on hover so it still reads as an action.
-        link: "bg-transparent text-brandDeep underline-offset-4 hover:underline active:opacity-70",
-      },
-      size: {
-        sm: "py-1.5 px-4 text-body-sm",
-        md: "py-3 px-4 text-body",
-        lg: "py-4 px-6 text-body-lg",
+        // `size` is declared above so its padding is emitted first; a link
+        // action has no box, so this clears it without a compoundVariant.
+        link: "bg-transparent p-0 rounded-none gap-1 text-brandDeep underline-offset-4 hover:underline active:opacity-70",
       },
       fullWidth: {
         true: "w-full mt-4",
         false: "w-fit",
       },
     },
-    compoundVariants: [
-      // `size` is declared after `variant`, so its padding would otherwise win.
-      // A link action has no box, so it carries none of it.
-      { variant: "link", class: "p-0 rounded-none gap-1" },
-    ],
     defaultVariants: { variant: "filled", size: "md", fullWidth: true },
   }
 );

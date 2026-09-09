@@ -1,12 +1,9 @@
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 /* eslint-disable @next/next/no-img-element */
 export default function Message() {
-  const router = useRouter();
   return (
-    <div
-      onClick={() => router.push("/inbox/message/12")}
-      className="w-full gap-3 flex cursor-pointer">
+    <Link href={"/inbox/message/12"} className="w-full gap-3 flex cursor-pointer">
       <div className="flex-1">
         <div className="w-full flex gap-3">
           <div className="relative">
@@ -29,6 +26,6 @@ export default function Message() {
       <div>
         <p className="text-foreground-muted text-caption">4m ago</p>
       </div>
-    </div>
+    </Link>
   );
 }

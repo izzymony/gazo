@@ -9,6 +9,7 @@ import Section from "@vibaar/ui/common/Section";
 import Button from "@vibaar/ui/common/Button";
 import BottomModal from "@vibaar/ui/common/BottomModal";
 import { ChevronRight, Shield } from "@vibaar/ui/icons";
+import Link from "next/link";
 
 // KYC1 withdrawal gate: pre-check to surface the verify CTA early. The BACKEND is
 // authoritative (KYC_WITHDRAWAL_GATE_NGN, default 100000) — RequestWithdrawal
@@ -79,16 +80,14 @@ export default function Withdraw({
                 </p>
               </div>
             ) : (
-              <div
-                onClick={() => router.push("/dashboard/payouts/addaccount")}
-                className="cursor-pointer">
+              <Link href={"/dashboard/payouts/addaccount"} className="cursor-pointer">
                 <p className="text-brandDeep font-medium text-body">
                   + Add bank account
                 </p>
                 <p className="text-foreground-secondary text-body-sm font-normal">
                   Add a bank account to withdraw
                 </p>
-              </div>
+              </Link>
             )}
           </div>
           {hasAccount && (

@@ -10,6 +10,7 @@ import Navicard from "@/features/shop/navigacard";
 import FluidCard from "@/features/shop/fluidcard";
 import Image from "next/image";
 import { Modall } from "@/features/seller-shell/sales";
+import Link from "next/link";
 
 export default function Page() {
   const pathName = usePathname();
@@ -494,16 +495,12 @@ export default function Page() {
       </div>
       <div className="flex items-center justify-between bg-surface pt-3 px-3 pb-4 border-t">
         <div className="w-full flex flex-row justify-between items-center gap-3">
-          <div
-            onClick={() => router.push("/setup")}
-            className="flex-1 h-10 rounded-full border-brandDeep border bg-surface text-brandDeep text-base font-medium justify-center items-center flex">
+          <Link href={"/setup"} className="flex-1 h-10 rounded-full border-brandDeep border bg-surface text-brandDeep text-base font-medium justify-center items-center flex">
             Save Draft
-          </div>
-          <div
-            onClick={() => router.push("/setup")}
-            className="flex-1 h-10 rounded-full bg-brand text-brandInk text-base font-medium justify-center items-center flex">
+          </Link>
+          <Link href={"/setup"} className="flex-1 h-10 rounded-full bg-brand text-brandInk text-base font-medium justify-center items-center flex">
             Post Spotlight
-          </div>
+          </Link>
         </div>
       </div>
       {show && <Modall action={() => setShow(!show)} router={router} />}

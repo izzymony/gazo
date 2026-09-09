@@ -21,6 +21,7 @@ import {
   FaStar,
 } from "@vibaar/ui/icons";
 import { supportWhatsAppUrl } from "@/lib/support";
+import Link from "next/link";
 
 const Sellercard = ({
   text,
@@ -73,19 +74,15 @@ const Selling = () => {
               </p>
             </div>
           </div>
-          <div
-            className="text-brandDeep flex gap-1 items-center cursor-pointer"
-            onClick={() => router.push(`/dashboard/storefront`)}>
+          <Link href={`/dashboard/storefront`} className="text-brandDeep flex gap-1 items-center cursor-pointer">
             View store
             <ChevronRight size={20} />
-          </div>
+          </Link>
         </div>
       )}
 
       {/* Rewards access card */}
-      <div
-        onClick={() => router.push("/profile/referrals")}
-        className="cursor-pointer overflow-hidden">
+      <Link href={"/profile/referrals"} className="cursor-pointer overflow-hidden">
         <div className="relative bg-gradient-to-r from-brand to-brand/70 rounded-card p-4 text-brandInk shadow-card">
           {/* Decorative sparkle */}
           <div className="absolute top-2 right-3 opacity-30">
@@ -114,7 +111,7 @@ const Selling = () => {
             </div>
           </div>
         </div>
-      </div>
+      </Link>
 
       <div>
         <p className="mb-4 text-foreground-primary font-medium text-body">Menu</p>

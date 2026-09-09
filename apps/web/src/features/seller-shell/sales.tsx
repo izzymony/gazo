@@ -26,6 +26,7 @@ import ActivityItem from "@vibaar/ui/common/ActivityItem";
 import StoreStatusBadge from "@vibaar/ui/common/StoreStatusBadge";
 import NudgeBanner from "@/features/onboarding/NudgeBanner";
 import List from "@vibaar/ui/common/List";
+import Link from "next/link";
 
 // Lazy-load the onboarding widgets — they pull in framer-motion and render only
 // conditionally (new sellers), so this keeps framer-motion out of the dashboard's
@@ -177,12 +178,10 @@ export default function SalesBody({ action }: { action: () => void }) {
                   Total Revenue
                 </p>
 
-                <div
-                  onClick={() => router.push("/dashboard/analytics")}
-                  className="text-caption font-medium uppercase flex items-center gap-1 cursor-pointer">
+                <Link href={"/dashboard/analytics"} className="text-caption font-medium uppercase flex items-center gap-1 cursor-pointer">
                   View Details{" "}
                   <ChevronRight size={13} className="text-foreground-secondary" />
-                </div>
+                </Link>
               </div>
               <p className="flex items-center gap-1 text-foreground-primary font-medium text-h1 ">
                 ₦{formatNigerianCurrency(salesDashboardAnalytics.summary.revenue_generated)}
@@ -320,15 +319,12 @@ export default function SalesBody({ action }: { action: () => void }) {
               path: "/dashboard/catalog/discount/new",
             },
           ].map((_, index) => (
-            <div
-              onClick={() => router.push(_.path)}
-              className="cursor-pointer rounded-card bg-surface-subtle p-3 flex flex-row items-center flex-1 gap-3 min-h-[60px] transition-all duration-200 active:scale-95 hover:bg-surface-muted"
-              key={index}>
+            <Link href={_.path} className="cursor-pointer rounded-card bg-surface-subtle p-3 flex flex-row items-center flex-1 gap-3 min-h-[60px] transition-all duration-200 active:scale-95 hover:bg-surface-muted" key={index}>
               <div>{_.icon}</div>
               <p className="flex items-center text-foreground-primary font-medium text-body w-[90%] ">
                 {_.title}
               </p>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
