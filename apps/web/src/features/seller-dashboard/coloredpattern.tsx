@@ -61,9 +61,9 @@ export const ColoredPattern = ({
       {/* Pattern Preview Boxes */}
       <div className="flex gap-2 overflow-x-auto whitespace-nowrap px-4 py-2">
         {patterns.map((pattern, index) => (
-          <div
+          <button type="button"
             key={index}
-            className={`w-[128px] h-[75px] rounded-card p-2 flex-shrink-0 relative border border-outline cursor-pointer  ${
+            className={`text-left w-[128px] h-[75px] rounded-card p-2 flex-shrink-0 relative border border-outline cursor-pointer  ${
               index === selectedPattern
                 ? "ring-2 ring-offset-2 ring-outline-contrast"
                 : ""
@@ -81,7 +81,7 @@ export const ColoredPattern = ({
             role="button"
             tabIndex={0}
             aria-label={`Select pattern ${index + 1}`}
-            title={`Click to select pattern ${index + 1}`}></div>
+            title={`Click to select pattern ${index + 1}`}></button>
         ))}
       </div>
 

@@ -91,11 +91,11 @@ export default function Withdraw({
             )}
           </div>
           {hasAccount && (
-            <p
+            <button type="button"
               onClick={() => action("selectaccount")}
-              className="text-brandDeep text-body font-medium">
+              className="text-left text-brandDeep text-body font-medium">
               Change
-            </p>
+            </button>
           )}
         </div>
       </Section>
@@ -108,11 +108,11 @@ export default function Withdraw({
             </p>
             <p className="text-caption text-foreground-secondary">
               You&apos;ve earned over ₦{GATE_NGN.toLocaleString()}.{" "}
-              <span
-                className="cursor-pointer font-medium text-brandDeep"
+              <button type="button"
+                className="text-left cursor-pointer font-medium text-brandDeep"
                 onClick={() => router.push("/verify")}>
                 Verify now
-              </span>
+              </button>
             </p>
           </div>
         </Section>
@@ -123,11 +123,11 @@ export default function Withdraw({
           <div className="rounded-card border border-warning-border bg-warning-surface p-3">
             <p className="text-body-sm text-foreground-primary">
               You&apos;re close to ₦{GATE_NGN.toLocaleString()} in sales —{" "}
-              <span
-                className="cursor-pointer font-medium text-brandDeep"
+              <button type="button"
+                className="text-left cursor-pointer font-medium text-brandDeep"
                 onClick={() => router.push("/verify")}>
                 verify now
-              </span>{" "}
+              </button>{" "}
               so withdrawals aren&apos;t held.
             </p>
           </div>

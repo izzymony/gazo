@@ -294,8 +294,8 @@ const ImageCarousel = ({
                 />
                 {/* Show "View All Photos" overlay on last image if there are more than 5 images */}
                 {index === 4 && product?.images?.length > 5 && (
-                  <div
-                    className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center"
+                  <button type="button"
+                    className="text-left absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center"
                     onClick={(e) => {
                       e.stopPropagation();
                       setCurrentImageIndex(0);
@@ -306,7 +306,7 @@ const ImageCarousel = ({
                       <div className="text-lg font-semibold">+{product.images.length - 5}</div>
                       <div className="text-sm">View all photos</div>
                     </div>
-                  </div>
+                  </button>
                 )}
               </div>
             ))}

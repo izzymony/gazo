@@ -155,11 +155,11 @@ const Page = () => {
               </div>
               <p className="text-body mt-3 text-center text-foreground-secondary">
                 Don’t have an account?{" "}
-                <span
-                  className="text-brandDeep ml-2 cursor-pointer"
+                <button type="button"
+                  className="text-left text-brandDeep ml-2 cursor-pointer"
                   onClick={() => router.push("/signup")}>
                   Sign up
-                </span>
+                </button>
               </p>
             </div>
           ) : (

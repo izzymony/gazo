@@ -30,7 +30,7 @@ export const BankCard = ({
   bankname: string;
   id: string;
 }) => (
-  <div
+  <button type="button"
     onClick={() =>
       action({
         accountname: accountname,
@@ -39,7 +39,7 @@ export const BankCard = ({
         id: id,
       })
     }
-    className="justify-between items-center flex gap-4 border border-outline rounded-field py-3 ps-3 pe-3">
+    className="text-left justify-between items-center flex gap-4 border border-outline rounded-field py-3 ps-3 pe-3">
     <div className="w-10 h-10 rounded-field bg-surface border border-outline flex items-center justify-center shrink-0">
       <Bank size={22} className="text-foreground-primary" />
     </div>
@@ -60,7 +60,7 @@ export const BankCard = ({
       </p>
     </div>
     <ChevronRight size={20} className="text-foreground-primary shrink-0" />
-  </div>
+  </button>
 );
 
 export default function SelectAccount({

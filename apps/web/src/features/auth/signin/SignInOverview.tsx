@@ -442,12 +442,12 @@ export default function SignInOverview() {
                   <div className="text-center mb-6 mt-auto">
                     <p className="text-body-sm text-foreground-secondary">
                       Don&apos;t have an account?{" "}
-                      <span
-                        className="text-brandDeep font-medium cursor-pointer hover:underline"
+                      <button type="button"
+                        className="text-left text-brandDeep font-medium cursor-pointer hover:underline"
                         onClick={() => router.push('/signup?step=1')}
                       >
                         Sign up
-                      </span>
+                      </button>
                     </p>
                   </div>
                 )}

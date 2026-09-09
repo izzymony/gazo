@@ -399,7 +399,7 @@ function Page() {
             />
             <div className="max-h-[438px] overflow-y-scroll scrollbar-hide">
               {sell.map((it) => (
-                  <div
+                  <button type="button"
                     onClick={() => {
                       const value = it.id;
                       formik.setFieldValue("selectedProducts", [
@@ -409,7 +409,7 @@ function Page() {
                       setShow(false);
                     }}
                     key={it.id}
-                    className="w-full mb-2 flex gap-4 ">
+                    className="text-left w-full mb-2 flex gap-4 ">
                     <div key={it.id} className="w-full flex-1 flex gap-4 ">
                       <img
                         src={it?.image?.[0] || ""}
@@ -426,7 +426,7 @@ function Page() {
                     <p className="text-body font-medium text-foreground-primary">
                       {formatCurrency(it?.price ? +it.price : 0)}
                     </p>
-                  </div>
+                  </button>
                 ))}
               </div>
           </div>

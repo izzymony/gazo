@@ -332,7 +332,7 @@ export default function KycFlow() {
           {selfie && <Thumb label="Selfie" preview={selfie.preview} onEdit={() => setStep(3)} />}
         </div>
 
-        <div className="flex cursor-pointer items-start gap-2" onClick={() => setConsent((c) => !c)}>
+        <button type="button" className="text-left flex cursor-pointer items-start gap-2" onClick={() => setConsent((c) => !c)}>
           <span
             className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
               consent ? "border-brandDeep bg-brand" : "border-outline-emphasis"
@@ -342,7 +342,7 @@ export default function KycFlow() {
           <p className="text-body-sm text-foreground-secondary">
             I consent to Vibaar verifying my identity.
           </p>
-        </div>
+        </button>
       </div>
     </PageShell>
   );

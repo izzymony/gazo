@@ -22,9 +22,9 @@ export default function Page() {
 
   return next === 1 ? (
     <div className="h-screen relative w-screen max-w-[450px] bg-surface  flex flex-col">
-      <div
+      <button type="button"
         onClick={() => router.back()}
-        className="flex mt-3 gap-2 items-center text-black text-body-lg font-medium tracking-wider">
+        className="text-left flex mt-3 gap-2 items-center text-black text-body-lg font-medium tracking-wider">
         <svg
           width="36"
           height="36"
@@ -58,7 +58,7 @@ export default function Page() {
           </g>
         </svg>
         Share a spotlight
-      </div>
+      </button>
       <div className="flex gap-3  mt-4 px-3">
         {["Recents", "Photos", "Videos"].map((it) => (
           <div
@@ -311,19 +311,19 @@ export default function Page() {
       </div>
       <div className="flex items-center justify-between bg-surface pt-2 px-3 pb-4">
         <div className="w-full flex flex-row justify-between items-center gap-3">
-          <div
+          <button type="button"
             onClick={() => setNext(2)}
-            className="flex-1 h-10 rounded-full bg-brand text-brandInk text-base font-medium justify-center items-center flex">
+            className="text-left flex-1 h-10 rounded-full bg-brand text-brandInk text-base font-medium justify-center items-center flex">
             Next
-          </div>
+          </button>
         </div>
       </div>
     </div>
   ) : (
     <div className="h-screen relative w-screen max-w-[450px] bg-surface  flex flex-col">
-      <div
+      <button type="button"
         onClick={() => router.back()}
-        className="flex mt-3 gap-2 items-center text-black text-body-lg font-medium tracking-wider">
+        className="text-left flex mt-3 gap-2 items-center text-black text-body-lg font-medium tracking-wider">
         <svg
           width="36"
           height="36"
@@ -357,12 +357,12 @@ export default function Page() {
           </g>
         </svg>
         Share a spotlight
-      </div>
+      </button>
       <div className="flex-1 overflow-y-scroll scrollbar-hide px-3 pt-4">
         <div className="flex justify-between flex-col gap-4 p-3 border rounded-xl">
-          <div
+          <button type="button"
             onClick={() => setShow(!show)}
-            className="flex justify-between items-center gap-3">
+            className="text-left flex justify-between items-center gap-3">
             <div>
               <svg
                 width="20"
@@ -420,7 +420,7 @@ export default function Page() {
                 </g>
               </svg>
             </div>
-          </div>
+          </button>
           <div className="flex gap-2 justify-between items-center p-2 rounded-xl border bg-surface-subtle">
             <div className="w-16 h-16 overflow-hidden rounded-xl">
               <img

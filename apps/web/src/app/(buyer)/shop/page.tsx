@@ -306,11 +306,11 @@ const Page: React.FC = () => {
                     <p className="font-medium text-body md:text-body-lg">
                       Recently viewed vendors
                     </p>
-                    <p
+                    <button type="button"
                       onClick={() => router.push("/shop/recently-viewed")}
-                      className="text-caption md:text-body-sm font-medium text-brandDeep cursor-pointer hover:underline">
+                      className="text-left text-caption md:text-body-sm font-medium text-brandDeep cursor-pointer hover:underline">
                       See all
-                    </p>
+                    </button>
                   </div>
                   <div className="overflow-x-auto scrollbar-hide">
                     <div className="flex gap-4 px-0">
@@ -381,11 +381,11 @@ const Page: React.FC = () => {
                 <div className="mb-5 px-2">
                   <div className="flex justify-between items-center mb-4">
                     <p className="font-medium text-body md:text-body-lg">My wishlists</p>
-                    <p
+                    <button type="button"
                       onClick={() => router.push("")}
-                      className="text-caption md:text-body-sm font-medium text-brandDeep cursor-pointer hover:underline">
+                      className="text-left text-caption md:text-body-sm font-medium text-brandDeep cursor-pointer hover:underline">
                       See all
-                    </p>
+                    </button>
                   </div>
                   <div className="overflow-x-auto md:overflow-visible scrollbar-hide">
                     <div className="flex md:grid md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-4">
@@ -452,11 +452,11 @@ const Page: React.FC = () => {
                   <h1 className="font-medium text-body md:text-body-lg">
                     Explore social media vendors
                   </h1>
-                  <p
+                  <button type="button"
                     onClick={() => router.push("/shop/spotlights")}
-                    className="text-brandDeep font-medium text-caption md:text-body-sm cursor-pointer hover:underline">
+                    className="text-left text-brandDeep font-medium text-caption md:text-body-sm cursor-pointer hover:underline">
                     View spotlights
-                  </p>
+                  </button>
                 </div>
 
                 <div className="gap-4 md:gap-6 px-2 overflow-y-scroll scrollbar-hide md:grid md:grid-cols-2 lg:grid-cols-2">

@@ -155,8 +155,8 @@ const StoreDetails = ({
 
         {/* Contact Toggle Section */}
         <div className="bg-info-surface border border-info-border rounded-field p-3 mt-6">
-          <div
-            className="flex items-center gap-3 cursor-pointer"
+          <button type="button"
+            className="text-left flex items-center gap-3 cursor-pointer"
             onClick={() => setUsePersonalContact(!usePersonalContact)}
           >
             <div className={`w-5 h-5 border-2 rounded flex items-center justify-center flex-shrink-0 ${usePersonalContact
@@ -173,7 +173,7 @@ const StoreDetails = ({
                 We'll use your account email ({user?.email}) and phone ({user?.phone})
               </div>
             </div>
-          </div>
+          </button>
         </div>
 
         {/* Contact Fields - Only show when toggle is unchecked */}

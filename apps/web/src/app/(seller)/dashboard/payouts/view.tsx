@@ -66,25 +66,25 @@ const AccountCard = ({
       {show === id && (
         <div data-dropdown-menu className="absolute rounded-field bg-surface right-3 -bottom-20 border p-3 gap-3 flex flex-col shadow-md z-10">
           {!defaults && (
-            <p
-              className="text-body text-foreground-secondary font-medium cursor-pointer hover:text-foreground-primary"
+            <button type="button"
+              className="text-left text-body text-foreground-secondary font-medium cursor-pointer hover:text-foreground-primary"
               onClick={(e) => {
                 e.stopPropagation();
                 onSetDefault();
                 setShow("");
               }}>
               Set as default
-            </p>
+            </button>
           )}
-          <p
-            className="text-body text-brandDeep font-medium cursor-pointer hover:opacity-80"
+          <button type="button"
+            className="text-left text-body text-brandDeep font-medium cursor-pointer hover:opacity-80"
             onClick={(e) => {
               e.stopPropagation();
               onDelete();
               setShow("");
             }}>
             Delete
-          </p>
+          </button>
         </div>
       )}
     </div>

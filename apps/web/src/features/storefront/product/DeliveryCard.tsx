@@ -110,8 +110,8 @@ export default function DeliveryCard({
             <p className="text-foreground-secondary">Arrives by:</p>
             <p>~{selectedDelivery?.delivery_days}</p>
           </div>
-          <div
-            className="cursor-pointer py-1 px-2 border bg-brand/10 rounded-pill border-brandDeep flex justify-between items-center"
+          <button type="button"
+            className="text-left cursor-pointer py-1 px-2 border bg-brand/10 rounded-pill border-brandDeep flex justify-between items-center"
             onClick={() => {
               if (shippingOptions && shippingOptions.length > 0) {
                 openDeliveryModal();
@@ -127,7 +127,7 @@ export default function DeliveryCard({
               </p>
             </div>
             <ChevronRight size={16} className="text-brandDeep shrink-0" />
-          </div>
+          </button>
         </div>
       </div>
 

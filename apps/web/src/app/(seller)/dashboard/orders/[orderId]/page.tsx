@@ -477,21 +477,21 @@ const Order = ({ params }: { params: { orderId: string } }) => {
                 ))}
             </div>
             {status ? (
-              <div
+              <button type="button"
                 onClick={() => setStatus(!status)}
-                className="flex justify-center items-center mt-2 text-brandDeep font-medium text-body-sm">
+                className="text-left flex justify-center items-center mt-2 text-brandDeep font-medium text-body-sm">
                 Collapse timeline{" "}
                 <ChevronUp size={16} />
-              </div>
+              </button>
             ) : (
               <>
                 <div className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-white via-white to-transparent" />
-                <div
+                <button type="button"
                   onClick={() => setStatus(!status)}
-                  className="flex justify-center items-center text-brandDeep font-medium text-body-sm w-full absolute bottom-3 left-0 right-0 h-[40px]">
+                  className="text-left flex justify-center items-center text-brandDeep font-medium text-body-sm w-full absolute bottom-3 left-0 right-0 h-[40px]">
                   View full timeline{" "}
                   <ChevronDown size={16} />
-                </div>
+                </button>
               </>
             )}
           </div>

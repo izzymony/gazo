@@ -401,9 +401,9 @@ const PageView = ({
   const icon = icons[val];
 
   return (
-    <div
+    <button type="button"
       onClick={action}
-      className="flex items-center justify-between border border-outline-strong rounded-field px-4 py-2">
+      className="text-left flex items-center justify-between border border-outline-strong rounded-field px-4 py-2">
       <div className="flex items-center gap-3">
         {name === "" ? icon.old : icon.new}
         <p
@@ -416,7 +416,7 @@ const PageView = ({
         </p>
       </div>
       {name !== "" && <BsThreeDots cursor={"pointer"} />}
-    </div>
+    </button>
   );
 };
 const TextView = ({ val }: { val: keyof typeof icons }) => {

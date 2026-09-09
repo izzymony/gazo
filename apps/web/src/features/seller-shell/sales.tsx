@@ -239,12 +239,12 @@ export default function SalesBody({ action }: { action: () => void }) {
                   Available balance
                 </p>
 
-                <div
+                <button type="button"
                   onClick={action}
-                  className="text-caption font-medium uppercase flex items-center gap-1 cursor-pointer">
+                  className="text-left text-caption font-medium uppercase flex items-center gap-1 cursor-pointer">
                   View Details{" "}
                   <ChevronRight size={13} className="text-foreground-secondary" />
-                </div>
+                </button>
               </div>
 
               <div className="flex flex-row items-center justify-between">
@@ -548,9 +548,9 @@ export const Modall = ({
   action: () => void;
   router: any;
 }) => (
-  <div
+  <button type="button"
     onClick={action}
-    className="flex-1 absolute top-0 bottom-0 left-0 right-0 bg-black/20 flex-col flex justify-end">
+    className="text-left flex-1 absolute top-0 bottom-0 left-0 right-0 bg-black/20 flex-col flex justify-end">
     <div className="flex flex-col items-center bg-surface rounded-t-3xl mb-[60px] px-4 pt-10 pb-10">
       <div className="relative mb-3">
         <svg
@@ -627,5 +627,5 @@ export const Modall = ({
         <SocialButton sub="Upload from gallery" text="upload" action={() => router.push('/sharespotlights')} />
       </div>
     </div>
-  </div>
+  </button>
 );

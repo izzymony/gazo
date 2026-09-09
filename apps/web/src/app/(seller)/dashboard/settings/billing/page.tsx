@@ -63,12 +63,12 @@ const Billing = () => {
 
                 </Surface>
                 <div className="flex justify-end">
-                    <p
-                        className="cursor-pointer text-brandDeep flex items-center text-body-sm font-medium"
+                    <button type="button"
+                        className="text-left cursor-pointer text-brandDeep flex items-center text-body-sm font-medium"
                         onClick={() => router.push(`/dashboard/settings/billing/add-card`)}
                     >
                         Add new Card <MdOutlineAddCard className="ml-0.5" />
-                    </p>
+                    </button>
                 </div>
             </Section>
       </PageShell>

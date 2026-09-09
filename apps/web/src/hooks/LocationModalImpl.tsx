@@ -256,7 +256,7 @@ export default function LocationModal({
                 </div>
               )}
               {/* Manual entry option - always show when user has typed something */}
-              <div
+              <button type="button"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -291,7 +291,7 @@ export default function LocationModal({
                     setSeacrh("");
                   }
                 }}
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-info-surface cursor-pointer border border-info-border bg-info-surface mt-2 active:bg-info-border"
+                className="text-left flex items-center space-x-3 p-3 rounded-lg hover:bg-info-surface cursor-pointer border border-info-border bg-info-surface mt-2 active:bg-info-border"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M21 10C21 17 12 23 12 23S3 17 3 10C3 5.02944 7.02944 1 12 1C16.9706 1 21 5.02944 21 10Z" fill="#3B82F6"/>
@@ -300,7 +300,7 @@ export default function LocationModal({
                 <div className="flex-1">
                   <span className="text-info-foreground text-sm font-medium">Use: "{search}"</span>
                 </div>
-              </div>
+              </button>
             </>
           ) : (
             <div className="text-center text-foreground-disabled py-4">
