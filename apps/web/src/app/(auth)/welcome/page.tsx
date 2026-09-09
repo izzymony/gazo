@@ -8,6 +8,7 @@ import useShippingStore from "@/store/shippingStore";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { paginatedFetcher } from "./pagination";
+import { SIGNUP_PATH, resolveSellerDestination } from "@/lib/sellerDestination";
 import Image from "next/image";
 import Button from "@vibaar/ui/common/Button";
 import { toast } from "sonner";
@@ -71,20 +72,13 @@ export default function Welcome() {
         return;
       }
 
-      // For seller flow, check if navigation will go to protected routes
-      console.log('🔍 Navigation decision logic:', {
-        isAuthenticated,
-        hasUser: !!user,
-        hasBusinessId: !!user?.business?.id,
-        userBusinessObject: user?.business,
-        userObject: user ? {id: user.id, user_id: user.user_id, email: user.email} : null
-      });
-      
-      // Check if user is authenticated (cookies are set) rather than checking for ID
-      if (!isAuthenticated || !user) {
-        // Not authenticated - redirect to signup
-        console.log('🔄 Not authenticated - redirecting to signup');
-        router.push("/signup?intent=seller");
+      // Seller flow. The signed-out / no-store / has-store branch is shared with
+      // the marketing site's CTAs — see resolveSellerDestination. It used to be
+      // written out here, and a second copy of it on the home page would drift.
+      const { href, isSignedIn } = resolveSellerDestination(user, isAuthenticated);
+
+      if (!isSignedIn) {
+        router.push(`${SIGNUP_PATH}?intent=seller`);
         setIsNavigating(false);
         return;
       }
@@ -95,18 +89,9 @@ export default function Welcome() {
       // right after login, stranding authenticated users on /signin (the
       // "log in twice" bug). The middleware re-verifies the cookie server-side on
       // /dashboard from the real request, so that stays the actual gate.
-      // Navigate with window.location so the cookie is sent for the SSR request.
-      if (!user?.business?.id) {
-        console.log('🏪 No business ID - redirecting to create store');
-        window.location.href = "/dashboard/storefront/create?step=1";
-        // Don't set isNavigating(false) - let the loading persist until page navigates
-        return;
-      } else {
-        console.log('📊 Has business - redirecting to dashboard');
-        window.location.href = "/dashboard";
-        // Don't set isNavigating(false) - let the loading persist until page navigates
-        return;
-      }
+      // Navigate with window.location so the cookie is sent for the SSR request,
+      // and leave isNavigating set so the loader holds until the page changes.
+      window.location.href = href;
 
     } catch (error) {
       console.error('❌ Navigation error:', error);

@@ -1,6 +1,11 @@
 export const marketingContent = {
   header: {
     primaryAction: "Start selling",
+    // Shown instead of the above once the visitor is signed in. The header
+    // is navigation, so for someone with an account it is a way back in
+    // rather than a pitch.
+    signedInAction: "Open app",
+    login: "Log in",
     beta: "Beta",
   },
   hero: {
@@ -11,7 +16,6 @@ export const marketingContent = {
     body: "Vibaar turns the demand you create on social into protected, paid, trackable orders—from checkout to delivery.",
     primaryAction: "Start selling",
     secondaryAction: "Explore stores",
-    secondaryStatus: "Soon",
     imageAlt:
       "Three friends discovering products together on a mobile phone",
     // Floating audience labels — Figma places these around the headline, not
@@ -115,8 +119,9 @@ export const marketingContent = {
   footer: {
     builtBy: "Built by Tinovalabs",
     // WhatsApp is the route V1 already publishes; no phone line is published
-    // anywhere, so that one stays pending rather than invented.
-    contactStatus: "Coming soon",
+    // anywhere, so that one stays pending rather than invented. "Soon" is the
+    // page's one word for an unbuilt thing — the creator action says it too.
+    contactStatus: "Soon",
     contacts: [
       {
         id: "whatsapp",

@@ -3,6 +3,7 @@
 import { Clock, FiUsers, ShoppingBag, Store } from "@vibaar/ui/icons";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useSellerDestination } from "@/hooks/useAuthSnapshot";
 import { useAudienceJourney } from "./AudienceJourney";
 import styles from "../MarketingSite.module.css";
 
@@ -33,6 +34,7 @@ type AudienceId = (typeof audienceLinks)[number]["id"];
 export default function AudienceNavigation() {
   const navRef = useRef<HTMLElement>(null);
   const journey = useAudienceJourney();
+  const { href: sellerHref } = useSellerDestination();
   const [activeAudience, setActiveAudience] = useState<AudienceId>("sellers");
   const [isVisible, setIsVisible] = useState(false);
 
@@ -115,18 +117,27 @@ export default function AudienceNavigation() {
         ))}
       </div>
 
-      {activeAudience === "sellers" ? (
-        <Link className={styles.audienceAction} href="/signup">Start selling</Link>
-      ) : (
+      {activeAudience === "creators" ? (
+        /* The only one of the three that stays gated: creator tools genuinely
+           do not exist, and the FAQ says so a few sections further down. It
+           wears the disabled palette rather than the brand fill — a yellow
+           button that ignores the tap reads as broken, not as pending. */
         <span className={styles.audienceAction} aria-disabled="true">
-          {activeAudience === "buyers" ? "Explore stores" : "Creator tools"}
+          Creator tools
           {/* On a phone the status shrinks to the clock; the word stays in the
               accessible name rather than being dropped with it. */}
           <small className={styles.audienceActionStatus}>
             <Clock className={styles.audienceActionClock} size={12} aria-hidden="true" />
-            <span>{activeAudience === "buyers" ? "Soon" : "Later"}</span>
+            <span>Soon</span>
           </small>
         </span>
+      ) : (
+        <Link
+          className={styles.audienceAction}
+          href={activeAudience === "buyers" ? "/shop" : sellerHref}
+        >
+          {activeAudience === "buyers" ? "Explore stores" : "Start selling"}
+        </Link>
       )}
     </nav>
   );

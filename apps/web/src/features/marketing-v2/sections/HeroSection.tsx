@@ -1,6 +1,7 @@
 import { Store } from "@vibaar/ui/icons";
 import Image from "next/image";
 import Link from "next/link";
+import SellerLink from "../components/SellerLink";
 import StarFaceIcon from "../components/StarFaceIcon";
 import { marketingContent } from "../content";
 import styles from "../MarketingSite.module.css";
@@ -61,14 +62,21 @@ export default function HeroSection() {
         <p className={styles.heroBody}>{hero.body}</p>
 
         <div className={styles.heroActions}>
-          <Link className={styles.primaryAction} href="/signup">
+          {/* Same words for everyone — this is the page's argument, not a
+              nav control — but a signed-in seller is sent to their own
+              storefront rather than back through a sign-up screen that
+              would clear their session on arrival. */}
+          <SellerLink className={styles.primaryAction}>
             {hero.primaryAction} <span aria-hidden="true">↗</span>
-          </Link>
-          <span className={styles.secondaryAction} aria-disabled="true">
+          </SellerLink>
+          {/* The marketplace is live at /shop, so this is a real link. It was
+              a disabled span carrying a "Soon" chip long after the route
+              shipped — a dead control on the page and a promise the sitemap
+              already contradicted at priority 0.9. */}
+          <Link className={styles.secondaryAction} href="/shop">
             <Store size={18} aria-hidden="true" />
             {hero.secondaryAction}
-            <small>{hero.secondaryStatus}</small>
-          </span>
+          </Link>
         </div>
 
         {/* Each audience label and its V1 ornament share one floating parent,

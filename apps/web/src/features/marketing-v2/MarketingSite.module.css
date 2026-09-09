@@ -180,6 +180,10 @@
 
 .headerBrand {
   display: flex;
+  /* The logo is a bitmap-shaped element in a flex row: with a second
+     control now sitting opposite it, the default shrink squashed the mark
+     itself (112px down to 42px at 320) rather than wrapping. */
+  flex-shrink: 0;
   align-items: center;
   gap: 0.625rem;
 }
@@ -210,14 +214,18 @@
 
 .logoLink,
 .headerAction,
+.headerLogin,
 .primaryAction,
+.secondaryAction,
 .footerLinks a {
   outline: none;
 }
 
 .logoLink:focus-visible,
 .headerAction:focus-visible,
+.headerLogin:focus-visible,
 .primaryAction:focus-visible,
+.secondaryAction:focus-visible,
 .footerLinks a:focus-visible {
   box-shadow: 0 0 0 3px rgb(var(--neutral-950-rgb)), 0 0 0 6px var(--brand);
 }
@@ -272,6 +280,41 @@
   border-color: rgb(var(--neutral-50-rgb) / 0.22);
   background: rgb(var(--neutral-50-rgb) / 0.09);
   transform: translateY(-1px);
+}
+
+/* One width for both labels the action can carry ("Start selling" signed
+   out, "Open app" signed in), so the swap after hydration changes the word
+   and nothing else. */
+.headerAction {
+  min-width: 9.75rem;
+}
+
+.headerNav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Tertiary: no fill, no border. Logging in is not a call to action, and
+   painting it like one would put two equal-looking controls in a header
+   that should ask for exactly one thing. */
+.headerLogin {
+  display: inline-flex;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  border-radius: var(--radius-pill);
+  padding: 0.75rem 0.875rem;
+  color: rgb(var(--neutral-400-rgb));
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  transition: color 160ms ease;
+}
+
+.headerLogin:hover {
+  color: var(--marketing-copy);
 }
 
 .primaryAction:hover {
@@ -400,6 +443,8 @@
   display: inline-flex;
   min-height: 3.25rem;
   align-items: center;
+  /* A label, not a paragraph — same reason as .primaryAction above. */
+  white-space: nowrap;
   gap: 0.65rem;
   border: 1px solid var(--marketing-line);
   border-radius: var(--radius-pill);
@@ -408,16 +453,17 @@
   color: rgb(var(--neutral-300-rgb));
   font-size: 0.875rem;
   font-weight: 500;
+  transition: background-color 160ms ease, border-color 160ms ease,
+    color 160ms ease, transform 160ms ease;
 }
 
-.secondaryAction small {
-  border-radius: var(--radius-pill);
+/* It leads somewhere now, so it answers the pointer. The paint is the
+   header action's — one secondary treatment on the page, not two. */
+.secondaryAction:hover {
+  border-color: rgb(var(--neutral-50-rgb) / 0.22);
   background: rgb(var(--neutral-50-rgb) / 0.09);
-  padding: 0.2rem 0.55rem;
-  color: rgb(var(--neutral-300-rgb));
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  color: var(--marketing-copy);
+  transform: translateY(-1px);
 }
 
 .heroActions .primaryAction,
@@ -427,12 +473,16 @@
   font-size: 1rem;
 }
 
-.heroActions .primaryAction {
-  min-width: 11.3125rem;
+/* One width for the pair. The secondary was 17.5rem because it carried a
+   "Soon" chip as well as a label; with the chip gone that left the label
+   adrift in an oversized pill, and two buttons of unrelated widths read as
+   an accident. Same constant-width principle as the audience bar. */
+.heroActions .primaryAction,
+.heroActions .secondaryAction {
+  min-width: 13rem;
 }
 
 .heroActions .secondaryAction {
-  min-width: 17.5rem;
   justify-content: center;
 }
 
@@ -1622,6 +1672,28 @@
   text-transform: uppercase;
 }
 
+/* Two of the three lead somewhere, so they answer the pointer. Written as
+   :not() rather than relying on source order — equal specificity has
+   decided the wrong way in this file more than once. */
+.audienceAction:not([aria-disabled="true"]):hover {
+  background: var(--brand-hover);
+}
+
+/* The gated one. Off the brand fill and onto the disabled foreground token,
+   with the pointer saying the same thing the chip does. Border-box keeps the
+   1px border inside the constant width, so the bar does not resize. */
+.audienceAction[aria-disabled="true"] {
+  border: 1px solid var(--marketing-line);
+  background: rgb(var(--neutral-50-rgb) / 0.04);
+  color: rgb(var(--foreground-disabled-rgb));
+  cursor: not-allowed;
+}
+
+.audienceAction[aria-disabled="true"] small {
+  background: rgb(var(--neutral-50-rgb) / 0.08);
+  color: rgb(var(--foreground-disabled-rgb));
+}
+
 .audienceLink:focus-visible,
 .audienceAction:focus-visible {
   box-shadow: 0 0 0 3px rgb(var(--neutral-900-rgb)), 0 0 0 6px var(--brand);
@@ -1811,8 +1883,15 @@
   }
 
   .headerAction {
+    min-width: 8.5rem;
     min-height: 2.75rem;
     padding-inline: 0.9rem;
+    font-size: 0.78rem;
+  }
+
+  .headerLogin {
+    min-height: 2.75rem;
+    padding-inline: 0.5rem;
     font-size: 0.78rem;
   }
 
@@ -1961,12 +2040,14 @@
 @media (prefers-reduced-motion: reduce) {
   .skipLink,
   .headerAction,
-  .primaryAction {
+  .primaryAction,
+  .secondaryAction {
     transition: none;
   }
 
   .headerAction:hover,
-  .primaryAction:hover {
+  .primaryAction:hover,
+  .secondaryAction:hover {
     transform: none;
   }
 }
@@ -3280,7 +3361,8 @@
 
 /* The buttons already lift on hover; this is the other half of the gesture. */
 .headerAction:active,
-.primaryAction:active {
+.primaryAction:active,
+.secondaryAction:active {
   transform: translateY(0);
   scale: 0.985;
 }
@@ -3356,8 +3438,10 @@
 
   .headerAction:hover,
   .primaryAction:hover,
+  .secondaryAction:hover,
   .headerAction:active,
-  .primaryAction:active {
+  .primaryAction:active,
+  .secondaryAction:active {
     transform: none;
     scale: 1;
   }
@@ -3524,5 +3608,41 @@
   .faqAnswer {
     padding: 0.5rem 0.65rem;
     font-size: 0.78rem;
+  }
+}
+
+/* ── Header on phones ──────────────────────────────────────────────────
+   The header carries two controls now, and the mark, the release pill and
+   both of them stop fitting on one line well before the narrowest handset.
+   The logo is not the thing that gives way — it is the mark — so the
+   decorations go instead, in the order they can be spared, and each only at
+   the width where it actually has to. Declared last so these out-order the
+   767px block above.
+
+   First the arrow: an affordance on a control that is plainly a button, and
+   it buys the action back its padding. Measured at 390: brand 172 + gap 16 +
+   nav 160 = 348 inside 366. */
+@media (max-width: 420px) {
+  .headerActionArrow {
+    display: none;
+  }
+
+  .headerAction {
+    /* Still one width for both labels — just a smaller one. */
+    min-width: 7rem;
+    padding-inline: 0.7rem;
+  }
+
+  .headerLogin {
+    padding-inline: 0.375rem;
+  }
+}
+
+/* Then the release pill, which the page states again in its own copy. Only
+   below the common 390 handset, where keeping it would cost 50px the mark
+   needs. Measured at 320: brand 112 + gap 16 + nav 160 = 288 inside 296. */
+@media (max-width: 389px) {
+  .betaPill {
+    display: none;
   }
 }
