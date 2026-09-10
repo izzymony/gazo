@@ -197,7 +197,7 @@ const Page: React.FC = () => {
   // Feed failed with nothing to show — retryable error instead of an empty page.
   if (shopVendorsError && shopVendors.length === 0) {
     return (
-      <div ref={scrollRef} className="w-full overflow-y-scroll scrollbar-hide">
+      <div ref={scrollRef} className="w-full h-full overflow-y-scroll scrollbar-hide">
         <div className="w-full flex flex-col mb-0">
           <HeaderSlides />
           <div className="rounded-t-2xl -mt-4 pb-10 z-20 bg-surface shadow-lg px-4 pt-8 min-h-[50vh] flex flex-col items-center justify-center gap-4 max-w-full lg:max-w-5xl lg:mx-auto text-center">
@@ -224,7 +224,14 @@ const Page: React.FC = () => {
   }
 
   return (
-    <div ref={scrollRef} className="w-full overflow-y-scroll scrollbar-hide">
+    // h-full is what makes this scroll. The buyer frame is `h-dvh
+    // overflow-hidden`, and this element had no height at all: it grew to its
+    // content, so `overflow-y-scroll` had nothing to scroll and the frame simply
+    // clipped everything below the fold. Nothing on the marketplace past the
+    // first screen was reachable — and useInfiniteScroll ignores a container
+    // whose scrollHeight equals its clientHeight, so it rooted on the viewport
+    // and its sentinel, being clipped, never came into view either.
+    <div ref={scrollRef} className="w-full h-full overflow-y-scroll scrollbar-hide">
       <div className="w-full flex flex-col mb-0">
         <HeaderSlides />
         <div className="rounded-t-2xl -mt-4 pb-10 z-20 bg-surface shadow-lg px-2 md:px-4 lg:px-6 pt-2 md:pt-4 lg:pt-6 max-w-full lg:max-w-5xl lg:mx-auto">
@@ -289,7 +296,8 @@ const Page: React.FC = () => {
             )}
           </div>
 
-          <div className="h-full overflow-y-scroll scrollbar-hide">
+          {/* Plain wrapper: the page scroller above owns scrolling. */}
+          <div>
             <div className=" ">
               {/* Recently viewed vendors — rendered from the per-user `recent`
                   list (it carries { business, products }); no broad product pull. */}
@@ -440,7 +448,7 @@ const Page: React.FC = () => {
               )}
 
               {/* Explore vendors — P16 marketplace discovery feed */}
-              <div className="mb-5 overflow-y-scroll scrollbar-hide">
+              <div className="mb-5">
                 <div className="flex justify-between items-center py-3 px-2">
                   <h1 className="font-medium text-body md:text-body-lg">
                     Explore social media vendors
@@ -452,7 +460,7 @@ const Page: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="gap-4 md:gap-6 px-2 overflow-y-scroll scrollbar-hide md:grid md:grid-cols-2 lg:grid-cols-2">
+                <div className="gap-4 md:gap-6 px-2 md:grid md:grid-cols-2 lg:grid-cols-2">
                   {shopVendorsLoading
                     ? Array.from({ length: 4 }).map((_, i) => (
                         <div
