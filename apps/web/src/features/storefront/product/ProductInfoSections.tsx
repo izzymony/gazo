@@ -29,8 +29,8 @@ export function ProductDescription({
       initiallyOpen={true}
       className="px-5 lg:px-0"
     >
-      <div className="pb-2 rounded-lg">
-        <p className="text-body-sm font-normal text-foreground-secondary line-clamp-3">
+      <div>
+        <p className="text-body-sm font-normal text-foreground-secondary">
           {truncatedDescription}
         </p>
         {description && description.length > 100 && !isExpanded && (
@@ -67,40 +67,55 @@ export function ProductVendorInfo({
       initiallyOpen={true}
       className="px-5 lg:px-0"
     >
-      <div className=" pb-2 rounded-lg">
-        <div className="flex items-center mt-2">
-          <div className="w-[52px] h-[52px]">
-            <StoreLogo
-              src={store?.logo as string}
-              storeName={store?.name || "Store"}
-              size={52}
-              className=""
-            />
-          </div>
-          <div className="ml-4">
-            <h3 className="font-medium text-xs flex items-center gap-1">
-              {store?.name}
-              <VerifiedCheck verified={store?.is_verified} size={13} />
+      <div>
+        <div className="flex items-center gap-3">
+          <StoreLogo
+            src={store?.logo as string}
+            storeName={store?.name || "Store"}
+            size={48}
+          />
+          <div className="min-w-0">
+            <h3 className="flex items-center gap-1 text-body font-medium text-foreground-primary">
+              <span className="truncate">{store?.name}</span>
+              <VerifiedCheck verified={store?.is_verified} size={14} />
             </h3>
-            <p className="text-foreground-muted text-caption font-normal flex items-center gap-1">
-              {store?.category} · <FaStar /> {store?.average_rating || "0.0"} ·{" "}
-              {store?.followers_count || "0"} <FiUsers />
+            {/* The metrics row. Both glyphs used to render at their intrinsic
+                size next to 10px text — the star and the people icon came out
+                visibly larger than the numbers they belonged to. Sized to the
+                text and marked decorative, with the meaning carried by real
+                words for screen readers. */}
+            <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-body-sm font-normal text-foreground-muted">
+              {store?.category && <span className="truncate">{store.category}</span>}
+              <span aria-hidden="true">·</span>
+              <span className="inline-flex items-center gap-1">
+                <FaStar size={12} className="text-warning-foreground" aria-hidden="true" />
+                {Number(store?.average_rating || 0).toFixed(1)}
+                <span className="sr-only">average rating</span>
+              </span>
+              <span aria-hidden="true">·</span>
+              <span className="inline-flex items-center gap-1">
+                <FiUsers size={12} aria-hidden="true" />
+                {store?.followers_count || 0}
+                <span className="sr-only">followers</span>
+              </span>
             </p>
           </div>
-
-          <div className="text-brandDeep text-xs ml-auto font-medium">Follow</div>
         </div>
-        <p className="text-xs font-normal mt-2 text-foreground-secondary">
-          {store?.description}
-        </p>
+        {store?.description && (
+          <p className="mt-3 text-body-sm font-normal text-foreground-secondary">
+            {store.description}
+          </p>
+        )}
 
-        <div className="flex flex-wrap gap-3 mt-3">
-          {collections?.map((col: string, index: number) => (
-            <Badge key={index} size="md">
-              {col}
-            </Badge>
-          ))}
-        </div>
+        {collections && collections.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {collections.map((col: string, index: number) => (
+              <Badge key={index} size="md">
+                {col}
+              </Badge>
+            ))}
+          </div>
+        )}
       </div>
     </Accordion>
   );

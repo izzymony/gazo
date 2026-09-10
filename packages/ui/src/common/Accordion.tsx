@@ -32,11 +32,17 @@ const Accordion: React.FC<AccordionProps> = ({
 
   return (
     <div className={className}>
+      {/* py-4 on the trigger, not a bare min-height.
+          Collapsed, an accordion IS its header row, so that row's padding is the
+          whole section's rhythm. With only `min-h-[36px]` the text sat flush
+          against its own divider and a stack of collapsed sections read as one
+          dense block. 16px above and below gives a 52px row — the same height as
+          the compact header and comfortably over the 36px touch minimum. */}
       <DisclosureButton
         expanded={isOpen}
         controls={panelId}
         onClick={() => setIsOpen((v) => !v)}
-        className="flex items-center justify-between w-full text-body font-medium text-foreground-primary min-h-[36px]">
+        className="flex w-full items-center justify-between gap-3 py-4 text-body font-medium text-foreground-primary">
         {title}
         <GoChevronDown
           size={20}
@@ -46,8 +52,10 @@ const Accordion: React.FC<AccordionProps> = ({
           )}
         />
       </DisclosureButton>
+      {/* The trigger already owns the space above; the panel only needs the gap
+          under itself so an open section does not crowd the next divider. */}
       {isOpen && (
-        <div id={panelId} className="space-y-4 mt-3">
+        <div id={panelId} className="space-y-4 pb-5">
           {children}
         </div>
       )}

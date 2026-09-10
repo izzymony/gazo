@@ -216,9 +216,13 @@ export default function ExpandableIconMenu({
 
   return (
     <div className="flex gap-2">
-      <motion.div className="inline-flex z-50 items-center gap-2 rounded-full px-2 py-2 backdrop-blur-sm bg-surface-subtle shadow-md">
-{/* Only show social icons when menu is open */}
-        {isOpen && items.map((item, index) => (
+      {/* The pill only exists when it has something in it.
+          It rendered unconditionally, so a closed menu — and any store with no
+          social profiles at all — painted an empty white disc next to the
+          overflow button in the storefront and product headers. */}
+      {isOpen && items.length > 0 && (
+      <motion.div className="inline-flex z-dropdown items-center gap-2 rounded-pill px-2 py-2 backdrop-blur-sm bg-surface-subtle shadow-card">
+        {items.map((item, index) => (
           <AnimatePresence key={item.id}>
             <motion.button
               initial={{ opacity: 0, x: -10 }}
@@ -235,9 +239,10 @@ export default function ExpandableIconMenu({
           </AnimatePresence>
         ))}
       </motion.div>
+      )}
 
       {isOpen && (
-        <motion.div className="inline-flex z-50 items-center gap-2 rounded-full px-2 backdrop-blur-sm bg-surface-subtle shadow-md">
+        <motion.div className="inline-flex z-dropdown items-center gap-2 rounded-pill px-2 backdrop-blur-sm bg-surface-subtle shadow-card">
           <AnimatePresence>
             <motion.button
               initial={{ opacity: 0, x: -10 }}

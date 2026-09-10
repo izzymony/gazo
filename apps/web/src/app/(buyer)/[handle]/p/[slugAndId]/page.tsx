@@ -2,14 +2,10 @@ import { cache } from "react";
 import { notFound, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
 import { serverFetch } from "@/lib/api/serverFetch";
+import { parseStoreHandle } from "@/lib/urlHelpers";
 import Product from "@/features/storefront/Product";
 
 const PUBLIC_ID_RE = /^[a-z0-9]{8,10}$/;
-
-function parseHandle(param: string): string | null {
-  const h = decodeURIComponent(param).toLowerCase();
-  return h.startsWith("@") ? h.slice(1) : null;
-}
 
 // publicId = the token after the LAST '-' in {slug}-{publicId}; validate the charset
 // (hyphen-free, 8–10 [a-z0-9]) so a random string can't be mistaken for an id.
@@ -107,7 +103,7 @@ export default async function Page({
 }: {
   params: { handle: string; slugAndId: string };
 }) {
-  const handle = parseHandle(params.handle);
+  const handle = parseStoreHandle(params.handle);
   const publicId = parsePublicId(params.slugAndId);
   if (!handle || !publicId) notFound();
   const r = await resolve(publicId);
@@ -150,7 +146,11 @@ export default async function Page({
   // first paint without a duplicate fetch.
   return (
     <>
-      <h1 className="sr-only">{r.product.title}</h1>
+      {/* No <h1> here. It existed because the visible title rendered empty until
+          the client seeded the store, so crawlers saw no heading — the client
+          renders the server-primed product on its first paint now, and
+          ProductInfo's <h1> carries the title. Two h1s on one page is worse for
+          the crawler than the problem this solved. */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }}

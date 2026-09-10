@@ -8,6 +8,10 @@ interface TabsProps {
   tabs: string[];
   tabContents: React.ReactNode[];
   onTabChange?: (activeIndex: number) => void;
+  /**
+   * A row that belongs to the tab bar rather than to any one panel — a filter
+   * strip, a date range. It sticks WITH the tab bar rather than under it.
+   */
   generalContent?: React.ReactNode;
   tabClass?: string;
   /** Pixel offset for the sticky tab bar — e.g. to sit below a collapsing
@@ -44,14 +48,22 @@ const Tabs: React.FC<TabsProps> = ({
 
   return (
     <div className="w-full">
-      {/* Tab bar — sticks within PageShell's scroll; inherits its horizontal padding */}
+      {/* The tab bar and its general row stick TOGETHER, as one block.
+          `generalContent` used to render below, inside a wrapper only as tall as
+          itself — and a sticky element cannot travel past its own containing
+          block, so a sticky filter row there stuck for zero pixels and simply
+          scrolled away while the tabs stayed. Grouping them makes the offsets
+          compose: the caller gives one `stickyTop` and the whole block honours
+          it. */}
       <div
-        role="tablist"
         style={stickyTop !== undefined ? { top: stickyTop } : undefined}
-        className={cn(
-          tabBar,
-          tabClass
-        )}>
+        className="sticky top-0 z-sticky bg-surface">
+        <div
+          role="tablist"
+          className={cn(
+            tabBar,
+            tabClass
+          )}>
         {tabs.map((tab, index) => {
           const selected = activeTab === index;
           return (
@@ -82,11 +94,12 @@ const Tabs: React.FC<TabsProps> = ({
             </button>
           );
         })}
+        </div>
+        {generalContent}
       </div>
 
-      {/* Content — one 16px gap below the tab bar; optional filter row above it */}
+      {/* Panel — one 16px gap below the sticky block. */}
       <div className="mt-4">
-        {generalContent && <div className="mb-4">{generalContent}</div>}
         <div role="tabpanel" id={panelId(activeTab)} aria-labelledby={tabId(activeTab)} tabIndex={0}>
           {tabContents[activeTab]}
         </div>

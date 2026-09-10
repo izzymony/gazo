@@ -7,7 +7,7 @@ interface BackButtonProps {
   onClick?: () => void;
   /** Accessible name. Defaults to "Go back". */
   ariaLabel?: string;
-  /** Unique SVG mask id — preserved per-caller so the rendered DOM is byte-for-byte identical */
+  /** Unique SVG mask id — masks are document-global, so two on one page must differ. */
   maskId: string;
   /** Optional wrapper className (callers currently pass none) */
   className?: string;
@@ -47,7 +47,11 @@ const BackButton = ({ onClick, maskId, className, ariaLabel = "Go back" }: BackB
         y="8"
         width="20"
         height="20">
-        <rect x="8" y="8" width="20" height="20" fill="currentColor" />
+        {/* A mask is LUMINANCE: white reveals, black hides. This was `currentColor`,
+            which inherits the surrounding TEXT colour — dark on these headers — so
+            the mask went black and hid the arrow entirely. Both storefront headers
+            rendered an invisible back button. It must be an explicit light value. */}
+        <rect x="8" y="8" width="20" height="20" fill="white" />
       </mask>
       <g mask={`url(#${maskId})`}>
         <path

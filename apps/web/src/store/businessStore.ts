@@ -292,7 +292,23 @@ interface BusinessState {
     payload: FormData,
     callback?: () => void
   ) => Promise<void>;
+  /**
+   * The AUTHENTICATED USER'S OWN business — the owner slot. Written only by the
+   * owner paths (getMe -> hydrateFromBusiness, getAuthenticatedUserStore).
+   */
   store: StoreData | null;
+  /**
+   * The vendor currently BEING VIEWED — the public slot. Written only by the
+   * paths that resolve a vendor from a URL or the marketplace (fetchStoreByTag,
+   * setStore(data, true)).
+   *
+   * These two must never be written together. They were: hydrateFromBusiness
+   * assigned the signed-in seller's business to BOTH, and it runs on every load
+   * with a token. Since the buyer product/storefront pages read this slot for
+   * the vendor name, logo, "About this vendor" and the delivery origin, a
+   * signed-in seller browsing someone else's product saw THEIR OWN store and
+   * their own saved address.
+   */
   stor: StoreData | null;
   storeMetrics: BusinessStatsResponse | null;
   stores: StoreData[];
@@ -1213,12 +1229,14 @@ const useBusinessStore = create<BusinessState>()(
 
       // Set the current store data
       setStore: (data: StoreData, isMarketplace = true) => {
-        // For marketplace views, only update stor (viewing store)
-        // For seller views, update both store and stor
+        // The two slots are exclusive: `stor` is the vendor being viewed,
+        // `store` is the signed-in user's own business. Writing both (as the
+        // owner branch used to) is what let a seller's store masquerade as the
+        // vendor on someone else's product page.
         if (isMarketplace) {
           set({ stor: data });
         } else {
-          set({ store: data, stor: data });
+          set({ store: data });
         }
       },
       setStoreMetrics: (data: BusinessStatsResponse) =>
@@ -1813,11 +1831,12 @@ const useBusinessStore = create<BusinessState>()(
       // with no store) clears the store rather than erroring.
       hydrateFromBusiness: (business) => {
         if (!business) {
-          set({ stor: null, store: null });
+          // Clears the OWNER slot only. `stor` holds whichever vendor is being
+          // viewed and has nothing to do with who is signed in.
+          set({ store: null });
           return;
         }
         set({
-          stor: business,
           store: business,
           theme: {
             backgroundColor:

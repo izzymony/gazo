@@ -29,10 +29,8 @@ export const truncateTextByLength = (
 };
 
 interface Props {
-  isSeller?: {
-    seller?: boolean;
-    pro?: boolean;
-  };
+  /** The owner viewing their own catalogue, vs a shopper on a storefront. */
+  isOwnerView?: boolean;
   filter?: string;
   searchValue?: string;
   sortToggle?: boolean;
@@ -40,7 +38,7 @@ interface Props {
 }
 
 const AllProducts = ({
-  isSeller,
+  isOwnerView,
   filter,
   searchValue,
   sortToggle,
@@ -158,7 +156,7 @@ const AllProducts = ({
               ? "Your store is ready. Add your first product to start selling."
               : "This store has not listed any product yet."
           }>
-          {isSeller?.seller && (
+          {isOwnerView && (
             <Button
               variant="filled"
               onClick={() => router.push("/dashboard/catalog/product/create")}

@@ -14,10 +14,8 @@ import {
 } from "@vibaar/ui/icons";
 
 interface Props {
-  isSeller?: {
-    seller?: boolean;
-    pro?: boolean;
-  };
+  /** The owner viewing their own store — they get the seller bar instead. */
+  isOwnerView?: boolean;
 }
 
 type NavLink = {
@@ -68,7 +66,7 @@ const routeIsActive = (pathName: string, route: string) =>
  * first of its routes, so tapping the cart opened /orders. It now goes to /cart
  * and stays current on both.
  */
-const VendorNav = memo(({ isSeller }: Props) => {
+const VendorNav = memo(({ isOwnerView }: Props) => {
   const pathName = usePathname();
   const { cart, carts } = useOrderStore();
 
@@ -76,7 +74,7 @@ const VendorNav = memo(({ isSeller }: Props) => {
   const totalCartItems =
     cart.length + carts.reduce((total, business) => total + business.products.length, 0);
 
-  return isSeller?.seller ? (
+  return isOwnerView ? (
     <BottomNav />
   ) : (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-sticky px-4 pb-safe lg:hidden">

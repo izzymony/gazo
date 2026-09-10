@@ -106,13 +106,10 @@ export const Copy = make(Copy01Icon);
 export const Heart = make(FavouriteIcon);
 /* Filled heart — the free HugeIcons set is outline-only (FavouriteIcon), so this
    solid glyph backs the "liked" state. Color via className (e.g. text-brand). */
-export const HeartFilled = ({
-  size = 20,
-  className = "",
-}: {
-  size?: number;
-  className?: string;
-}) => (
+// Typed as IconProps like every generated icon, so it is interchangeable with
+// them — `icon={liked ? HeartFilled : Heart}` on a component expecting an icon
+// would not typecheck while this declared a narrower `size?: number`.
+export const HeartFilled = ({ size = 20, className = "", ...rest }: IconProps) => (
   <svg
     width={size}
     height={size}
@@ -120,10 +117,12 @@ export const HeartFilled = ({
     fill="currentColor"
     xmlns="http://www.w3.org/2000/svg"
     className={className}
-    aria-hidden="true">
+    aria-hidden="true"
+    {...(rest as React.SVGProps<SVGSVGElement>)}>
     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
   </svg>
 );
+HeartFilled.displayName = "Icon";
 export const Move = make(Move01Icon);
 export const Plus = make(PlusSignIcon);
 export const Minus = make(MinusSignIcon);

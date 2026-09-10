@@ -314,10 +314,14 @@ const useProductStore = create<ProductState>()(
                 const businessStore = (await import("@/store/businessStore")).default;
                 const currentStore = businessStore.getState().store;
                 if (currentStore) {
+                  // `false` = the OWNER slot. This read `store` (the owner's
+                  // business) and wrote it back with the default `true`, i.e.
+                  // into the VIEWED-vendor slot — overwriting whichever vendor
+                  // the shopper was looking at with the seller's own store.
                   businessStore.getState().setStore({
                     ...currentStore,
                     product_count: freshProducts.length
-                  });
+                  }, false);
                 }
 
                 console.log("✅ Products list refreshed successfully");

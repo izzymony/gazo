@@ -25,7 +25,6 @@ export default function DeliveryCard({
   className = "",
   returnRowClassName = "",
   store,
-  stor,
   singleShippingDetails,
   selectedDeliveryLocation,
   location,
@@ -36,8 +35,8 @@ export default function DeliveryCard({
 }: {
   className?: string;
   returnRowClassName?: string;
+  /** The VENDOR being bought from — the delivery origin. */
   store: any;
-  stor: any;
   singleShippingDetails: any;
   selectedDeliveryLocation: any;
   location: any;
@@ -46,10 +45,12 @@ export default function DeliveryCard({
   openLocationModal: () => void;
   openDeliveryModal: () => void;
 }) {
-  const sellerLocation =
-    store?.address?.address_line || store?.address?.province;
-  const buyerLocation = stor?.address?.address_line || stor?.address?.province;
-  const fromLocation = sellerLocation || buyerLocation || "(location not set)";
+  // The origin is the VENDOR's address, full stop. There used to be a second
+  // fallback here reading the signed-in user's OWN store — so when a vendor had
+  // no address recorded, a shopper who happened to be a seller saw their own
+  // address presented as the shipping origin.
+  const fromLocation =
+    store?.address?.address_line || store?.address?.province || "Not specified";
 
   const toLocation =
     location?.properties?.full_address ||
@@ -58,60 +59,75 @@ export default function DeliveryCard({
       ? `${singleShippingDetails.street} ${singleShippingDetails.town} ${singleShippingDetails.country}`
       : "Select a Location");
 
+  const hasSelection = Boolean(selectedDelivery?.id);
+
   return (
     <div className={className}>
-      <p className="font-medium text-sm mb-3">Delivery &amp; Returns</p>
+      <p className="mb-3 text-body font-medium text-foreground-primary">
+        Delivery &amp; Returns
+      </p>
 
-      <div className="pt-3 rounded-lg lg:rounded-xl bg-surface-subtle mt-3 mb-0">
+      {/* Route rail. Radii are tokens (field/card) rather than the mixed
+          rounded-lg / rounded-xl / rounded-2xl this carried, padding is on the
+          4px scale, and every size is a step on the type scale. */}
+      <div className="rounded-card bg-surface-subtle p-3">
         {/* From row (origin marker + dashed connector on the route rail) */}
-        <div className="flex px-2 justify-between w-full">
+        <div className="flex w-full items-start justify-between gap-3">
           <div className="flex gap-3">
-            <div className="flex flex-col items-center">
-              <span className="w-4 h-4 rounded-full bg-brand/10 border border-brandDeep/40 flex items-center justify-center">
-                <span className="w-2 h-2 rounded-full bg-brand" />
+            <div className="flex flex-col items-center pt-0.5">
+              <span className="flex h-4 w-4 items-center justify-center rounded-pill border border-brandDeep/40 bg-brand/10">
+                <span className="h-2 w-2 rounded-pill bg-brand" />
               </span>
-              <span className="w-px h-4 border-l border-dashed border-brandDeep/50" />
+              <span className="h-4 w-px border-l border-dashed border-brandDeep/50" />
             </div>
-            <div className="flex gap-2 items-center">
-              <DeliveryTruck size={20} className="text-black" />
-              <p className="text-sm font-medium">From:</p>
+            <div className="flex items-center gap-2">
+              <DeliveryTruck size={18} className="text-foreground-primary" aria-hidden="true" />
+              <p className="text-body-sm font-medium text-foreground-primary">From:</p>
             </div>
           </div>
-          <div className="flex-1 ml-1">
-            <p className="text-xs font-normal line-clamp-1 text-right">
-              {fromLocation}
-            </p>
-          </div>
+          <p className="min-w-0 flex-1 line-clamp-1 text-right text-body-sm font-normal text-foreground-secondary">
+            {fromLocation}
+          </p>
         </div>
 
         {/* To row (route destination) */}
-        <div className="flex px-2 justify-between mb-2 gap-3 w-full">
-          <div className="flex items-center gap-3">
-            <FaLocationDot size={18} className="text-brandDeep" />
-            <p className="text-sm font-medium">To:</p>
+        <div className="mb-3 flex w-full items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <FaLocationDot size={18} className="text-brandDeep" aria-hidden="true" />
+            <p className="text-body-sm font-medium text-foreground-primary">To:</p>
           </div>
-          <button type="button"
-            className="text-left w-full text-brandDeep flex gap-1 items-center text-xs font-medium cursor-pointer flex-1 justify-end"
+          <button
+            type="button"
+            aria-label="Choose a delivery location"
+            className="flex min-h-9 min-w-0 flex-1 items-center justify-end gap-1 rounded-field text-body-sm font-medium text-brandDeep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40"
             onClick={openLocationModal}>
-            <FaLocationDot size={12} className="text-brandDeep shrink-0" />
-            <p className="line-clamp-1">{toLocation}</p>
+            <FaLocationDot size={12} className="shrink-0 text-brandDeep" aria-hidden="true" />
+            <span className="line-clamp-1 text-left">{toLocation}</span>
           </button>
         </div>
 
         {/* Selected-delivery summary */}
-        <div className="bg-surface border border-outline rounded-xl lg:rounded-2xl px-4 py-4 space-y-2">
-          <div className="flex justify-between items-center text-sm font-normal">
+        <div className="space-y-2 rounded-field border border-outline bg-surface p-4">
+          <div className="flex items-center justify-between text-body-sm font-normal">
             <p className="text-foreground-secondary">
-              {selectedDelivery?.delivery_type || "Standard delivery"}:
+              {selectedDelivery?.delivery_type || "Delivery"}
             </p>
-            <p>{selectedDelivery?.price?.replace(/^N/, "") || "₦0"}</p>
+            {/* Placeholders rather than a fabricated price and a lone "~": with
+                nothing selected these read "₦0" and "~", which look like real
+                quotes for a free, instant delivery. */}
+            <p className="font-medium text-foreground-primary">
+              {hasSelection ? selectedDelivery?.price?.replace(/^N/, "") : "Select a location"}
+            </p>
           </div>
-          <div className="flex justify-between items-center text-sm font-medium">
-            <p className="text-foreground-secondary">Arrives by:</p>
-            <p>~{selectedDelivery?.delivery_days}</p>
-          </div>
-          <button type="button"
-            className="text-left cursor-pointer py-1 px-2 border bg-brand/10 rounded-pill border-brandDeep flex justify-between items-center"
+          {hasSelection && selectedDelivery?.delivery_days && (
+            <div className="flex items-center justify-between text-body-sm font-medium">
+              <p className="text-foreground-secondary">Arrives by:</p>
+              <p className="text-foreground-primary">~{selectedDelivery.delivery_days}</p>
+            </div>
+          )}
+          <button
+            type="button"
+            className="flex min-h-9 w-full items-center justify-between gap-2 rounded-pill border border-brandDeep bg-brand/10 px-3 py-1.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40"
             onClick={() => {
               if (shippingOptions && shippingOptions.length > 0) {
                 openDeliveryModal();
@@ -119,31 +135,32 @@ export default function DeliveryCard({
                 openLocationModal();
               }
             }}>
-            <div className="flex gap-2 items-center">
-              <p>🔥</p>
-              <p className="line-clamp-1 text-xs font-normal tracking-[0.5px]">
-                {selectedDelivery?.delivery_type || "Fastest"} Delivery between{" "}
-                {selectedDelivery?.delivery_days || "1 to 2 business days"}
-              </p>
-            </div>
-            <ChevronRight size={16} className="text-brandDeep shrink-0" />
+            <span className="flex min-w-0 items-center gap-2">
+              <span aria-hidden="true">🔥</span>
+              <span className="line-clamp-1 text-body-sm font-normal">
+                {hasSelection
+                  ? `${selectedDelivery?.delivery_type} between ${selectedDelivery?.delivery_days}`
+                  : "See delivery options"}
+              </span>
+            </span>
+            <ChevronRight size={16} className="shrink-0 text-brandDeep" aria-hidden="true" />
           </button>
         </div>
       </div>
 
       {/* Return policy */}
       <div
-        className={`flex flex-row justify-between items-center ${returnRowClassName}`}>
-        <div className="flex items-center space-x-2">
-          <Shield size={20} className="text-black" />
-          <p className="text-xs font-medium">Return policy</p>
+        className={`flex flex-row items-center justify-between gap-3 ${returnRowClassName}`}>
+        <div className="flex items-center gap-2">
+          <Shield size={18} className="text-foreground-primary" aria-hidden="true" />
+          <p className="text-body-sm font-medium text-foreground-primary">Return policy</p>
         </div>
-        <div className="flex items-center space-x-2">
-          <p className="text-foreground-secondary text-xs font-normal">
+        <div className="flex items-center gap-2">
+          <p className="text-body-sm font-normal text-foreground-secondary">
             Free return within{" "}
-            <span className="text-black font-semibold">24hrs</span>
+            <span className="font-semibold text-foreground-primary">24hrs</span>
           </p>
-          <AiOutlineInfoCircle size={20} className="text-black" />
+          <AiOutlineInfoCircle size={18} className="text-foreground-secondary" aria-hidden="true" />
         </div>
       </div>
     </div>

@@ -75,13 +75,9 @@ const KebabMenu = ({ isOpen, setIsOpen, store }: KebabMenuProps) => (
           y="8"
           width="20"
           height="21">
-          <rect
-            x="8"
-            y="8.32031"
-            width="20"
-            height="20"
-            fill="currentColor"
-          />
+          {/* Luminance mask — see BackButton. `currentColor` inherited the dark
+              header text colour and hid the dots. */}
+          <rect x="8" y="8.32031" width="20" height="20" fill="white" />
         </mask>
         <g mask="url(#mask0_7046_239079)">
           <path

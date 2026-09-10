@@ -26,6 +26,27 @@ export const productSlug = (product?: ProductLike): string => {
   return s || 'product';
 };
 
+/**
+ * Read a store handle out of a captured `[handle]` route param.
+ *
+ * The param arrives PERCENT-ENCODED: Next hands `useParams()` the raw segment,
+ * so `/@localstore2` is `"%40localstore2"`, not `"@localstore2"`. Decoding is
+ * therefore not optional. The client product page skipped it and stripped the
+ * '@' with a regex that no longer matched, then re-encoded the result — asking
+ * the API for the tag `%40localstore2`, which 404s. That 404 both raised a
+ * "store not found" toast on every product view and NULLED the correct,
+ * already-resolved vendor, so the page fell back to whatever store was in
+ * state (for a signed-in seller: their own).
+ *
+ * Returns null when the segment is not a store handle (no leading '@'), which
+ * is how a top-level path is distinguished from a storefront.
+ */
+export const parseStoreHandle = (param?: string | null): string | null => {
+  if (!param) return null;
+  const handle = decodeURIComponent(param).toLowerCase();
+  return handle.startsWith('@') ? handle.slice(1) : null;
+};
+
 /** In-app path to a vendor storefront: /@{handle}. */
 export const storePath = (store?: StoreLike | null): string => `/@${store?.tag || ''}`;
 

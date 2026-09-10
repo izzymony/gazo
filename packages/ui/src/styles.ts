@@ -31,7 +31,9 @@ export const peerFocusRing =
  * semantics must NOT be merged. Their appearance was duplicated as identical
  * class strings in both files, which is the part that should be shared.
  */
-export const tabBar = "flex justify-between lg:justify-center sticky top-0 z-sticky bg-surface";
+// The tab ROW itself. Stickiness lives on the wrapper in Tabs (which also holds
+// the optional general/filter row) so the two travel as one block.
+export const tabBar = "flex justify-between lg:justify-center bg-surface";
 
 export const tabBarItem =
   "w-full lg:w-auto text-center py-2 md:py-3 px-4 md:px-6 lg:px-8 border-b-2 text-body md:text-body-lg transition-all";

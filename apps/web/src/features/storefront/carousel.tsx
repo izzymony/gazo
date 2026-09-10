@@ -1,22 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
-import { useState, useRef, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import useModalBehaviour from "@vibaar/ui/common/useModalBehaviour";
 import IconButton from "@vibaar/ui/common/IconButton";
 import { X } from "@vibaar/ui/icons";
-import { getMobileCompatibleImageUrl } from "@/lib/utils";
+import { getMobileCompatibleImageUrl, cn } from "@/lib/utils";
 
 const ImageCarousel = ({
   product,
-  isSeller,
   isScrolled,
 }: {
   product: any;
-  isSeller: any;
   isScrolled: boolean;
 }) => {
-  const router = useRouter();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -37,6 +33,22 @@ const ImageCarousel = ({
   // dialog role, focus could Tab out to the page underneath, and closing
   // dropped you back at the top of the product page.
   useModalBehaviour({ isOpen: isFullscreen, onClose: closeFullscreen, panelRef: fullscreenRef });
+
+  const FALLBACK_IMAGE = "/PRODUCT IMAGE (2).png";
+
+  // One normalised list for every surface: the mobile strip, the desktop grid and
+  // the fullscreen viewer each used to re-derive this inline, with a different
+  // fallback shape each time.
+  const images: string[] = useMemo(() => {
+    const raw: unknown[] = Array.isArray(product?.images) ? product.images : [];
+    const resolved = raw
+      .filter((img): img is string => typeof img === "string" && img.length > 0)
+      .map(getMobileCompatibleImageUrl);
+    return resolved.length > 0 ? resolved : [FALLBACK_IMAGE];
+  }, [product?.images]);
+
+  const heroImage = images[0];
+  const thumbnails = images.slice(1, 5);
 
   const SWIPE_THRESHOLD = 0.25; // 25% of image width to trigger swipe
   const VELOCITY_THRESHOLD = 0.3; // Velocity needed for quick swipe
@@ -68,7 +80,7 @@ const ImageCarousel = ({
     // Add resistance at edges
     let resistedDiff = diff;
     if ((currentImageIndex === 0 && diff > 0) ||
-      (currentImageIndex === product?.images?.length - 1 && diff < 0)) {
+      (currentImageIndex === images.length - 1 && diff < 0)) {
       resistedDiff = diff * EDGE_RESISTANCE;
     }
 
@@ -94,8 +106,8 @@ const ImageCarousel = ({
     const threshold = containerWidth * SWIPE_THRESHOLD;
     const shouldSwipe = Math.abs(translateX) > threshold || velocity > VELOCITY_THRESHOLD;
 
-    if (shouldSwipe && product?.images?.length > 0) {
-      if (translateX < -threshold && currentImageIndex < product.images.length - 1) {
+    if (shouldSwipe && images.length > 0) {
+      if (translateX < -threshold && currentImageIndex < images.length - 1) {
         setCurrentImageIndex(prev => prev + 1);
       } else if (translateX > threshold && currentImageIndex > 0) {
         setCurrentImageIndex(prev => prev - 1);
@@ -106,14 +118,27 @@ const ImageCarousel = ({
     setVelocity(0);
   };
 
-  // Handle mouse events for desktop
+  // Desktop mouse drag.
+  //
+  // The handlers close over state that changes on every pointer move
+  // (`translateX` decides whether a drag became a swipe), so they cannot be
+  // attached once and left. The previous version listed that state in the
+  // effect's deps instead, which tore down and re-added three document
+  // listeners on every pixel of a drag. Holding the latest handler in a ref
+  // gives the listeners current values while the subscription itself only
+  // changes when a drag starts or ends.
+  const latestMove = useRef(handleMove);
+  const latestEnd = useRef(handleEnd);
+  latestMove.current = handleMove;
+  latestEnd.current = handleEnd;
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      handleMove(e.clientX);
+      latestMove.current(e.clientX);
     };
 
     const handleMouseUp = () => {
-      handleEnd();
+      latestEnd.current();
     };
 
     if (isDragging) {
@@ -127,11 +152,11 @@ const ImageCarousel = ({
         document.removeEventListener('mouseleave', handleMouseUp);
       };
     }
-  }, [isDragging, startX, translateX]);
+  }, [isDragging]);
 
   // Auto-scroll only when images array actually changes (not on initial load)
   useEffect(() => {
-    const currentImages = product?.images || [];
+    const currentImages = images;
     const previousImages = previousImagesRef.current;
 
     // Only auto-scroll if:
@@ -147,37 +172,17 @@ const ImageCarousel = ({
 
     // Update ref for next comparison
     previousImagesRef.current = currentImages;
-  }, [product?.images]);
+  }, [images]);
 
   return (
     <>
     {/* Mobile/Tablet Carousel */}
+    {/* The two former branches differed only in radius, and both pinned a
+        `mt-[65px]` that hardcoded the header's height; the header is a sticky
+        overlay now and reserves its own space. */}
     <div
       ref={containerRef}
-      className={`w-full relative overflow-hidden lg:hidden ${isSeller.pro && isScrolled
-        ? "mt-[65px] z-30 rounded-[10px]"
-        : !isScrolled && isSeller.pro
-          ? "mt-[65px] z-50 rounded-[20px]"
-          : ""
-        }`}>
-      {/* Back Button */}
-      {!isSeller.pro && (
-        <button type="button" aria-label="Go back"
-          onClick={() => router.back()}
-          className="text-left absolute top-3 left-2 z-50"
-          style={{ pointerEvents: "auto" }}>
-          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-            <g>
-              <path
-                d="M23.832 18.0013H12.1654M12.1654 18.0013L17.9987 12.168M12.1654 18.0013L17.9987 23.8346"
-                stroke="white"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </g>
-          </svg>
-        </button>
-      )}
+      className="w-full relative overflow-hidden lg:hidden rounded-card">
 
       {/* Image Container with smooth transitions */}
       <div
@@ -202,115 +207,122 @@ const ImageCarousel = ({
             willChange: 'transform'
           }}
         >
-          {product?.images?.map((image: string, index: number) => (
+          {images.map((image: string, index: number) => (
             <div key={index} className="w-full h-full flex-shrink-0">
               <img
-                src={
-                  typeof image === "string"
-                    ? getMobileCompatibleImageUrl(image)
-                    : "/PRODUCT IMAGE (2).png"
-                }
-                alt={`Product Image ${index + 1}`}
-                className={`w-full h-full object-cover select-none ${isSeller.pro ? "rounded-[20px]" : ""
-                  }`}
+                src={image}
+                alt=""
+                // Only the first slide is above the fold; the rest were all
+                // fetched eagerly on mount, on a mobile-first product page.
+                loading={index === 0 ? "eager" : "lazy"}
+                fetchPriority={index === 0 ? "high" : "auto"}
+                decoding="async"
+                className="w-full h-full object-cover select-none rounded-card"
                 draggable={false}
                 style={{ pointerEvents: isDragging ? 'none' : 'auto' }}
               />
             </div>
-          )) || (
-              <div className="w-full h-full flex-shrink-0">
-                <img
-                  src="/PRODUCT IMAGE (2).png"
-                  alt="Default Product"
-                  className={`w-full h-full object-cover select-none ${isSeller.pro ? "rounded-[20px]" : ""
-                    }`}
-                  draggable={false}
-                />
-              </div>
-            )}
+          ))}
         </div>
       </div>
 
-      {/* Smooth Indicator Dots */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-1.5 z-40">
-        {product?.images?.map((_: any, index: number) => (
-          <button
-            key={index}
-            onClick={() => setCurrentImageIndex(index)}
-            className="transition-all duration-300 cursor-pointer"
-            style={{
-              width: currentImageIndex === index ? '20px' : '6px',
-              height: '6px',
-              borderRadius: '3px',
-              backgroundColor: currentImageIndex === index
-                ? 'rgba(255, 255, 255, 0.9)'
-                : 'rgba(255, 255, 255, 0.4)',
-              backdropFilter: 'blur(2px)'
-            }}
-            aria-label={`Go to image ${index + 1}`}
-          />
-        ))}
-      </div>
+      {/* Indicator dots. The button is a 36px touch target (the pip is only the
+          visible part) — these used to be 6px squares, well under the minimum,
+          on the primary product surface. Styling is tokens rather than an
+          inline style object. */}
+      {images.length > 1 && (
+        <div
+          role="tablist"
+          aria-label="Product images"
+          className="absolute bottom-1 left-1/2 z-dropdown flex -translate-x-1/2 items-center">
+          {images.map((_: string, index: number) => (
+            <button
+              key={index}
+              type="button"
+              role="tab"
+              aria-selected={currentImageIndex === index}
+              aria-label={`Go to image ${index + 1}`}
+              onClick={() => setCurrentImageIndex(index)}
+              className="flex h-9 w-5 items-center justify-center focus-visible:outline-none">
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "block h-1.5 rounded-pill backdrop-blur-sm transition-all duration-300",
+                  currentImageIndex === index ? "w-5 bg-white/90" : "w-1.5 bg-white/40"
+                )}
+              />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
 
-      {/* Desktop Airbnb-style Grid with Card Background */}
-      <div className="hidden lg:block w-full p-0.5 bg-surface rounded-2xl">
-        <div className="grid grid-cols-2 gap-0.5 h-[500px] rounded-xl overflow-hidden">
+      {/* Desktop gallery. The thumbnail column adapts to how many images exist —
+          it used to map [1,2,3,4] unconditionally, so a single-image product
+          rendered four broken-image tiles beside it. */}
+      <div className="hidden lg:block w-full p-0.5 bg-surface rounded-card">
+        <div
+          className={cn(
+            "grid gap-0.5 h-[500px] rounded-card overflow-hidden",
+            thumbnails.length > 0 ? "grid-cols-2" : "grid-cols-1"
+          )}>
           {/* Large Image - Left Side */}
           <button type="button" aria-label="Open image viewer"
             className="text-left relative cursor-pointer hover:brightness-95 transition-all overflow-hidden"
             onClick={() => setIsFullscreen(true)}
           >
             <img
-              src={
-                product?.images?.[0]
-                  ? getMobileCompatibleImageUrl(product.images[0])
-                  : "/PRODUCT IMAGE (2).png"
-              }
-              alt="Product Image 1"
+              src={heroImage}
+              alt=""
               className="w-full h-full object-cover"
             />
           </button>
 
-          {/* Small Images - Right Side (4 images in 2x2 grid) */}
-          <div className="grid grid-cols-2 grid-rows-2 gap-0.5">
-            {[1, 2, 3, 4].map((index) => (
-              <div
+          {/* Thumbnails — up to four, only for images that exist. */}
+          {thumbnails.length > 0 && (
+          <div
+            className={cn(
+              "grid gap-0.5",
+              thumbnails.length === 1 ? "grid-cols-1" : "grid-cols-2",
+              thumbnails.length > 2 ? "grid-rows-2" : "grid-rows-1"
+            )}>
+            {thumbnails.map((src: string, i: number) => {
+              const index = i + 1;
+              const isLastTile = i === thumbnails.length - 1;
+              const remaining = images.length - (thumbnails.length + 1);
+              return (
+              <button
+                type="button"
                 key={index}
-                className="relative cursor-pointer hover:brightness-95 transition-all overflow-hidden"
+                aria-label={`Open image ${index + 1} of ${images.length}`}
+                className="text-left relative cursor-pointer hover:brightness-95 transition-all overflow-hidden"
                 onClick={() => {
                   setCurrentImageIndex(index);
                   setIsFullscreen(true);
                 }}
               >
                 <img
-                  src={
-                    product?.images?.[index]
-                      ? getMobileCompatibleImageUrl(product.images[index])
-                      : "/PRODUCT IMAGE (2).png"
-                  }
-                  alt={`Product Image ${index + 1}`}
+                  src={src}
+                  alt=""
+                  loading="lazy"
                   className="w-full h-full object-cover"
                 />
-                {/* Show "View All Photos" overlay on last image if there are more than 5 images */}
-                {index === 4 && product?.images?.length > 5 && (
-                  <button type="button"
-                    className="text-left absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setCurrentImageIndex(0);
-                      setIsFullscreen(true);
-                    }}
-                  >
-                    <div className="text-white text-center">
-                      <div className="text-lg font-semibold">+{product.images.length - 5}</div>
-                      <div className="text-sm">View all photos</div>
-                    </div>
-                  </button>
+                {/* "+N" overlay on the last tile when more images remain. It was
+                    a nested <button> inside another button — invalid interactive
+                    content; the tile itself carries the click now. */}
+                {isLastTile && remaining > 0 && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 bg-overlay/60 flex flex-col items-center justify-center text-white">
+                    <span className="text-h2 font-semibold">+{remaining}</span>
+                    <span className="text-body-sm">View all photos</span>
+                  </span>
                 )}
-              </div>
-            ))}
+              </button>
+              );
+            })}
           </div>
+          )}
         </div>
       </div>
 
@@ -356,53 +368,46 @@ const ImageCarousel = ({
                   willChange: 'transform'
                 }}
               >
-                {product?.images?.map((image: string, index: number) => (
+                {images.map((image: string, index: number) => (
                   <div key={index} className="w-full h-full flex-shrink-0 flex items-center justify-center">
                     <img
-                      src={
-                        typeof image === "string"
-                          ? getMobileCompatibleImageUrl(image)
-                          : "/PRODUCT IMAGE (2).png"
-                      }
-                      alt={`Product Image ${index + 1}`}
+                      src={image}
+                      alt={`Product image ${index + 1} of ${images.length}`}
+                      loading={index === 0 ? "eager" : "lazy"}
+                      decoding="async"
                       className="max-w-full max-h-full object-contain select-none"
                       draggable={false}
                       style={{ pointerEvents: isDragging ? 'none' : 'auto' }}
                     />
                   </div>
-                )) || (
-                  <div className="w-full h-full flex-shrink-0 flex items-center justify-center">
-                    <img
-                      src="/PRODUCT IMAGE (2).png"
-                      alt="Default Product"
-                      className="max-w-full max-h-full object-contain select-none"
-                      draggable={false}
-                    />
-                  </div>
-                )}
+                ))}
               </div>
             </div>
           </div>
 
           {/* Fullscreen Indicator Dots */}
-          {product?.images?.length > 1 && (
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-2">
-              {product.images.map((_: any, index: number) => (
+          {images.length > 1 && (
+            <div
+              role="tablist"
+              aria-label="Product images"
+              className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center">
+              {images.map((_: string, index: number) => (
                 <button
                   key={index}
-                  onClick={() => setCurrentImageIndex(index)}
-                  className="transition-all duration-300 cursor-pointer"
-                  style={{
-                    width: currentImageIndex === index ? '24px' : '8px',
-                    height: '8px',
-                    borderRadius: '4px',
-                    backgroundColor: currentImageIndex === index
-                      ? 'rgba(255, 255, 255, 0.9)'
-                      : 'rgba(255, 255, 255, 0.4)',
-                    backdropFilter: 'blur(2px)'
-                  }}
+                  type="button"
+                  role="tab"
+                  aria-selected={currentImageIndex === index}
                   aria-label={`Go to image ${index + 1}`}
-                />
+                  onClick={() => setCurrentImageIndex(index)}
+                  className="flex h-9 w-6 items-center justify-center focus-visible:outline-none">
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      "block h-2 rounded-pill backdrop-blur-sm transition-all duration-300",
+                      currentImageIndex === index ? "w-6 bg-white/90" : "w-2 bg-white/40"
+                    )}
+                  />
+                </button>
               ))}
             </div>
           )}

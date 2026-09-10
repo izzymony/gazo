@@ -2,10 +2,8 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Tabs from "@vibaar/ui/common/Tabs";
-import VendorHeader from "@/features/storefront/VendorHeader";
 import VendorDataSort from "@/features/storefront/VendorDatatSort";
 import AllProducts from "@/features/storefront/AllProducts";
-import SmallHeader from "@/design-system/common/SmallHeader";
 import useScroll from "@/hooks/useScroll";
 import { usePathname, useSearchParams, useParams, useRouter } from "next/navigation";
 import Loader from "@vibaar/ui/common/Loader";
@@ -26,9 +24,14 @@ import { Check, Copy, FaStar, Add } from "@vibaar/ui/icons";
 import IconButton from "@vibaar/ui/common/IconButton";
 import { getPublicProductUrl, getPublicStoreUrl } from "@/lib/shareUrls";
 import Badge from "@vibaar/ui/common/Badge";
-import { vendorThemeFrom } from "@/lib/bannerUtils";
+import StorefrontHeader from "@/features/storefront/StorefrontHeader";
+import KebabMenu from "@vibaar/ui/common/header/KebabMenu";
+import Link from "next/link";
+import ShareModal from "@vibaar/ui/common/ShareModal";
 
-// Move shareOptions inside component to access businessProduct
+// One class string for the six stat labels — it was repeated verbatim in each,
+// with a hardcoded leading/tracking pair that is not on the type scale.
+const STAT_LABEL = "text-caption font-normal text-center text-foreground-secondary";
 
 // ✅ ENHANCED: Added optional props for new store experience
 interface VendorStoreFrontProps {
@@ -55,17 +58,19 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();
-  const [isSeller, setIsSeller] = useState<{
-    seller: boolean;
-    pro: boolean;
-  } | null>(null);
+  // Owner (the seller's own dashboard) vs public (a shopper on /@handle).
+  // Derived from the route, not held in state: it used to be a `useState` filled
+  // by an effect, so the first render of every storefront was a `null` mode that
+  // forced a skeleton even for the owner. A `pro` flag rode along hardcoded
+  // `true`, making every branch on it unreachable.
+  const isOwnerView = pathname.includes("/dashboard");
   const [isFollowed, setIsFollowed] = useState(false);
-  const smallHeaderRef = useRef<HTMLDivElement>(null);
-  const [smallHeaderHeight, setSmallHeaderHeight] = useState(64);
+  const [smallHeaderEl, setSmallHeaderEl] = useState<HTMLDivElement | null>(null);
+  const [smallHeaderHeight, setSmallHeaderHeight] = useState(52);
   const tab = ["Products", "Deals", "Reviews"];
   const { isScrolled, scrollRef } = useScroll(20);
   const searchParams = useSearchParams();
-  const { stor, store, storeStats, fetchStoreStats, theme, stores, getStoreById, fetchStores, fetchStoresBySearch, fetchStoreByTag, setStore, businessProduct, getAuthenticatedUserStore, fetchBusinessProduct, setBusinessProducts } = useBusinessStore();
+  const { stor: viewedStore, store: ownStore, storeStats, fetchStoreStats, theme, stores, getStoreById, fetchStores, fetchStoresBySearch, fetchStoreByTag, setStore, businessProduct, getAuthenticatedUserStore, fetchBusinessProduct, setBusinessProducts } = useBusinessStore();
   const { user } = useAuthStore();
   const [isPublishSuccessful, setIsPublishSuccessful] = useState(
     searchParams.get("status") === "new-product"
@@ -76,6 +81,9 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
   const [isLoadingVendor, setIsLoadingVendor] = useState(true);
 
   const [copied, setCopied] = useState(false);
+  const [isStoreMenuOpen, setIsStoreMenuOpen] = useState(false);
+  const [isHeroMenuOpen, setIsHeroMenuOpen] = useState(false);
+  const [isShareStoreOpen, setIsShareStoreOpen] = useState(false);
 
   const handleCopyLink = (shareLink: string) => {
     if (shareLink) {
@@ -92,19 +100,16 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
   // Default stats display
   const stats = [
     {
-      value: isNewStore ? (
+      // A brand-new store used to be given a fabricated 5.0. It has no ratings;
+      // it shows none.
+      value: (
         <span className="flex items-center gap-1">
-          5.0
-          <FaStar size={15} className="text-warning-foreground" />
-        </span>
-      ) : (
-        <span className="flex items-center gap-1">
-          {storeStats.ratings + ".0"}
-          <FaStar size={15} className="text-warning-foreground" />
+          {storeStats.ratings ? Number(storeStats.ratings).toFixed(1) : "—"}
+          <FaStar size={14} className="text-warning-foreground" aria-hidden="true" />
         </span>
       ),
       label: (
-        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-foreground-secondary">
+        <p className={STAT_LABEL}>
           Store Ratings
         </p>
       ),
@@ -112,7 +117,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     {
       value: formatNigerianCurrency(storeStats.products_sold),
       label: (
-        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-foreground-secondary">
+        <p className={STAT_LABEL}>
           Products Sold
         </p>
       ),
@@ -120,28 +125,30 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     {
       value: formatNigerianCurrency(storeStats.followers_count),
       label: (
-        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-foreground-secondary">
+        <p className={STAT_LABEL}>
           Followers
         </p>
       ),
     },
     {
-      value: storeStats.avg_order_prep_time !== 0
-        ? `${storeStats.avg_order_prep_time} hours`
+      // Rounded: the API returns a raw float, and the card rendered
+      // "550.74335 hours".
+      value: storeStats.avg_order_prep_time
+        ? `${Math.round(storeStats.avg_order_prep_time)} hrs`
         : "N/A",
       label: (
-        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-foreground-secondary">
+        <p className={STAT_LABEL}>
           Average Order <br />
           Preparation Time
         </p>
       ),
     },
     {
-      value: storeStats.avg_delivery_time !== 0
-        ? `${storeStats.avg_delivery_time} days`
+      value: storeStats.avg_delivery_time
+        ? `${Math.round(storeStats.avg_delivery_time)} days`
         : "N/A",
       label: (
-        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-foreground-secondary">
+        <p className={STAT_LABEL}>
           Average <br />
           Delivery Time
         </p>
@@ -150,7 +157,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     {
       value: storeStats.fulfilment_rate || "0%",
       label: (
-        <p className="text-caption font-normal leading-[12px] tracking-[0.5px] text-center text-foreground-secondary">
+        <p className={STAT_LABEL}>
           Fulfillment Rate
         </p>
       ),
@@ -158,6 +165,15 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
   ];
 
   const { fetchProducts, setProducts } = useProductStore();
+
+  // ONE resolved vendor for the whole screen. The owner surface reads the
+  // signed-in user's own business; the public surface reads the vendor resolved
+  // from the URL tag. Every effect and every child now keys off this single
+  // value — the effects below used to read the public slot unconditionally,
+  // which only worked because the owner's business was being written into it
+  // too (the leak that showed a seller their own store on other vendors' pages).
+  const currentStore = isOwnerView ? ownStore : viewedStore;
+  const currentStoreId = currentStore?.id;
 
   // Rev-2 server-prime: seed the vendor's products from the server-resolved initial
   // data so AllProducts renders on first paint (before/instead of the client fetch).
@@ -167,19 +183,18 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
 
   // Fetch analytics + the vendor's products when the store resolves.
   useEffect(() => {
-    if (stor?.id) {
-      fetchStoreStats(stor.id);
-      // Cold-deep-link fix (URL rework): on a direct /@{handle} visit the global
-      // `products` is empty, so AllProducts has nothing to filter. Load THIS vendor's
-      // products (targeted /products?business_id, not the 250-row marketplace pull) —
-      // UNLESS the server already primed them for this exact store.
-      if (!pathname.includes("/dashboard")) {
-        const productsPrimed =
-          !!initialProducts?.length && initialStore?.id === stor?.id;
-        if (!productsPrimed) fetchProducts(stor.id);
-      }
+    if (!currentStoreId) return;
+    fetchStoreStats(currentStoreId);
+    // Cold-deep-link fix (URL rework): on a direct /@{handle} visit the global
+    // `products` is empty, so AllProducts has nothing to filter. Load THIS vendor's
+    // products (targeted /products?business_id, not the 250-row marketplace pull) —
+    // UNLESS the server already primed them for this exact store.
+    if (!isOwnerView) {
+      const productsPrimed =
+        !!initialProducts?.length && initialStore?.id === currentStoreId;
+      if (!productsPrimed) fetchProducts(currentStoreId);
     }
-  }, [stor?.id]);
+  }, [currentStoreId, isOwnerView]);
 
   // P16: server-side storefront search + tag filter — refetch page 1 with the current
   // search term AND active tag when either changes (debounced), so filtering stays
@@ -187,23 +202,16 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
   // first run (the initial/primed load covers the empty search + "All" tag).
   const filterInitRef = useRef(false);
   useEffect(() => {
-    if (!stor?.id || pathname.includes("/dashboard")) return;
+    if (!currentStoreId || isOwnerView) return;
     if (!filterInitRef.current) {
       filterInitRef.current = true;
       return;
     }
     const tag = activeFilter === "All" ? "" : activeFilter;
-    const t = setTimeout(() => fetchProducts(stor.id, searchValue, tag), 300);
+    const t = setTimeout(() => fetchProducts(currentStoreId, searchValue, tag), 300);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchValue, activeFilter, stor?.id]);
-
-  useEffect(() => {
-    setIsSeller({
-      seller: pathname.includes("/dashboard"),
-      pro: true,
-    });
-  }, [pathname]);
+  }, [searchValue, activeFilter, currentStoreId]);
 
   // Rev-2 server-prime: seed the store from the server-resolved initial data so the
   // first paint has the vendor without a by-tag round-trip (runs before the loader).
@@ -216,11 +224,10 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     const loadStoreData = async () => {
       setIsLoadingVendor(true);
 
-      const isSellerMode = pathname.includes("/dashboard");
       const vendorName = params.vendor as string;
 
       try {
-        if (isSellerMode) {
+        if (isOwnerView) {
           // Seller mode: load the authenticated user's store + all product pages.
           await getAuthenticatedUserStore();
           await paginatedFetcher(fetchBusinessProduct, setBusinessProducts, user);
@@ -246,32 +253,32 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     loadStoreData();
   }, [storeTag, params.vendor, pathname, getAuthenticatedUserStore, fetchStoreByTag, fetchStoresBySearch, fetchBusinessProduct, setBusinessProducts, user]);
 
-  // Measure the compact header so the sticky tab bar sits exactly below it (its
-  // height varies with the store's theme/name) — no gap, no overlap.
+  // Measure the compact header so the sticky tab bar and filter row sit exactly
+  // below it (its height varies with the store's theme/name) — no gap, no overlap.
+  //
+  // Driven by a CALLBACK ref. It used to read a RefObject in a mount effect with
+  // `[]` deps: this screen renders a skeleton first, so the header did not exist
+  // when that effect ran, and a ref object's identity never changes, so it never
+  // ran again. The height stayed at its 64px guess forever while the real header
+  // measured 52 — the tab bar stuck 12px too low and content showed through.
   useEffect(() => {
-    const el = smallHeaderRef.current;
-    if (!el) return;
-    const measure = () => setSmallHeaderHeight(el.offsetHeight);
+    if (!smallHeaderEl) return;
+    const measure = () => setSmallHeaderHeight(smallHeaderEl.offsetHeight);
     measure();
     const ro = new ResizeObserver(measure);
-    ro.observe(el);
+    ro.observe(smallHeaderEl);
     return () => ro.disconnect();
-  }, []);
+  }, [smallHeaderEl]);
 
   // Track store view for buyer mode (not for sellers viewing their own store)
   useEffect(() => {
-    const isSellerMode = pathname.includes("/dashboard");
-    if (!isSellerMode && stor?.id && stor?.name && !isLoadingVendor) {
-      trackStoreViewed(stor.id, stor.name, stor.category);
+    if (!isOwnerView && currentStore?.id && currentStore?.name && !isLoadingVendor) {
+      trackStoreViewed(currentStore.id, currentStore.name, currentStore.category);
     }
-  }, [stor?.id, stor?.name, isLoadingVendor, pathname]);
-
-  // Use same store selection logic as other components
-  // Fix: Use 'store' for seller mode and 'stor' for buyer mode
-  const currentStore = isSeller?.seller ? store : stor;
+  }, [currentStore?.id, currentStore?.name, isLoadingVendor, isOwnerView]);
 
   // Check if store not found (hot-fix for store switching bug)
-  const storeNotFound = !isLoadingVendor && !currentStore && !isSeller?.seller;
+  const storeNotFound = !isLoadingVendor && !currentStore && !isOwnerView;
 
   // Get the most recently created product for sharing
   const newestProduct = businessProduct && businessProduct.length > 0 ? businessProduct[0] : null;
@@ -327,7 +334,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     },
   ];
 
-  if (isSeller === null || (isLoadingVendor && !pathname.includes("/dashboard"))) {
+  if (isLoadingVendor && !isOwnerView) {
     // Rev-2 (R2e): a layout-matching skeleton instead of a full-page blank loader.
     return <StorefrontSkeleton />;
   }
@@ -371,25 +378,71 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
             nothing is added/removed on collapse: the hero simply scrolls away
             and this fades in over it. No swap = no scroll jump. */}
         <div
-          ref={smallHeaderRef}
+          ref={setSmallHeaderEl}
           style={{ marginBottom: -smallHeaderHeight }}
           className={`sticky top-0 z-sticky transition-opacity duration-200 ${
             isScrolled ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}>
-          <SmallHeader
-            title={currentStore?.name}
-            isFollowed={isFollowed}
-            isSeller={isSeller}
-            vendorStore={currentStore}
-            vendorTheme={vendorThemeFrom(currentStore)}
-            onFollowClick={() => {
-              setIsFollowed(!isFollowed);
-            }}
+          <StorefrontHeader
+            variant="compact"
+            store={currentStore}
+            backMaskId="storefront-header-compact"
+            trailing={
+              isOwnerView ? (
+                <KebabMenu
+                  isOpen={isStoreMenuOpen}
+                  setIsOpen={setIsStoreMenuOpen}
+                  store={currentStore}
+                />
+              ) : (
+                <Button
+                  size="sm"
+                  variant="filled"
+                  aria-pressed={isFollowed}
+                  onClick={() => setIsFollowed(!isFollowed)}
+                  className="w-auto">
+                  {isFollowed ? "Unfollow" : "Follow"}
+                </Button>
+              )
+            }
           />
         </div>
 
         <div className="relative z-10">
-          <VendorHeader isSeller={isSeller} />
+          <StorefrontHeader
+            variant="hero"
+            store={currentStore}
+            backMaskId="storefront-header-hero"
+            onBack={() =>
+              isOwnerView ? router.push("/dashboard/catalog") : router.back()
+            }
+            trailing={
+              <KebabMenu
+                isOpen={isHeroMenuOpen}
+                setIsOpen={setIsHeroMenuOpen}
+                store={currentStore}
+              />
+            }
+            actions={
+              isOwnerView ? (
+                <>
+                  <Link
+                    href="/dashboard/storefront/details"
+                    prefetch
+                    className="flex min-h-9 items-center rounded-pill bg-brand px-4 text-body-sm font-medium text-brandInk">
+                    Edit store
+                  </Link>
+                  <Button
+                    size="sm"
+                    variant="filled"
+                    onClick={() => setIsShareStoreOpen(true)}
+                    className="w-auto">
+                    Share store
+                  </Button>
+                </>
+              ) : undefined
+            }
+          />
           {isNewStore && (
             <div className="absolute top-4 right-4 z-10">
               <Badge
@@ -424,7 +477,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
             tabContents={[
               <AllProducts
                 key={0}
-                isSeller={isSeller}
+                isOwnerView={isOwnerView}
                 filter={activeFilter}
                 searchValue={searchValue}
                 sortToggle={sortToggle}
@@ -529,7 +582,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
       )}
 
       {/* Floating Add Product Button — show when seller has products */}
-      {isSeller?.seller && businessProduct && businessProduct.length > 0 && (
+      {isOwnerView && businessProduct && businessProduct.length > 0 && (
         <IconButton
           icon={Add}
           label="Add product"
@@ -540,7 +593,15 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
         />
       )}
 
-      <VendorNav isSeller={isSeller} />
+      <ShareModal
+        isOpen={isShareStoreOpen}
+        onClose={() => setIsShareStoreOpen(false)}
+        title="Share store"
+        shareUrl={getPublicStoreUrl(currentStore || {})}
+        shareText={`Check out ${currentStore?.name || "my store"} on Vibaar!`}
+      />
+
+      <VendorNav isOwnerView={isOwnerView} />
     </>
   );
 };

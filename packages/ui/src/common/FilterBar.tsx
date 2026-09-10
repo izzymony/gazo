@@ -4,6 +4,7 @@ import { useState } from "react";
 import { cn } from "@vibaar/utils";
 import SearchField from "./SearchField";
 import IconButton from "./IconButton";
+import ChipToggle from "./ChipToggle";
 import { CiSearch, SortVertical } from "../icons";
 
 interface FilterBarProps {
@@ -57,29 +58,26 @@ export default function FilterBar({
   };
 
   return (
+    // `sticky top-0` only engages when this is NOT already inside a sticky block
+    // — Tabs groups its general row with the tab bar and carries the offset for
+    // both, so on the storefront this is a no-op rather than a competing layer.
     <div className={cn("sticky top-0 z-sticky w-full bg-surface pb-2", className)}>
       <div className="w-full flex">
         <div
           role="group"
           aria-label={ariaLabel}
           className="w-full flex flex-1 gap-2 items-center overflow-x-scroll scrollbar-hide py-2">
+          {/* A filter is on or off, so it is a toggle — not a link and not a
+              tab, neither of which would describe "narrow this list". Shared
+              with the product page's variant chips, which are the same control
+              and used to look and behave differently. */}
           {pills.map((pill, index) => (
-            <button
+            <ChipToggle
               key={pill}
-              type="button"
-              // A filter is on or off, so it is a toggle — not a link and not
-              // a tab, neither of which would describe "narrow this list".
-              aria-pressed={activePill === index}
-              onClick={() => onPillChange(index)}
-              className={cn(
-                "px-3 py-2 text-body-sm rounded-pill whitespace-nowrap transition-colors",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40",
-                activePill === index
-                  ? "bg-surface-inverse text-foreground-inverse"
-                  : "bg-surface-subtle text-foreground-primary hover:bg-surface-muted"
-              )}>
+              selected={activePill === index}
+              onClick={() => onPillChange(index)}>
               {pill}
-            </button>
+            </ChipToggle>
           ))}
         </div>
 
