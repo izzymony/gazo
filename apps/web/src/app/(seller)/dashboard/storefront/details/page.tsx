@@ -661,7 +661,7 @@ const Page = () => {
         }>
           {/* Image Upload Section */}
           <div className="relative flex flex-col items-center">
-            <div className="relative w-[80px] h-[80px] cursor-pointer" onClick={() => document.getElementById("imageInput")?.click()}>
+            <button type="button" aria-label="Change store logo" className="text-left relative w-[80px] h-[80px] cursor-pointer" onClick={() => document.getElementById("imageInput")?.click()}>
               <StoreLogo
                 src={image}
                 storeName={store?.name || "Store"}
@@ -675,7 +675,7 @@ const Page = () => {
                   className="w-6 h-6"
                 />
               </div>
-            </div>
+            </button>
             <input
               id="imageInput"
               type="file"
@@ -764,8 +764,8 @@ const Page = () => {
               </svg>
             )}
 
-            <div
-              className="flex items-center"
+            <button type="button" aria-label="Customise your storefront"
+              className="text-left flex items-center"
               onClick={() => {
                 router.push(`/dashboard/storefront/customise`);
               }}>
@@ -803,7 +803,7 @@ const Page = () => {
                   fill="var(--brand)"
                 />
               </svg>
-            </div>
+            </button>
           </div>
 
 

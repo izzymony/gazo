@@ -77,9 +77,9 @@ const AddressInput = ({
           <label className="block text-body font-medium text-foreground-secondary mb-2">
             Store Address
           </label>
-          <div 
+          <button type="button" 
             onClick={openLocationModal}
-            className={`flex relative w-full px-4 h-[52px] rounded-field border ${
+            className={`text-left w-full flex relative w-full px-4 h-[52px] rounded-field border ${
               error.address ? "border-error-border" : "border-outline-strong"
             } focus-within:ring-1 focus-within:ring-black justify-between items-center text-body font-medium cursor-pointer`}
           >
@@ -87,7 +87,7 @@ const AddressInput = ({
               {data.address || "Search for store address"}
             </p>
             <FaLocationDot size={20} className="text-foreground-muted" />
-          </div>
+          </button>
           {error.address && <p className="text-error-foreground text-body-sm mt-1">{error.address}</p>}
         </div>
       </div>

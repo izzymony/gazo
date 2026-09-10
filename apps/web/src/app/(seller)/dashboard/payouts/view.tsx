@@ -51,9 +51,9 @@ const AccountCard = ({
           {accountname}
         </p>
       </div>
-      <div
+      <button type="button" aria-label="More options"
         data-dropdown-trigger
-        className={`w-9 h-9 flex items-center justify-center cursor-pointer ${show === id ? "bg-surface-strong rounded-full " : ""}`}
+        className={`text-left w-9 h-9 flex items-center justify-center cursor-pointer ${show === id ? "bg-surface-strong rounded-full " : ""}`}
         onClick={(e) => {
           e.stopPropagation();
           setShow(show === id ? "" : id);
@@ -62,7 +62,7 @@ const AccountCard = ({
           size={20}
           className={show === id ? "text-brandDeep" : "text-foreground-primary"}
         />
-      </div>
+      </button>
       {show === id && (
         <div data-dropdown-menu className="absolute rounded-field bg-surface right-3 -bottom-20 border p-3 gap-3 flex flex-col shadow-md z-10">
           {!defaults && (

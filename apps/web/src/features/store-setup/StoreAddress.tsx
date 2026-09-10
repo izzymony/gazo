@@ -150,7 +150,7 @@ const CategoryComponent = ({
   return (
     <div className="w-full p-2 bg-surface border-b ">
       {/* Main Category */}
-      <div
+      <button type="button"
         onClick={() => {
           if (select.includes(item.name)) {
             setSelect(select.filter((it) => it !== item.name));
@@ -159,14 +159,14 @@ const CategoryComponent = ({
           }
           setSelected(item);
         }}
-        className="flex cursor-pointer text-body font-normal relative items-center text-foreground-primary px-2 py-2 rounded-field">
+        className="text-left w-full flex cursor-pointer text-body font-normal relative items-center text-foreground-primary px-2 py-2 rounded-field">
         {item.name}
 
         <span
           className="absolute z-[999] right-4 top-[50%] transform -translate-y-1/2 cursor-pointer text-foreground-muted">
           <BiChevronDown size={25} />
         </span>
-      </div>
+      </button>
 
       {/* Subcategories (Expandable) */}
       {select.includes(item.name) && item.sub_categories && (

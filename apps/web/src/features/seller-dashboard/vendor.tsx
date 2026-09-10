@@ -212,7 +212,7 @@ const Vendor = () => {
                                   )}
                                 </p>
                               </div>
-                              <div
+                              <button type="button" className="text-left" aria-label="Add to wishlist"
                                 onClick={() =>
                                   item.id && handleLikeClick(item.id)
                                 }>
@@ -225,7 +225,7 @@ const Vendor = () => {
                                     <MdFavoriteBorder size={14} className="text-white" />
                                   </span>
                                 )}
-                              </div>
+                              </button>
                             </div>
                           </div>
                         </div>

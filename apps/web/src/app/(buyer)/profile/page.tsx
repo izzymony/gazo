@@ -43,9 +43,9 @@ const MenuItem = ({
   onClick: () => void;
   danger?: boolean;
 }) => (
-  <div
+  <button type="button"
     onClick={onClick}
-    className={`flex justify-between items-center text-body font-medium px-3 py-3 rounded-field cursor-pointer transition-colors active:bg-surface-muted ${
+    className={`text-left w-full flex justify-between items-center text-body font-medium px-3 py-3 rounded-field cursor-pointer transition-colors active:bg-surface-muted ${
       danger ? "text-brandDeep" : "text-foreground-primary"
     }`}>
     <div className="flex gap-3 items-center">
@@ -53,7 +53,7 @@ const MenuItem = ({
       <p>{label}</p>
     </div>
     <ChevronRight size={20} className={danger ? "text-brandDeep" : "text-foreground-muted"} />
-  </div>
+  </button>
 );
 
 const Page = () => {

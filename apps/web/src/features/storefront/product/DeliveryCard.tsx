@@ -90,12 +90,12 @@ export default function DeliveryCard({
             <FaLocationDot size={18} className="text-brandDeep" />
             <p className="text-sm font-medium">To:</p>
           </div>
-          <div
-            className="text-brandDeep flex gap-1 items-center text-xs font-medium cursor-pointer flex-1 justify-end"
+          <button type="button"
+            className="text-left w-full text-brandDeep flex gap-1 items-center text-xs font-medium cursor-pointer flex-1 justify-end"
             onClick={openLocationModal}>
             <FaLocationDot size={12} className="text-brandDeep shrink-0" />
             <p className="line-clamp-1">{toLocation}</p>
-          </div>
+          </button>
         </div>
 
         {/* Selected-delivery summary */}

@@ -214,15 +214,15 @@ export default function WalletBody({ action }: { action: () => void }) {
             </div>
             <p className="text-body text-foreground-primary font-medium">Wallet Summary</p>
           </div>
-          <div
+          <button type="button" aria-label="Toggle balance summary"
             onClick={() => setSummary(!summary)}
-            className="cursor-pointer">
+            className="text-left cursor-pointer">
             {summary ? (
               <ChevronUp size={20} className="text-foreground-secondary" />
             ) : (
               <ChevronDown size={20} className="text-foreground-secondary" />
             )}
-          </div>
+          </button>
         </div>
         <div
           className={

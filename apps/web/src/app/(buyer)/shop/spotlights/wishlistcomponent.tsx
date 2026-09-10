@@ -57,8 +57,8 @@ export default function WishlistComponent({
         width={140}
         height={160}
       />
-      <div
-        className={`absolute top-5 right-5 cursor-pointer`}
+      <button type="button" aria-label="Add to wishlist"
+        className={`text-left absolute top-5 right-5 cursor-pointer`}
         onClick={(e) => {
           e.stopPropagation();
           handleLikeClick(index);
@@ -72,14 +72,14 @@ export default function WishlistComponent({
             <MdFavoriteBorder size={14} className="text-white" />
           </span>
         )}
-      </div>
-      <div
+      </button>
+      <button type="button" aria-label="Add to cart"
         onClick={handleAddToCart}
-        className="absolute bottom-[70px] right-5 cursor-pointer">
+        className="text-left absolute bottom-[70px] right-5 cursor-pointer">
         <span className="flex h-9 w-9 items-center justify-center rounded-full bg-surface/20">
           <ShoppingCartAdd size={18} className="text-brandDeep" />
         </span>
-      </div>
+      </button>
       <p
         className={
           base

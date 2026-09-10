@@ -273,24 +273,24 @@ const Page: React.FC = () => {
                       }>
                       <p className="whitespace-nowrap">{it.name}</p>
                       {it.name === selectedName && (
-                        <div
-                          className="z-modal cursor-pointer"
+                        <button type="button" aria-label="Clear selected category"
+                          className="text-left z-modal cursor-pointer"
                           onClick={(e) => {
                             e.stopPropagation();
                             setSelected({});
                           }}>
                           <X size={12} className="text-white" />
-                        </div>
+                        </button>
                       )}
                     </div>
                   ))}
                 </div>
                 {isScrolled && (
-                  <div
-                    className="py-2 px-2 bg-surface-subtle rounded-full text-foreground-primary text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
+                  <button type="button" aria-label="Search"
+                    className="text-left py-2 px-2 bg-surface-subtle rounded-full text-foreground-primary text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
                     onClick={() => setSearch(!search)}>
                     <Search size={16} className="text-foreground-primary" />
-                  </div>
+                  </button>
                 )}
               </div>
             )}
@@ -408,19 +408,19 @@ const Page: React.FC = () => {
                               width={140}
                               height={140}
                             />
-                            <span
-                              className="absolute top-2 right-4 h-9 w-9 flex justify-center items-center rounded-full bg-black/20 backdrop-blur-sm cursor-pointer"
+                            <button type="button" aria-label="Add to wishlist"
+                              className="text-left absolute top-2 right-4 h-9 w-9 flex justify-center items-center rounded-full bg-black/20 backdrop-blur-sm cursor-pointer"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleLikeClick(item.id);
                               }}>
                               <Heart size={18} className="text-white" />
-                            </span>
-                            <span
+                            </button>
+                            <button type="button" aria-label="Add to cart"
                               onClick={(e) => handleAddToCart(e, item)}
-                              className="absolute bottom-14 right-4 h-9 w-9 flex justify-center items-center rounded-full cursor-pointer bg-black/30 backdrop-blur-sm">
+                              className="text-left absolute bottom-14 right-4 h-9 w-9 flex justify-center items-center rounded-full cursor-pointer bg-black/30 backdrop-blur-sm">
                               <ShoppingCartAdd size={18} className="text-white" />
-                            </span>
+                            </button>
                             <p className="text-caption font-medium mt-2">
                               {truncateTextByLength(item.product.title, 30)}
                             </p>

@@ -66,13 +66,13 @@ const BankSelectorModal = ({
       {/* Bank list — own scroll so the search header stays put */}
       <div className="overflow-y-scroll scrollbar-hide mt-4 max-h-[55vh]">
         {filteredBanks.map((bank) => (
-          <div
+          <button type="button"
             key={bank.code}
             onClick={() => {
               onSelect(bank);
               onClose();
             }}
-            className={`flex items-center px-3 py-3 cursor-pointer rounded-field ${
+            className={`text-left w-full flex items-center px-3 py-3 cursor-pointer rounded-field ${
               selectedName === bank.name
                 ? "bg-brand/10 border border-brandDeep"
                 : "hover:bg-surface-muted"
@@ -83,7 +83,7 @@ const BankSelectorModal = ({
               <Bank size={16} className="text-success-foreground" />
             </div>
             <span className="text-body text-foreground-primary">{bank.name}</span>
-          </div>
+          </button>
         ))}
       </div>
     </Dialog>

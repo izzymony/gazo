@@ -437,15 +437,15 @@ function Page() {
             </p>
             <div className="max-h-[438px] overflow-y-scroll scrollbar-hide">
               {["Coupon code", "buy_x_get_y"].map((it) => (
-                <div
+                <button type="button"
                   onClick={() => {
                     formik.setFieldValue("discountType", it);
                     setShows(false);
                   }}
                   key={it}
-                  className="w-full mb-4 flex gap-4 ">
+                  className="text-left w-full w-full mb-4 flex gap-4 ">
                   <p className="text-body font-medium text-foreground-primary">{it}</p>
-                </div>
+                </button>
               ))}
             </div>
           </div>

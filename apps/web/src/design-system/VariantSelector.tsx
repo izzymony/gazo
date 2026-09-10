@@ -66,10 +66,10 @@ const SelectVariants: React.FC<SelectVariantsProps> = ({ product, onVariantChang
             </p>
             <div className="flex gap-2 flex-wrap">
               {variant.types.map((value) => (
-                <div
+                <button type="button"
                   key={value}
                   onClick={() => handleVariantChange(variant.name, value)}
-                  className={`cursor-pointer px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                  className={`text-left w-full cursor-pointer px-3 py-1 rounded-md text-xs font-medium transition-colors ${
                     selectedValue === value
                       ? "bg-brand text-brandInk"
                       : "bg-surface-subtle text-gray-700"
@@ -77,7 +77,7 @@ const SelectVariants: React.FC<SelectVariantsProps> = ({ product, onVariantChang
                  ${selectedValue !== value ? "hover:bg-gray-300" : ""}`}
                 >
                   {value}
-                </div>
+                </button>
               ))}
             </div>
           </div>

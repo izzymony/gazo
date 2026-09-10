@@ -235,16 +235,16 @@ export default function ProductsPreview({
               {productPreview?.title}
             </h1>
 
-            <div onClick={handleShareClick}>
+            <button type="button" className="text-left" aria-label="Share this product" onClick={handleShareClick}>
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black/5">
                 <PiShareFatThin size={20} className="text-foreground-primary" />
               </span>
-            </div>
-            <div onClick={handleLikeClick}>
+            </button>
+            <button type="button" className="text-left" aria-label="Add to wishlist" onClick={handleLikeClick}>
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black/5">
                 <MdFavoriteBorder size={20} className="text-foreground-primary" />
               </span>
-            </div>
+            </button>
           </div>
 
           <div className="flex items-center  w-full">

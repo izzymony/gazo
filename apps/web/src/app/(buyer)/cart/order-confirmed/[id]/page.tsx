@@ -240,8 +240,8 @@ const OrderConfirmed = () => {
                   alt={item.title}
                   className="w-full h-full object-cover"
                 />
-                <span
-                  className={`absolute top-2 right-2 h-8 w-8 flex justify-center items-center rounded-full cursor-pointer ${
+                <button type="button" aria-label="Add to wishlist"
+                  className={`text-left absolute top-2 right-2 h-8 w-8 flex justify-center items-center rounded-full cursor-pointer ${
                     likedStates[index] ? "bg-brand" : "bg-surface-muted"
                   }`}
                   onClick={(e) => {
@@ -252,7 +252,7 @@ const OrderConfirmed = () => {
                     style={{ fill: likedStates[index] ? "white" : "white" }}
                     className="text-body"
                   />
-                </span>
+                </button>
                 <span className="absolute bottom-2 right-2 h-8 w-8 flex justify-center items-center rounded-full cursor-pointer bg-surface-muted">
                   <CartIcon />
                 </span>

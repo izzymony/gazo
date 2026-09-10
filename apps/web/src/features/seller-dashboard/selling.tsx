@@ -32,15 +32,15 @@ const Sellercard = ({
   action: () => void;
   icon: ReactNode;
 }) => (
-  <div
+  <button type="button"
     onClick={action}
-    className="flex justify-between items-center cursor-pointer">
+    className="text-left w-full flex justify-between items-center cursor-pointer">
     <div className="flex gap-2 text-body font-normal items-center text-foreground-primary">
       {icon}
       <p>{text}</p>
     </div>
     <ChevronRight size={20} className="text-foreground-muted" />
-  </div>
+  </button>
 );
 
 const Selling = () => {

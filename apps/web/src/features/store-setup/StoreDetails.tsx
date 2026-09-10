@@ -45,9 +45,9 @@ export const DropButton = ({
   text: string;
 }) => {
   return (
-    <div
+    <button type="button"
       onClick={toogleDrop}
-      className={`peer flex relative w-full px-4 h-[52px] rounded-field border border-outline-strong focus-within:ring-1 focus-within:ring-black justify-between items-center text-body text-foreground-primary font-medium`}>
+      className={`text-left w-full peer flex relative w-full px-4 h-[52px] rounded-field border border-outline-strong focus-within:ring-1 focus-within:ring-black justify-between items-center text-body text-foreground-primary font-medium`}>
       <p>{text}</p>
       <>
         {icon && (
@@ -63,7 +63,7 @@ export const DropButton = ({
           />
         )}
       </>
-    </div>
+    </button>
   );
 };
 

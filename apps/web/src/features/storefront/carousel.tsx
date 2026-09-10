@@ -162,9 +162,9 @@ const ImageCarousel = ({
         }`}>
       {/* Back Button */}
       {!isSeller.pro && (
-        <div
+        <button type="button" aria-label="Go back"
           onClick={() => router.back()}
-          className="absolute top-3 left-2 z-50"
+          className="text-left absolute top-3 left-2 z-50"
           style={{ pointerEvents: "auto" }}>
           <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
             <g>
@@ -176,7 +176,7 @@ const ImageCarousel = ({
               />
             </g>
           </svg>
-        </div>
+        </button>
       )}
 
       {/* Image Container with smooth transitions */}
@@ -257,8 +257,8 @@ const ImageCarousel = ({
       <div className="hidden lg:block w-full p-0.5 bg-surface rounded-2xl">
         <div className="grid grid-cols-2 gap-0.5 h-[500px] rounded-xl overflow-hidden">
           {/* Large Image - Left Side */}
-          <div
-            className="relative cursor-pointer hover:brightness-95 transition-all overflow-hidden"
+          <button type="button" aria-label="Open image viewer"
+            className="text-left relative cursor-pointer hover:brightness-95 transition-all overflow-hidden"
             onClick={() => setIsFullscreen(true)}
           >
             <img
@@ -270,7 +270,7 @@ const ImageCarousel = ({
               alt="Product Image 1"
               className="w-full h-full object-cover"
             />
-          </div>
+          </button>
 
           {/* Small Images - Right Side (4 images in 2x2 grid) */}
           <div className="grid grid-cols-2 grid-rows-2 gap-0.5">

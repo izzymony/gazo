@@ -54,7 +54,7 @@ export default function Authenthecate({
         <OtpInput onComplete={handleComplete} />
       </div>
       <div className="w-full border-t border-outline py-2">
-        <div
+        <button type="button"
           onClick={
             isLoading
               ? undefined
@@ -75,11 +75,11 @@ export default function Authenthecate({
                 }
               : buttonAction
           }
-          className={`p-2 h-10 justify-center items-center flex font-medium w-full text-body-sm rounded-full cursor-pointer ${
+          className={`text-left w-full p-2 h-10 justify-center items-center flex font-medium w-full text-body-sm rounded-full cursor-pointer ${
             isLoading ? "bg-surface-strong text-brandInk cursor-not-allowed" : "bg-brand text-brandInk"
           }`}>
           {isLoading ? "Processing..." : base ? "Confirm withdrawal" : "Confirm"}
-        </div>
+        </button>
       </div>
     </div>
   );

@@ -92,11 +92,11 @@ const SmallHeader: React.FC<SmallHeaderProps> = ({
           {isSeller?.seller ? (
             <KebabMenu isOpen={isOpen} setIsOpen={setIsOpen} store={store} />
           ) : (
-            <div
+            <button type="button"
               onClick={onFollowClick}
-              className="text-xs font-medium text-brandInk px-2 py-2 bg-brand rounded-full justify-center items-center flex">
+              className="text-left w-full text-xs font-medium text-brandInk px-2 py-2 bg-brand rounded-full justify-center items-center flex">
               {isFollowed ? "Unfollow" : "Follow"}
-            </div>
+            </button>
           )}
         </div>
       </div>

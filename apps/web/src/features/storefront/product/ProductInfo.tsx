@@ -33,7 +33,7 @@ export default function ProductInfo({
       <div className="flex flex-row items-center gap-1 my-2">
         <h1 className="text-sm font-medium mr-auto max-w-[70%]">{title}</h1>
 
-        <div onClick={onShare}>
+        <button type="button" className="text-left" aria-label="Share this product" onClick={onShare}>
           <svg
             width="36"
             height="36"
@@ -68,8 +68,8 @@ export default function ProductInfo({
               />
             </g>
           </svg>
-        </div>
-        <div onClick={onLike}>
+        </button>
+        <button type="button" className="text-left" aria-label="Add to wishlist" onClick={onLike}>
           {liked ? (
             <svg
               width="36"
@@ -135,7 +135,7 @@ export default function ProductInfo({
               </g>
             </svg>
           )}
-        </div>
+        </button>
       </div>
 
       <div className="flex items-center  w-full">

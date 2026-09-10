@@ -116,7 +116,7 @@ function VendorHeader({ isSeller }: HeaderProp) {
           }}></div>
 
         <div className="flex items-center justify-between px-3 md:px-6 lg:px-8 z-30">
-          <div
+          <button type="button" className="text-left" aria-label="Go back"
             onClick={() =>
               isSeller?.seller
                 ? router.push("/dashboard/catalog")
@@ -153,7 +153,7 @@ function VendorHeader({ isSeller }: HeaderProp) {
                 />
               </g>
             </svg>
-          </div>
+          </button>
           {/* <TbDotsVertical /> */}
           <div className="flex space-x-6">
             <KebabMenu isOpen={isOpen} setIsOpen={setIsOpen} store={store} />

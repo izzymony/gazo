@@ -233,10 +233,10 @@ export default function LocationModal({
             </div>
           ) : suggestions.length > 0 ? (
             suggestions.map((item: { place_id: string; name: string }) => (
-              <div
+              <button type="button"
                 key={item.place_id}
                 onClick={() => retrieveLocation(item.place_id)}
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-surface-subtle cursor-pointer border-b border-outline-subtle last:border-b-0"
+                className="text-left w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-surface-subtle cursor-pointer border-b border-outline-subtle last:border-b-0"
               >
                 <img
                   className="w-5 h-5 object-cover flex-shrink-0"
@@ -246,7 +246,7 @@ export default function LocationModal({
                 <span className="flex-1 text-foreground-primary text-sm">
                   {item.name}
                 </span>
-              </div>
+              </button>
             ))
           ) : search.length > 0 ? (
             <>

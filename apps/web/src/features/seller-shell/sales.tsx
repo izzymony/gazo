@@ -533,12 +533,12 @@ export const SocialButton = ({
   };
 
   return (
-    <div
+    <button type="button"
       onClick={action}
-      className="flex gap-3 items-center rounded-full border bg-surface justify-center text-foreground-secondary text-body-lg font-normal tracking-wider py-3 px-5">
+      className="text-left w-full flex gap-3 items-center rounded-full border bg-surface justify-center text-foreground-secondary text-body-lg font-normal tracking-wider py-3 px-5">
       <div>{icons[text]}</div>
       <p>{sub}</p>
-    </div>
+    </button>
   );
 };
 
