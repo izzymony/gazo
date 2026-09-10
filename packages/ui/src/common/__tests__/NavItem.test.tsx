@@ -37,6 +37,23 @@ describe("NavItem", () => {
       render(<NavItem href="/shop" icon={icon} label="Shop" />);
       expect(screen.getByRole("link", { name: "Shop" })).not.toHaveAttribute("aria-current");
     });
+
+    it("draws a tokenized selection surface in a floating tab bar", () => {
+      render(<NavItem href="/shop" icon={icon} label="Shop" variant="floating" active />);
+      expect(screen.getByRole("link", { name: "Shop" })).toHaveClass(
+        "min-h-11",
+        "rounded-pill",
+        "bg-brand-50",
+        "text-brandDeep"
+      );
+    });
+
+    it("keeps an unselected floating tab off the brand tint", () => {
+      render(<NavItem href="/shop" icon={icon} label="Shop" variant="floating" />);
+      const link = screen.getByRole("link", { name: "Shop" });
+      expect(link).not.toHaveClass("bg-brand-50");
+      expect(link).toHaveClass("text-foreground-muted");
+    });
   });
 
   describe("badge", () => {

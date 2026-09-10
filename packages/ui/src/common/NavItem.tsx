@@ -8,11 +8,12 @@ import Badge from "./Badge";
 import { focusRing } from "../styles";
 
 /**
- * `bar` is the stacked icon-over-label form used by the mobile bars. `rail` is
- * the horizontal row used by the desktop sidebar, where the active destination
- * reads as a tinted pill rather than a colour change alone.
+ * `bar` is the stacked icon-over-label form used by edge-to-edge mobile bars.
+ * `floating` adds the contained selection surface and 44px touch geometry a
+ * floating tab bar needs. `rail` is the horizontal row used by the desktop
+ * sidebar.
  */
-export type NavItemVariant = "bar" | "rail";
+export type NavItemVariant = "bar" | "floating" | "rail";
 
 export interface NavItemProps {
   href: string;
@@ -57,6 +58,19 @@ const VARIANT: Record<NavItemVariant, { base: string; active: string; idle: stri
     base: "flex-col justify-center gap-1",
     active: "text-brandDeep",
     idle: "text-foreground-muted",
+  },
+  /*
+   * Selection is carried by the glyph first and the surface second. A grey
+   * pill on a white bar was ~1.1:1 — present in the DOM, invisible on the
+   * screen — so the tint is brand-50 and the glyph goes brandDeep, which is
+   * 6.6:1 on it. Hover stays neutral: only the current destination is warm,
+   * or a pointer passing over the bar would read as three active tabs.
+   */
+  floating: {
+    base: "min-h-11 flex-col justify-center rounded-pill",
+    active: "bg-brand-50 text-brandDeep",
+    idle:
+      "text-foreground-muted hover:bg-surface-subtle hover:text-foreground-secondary active:bg-surface-muted",
   },
   rail: {
     base: "w-full flex-row justify-start gap-3 px-4 py-3 rounded-field text-body",
