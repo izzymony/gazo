@@ -2,7 +2,14 @@
 
 import React, { useId, useState } from "react";
 import { cn } from "@vibaar/utils";
-import { focusRing, tabBar, tabBarItem, tabBarItemActive, tabBarItemIdle } from "../styles";
+import {
+  focusRing,
+  listContentGap,
+  tabBar,
+  tabBarItem,
+  tabBarItemActive,
+  tabBarItemIdle,
+} from "../styles";
 
 interface TabsProps {
   tabs: string[];
@@ -108,10 +115,12 @@ const Tabs: React.FC<TabsProps> = ({
         {generalContent}
       </div>
 
-      {/* Panel — a small gap below the bar. `generalContent` (a filter row) sits
-          in the block above and already carries its own bottom space, so this
-          used to compound into a conspicuous band of nothing. */}
-      <div className={generalContent ? "mt-2" : "mt-4"}>
+      {/* Panel. With a control row above it the gap is `listContentGap`, which
+          pairs with that row's own `py-2` for 16px — the same 16px a page
+          without tabs puts between its controls and its list. Without a control
+          row the bar's own padding is the only thing above, so the gap is the
+          full 16px here. */}
+      <div className={generalContent ? listContentGap : "mt-4"}>
         <div role="tabpanel" id={panelId(activeTab)} aria-labelledby={tabId(activeTab)} tabIndex={0}>
           {tabContents[activeTab]}
         </div>

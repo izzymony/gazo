@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import DataSort from "./datasort";
 import { IoCubeOutline } from "@vibaar/ui/icons";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import Section from "@vibaar/ui/common/Section";
@@ -41,11 +40,23 @@ const CollectionCard = ({ collection }: { collection: CollectionData }) => {
     );
 };
 
-const Collections = () => {
+/**
+ * The catalog's Collections list.
+ *
+ * Its sort/search row now lives in the catalog page's tab-bar block, shared
+ * with the other two tabs. It used to render its own copy inside this panel —
+ * as did Products and Discount — so the row sat in a different position on
+ * every tab and its state reset each time you switched.
+ */
+const Collections = ({
+    searchTerm = "",
+    sortOrder = "ascending",
+}: {
+    searchTerm?: string;
+    sortOrder?: "ascending" | "descending";
+}) => {
     const { businessProduct } = useBusinessStore();
     const [collections, setCollections] = useState<CollectionData[]>([]);
-    const [sortOrder, setSortOrder] = useState<"ascending" | "descending">("ascending");
-    const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
         // Aggregate products by tags
@@ -75,14 +86,6 @@ const Collections = () => {
         setCollections(collectionsData);
     }, [businessProduct]);
 
-    const handleSortToggle = () => {
-        setSortOrder((prevOrder) => (prevOrder === "ascending" ? "descending" : "ascending"));
-    };
-
-    const handleSortChange = (option: "ascending" | "descending") => {
-        setSortOrder(option);
-    };
-
     // Filter and sort the collections
     const filteredCollections = collections
         .filter((collection) =>
@@ -95,15 +98,6 @@ const Collections = () => {
         });
 
     return (
-        <div className="space-y-6">
-            <DataSort
-                sortOrder={sortOrder}
-                onSortToggle={handleSortToggle}
-                onSortOrderChange={handleSortChange}
-                searchValue={searchTerm}
-                onSearchChange={setSearchTerm}
-            />
-
             <Section>
                 {collections.length === 0 ? (
                     <EmptyState
@@ -117,7 +111,6 @@ const Collections = () => {
                     ))
                 )}
             </Section>
-        </div>
     );
 };
 

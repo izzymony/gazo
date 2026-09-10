@@ -1,10 +1,10 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import useAuthStore from "@/store/authStore";
 import { cn } from "@/lib/utils";
 import { ShoppingBag, Store } from "@vibaar/ui/icons";
-import { focusRing } from "@vibaar/ui/styles";
+import Button from "@vibaar/ui/common/Button";
 
 /**
  * The buyer ↔ seller mode switch.
@@ -24,6 +24,15 @@ const ModeSwitch = ({ variant = "floating" }: { variant?: "floating" | "rail" })
   const router = useRouter();
   const pathName = usePathname();
   const { user } = useAuthStore();
+  // Switching modes means loading a whole other side of the app, and until it
+  // paints there is nothing on screen to say the tap registered — so the button
+  // went quiet and people tapped it again. It owns the wait: the spinner starts
+  // on the click and only stops when the new route's pathname arrives.
+  const [isSwitching, setIsSwitching] = useState(false);
+
+  useEffect(() => {
+    setIsSwitching(false);
+  }, [pathName]);
 
   // Determine current mode based on route
   const isSellerMode = pathName.startsWith('/dashboard');
@@ -36,9 +45,11 @@ const ModeSwitch = ({ variant = "floating" }: { variant?: "floating" | "rail" })
   const handleSwitch = () => {
     if (isSellerMode) {
       // From seller → buyer: go to the marketplace.
+      setIsSwitching(true);
       router.push('/shop');
     } else if (canSell) {
       // From buyer → seller: go to dashboard (user has business)
+      setIsSwitching(true);
       router.push('/dashboard');
     } else {
       // User wants to switch to selling but has no business - trigger modal
@@ -59,17 +70,16 @@ const ModeSwitch = ({ variant = "floating" }: { variant?: "floating" | "rail" })
   const Icon = isSellerMode ? ShoppingBag : Store;
 
   const button = (
-    <button
-      type="button"
+    <Button
+      variant="filled"
+      fullWidth={variant === "rail"}
+      loading={isSwitching}
+      loadingText={buttonText}
       onClick={handleSwitch}
-      className={cn(
-        "relative flex items-center gap-2 rounded-full bg-brand px-4 py-3 text-brandInk shadow-pop transition-colors hover:bg-brandHover",
-        variant === "rail" ? "w-full" : "w-max",
-        focusRing
-      )}>
+      className={cn("gap-2", variant === "rail" ? "mt-0" : "w-max")}>
       <Icon size={20} aria-hidden="true" />
-      <span className="text-body font-medium">{buttonText}</span>
-    </button>
+      <span>{buttonText}</span>
+    </Button>
   );
 
   if (variant === "rail") return button;

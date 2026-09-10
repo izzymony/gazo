@@ -42,3 +42,19 @@ export const tabBarItemActive = "border-outline-contrast text-foreground-primary
 
 export const tabBarItemIdle =
   "border-transparent text-foreground-disabled font-normal hover:text-foreground-secondary hover:border-outline-strong";
+
+/**
+ * The gap between a list's control row (a FilterBar) and the list itself.
+ *
+ * Every list screen is the same three parts — what pins above (a header, or a
+ * header and a tab bar), a row of controls, then the list. The controls sat
+ * flush under the tab bar on one screen and 24px below it on another, and the
+ * gap under them was 16px in one place and 32px in another, because four pages
+ * each decided it for themselves.
+ *
+ * 8px here PAIRS with the FilterBar's own `py-2`, for a 16px visual gap. Both
+ * halves have to move together, so they are named together: `Tabs` applies this
+ * to its panel, and a page without tabs applies it between the bar and its list.
+ */
+export const listContentGap = "mt-2";
+export const listBlockGap = "space-y-2";

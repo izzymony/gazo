@@ -28,10 +28,14 @@ const Page = () => {
   // their state alongside the active tab.
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState<"ascending" | "descending">("ascending");
+  // All three tabs are lists of the same store's things, and all three want the
+  // same sort + search. They each used to own a copy of the control row, so the
+  // row sat in a different place on every tab and its state reset when you
+  // switched. One row, in the tab bar's block, driving whichever list is shown.
   const tabContents = [
     <Product key={0} searchTerm={searchTerm} sortOrder={sortOrder} />,
-    <Collections key={1} />,
-    <Discount key={2} />,
+    <Collections key={1} searchTerm={searchTerm} sortOrder={sortOrder} />,
+    <Discount key={2} sortOrder={sortOrder} />,
   ];
 
   const fetcher = useCallback(
@@ -85,23 +89,20 @@ const Page = () => {
         tabs={tabs}
         tabContents={tabContents}
         onTabChange={(value: number) => setActive(value)}
-        // The controls belong to the Products tab, so they only appear on it —
-        // but they sit in the SAME slot as analytics' period row, which is what
-        // makes the header → tabs → controls rhythm identical on both screens.
+        // The same slot analytics' period row uses, which is what makes the
+        // header → tabs → controls → list rhythm identical on both screens.
         generalContent={
-          active === 0 ? (
-            <DataSort
-              sortOrder={sortOrder}
-              onSortToggle={() =>
-                setSortOrder((order) =>
-                  order === "ascending" ? "descending" : "ascending"
-                )
-              }
-              onSortOrderChange={setSortOrder}
-              searchValue={searchTerm}
-              onSearchChange={setSearchTerm}
-            />
-          ) : undefined
+          <DataSort
+            sortOrder={sortOrder}
+            onSortToggle={() =>
+              setSortOrder((order) =>
+                order === "ascending" ? "descending" : "ascending"
+              )
+            }
+            onSortOrderChange={setSortOrder}
+            searchValue={searchTerm}
+            onSearchChange={setSearchTerm}
+          />
         }
       />
 

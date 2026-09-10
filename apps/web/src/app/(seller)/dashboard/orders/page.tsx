@@ -4,6 +4,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import DataSort from "@/features/seller-dashboard/datasort";
+import { listBlockGap } from "@vibaar/ui/styles";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@vibaar/ui/common/Header";
 import Button from "@vibaar/ui/common/Button";
@@ -11,7 +12,12 @@ import { IoCubeOutline, DeliveryTruck } from "@vibaar/ui/icons";
 import { useRouter } from "next/navigation";
 import useOrderStore from "@/store/orderStore";
 import useBusinessStore from "@/store/businessStore";
-import { formatCurrency, formatDate, getMobileCompatibleImageUrl } from "@/lib/utils";
+import {
+  formatCurrency,
+  formatDate,
+  getMobileCompatibleImageUrl,
+  PRODUCT_IMAGE_FALLBACK,
+} from "@/lib/utils";
 import useAuthStore from "@/store/authStore";
 import { OrderDatas } from "@/lib/order";
 import useShippingStore from "@/store/shippingStore";
@@ -61,7 +67,11 @@ const OrderComp = ({
       }}>
       <div className="flex justify-between gap-2">
         <img
-          src={product?.image ? getMobileCompatibleImageUrl(product?.image[0]) : ""}
+          src={
+            product?.image?.[0]
+              ? getMobileCompatibleImageUrl(product.image[0])
+              : PRODUCT_IMAGE_FALLBACK
+          }
           alt="Product"
           className="object-cover h-10 w-10 rounded-field border border-outline-strong"
         />
@@ -174,14 +184,20 @@ const Page = () => {
           title="Orders"
         />
       }>
-      <DataSort
-        sortOrder={sortOrder}
-        onSortToggle={handleSortToggle}
-        onSortOrderChange={setSortOrder}
-        searchValue={searchValue}
-        onSearchChange={handleSearchChange}
-      />
-      <div className="space-y-6">
+      {/* No tab bar here, so the control row sits straight under the header —
+          but it is still one block with the list it controls, at the same
+          `listBlockGap` the tabbed pages get from Tabs. Left as two separate
+          PageShell blocks it inherited the 24px between-block rhythm, so this
+          screen's controls sat further from their list than the catalog's. */}
+      <div className={listBlockGap}>
+        <DataSort
+          sortOrder={sortOrder}
+          onSortToggle={handleSortToggle}
+          onSortOrderChange={setSortOrder}
+          searchValue={searchValue}
+          onSearchChange={handleSearchChange}
+        />
+        <div className="space-y-6">
         {newOrders.length > 0 ? (
           newOrders.map((businessOrder, index) => (
             <OrderComp
@@ -200,7 +216,8 @@ const Page = () => {
             title="No orders yet"
             subtitle="Any order for products from your store will appear here."
           />
-        )}
+          )}
+        </div>
       </div>
     </PageShell>
   );

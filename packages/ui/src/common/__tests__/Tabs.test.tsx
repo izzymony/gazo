@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Tabs from "../Tabs";
+import { listBlockGap, listContentGap } from "../../styles";
 
 const setup = (onTabChange?: (i: number) => void) =>
   render(
@@ -66,5 +67,44 @@ describe("Tabs", () => {
     setup();
     expect(screen.getByText("Orders panel")).toBeInTheDocument();
     expect(screen.queryByText("Reviews panel")).not.toBeInTheDocument();
+  });
+
+  /**
+   * Every list screen is header (+ tabs) → a row of controls → the list. Four
+   * pages each decided the gaps for themselves, so the controls sat flush under
+   * the tab bar on one screen and 24px below it on another, and the gap beneath
+   * them was 16px in one place and 32px in another. `listContentGap` (with
+   * tabs) and `listBlockGap` (without) are the same 8px, each pairing with the
+   * control row's own `py-2` for one 16px gap everywhere.
+   */
+  describe("list rhythm", () => {
+    it("puts the control row in the tab bar's own sticky block", () => {
+      render(
+        <Tabs
+          tabs={["One", "Two"]}
+          tabContents={[<p key={0}>a</p>, <p key={1}>b</p>]}
+          generalContent={<div data-testid="controls" />}
+        />
+      );
+      const block = screen.getByRole("tablist").parentElement!;
+      expect(block).toContainElement(screen.getByTestId("controls"));
+      expect(block.className).toContain("sticky");
+    });
+
+    it("uses listContentGap below a control row", () => {
+      render(
+        <Tabs
+          tabs={["One", "Two"]}
+          tabContents={[<p key={0}>a</p>, <p key={1}>b</p>]}
+          generalContent={<div />}
+        />
+      );
+      expect(screen.getByRole("tabpanel").parentElement!.className).toBe(listContentGap);
+    });
+
+    it("is the same gap a page without tabs uses", () => {
+      // Both are 8px; if one moves the other has to move with it.
+      expect(listContentGap.replace("mt-", "")).toBe(listBlockGap.replace("space-y-", ""));
+    });
   });
 });
