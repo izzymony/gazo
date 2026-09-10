@@ -7,7 +7,7 @@ import { Variation, Variant } from "@/lib/types";
 import { calculateDiscountPercentage, formatCurrency } from "@/lib/utils";
 import Image from "next/image";
 import { useParams, usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import SelectVariants from "@/design-system/VariantSelector";
 import { calculateSelectedVariant, generateVariantSelectionString } from "@/utils/variantCalculations";
 import SmallHeader from "@/design-system/common/SmallHeader";
@@ -284,8 +284,7 @@ const Product = ({
 
   const [isLiked, setIsLiked] = useState(false);
   const [count, setCount] = useState(1);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const { isScrolled, addScrollListener } = useScroll(20);
+  const { isScrolled, scrollRef } = useScroll(20);
   const [loading, setLoading] = useState(false);
   const [search, setSeacrh] = useState("");
   const {
@@ -572,11 +571,6 @@ const Product = ({
       }
     }
   };
-
-  useEffect(() => {
-    const cleanup = addScrollListener(scrollRef);
-    return cleanup; // Cleanup the event listener on unmount
-  }, [addScrollListener]);
 
   const truncatedDescription =
     product?.description &&

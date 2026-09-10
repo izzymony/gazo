@@ -3,7 +3,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import React, { useCallback, useEffect, useRef, useState, useMemo } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { storePath, productPath } from "@/lib/urlHelpers";
 import { FaStar, Search, X, Heart, ShoppingCartAdd } from "@vibaar/ui/icons";
 import Button from "@vibaar/ui/common/Button";
@@ -46,8 +46,7 @@ const truncateTextByLength = (text: string | undefined, charLimit: number) => {
 const Page: React.FC = () => {
   const router = useRouter();
   const prefetch = useRoutePrefetch();
-  const { isScrolled, addScrollListener } = useScroll(20);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const { isScrolled, scrollRef } = useScroll(20);
   const [searchTerm, setSearchTerm] = useState("");
   const [likedItems] = useState<number[]>([]);
   const {
@@ -111,12 +110,6 @@ const Page: React.FC = () => {
       fetchGuestShippings(ensureGuestId());
     }
   }, [user]);
-
-  useEffect(() => {
-    return () => {
-      addScrollListener(scrollRef);
-    };
-  }, [addScrollListener]);
 
   // Secondary sections' data: the vendor directory (for wishlist/recently-viewed
   // logo lookups) + the per-user wishlist & recently-viewed lists. The marketplace

@@ -26,9 +26,15 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
       {/* Desktop Sidebar Navigation - hidden on mobile */}
       {!hideNavigation && <DesktopNav />}
 
-      {/* Main Content Area */}
+      {/* Main Content Area — ONE scroll container.
+          This div and its child both carried `overflow-y-scroll` with the child
+          at h-full, so the child could never scroll independently: it was exactly
+          its parent's height, and a second scrollport there only added a place
+          for scroll position to be ambiguous. Pages that bring their own scroller
+          (the storefront, the product page) then sat three deep. The child is a
+          plain spacing wrapper now; scrolling belongs to this element alone. */}
       <div className="flex flex-col overflow-x-hidden overflow-y-scroll scrollbar-hide w-full h-dvh relative lg:pl-64">
-        <div className={`overflow-y-scroll scrollbar-hide h-full w-full ${hideNavigation ? '' : 'mb-[60px] lg:mb-0'}`}>
+        <div className={`h-full w-full ${hideNavigation ? '' : 'mb-[60px] lg:mb-0'}`}>
           <div className="w-full max-w-full lg:max-w-5xl lg:mx-auto px-0 lg:px-6">
             {children}
           </div>

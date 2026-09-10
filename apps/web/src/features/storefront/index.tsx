@@ -60,11 +60,10 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     pro: boolean;
   } | null>(null);
   const [isFollowed, setIsFollowed] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
   const smallHeaderRef = useRef<HTMLDivElement>(null);
   const [smallHeaderHeight, setSmallHeaderHeight] = useState(64);
   const tab = ["Products", "Deals", "Reviews"];
-  const { isScrolled, addScrollListener } = useScroll(20);
+  const { isScrolled, scrollRef } = useScroll(20);
   const searchParams = useSearchParams();
   const { stor, store, storeStats, fetchStoreStats, theme, stores, getStoreById, fetchStores, fetchStoresBySearch, fetchStoreByTag, setStore, businessProduct, getAuthenticatedUserStore, fetchBusinessProduct, setBusinessProducts } = useBusinessStore();
   const { user } = useAuthStore();
@@ -247,11 +246,6 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     loadStoreData();
   }, [storeTag, params.vendor, pathname, getAuthenticatedUserStore, fetchStoreByTag, fetchStoresBySearch, fetchBusinessProduct, setBusinessProducts, user]);
 
-  useEffect(() => {
-    const cleanup = addScrollListener(scrollRef);
-    return cleanup;
-  }, [addScrollListener]);
-
   // Measure the compact header so the sticky tab bar sits exactly below it (its
   // height varies with the store's theme/name) — no gap, no overlap.
   useEffect(() => {
@@ -366,7 +360,12 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     <>
       <div
         ref={scrollRef}
-        className="w-full max-w-full lg:max-w-5xl lg:mx-auto h-screen overflow-y-scroll scrollbar-hide relative">
+        // h-full, not h-screen: the buyer frame above is `h-dvh overflow-hidden`,
+        // and on mobile 100vh exceeds 100dvh by the browser chrome. This element
+        // was therefore taller than the box clipping it, so the bottom band of
+        // its own scrollport was cut off and the end of the store could never be
+        // shown. Matches Product.tsx, which already used h-full.
+        className="w-full max-w-full lg:max-w-5xl lg:mx-auto h-full overflow-y-scroll scrollbar-hide relative">
         {/* Compact header — overlays the top and fades in on scroll. It takes
             no flow space (negative margin pulls the hero up underneath it), so
             nothing is added/removed on collapse: the hero simply scrolls away

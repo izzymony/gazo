@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Banner from "./banner";
 import FloatingHeader from "./floatingheader";
 import useScroll from "@/hooks/useScroll";
@@ -293,8 +293,7 @@ export default function Shop({
   setShow: (val: string) => void;
 }) {
   const [isSticky, setIsSticky] = useState(false);
-  const { isScrolled, addScrollListener } = useScroll(20);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const { isScrolled, scrollRef } = useScroll(20);
   const [searchTerm, setSearchTerm] = useState("");
   const [search, setSearch] = useState(false);
   const [selected, setSelected] = useState<any>({});
@@ -318,12 +317,6 @@ export default function Shop({
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-
-  useEffect(() => {
-    return () => {
-      addScrollListener(scrollRef);
-    };
-  }, [addScrollListener]);
 
   return (
     <div className="h-screen relative w-screen max-w-[1050px] bg-surface justify-between flex flex-col">
