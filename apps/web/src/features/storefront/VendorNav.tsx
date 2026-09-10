@@ -1,10 +1,17 @@
 "use client";
 import React, { memo } from "react";
 import { usePathname } from "next/navigation";
+import NavGlyph from "@vibaar/ui/common/NavGlyph";
 import NavItem from "@vibaar/ui/common/NavItem";
 import BottomNav from "@/features/seller-shell/BottomNav";
 import useOrderStore from "@/store/orderStore";
-import { Home, ShoppingCart, User, IconProps } from "@vibaar/ui/icons";
+import {
+  Home,
+  ShoppingCart,
+  ShoppingCartSolid,
+  User,
+  IconProps,
+} from "@vibaar/ui/icons";
 
 interface Props {
   isSeller?: {
@@ -15,6 +22,8 @@ interface Props {
 
 type NavLink = {
   Icon: React.ComponentType<IconProps>;
+  /** Filled companion, where the outline does not close on its own. */
+  Solid?: React.ComponentType<{ size?: number; className?: string }>;
   label: string;
   /** Where the tab goes. Kept separate from the routes that make it active. */
   href: string;
@@ -25,6 +34,7 @@ const navLinks: NavLink[] = [
   { Icon: Home, label: "Shop", href: "/shop", activeOn: ["/shop"] },
   {
     Icon: ShoppingCart,
+    Solid: ShoppingCartSolid,
     label: "Cart and orders",
     href: "/cart",
     activeOn: ["/cart", "/orders"],
@@ -73,7 +83,7 @@ const VendorNav = memo(({ isSeller }: Props) => {
       <nav
         aria-label="Marketplace"
         className="pointer-events-auto mx-auto mb-4 flex h-14 w-full max-w-xs items-center gap-1 rounded-pill border border-outline-subtle bg-surface/95 p-1.5 shadow-pop backdrop-blur-md">
-        {navLinks.map(({ Icon, label, href, activeOn }) => {
+        {navLinks.map(({ Icon, Solid, label, href, activeOn }) => {
           const isActive = activeOn.some((route) => routeIsActive(pathName, route));
           const isCartRoute = href === "/cart";
 
@@ -81,7 +91,7 @@ const VendorNav = memo(({ isSeller }: Props) => {
             <NavItem
               key={href}
               href={href}
-              icon={<Icon size={24} />}
+              icon={<NavGlyph active={isActive} icon={Icon} size={24} solid={Solid} />}
               label={label}
               variant="floating"
               active={isActive}

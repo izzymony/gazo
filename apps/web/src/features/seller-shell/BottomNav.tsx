@@ -1,6 +1,7 @@
 "use client";
 import React, { memo, useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import NavGlyph from "@vibaar/ui/common/NavGlyph";
 import NavItem from "@vibaar/ui/common/NavItem";
 import { SELLER_NAV, activeSellerNav } from "./sellerNav";
 
@@ -26,13 +27,13 @@ const BottomNav = memo(() => {
 
   return (
     <div className="absolute bottom-0 h-[60px] right-0 left-0 w-full flex justify-between items-center border-t-[0.5px] bg-surface border-t-outline lg:hidden">
-      {SELLER_NAV.map(({ title, Icon, route }) => {
+      {SELLER_NAV.map(({ title, Icon, Solid, route }) => {
         const isActive = activeNavItem === title;
         return (
           <NavItem
             key={title}
             href={route}
-            icon={<Icon size={22} />}
+            icon={<NavGlyph active={isActive} icon={Icon} size={22} solid={Solid} />}
             label={title}
             showLabel
             active={isActive}

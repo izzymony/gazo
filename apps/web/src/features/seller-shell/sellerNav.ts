@@ -1,8 +1,21 @@
-import { Home, Package, Store, Analytics, Settings, type IconProps } from "@vibaar/ui/icons";
+import {
+  Home,
+  Package,
+  PackageSolid,
+  Store,
+  Analytics,
+  Settings,
+  type IconProps,
+} from "@vibaar/ui/icons";
 import type React from "react";
 
 export type SellerNavLink = {
   Icon: React.ComponentType<IconProps>;
+  /**
+   * Filled companion for the selected state. Only the glyphs whose outline
+   * paths do not close need one; the rest fill from their own geometry.
+   */
+  Solid?: React.ComponentType<{ size?: number; className?: string }>;
   route: string;
   title: string;
 };
@@ -17,7 +30,7 @@ export type SellerNavLink = {
  */
 export const SELLER_NAV: SellerNavLink[] = [
   { Icon: Home, route: "/dashboard", title: "Home" },
-  { Icon: Package, route: "/dashboard/orders", title: "Orders" },
+  { Icon: Package, Solid: PackageSolid, route: "/dashboard/orders", title: "Orders" },
   { Icon: Store, route: "/dashboard/catalog", title: "Catalog" },
   { Icon: Analytics, route: "/dashboard/analytics", title: "Analytics" },
   { Icon: Settings, route: "/dashboard/settings", title: "Settings" },
