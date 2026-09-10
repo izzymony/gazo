@@ -5,42 +5,50 @@ import DesktopNav from "@/features/seller-shell/DesktopNav";
 import React from "react";
 import DetailFetcher from "./fectproducts";
 import { usePathname } from "next/navigation";
+import { isSellerHub } from "@/features/seller-shell/sellerNav";
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  
-  // Hide bottom/side nav for focused Class-B sub-flows (details, create/edit,
-  // setup forms) — nav stays only on the navigable Class-A hubs.
-  const hideNavigation =
-    (pathname?.includes('/orders/') && pathname !== '/dashboard/orders') ||
-    (pathname?.includes('/inbox/') && pathname !== '/dashboard/inbox') ||
-    Boolean(pathname?.startsWith('/dashboard/wallet')) ||
-    Boolean(pathname?.startsWith('/dashboard/payouts')) ||
-    Boolean(pathname?.startsWith('/dashboard/transactions')) ||
-    Boolean(pathname?.includes('/catalog/product/')) ||
-    Boolean(pathname?.includes('/catalog/discount/')) ||
-    Boolean(pathname?.startsWith('/dashboard/settings/'));
-  
+
+  // Nav belongs to the navigable hubs only. Everything deeper is a focused flow
+  // (a form, a product, an order) that the user finishes and backs out of.
+  const showNav = isSellerHub(pathname);
+
   return (
     <>
-      {/* Desktop Sidebar Navigation - hidden on mobile */}
-      {!hideNavigation && <DesktopNav />}
+      {/* Desktop sidebar — fixed, outside the frame, hidden under lg. */}
+      {showNav && <DesktopNav />}
 
-      {/* Main Content Area — ONE scroll container.
-          This div and its child both carried `overflow-y-scroll` with the child
-          at h-full, so the child could never scroll independently: it was exactly
-          its parent's height, and a second scrollport there only added a place
-          for scroll position to be ambiguous. Pages that bring their own scroller
-          (the storefront, the product page) then sat three deep. The child is a
-          plain spacing wrapper now; scrolling belongs to this element alone. */}
-      <div className="flex flex-col overflow-x-hidden overflow-y-scroll scrollbar-hide w-full h-dvh relative lg:pl-64">
-        <div className={`h-full w-full ${hideNavigation ? '' : 'mb-[60px] lg:mb-0'}`}>
-          <div className="w-full max-w-full lg:max-w-5xl lg:mx-auto px-0 lg:px-6">
-            {children}
-          </div>
-        </div>
-        {/* Mobile Bottom Navigation - hidden on desktop */}
-        {!hideNavigation && <BottomNav />}
+      {/* THE FRAME. It is a column: page above, nav below.
+          The page box is bounded, positioned, and does NOT scroll — the same
+          contract `(buyer)/layout.tsx` provides, and the reason the identical
+          storefront and product components work there and did not work here.
+
+          It used to be one div that was `relative` AND `overflow-y-scroll` at
+          once, over a max-width wrapper with no height. Two faults, one for each
+          of those:
+
+          • No height below it meant every page's own `h-full` scroll region —
+            PageShell's `main`, the storefront's and the product's roots —
+            resolved to `auto` and grew to its content. Still a scrollport, with
+            nothing to scroll: `scrollTop` stuck at 0 forever. That is why
+            `useScroll` never fired (no collapsing headers on the seller side)
+            and why every `sticky top-0` had zero travel and scrolled away.
+          • Being the scroller AND the only positioned ancestor meant every
+            `absolute` descendant resolved against a box whose padding box is the
+            full scroll height. `bottom-0` therefore meant "the bottom of all the
+            content", so the product's action bar rode the page up into the
+            middle of it — the same failure BottomNav documents against itself.
+
+          Keep these three properties together: bounded (`min-h-0 flex-1` inside
+          the `h-dvh` column), positioned (`relative`), non-scrolling
+          (`overflow-hidden`). Pages own scrolling. */}
+      <div className="flex h-dvh w-full flex-col lg:pl-64">
+        <div className="relative min-h-0 flex-1 overflow-hidden">{children}</div>
+
+        {/* In flow, not fixed: the frame subtracts the bar's height from the
+            page box, so no page needs to guess it with a bottom margin. */}
+        {showNav && <BottomNav />}
       </div>
     </>
   );

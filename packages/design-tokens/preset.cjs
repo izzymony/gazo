@@ -162,6 +162,14 @@ module.exports = {
         card: "var(--shadow-card)",
         pop: "var(--shadow-pop)",
       },
+      spacing: {
+        // The iOS home indicator. Any bar that touches the bottom edge — the
+        // seller BottomNav, the marketplace VendorNav — has to clear it, and
+        // `pb-safe` was already being written as though this existed. It did
+        // not: the class was in the markup, matched no utility, and emitted
+        // nothing, so the nav sat under the indicator on every notched phone.
+        safe: "env(safe-area-inset-bottom)",
+      },
       zIndex: {
         dropdown: "var(--z-dropdown)",
         sticky: "var(--z-sticky)",

@@ -44,7 +44,10 @@ const ModeSwitch = () => {
     : "/icons/Switch-to-selling.svg";
 
   return (
-    <div className="fixed bottom-[72px] left-0 right-0 w-full flex justify-center z-sticky lg:hidden">
+    // bottom-20 is the shared clearance above the 60px bottom nav — the same one
+    // FloatingAction uses. This was `bottom-[72px]`, one of four different
+    // hand-picked guesses at the same gap.
+    <div className="fixed bottom-20 left-0 right-0 z-dropdown flex w-full justify-center lg:hidden">
       <button
         type="button"
         onClick={handleSwitch}

@@ -21,7 +21,7 @@ export default function Page() {
   const [show, setShow] = useState(false);
 
   return next === 1 ? (
-    <div className="h-screen relative w-screen max-w-[450px] bg-surface  flex flex-col">
+    <div className="h-full relative w-full max-w-[450px] bg-surface  flex flex-col">
       <button type="button"
         onClick={() => router.back()}
         className="text-left flex mt-3 gap-2 items-center text-black text-body-lg font-medium tracking-wider">
@@ -320,7 +320,7 @@ export default function Page() {
       </div>
     </div>
   ) : (
-    <div className="h-screen relative w-screen max-w-[450px] bg-surface  flex flex-col">
+    <div className="h-full relative w-full max-w-[450px] bg-surface  flex flex-col">
       <button type="button"
         onClick={() => router.back()}
         className="text-left flex mt-3 gap-2 items-center text-black text-body-lg font-medium tracking-wider">

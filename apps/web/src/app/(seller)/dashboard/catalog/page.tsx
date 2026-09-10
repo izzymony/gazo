@@ -4,11 +4,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import Product from "@/features/seller-dashboard/products";
 import Collections from "@/features/seller-dashboard/collection";
 import Discount from "@/features/seller-dashboard/discount";
-import Link from "next/link";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@vibaar/ui/common/Header";
 import Button from "@vibaar/ui/common/Button";
-import { SquareArrowUpRight, Plus } from "@vibaar/ui/icons";
+import FloatingAction from "@/design-system/common/FloatingAction";
+import { SquareArrowUpRight } from "@vibaar/ui/icons";
 import Tabs from "@vibaar/ui/common/Tabs";
 import { useRouter } from "next/navigation";
 import useBusinessStore from "@/store/businessStore";
@@ -53,43 +53,44 @@ const Page = () => {
   };
 
   return (
-    <>
-      <PageShell
-        header={
-          <Header
-            title="Catalog"
-          />
-        }>
-          <Tabs
-            tabs={tabs}
-            tabContents={tabContents}
-            onTabChange={(value: number) => setActive(value)}
-          />
+    <PageShell
+      header={
+        <Header
+          title="Catalog"
+          // "View store front" was a second floating bar, pinned over the page
+          // beside the add button — two controls competing for the same corner
+          // of the screen, each with its own hand-picked offset above the nav.
+          // It is a navigation, not an action, so it belongs in the header.
+          trailing={
+            <Button
+              variant="link"
+              size="sm"
+              fullWidth={false}
+              loading={isRefreshing}
+              loadingText="Loading…"
+              onClick={handleViewStorefront}>
+              View store
+              <SquareArrowUpRight size={18} />
+            </Button>
+          }
+        />
+      }>
+      <Tabs
+        tabs={tabs}
+        tabContents={tabContents}
+        onTabChange={(value: number) => setActive(value)}
+      />
 
-          {/* Floating add button (product / discount) */}
-          <Link
-            href={active === 0 ? "/dashboard/catalog/product/create" : "/dashboard/catalog/discount/new"}
-            aria-label={active === 0 ? "Add product" : "Add discount"}
-            className="absolute bottom-28 right-4 lg:right-[calc((100%-64rem)/2+1rem)] w-12 h-12 rounded-full bg-brand flex items-center justify-center z-dropdown"
-            style={{ boxShadow: "4px 8px 24px 0px rgb(var(--brand-rgb) / 0.2)" }}>
-            <Plus size={24} className="text-brandInk" />
-          </Link>
-      </PageShell>
-
-      <div className="fixed bottom-[80px] left-1/2 -translate-x-1/2 w-full flex justify-center lg:max-w-5xl z-dropdown">
-        <Button
-          variant="bordered"
-          size="sm"
-          fullWidth={false}
-          loading={isRefreshing}
-          loadingText="Loading..."
-          onClick={handleViewStorefront}
-          className="shadow-pop">
-          View store front
-          <SquareArrowUpRight size={20} className="text-brandDeep" />
-        </Button>
-      </div>
-    </>
+      {/* The add action. `fixed`, like every other floating control: it is
+          pinned to the viewport, not to a position inside the scrolling page.
+          As an absolute it resolved against the old layout's scroll container
+          and drifted away with the content. One shared offset (bottom-20) and
+          one z (below the nav's) — see FloatingAction. */}
+      <FloatingAction
+        href={active === 0 ? "/dashboard/catalog/product/create" : "/dashboard/catalog/discount/new"}
+        label={active === 0 ? "Add product" : "Add discount"}
+      />
+    </PageShell>
   );
 };
 

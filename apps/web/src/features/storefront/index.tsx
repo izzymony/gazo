@@ -20,8 +20,8 @@ import { paginatedFetcher } from "@/app/(auth)/welcome/pagination";
 import useAuthStore from "@/store/authStore";
 import { trackStoreViewed } from "@/lib/analytics";
 import { toast } from "sonner";
-import { Check, Copy, FaStar, Add } from "@vibaar/ui/icons";
-import IconButton from "@vibaar/ui/common/IconButton";
+import { Check, Copy, FaStar } from "@vibaar/ui/icons";
+import FloatingAction from "@/design-system/common/FloatingAction";
 import { getPublicProductUrl, getPublicStoreUrl } from "@/lib/shareUrls";
 import Badge from "@vibaar/ui/common/Badge";
 import StorefrontHeader from "@/features/storefront/StorefrontHeader";
@@ -589,16 +589,10 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
         </Modal>
       )}
 
-      {/* Floating Add Product Button — show when seller has products */}
+      {/* Floating Add Product Button — show when seller has products.
+          (The empty case has its own call to action in AllProducts.) */}
       {isOwnerView && businessProduct && businessProduct.length > 0 && (
-        <IconButton
-          icon={Add}
-          label="Add product"
-          variant="filled"
-          size="lg"
-          onClick={() => router.push("/dashboard/catalog/product/create")}
-          className="fixed bottom-20 right-4 z-sticky shadow-pop"
-        />
+        <FloatingAction href="/dashboard/catalog/product/create" label="Add product" />
       )}
 
       <ShareModal

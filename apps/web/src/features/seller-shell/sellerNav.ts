@@ -37,6 +37,36 @@ export const SELLER_NAV: SellerNavLink[] = [
 ];
 
 /**
+ * The routes that CARRY the nav — the navigable hubs.
+ *
+ * This used to be expressed the other way round, as a list of paths to hide the
+ * nav on, maintained by hand in the dashboard layout. A deny-list defaults to
+ * showing, so every sub-page ever added arrived with a tab bar on it until
+ * someone noticed: `/dashboard/storefront/details` (and customise, address and
+ * shipping beside it) shipped with the bar sitting on top of a focused form.
+ *
+ * An allow-list defaults the other way. A hub is a destination you switch
+ * between; everything deeper is a focused flow you finish and back out of, so
+ * matching is EXACT — `/dashboard/orders` is a hub, `/dashboard/orders/{id}` is
+ * not. The five nav destinations are the source, plus the three hubs reachable
+ * from a header rather than the bar.
+ */
+const SELLER_HUBS = new Set<string>([
+  ...SELLER_NAV.map((item) => item.route),
+  "/dashboard/inbox",
+  "/dashboard/notification",
+  "/dashboard/storefront",
+]);
+
+export function isSellerHub(pathName: string | null | undefined): boolean {
+  if (!pathName) return false;
+  // Tolerate a trailing slash; Next does not emit one, but a hand-typed URL can.
+  const normalised =
+    pathName.length > 1 && pathName.endsWith("/") ? pathName.slice(0, -1) : pathName;
+  return SELLER_HUBS.has(normalised);
+}
+
+/**
  * Which nav entry a path belongs to.
  *
  * Order matters: it is a priority list, not a set of independent tests.

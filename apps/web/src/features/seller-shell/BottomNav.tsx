@@ -26,12 +26,23 @@ const BottomNav = memo(() => {
   }, [pathName]);
 
   return (
-    // FIXED, not absolute. An absolutely-positioned bar resolves against its
-    // nearest positioned ancestor's PADDING BOX — and once that ancestor became
-    // the scroll container, its padding box is the full scrollable height, so the
-    // nav sat at the bottom of all the content and scrolled away with it instead
-    // of staying on screen. DesktopNav is fixed for the same reason.
-    <div className="fixed bottom-0 left-0 right-0 z-sticky flex h-[60px] w-full items-center justify-between border-t-[0.5px] border-t-outline bg-surface lg:hidden">
+    // IN FLOW, inside the dashboard frame's column — not fixed and not absolute.
+    //
+    // Absolute was the original bug: the bar resolved against a positioned
+    // ancestor that was also the scroll container, whose padding box is the full
+    // scrollable height, so it sat at the bottom of all the content and scrolled
+    // away. Fixed cured that but paid for it — a viewport-pinned bar overlays the
+    // page, so its 60px had to be subtracted by hand everywhere else, and the
+    // same magic number ended up written in four places (the layout's `mb`, a
+    // sheet's `mb`, and two different guesses at how high a floating button must
+    // sit). The frame is a column now: this bar is its second row, so the page
+    // box is already the right height and nothing has to know how tall we are.
+    //
+    // `pb-safe` clears the iOS home indicator (the utility itself is defined in
+    // the design-tokens preset — it was being written before it existed), and
+    // `box-content` keeps that padding OUTSIDE the 60px so the tabs themselves
+    // stay 60px tall on a notched phone instead of being squeezed by it.
+    <div className="z-sticky box-content flex h-[60px] w-full shrink-0 items-center justify-between border-t-[0.5px] border-t-outline bg-surface pb-safe lg:hidden">
       {SELLER_NAV.map(({ title, Icon, Solid, route }) => {
         const isActive = activeNavItem === title;
         return (
