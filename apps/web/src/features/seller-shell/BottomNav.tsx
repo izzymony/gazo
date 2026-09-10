@@ -26,7 +26,12 @@ const BottomNav = memo(() => {
   }, [pathName]);
 
   return (
-    <div className="absolute bottom-0 h-[60px] right-0 left-0 w-full flex justify-between items-center border-t-[0.5px] bg-surface border-t-outline lg:hidden">
+    // FIXED, not absolute. An absolutely-positioned bar resolves against its
+    // nearest positioned ancestor's PADDING BOX — and once that ancestor became
+    // the scroll container, its padding box is the full scrollable height, so the
+    // nav sat at the bottom of all the content and scrolled away with it instead
+    // of staying on screen. DesktopNav is fixed for the same reason.
+    <div className="fixed bottom-0 left-0 right-0 z-sticky flex h-[60px] w-full items-center justify-between border-t-[0.5px] border-t-outline bg-surface lg:hidden">
       {SELLER_NAV.map(({ title, Icon, Solid, route }) => {
         const isActive = activeNavItem === title;
         return (

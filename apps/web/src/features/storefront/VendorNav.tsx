@@ -3,7 +3,6 @@ import React, { memo } from "react";
 import { usePathname } from "next/navigation";
 import NavGlyph from "@vibaar/ui/common/NavGlyph";
 import NavItem from "@vibaar/ui/common/NavItem";
-import BottomNav from "@/features/seller-shell/BottomNav";
 import useOrderStore from "@/store/orderStore";
 import {
   Home,
@@ -74,9 +73,12 @@ const VendorNav = memo(({ isOwnerView }: Props) => {
   const totalCartItems =
     cart.length + carts.reduce((total, business) => total + business.products.length, 0);
 
-  return isOwnerView ? (
-    <BottomNav />
-  ) : (
+  // Owner view renders NOTHING here: the only route that reaches it is
+  // /dashboard/storefront, which is inside the seller shell — and that shell
+  // already renders BottomNav. Returning one here put a second identical bar on
+  // top of it (a third came from the page itself), which was invisible while the
+  // bar was absolutely positioned and three stacked bars once it became fixed.
+  return isOwnerView ? null : (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-sticky px-4 pb-safe lg:hidden">
       <nav
         aria-label="Marketplace"

@@ -477,6 +477,11 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
             // and the header's rounded bottom left a notch of page background at
             // each end where a square tab bar met its curve.
             sticky={false}
+            // The tab row keeps the page gutter, like every other surface. The
+            // storefront renders Tabs straight into its scroll container with no
+            // padding of its own, so the row — and its underline — ran flush to
+            // both screen edges here and nowhere else.
+            tabClass="px-4 md:px-6 lg:px-8"
             tabContents={[
               <AllProducts
                 key={0}

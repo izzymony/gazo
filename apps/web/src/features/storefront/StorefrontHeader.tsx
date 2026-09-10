@@ -92,6 +92,8 @@ const asImageSrc = (value: unknown): string | undefined =>
  */
 export const HEADER_OVERHANG = "pb-32";
 export const HEADER_OVERHANG_PULL = "-mt-32";
+/** Duration of the expand/collapse, in ms. Matches `duration-300` below. */
+export const HEADER_COLLAPSE_MS = 300;
 
 export default function StorefrontHeader({
   variant,

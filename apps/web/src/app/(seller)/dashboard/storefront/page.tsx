@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { toast } from "sonner";
 import VendorStoreFront from "@/features/storefront";
-import BottomNav from "@/features/seller-shell/BottomNav";
 import ConfettiCelebration from "@vibaar/ui/ConfettiCelebration";
 
 const StoreFrontPage = () => {
@@ -67,8 +66,6 @@ const StoreFrontPage = () => {
           storeName={storeName}
         />
       </div>
-
-      <BottomNav />
 
       {/* ✅ SAFE: Confetti Animation */}
       <ConfettiCelebration

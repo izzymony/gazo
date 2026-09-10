@@ -35,6 +35,7 @@ import { trackViewItem, trackAddToCart, trackProductShared } from "@/lib/analyti
 import { getPublicProductUrl } from "@/lib/shareUrls";
 import { parseStoreHandle } from "@/lib/urlHelpers";
 import StorefrontHeader, {
+  HEADER_COLLAPSE_MS,
   HEADER_OVERHANG_PULL,
 } from "@/features/storefront/StorefrontHeader";
 import KebabMenu from "@vibaar/ui/common/header/KebabMenu";
@@ -238,6 +239,7 @@ const Product = ({
   const [isStoreMenuOpen, setIsStoreMenuOpen] = useState(false);
 
 
+
   // Image carousel state now handled by ImageCarousel component
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   // The owner viewing their own catalogue vs the public viewing a storefront.
@@ -266,6 +268,20 @@ const Product = ({
   const [isLiked, setIsLiked] = useState(false);
   const [count, setCount] = useState(1);
   const { isScrolled, scrollRef } = useScroll(20);
+  // The banner has to finish shrinking BEHIND the gallery before it becomes the
+  // bar that sits in front of it. Flipping the stack the instant the scroll
+  // threshold trips put a full-height banner over the product image for the
+  // length of the collapse — a flash of colour across the photo on every scroll.
+  // Expanding is the other way round: drop behind immediately, then grow.
+  const [headerAboveGallery, setHeaderAboveGallery] = useState(false);
+  useEffect(() => {
+    if (!isScrolled) {
+      setHeaderAboveGallery(false);
+      return;
+    }
+    const settle = setTimeout(() => setHeaderAboveGallery(true), HEADER_COLLAPSE_MS);
+    return () => clearTimeout(settle);
+  }, [isScrolled]);
   const [loading, setLoading] = useState(false);
   const [search, setSeacrh] = useState("");
   const {
@@ -652,10 +668,10 @@ const Product = ({
           storefront keeps its hero → compact transition: a STORE page leads
           with the store's identity.) */}
       {/* While expanded the banner is a BACKDROP: the gallery rides on its
-          overhang and must paint over it, so the header drops below the gallery
-          in the stack. Once collapsed it is a bar again and has to sit above
-          everything that scrolls beneath it. */}
-      <div className={`sticky top-0 ${isScrolled ? "z-sticky" : "z-0"}`}>
+          overhang and must paint over it, so the header sits below the gallery
+          in the stack. Once collapsed — and only once the collapse has finished
+          — it is a bar again and has to sit above everything scrolling beneath. */}
+      <div className={`sticky top-0 ${headerAboveGallery ? "z-sticky" : "z-0"}`}>
         <StorefrontHeader
           variant="compact"
           store={store}
