@@ -29,6 +29,7 @@ import InputField from "@vibaar/ui/common/InputField";
 import { OrderDatas } from "@/lib/order";
 import { formatTimestamp } from "@/lib/converter";
 import { ProductData } from "@/lib/types";
+import { FaStar } from "@vibaar/ui/icons";
 
 const RatingComponent = ({
   action,
@@ -70,19 +71,7 @@ const ReviewIcon = ({
       </p>
       <div className="flex space-x-3 bg-surface rounded-field p-2">
         <div className="bg-warning-surface p-2 rounded-field gap-1 justify-center items-center flex font-medium text-body-sm text-foreground-primary">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill={"rgb(var(--warning-foreground-rgb))"} // Dynamic fill color
-            stroke={"rgb(var(--warning-foreground-rgb))"} // Dynamic stroke color
-            strokeWidth={2}
-            className="w-[14px] h-[14px]">
-            <path
-              d="M12 2.75l3.09 6.26 6.91 1-5 4.87 1.18 6.88L12 17.77l-6.18 3.25 1.18-6.88-5-4.87 6.91-1L12 2.75z"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-            />
-          </svg>
+          <FaStar size={14} className="text-warning-foreground" aria-hidden="true" />
           {rate}
         </div>
         <div className="flex-1">

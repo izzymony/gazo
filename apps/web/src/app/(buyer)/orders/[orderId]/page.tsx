@@ -35,6 +35,7 @@ import { OrderDatas } from "@/lib/order";
 import { ProductData } from "@/lib/types";
 import Badge from "@vibaar/ui/common/Badge";
 import { supportWhatsAppUrl } from "@/lib/support";
+import StarRating from "@/features/orders/StarRating";
 
 const ActivityTop = ({ title, date }: { title: string; date: string }) => {
   return (
@@ -241,28 +242,12 @@ const Rating = ({
       <p className="text-h1 font-medium text-center mb-3">
         {isRated ? "Thanks for your rating!" : "How was your order?"}
       </p>
-      <div className="flex gap-2 items-center mb-3">
-        {[1, 2, 3, 4, 5].map((star) => {
-          const filled = isRated ? (rated as number) >= star : rating >= star;
-          return (
-            <svg
-              key={star}
-              onClick={isRated ? undefined : () => handleStarClick(star)}
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill={filled ? "rgb(var(--warning-foreground-rgb))" : "rgb(var(--surface-muted-rgb))"}
-              stroke="rgb(var(--warning-foreground-rgb))"
-              strokeWidth={1.5}
-              className={isRated ? "w-10 h-10" : "w-10 h-10 cursor-pointer"}>
-              <path
-                d="M12 2.75l3.09 6.26 6.91 1-5 4.87 1.18 6.88L12 17.77l-6.18 3.25 1.18-6.88-5-4.87 6.91-1L12 2.75z"
-                strokeLinejoin="round"
-                strokeLinecap="round"
-              />
-            </svg>
-          );
-        })}
-      </div>
+      <StarRating
+        className="mb-3"
+        size="lg"
+        value={isRated ? (rated as number) : rating}
+        onRate={isRated ? undefined : handleStarClick}
+      />
 
       <p className="text-body-sm font-medium text-center text-foreground-secondary mt-2">
         {isRated
@@ -577,25 +562,7 @@ const Order = () => {
           </div>
 
           {/* Star Rating */}
-          <div className="flex gap-2 items-center">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <svg
-                key={star}
-                onClick={() => handleStarClick(star)}
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill={rating >= star ? "rgb(var(--warning-foreground-rgb))" : "rgb(var(--surface-muted-rgb))"}
-                stroke={rating >= star ? "rgb(var(--warning-foreground-rgb))" : "rgb(var(--outline-strong-rgb))"}
-                strokeWidth={1.5}
-                className="w-10 h-10 cursor-pointer">
-                <path
-                  d="M12 2.75l3.09 6.26 6.91 1-5 4.87 1.18 6.88L12 17.77l-6.18 3.25 1.18-6.88-5-4.87 6.91-1L12 2.75z"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                />
-              </svg>
-            ))}
-          </div>
+          <StarRating size="lg" value={rating} onRate={handleStarClick} />
 
           {/* Feedback + chips (grouped) */}
           <div className="space-y-2">

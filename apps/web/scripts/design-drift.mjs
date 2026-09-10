@@ -207,7 +207,12 @@ function* sourceFiles(root) {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       const full = join(dir, entry.name);
       if (entry.isDirectory()) {
-        if (entry.name === "node_modules" || entry.name === "(dev)") continue;
+        // `(dev)` is the local-only playground; `_draft` holds routes parked
+        // out of every production build (see next.config pageExtensions). Both
+        // are real code but neither ships, so counting them makes the drift
+        // figures describe something the product does not contain.
+        if (entry.name === "node_modules" || entry.name === "(dev)" || entry.name === "_draft")
+          continue;
         stack.push(full);
       } else if (/\.(tsx?|jsx?)$/.test(entry.name)) {
         yield full;
