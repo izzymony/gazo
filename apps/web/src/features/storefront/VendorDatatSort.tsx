@@ -53,7 +53,10 @@ const VendorDataSort: React.FC<VendorDataSortProps> = ({
 
   return (
     <FilterBar
-      className="px-4 md:px-6 lg:px-8 pt-4"
+      // The vendor header is what pins on this screen; these pills scroll with
+      // the tabs they belong to.
+      sticky={false}
+      className="px-4 md:px-6 lg:px-8 pt-1"
       ariaLabel="Filter products"
       pills={filters}
       activePill={Math.max(0, filters.indexOf(activeFilter))}

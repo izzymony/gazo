@@ -38,6 +38,18 @@ interface StorefrontHeaderProps {
   trailing?: ReactNode;
   /** Extra actions under the hero identity block (owner's Edit/Share row). */
   actions?: ReactNode;
+  /**
+   * compact only: draw the banner at its full height instead of just behind the
+   * bar, and animate between the two.
+   *
+   * The storefront leads with a 191px banner that collapses to a 68px bar as you
+   * scroll. The product page is the same vendor and should read the same way —
+   * but its CONTENT does not change between the two states, only the height of
+   * the backdrop. So rather than a second variant, `expanded` grows the banner
+   * below the bar; whatever follows overlaps that overhang, and both animate
+   * together so the collapse has nothing to jump.
+   */
+  expanded?: boolean;
   /** Unique per mounted instance — SVG mask ids are document-global. */
   backMaskId: string;
   className?: string;
@@ -73,12 +85,21 @@ interface StorefrontHeaderProps {
 const asImageSrc = (value: unknown): string | undefined =>
   typeof value === "string" && value.length > 0 ? value : undefined;
 
+/**
+ * The banner's overhang when expanded. Paired with `HEADER_OVERHANG_PULL` on
+ * whatever sits beneath, so the two move as one and the collapse is a single
+ * continuous motion rather than a reflow.
+ */
+export const HEADER_OVERHANG = "pb-32";
+export const HEADER_OVERHANG_PULL = "-mt-32";
+
 export default function StorefrontHeader({
   variant,
   store,
   onBack,
   trailing,
   actions,
+  expanded = false,
   backMaskId,
   className,
 }: StorefrontHeaderProps) {
@@ -94,8 +115,9 @@ export default function StorefrontHeader({
   return (
     <div
       className={cn(
-        "relative flex w-full flex-col rounded-b-card",
+        "relative flex w-full flex-col rounded-b-card transition-spacing duration-300 ease-out",
         isHero ? "pt-2" : "shadow-card",
+        !isHero && expanded && HEADER_OVERHANG,
         className
       )}
       style={bannerBackground(theme, store?.name)}>

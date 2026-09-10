@@ -473,7 +473,10 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
         <div>
           <Tabs
             tabs={tab}
-            stickyTop={smallHeaderHeight}
+            // Only the vendor header pins. Two stacked fixed bars is clutter,
+            // and the header's rounded bottom left a notch of page background at
+            // each end where a square tab bar met its curve.
+            sticky={false}
             tabContents={[
               <AllProducts
                 key={0}

@@ -34,7 +34,9 @@ import { useDelivery } from "./useDelivery";
 import { trackViewItem, trackAddToCart, trackProductShared } from "@/lib/analytics";
 import { getPublicProductUrl } from "@/lib/shareUrls";
 import { parseStoreHandle } from "@/lib/urlHelpers";
-import StorefrontHeader from "@/features/storefront/StorefrontHeader";
+import StorefrontHeader, {
+  HEADER_OVERHANG_PULL,
+} from "@/features/storefront/StorefrontHeader";
 import KebabMenu from "@vibaar/ui/common/header/KebabMenu";
 
 type VariantOption = string | number | boolean;
@@ -649,10 +651,15 @@ const Product = ({
           always reachable rather than appearing only once you scroll. (The
           storefront keeps its hero → compact transition: a STORE page leads
           with the store's identity.) */}
-      <div className="sticky top-0 z-sticky">
+      {/* While expanded the banner is a BACKDROP: the gallery rides on its
+          overhang and must paint over it, so the header drops below the gallery
+          in the stack. Once collapsed it is a bar again and has to sit above
+          everything that scrolls beneath it. */}
+      <div className={`sticky top-0 ${isScrolled ? "z-sticky" : "z-0"}`}>
         <StorefrontHeader
           variant="compact"
           store={store}
+          expanded={!isScrolled}
           backMaskId="product-header-compact"
           trailing={
             <KebabMenu isOpen={isStoreMenuOpen} setIsOpen={setIsStoreMenuOpen} store={store} />
@@ -660,8 +667,12 @@ const Product = ({
         />
       </div>
 
-      {/* Image Carousel - Using enhanced component */}
-      <div className="relative px-4 md:px-6 lg:px-8 mb-0 lg:mb-4">
+      {/* The gallery rides on the banner's overhang and rises with it as the
+          header collapses — same duration, so the two read as one motion. */}
+      <div
+        className={`relative z-10 px-4 md:px-6 lg:px-8 mb-0 lg:mb-4 transition-spacing duration-300 ease-out ${
+          !isScrolled ? HEADER_OVERHANG_PULL : ""
+        }`}>
         <ImageCarousel
           product={{ ...prod, images: currentImages.length > 0 ? currentImages : prod?.image }}
           isScrolled={isScrolled}

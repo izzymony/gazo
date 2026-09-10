@@ -19,6 +19,14 @@ interface FilterBarProps {
   onSearchChange?: (value: string) => void;
   /** Names the filter set for screen readers, e.g. "Filter products". */
   ariaLabel?: string;
+  /**
+   * Whether the row pins to the top of the scroll container. Default true.
+   *
+   * Off where something above it already pins — otherwise the bar it belongs to
+   * scrolls away while these pills stay behind on their own, which is what
+   * happened on the storefront once its tab bar stopped pinning.
+   */
+  sticky?: boolean;
   className?: string;
 }
 
@@ -48,6 +56,7 @@ export default function FilterBar({
   searchValue = "",
   onSearchChange,
   ariaLabel = "Filters",
+  sticky = true,
   className = "",
 }: FilterBarProps) {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -58,15 +67,12 @@ export default function FilterBar({
   };
 
   return (
-    // `sticky top-0` only engages when this is NOT already inside a sticky block
-    // — Tabs groups its general row with the tab bar and carries the offset for
-    // both, so on the storefront this is a no-op rather than a competing layer.
-    <div className={cn("sticky top-0 z-sticky w-full bg-surface pb-2", className)}>
-      <div className="w-full flex">
+    <div className={cn("w-full bg-surface", sticky && "sticky top-0 z-sticky", className)}>
+      <div className="w-full flex items-center gap-2">
         <div
           role="group"
           aria-label={ariaLabel}
-          className="w-full flex flex-1 gap-2 items-center overflow-x-scroll scrollbar-hide py-2">
+          className="flex flex-1 items-center gap-2 overflow-x-scroll scrollbar-hide py-2">
           {/* A filter is on or off, so it is a toggle — not a link and not a
               tab, neither of which would describe "narrow this list". Shared
               with the product page's variant chips, which are the same control
@@ -81,7 +87,7 @@ export default function FilterBar({
           ))}
         </div>
 
-        <div className="flex items-center gap-1 py-2">
+        <div className="flex shrink-0 items-center gap-1">
           {showSearch && (
             <IconButton
               icon={CiSearch}

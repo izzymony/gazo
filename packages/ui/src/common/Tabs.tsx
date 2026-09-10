@@ -17,6 +17,15 @@ interface TabsProps {
   /** Pixel offset for the sticky tab bar — e.g. to sit below a collapsing
    *  header. Applied as an inline `top` so it beats the default `top-0`. */
   stickyTop?: number;
+  /**
+   * Whether the bar pins to the top of the scroll container. Default true.
+   *
+   * Turn it OFF where something else is already pinned above it. A screen with
+   * two stacked fixed bars reads as clutter, and if the upper one has rounded
+   * bottom corners (the storefront header does) a square bar beneath it leaves
+   * a notch of page background showing at each end where the curve pulls away.
+   */
+  sticky?: boolean;
 }
 
 /**
@@ -35,6 +44,7 @@ const Tabs: React.FC<TabsProps> = ({
   generalContent,
   tabClass,
   stickyTop,
+  sticky = true,
 }) => {
   const [activeTab, setActiveTab] = useState(0);
   const baseId = useId();
@@ -56,8 +66,8 @@ const Tabs: React.FC<TabsProps> = ({
           compose: the caller gives one `stickyTop` and the whole block honours
           it. */}
       <div
-        style={stickyTop !== undefined ? { top: stickyTop } : undefined}
-        className="sticky top-0 z-sticky bg-surface">
+        style={sticky && stickyTop !== undefined ? { top: stickyTop } : undefined}
+        className={cn("bg-surface", sticky && "sticky top-0 z-sticky")}>
         <div
           role="tablist"
           className={cn(
@@ -98,8 +108,10 @@ const Tabs: React.FC<TabsProps> = ({
         {generalContent}
       </div>
 
-      {/* Panel — one 16px gap below the sticky block. */}
-      <div className="mt-4">
+      {/* Panel — a small gap below the bar. `generalContent` (a filter row) sits
+          in the block above and already carries its own bottom space, so this
+          used to compound into a conspicuous band of nothing. */}
+      <div className={generalContent ? "mt-2" : "mt-4"}>
         <div role="tabpanel" id={panelId(activeTab)} aria-labelledby={tabId(activeTab)} tabIndex={0}>
           {tabContents[activeTab]}
         </div>

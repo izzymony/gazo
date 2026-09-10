@@ -168,6 +168,14 @@ module.exports = {
         modal: "var(--z-modal)",
         toast: "var(--z-toast)",
       },
+      transitionProperty: {
+        // Collapsing headers animate their own box, not their contents. Tailwind
+        // ships no utility for that (`transition` covers colour/opacity/transform
+        // only, and `transition-all` animates everything including layout it has
+        // no business touching), so the two call sites were reaching for
+        // `transition-[padding]` / `transition-[margin]` arbitrary values.
+        spacing: "margin, padding",
+      },
       letterSpacing: {
         // Add only what Tailwind does not already provide. Declaring the full
         // scale at `theme.letterSpacing` replaced Tailwind's defaults.
