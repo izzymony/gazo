@@ -5,6 +5,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@vibaar/utils';
 import { focusRing } from "../styles";
 import Spinner from "./Spinner";
+import Link from "next/link";
 
 // Button variant system.
 //   variant  — filled (primary CTA) · bordered (secondary/outline) · ghost (tertiary/text)
@@ -79,6 +80,16 @@ type ButtonProps = Omit<
    * where a genuinely tappable ancestor would otherwise double-fire.
    */
   stopPropagation?: boolean;
+  /**
+   * Renders a link instead of a button, with identical styling.
+   *
+   * An action that NAVIGATES is a link — middle-clickable, openable in a new
+   * tab, and announced as a link. Without this, every screen that wanted a
+   * styled navigation hand-rolled the pill itself: the storefront hero's "Edit
+   * store", the profile's "View store", the catalog's "View store front". Three
+   * copies, three different heights, and none of them with a focus ring.
+   */
+  href?: string;
 } & VariantProps<typeof buttonVariants>;
 
 // Haptic feedback utility
@@ -114,6 +125,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
     fullWidth = true,
     hapticFeedback = true, // Enable by default for better mobile UX
     stopPropagation = false,
+    href,
     // Pulled out of `rest` because each one collides with a value this
     // component controls. `rest` is spread FIRST below so these win.
     style,
@@ -134,6 +146,24 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
     onClick?.(event);
   };
 
+  const classes = cn(
+    buttonVariants({ variant, size, fullWidth }),
+    loading && "opacity-70 cursor-not-allowed",
+    disabled && !loading && "opacity-50 cursor-not-allowed",
+    className
+  );
+
+  // A navigation renders a real link. Loading/disabled have no meaning on one,
+  // so they are not accepted here — a link either goes somewhere or it is not
+  // a link.
+  if (href) {
+    return (
+      <Link href={href} className={classes} aria-label={ariaLabel} style={style}>
+        {children}
+      </Link>
+    );
+  }
+
   return (
     <button
       // `rest` FIRST so every attribute this component controls is applied
@@ -143,12 +173,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
       {...rest}
       ref={ref}
       onClick={handleClick}
-      className={cn(
-        buttonVariants({ variant, size, fullWidth }),
-        loading && "opacity-70 cursor-not-allowed",
-        disabled && !loading && "opacity-50 cursor-not-allowed",
-        className
-      )}
+      className={classes}
       style={{
         boxShadow:
           variant === "filled" && !loading

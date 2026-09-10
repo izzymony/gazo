@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { cn } from "@vibaar/utils";
 import SearchField from "./SearchField";
 import IconButton from "./IconButton";
@@ -8,9 +8,18 @@ import ChipToggle from "./ChipToggle";
 import { CiSearch, SortVertical } from "../icons";
 
 interface FilterBarProps {
-  pills: string[];
-  activePill: number;
-  onPillChange: (index: number) => void;
+  pills?: string[];
+  activePill?: number;
+  onPillChange?: (index: number) => void;
+  /**
+   * Replaces the pills in the leading slot — a period selector on analytics, a
+   * sort selector on the catalog. Same row, different control: those two
+   * screens each drew their own version of this bar because the only leading
+   * content it could hold was a pill set.
+   */
+  leading?: ReactNode;
+  /** Sits before the search/sort controls — a date stamp, a count. */
+  trailing?: ReactNode;
   showSearch?: boolean;
   showSort?: boolean;
   onSearchClick?: () => void;
@@ -47,8 +56,10 @@ interface FilterBarProps {
  */
 export default function FilterBar({
   pills,
-  activePill,
+  activePill = 0,
   onPillChange,
+  leading,
+  trailing,
   showSearch = true,
   showSort = true,
   onSearchClick,
@@ -69,25 +80,30 @@ export default function FilterBar({
   return (
     <div className={cn("w-full bg-surface", sticky && "sticky top-0 z-sticky", className)}>
       <div className="w-full flex items-center gap-2">
-        <div
-          role="group"
-          aria-label={ariaLabel}
-          className="flex flex-1 items-center gap-2 overflow-x-scroll scrollbar-hide py-2">
-          {/* A filter is on or off, so it is a toggle — not a link and not a
-              tab, neither of which would describe "narrow this list". Shared
-              with the product page's variant chips, which are the same control
-              and used to look and behave differently. */}
-          {pills.map((pill, index) => (
-            <ChipToggle
-              key={pill}
-              selected={activePill === index}
-              onClick={() => onPillChange(index)}>
-              {pill}
-            </ChipToggle>
-          ))}
-        </div>
+        {leading ? (
+          <div className="flex min-w-0 flex-1 items-center gap-2 py-2">{leading}</div>
+        ) : (
+          <div
+            role="group"
+            aria-label={ariaLabel}
+            className="flex flex-1 items-center gap-2 overflow-x-scroll scrollbar-hide py-2">
+            {/* A filter is on or off, so it is a toggle — not a link and not a
+                tab, neither of which would describe "narrow this list". Shared
+                with the product page's variant chips, which are the same control
+                and used to look and behave differently. */}
+            {(pills ?? []).map((pill, index) => (
+              <ChipToggle
+                key={pill}
+                selected={activePill === index}
+                onClick={() => onPillChange?.(index)}>
+                {pill}
+              </ChipToggle>
+            ))}
+          </div>
+        )}
 
         <div className="flex shrink-0 items-center gap-1">
+          {trailing}
           {showSearch && (
             <IconButton
               icon={CiSearch}

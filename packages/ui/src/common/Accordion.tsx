@@ -7,6 +7,15 @@ import DisclosureButton from "./DisclosureButton";
 
 interface AccordionProps {
   title: string;
+  /**
+   * A summary of what is inside, shown in the header row beside the title —
+   * a rating and its count, an item count, a total.
+   *
+   * Without it, a section's headline fact had to be repeated as the first row
+   * INSIDE the section, which is where the product page's "★★★★★ 5.0 · 4
+   * reviews" line sat: a second header under the header.
+   */
+  meta?: ReactNode;
   className?: string;
   children: ReactNode;
   initiallyOpen?: boolean;
@@ -23,6 +32,7 @@ interface AccordionProps {
  */
 const Accordion: React.FC<AccordionProps> = ({
   title,
+  meta,
   className,
   children,
   initiallyOpen = false,
@@ -43,7 +53,12 @@ const Accordion: React.FC<AccordionProps> = ({
         controls={panelId}
         onClick={() => setIsOpen((v) => !v)}
         className="flex w-full items-center justify-between gap-3 py-4 text-body font-medium text-foreground-primary">
-        {title}
+        <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="shrink-0">{title}</span>
+          {meta && (
+            <span className="flex min-w-0 items-center gap-2 font-normal">{meta}</span>
+          )}
+        </span>
         <GoChevronDown
           size={20}
           className={cn(

@@ -812,19 +812,23 @@ const Product = ({
 
           <Accordion
             title="Ratings & Reviews"
+            // The score lives in the section header, not as a first row inside
+            // the section — that was a second header under the header.
+            meta={
+              productRatings.length > 0 ? (
+                <>
+                  <StarRating value={ratings} size="xs" />
+                  <span className="text-body-sm text-foreground-secondary">
+                    {ratings.toFixed(1)} · {productRatings.length}{" "}
+                    {productRatings.length === 1 ? "review" : "reviews"}
+                  </span>
+                </>
+              ) : undefined
+            }
             initiallyOpen={true}
             className="px-5 lg:px-0 pb-24 lg:pb-4">
             {productRatings.length > 0 ? (
               <div className="flex flex-col gap-3">
-                {/* The score for the product, above the reviews that make it
-                    up — the list showed individual reviews with no summary. */}
-                <div className="flex items-center gap-2">
-                  <StarRating value={ratings} size="sm" />
-                  <p className="text-body-sm text-foreground-secondary">
-                    {ratings.toFixed(1)} · {productRatings.length}{" "}
-                    {productRatings.length === 1 ? "review" : "reviews"}
-                  </p>
-                </div>
                 {productRatings.map((item: any, index: number) => (
                   <ReviewCard
                     key={item.id ?? index}

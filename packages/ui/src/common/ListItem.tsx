@@ -12,8 +12,16 @@ interface ListItemProps {
   subtitle?: ReactNode;
   /** Tertiary line (e.g. a timestamp). */
   meta?: ReactNode;
-  /** Right-hand visual — an amount, a chevron, an action. Top-aligned with title. */
+  /** Right-hand visual — an amount, a chevron, an action. */
   trailing?: ReactNode;
+  /**
+   * How `trailing` sits against the text block. `start` (default) lines it up
+   * with the title, which is what an amount or a timestamp wants. `center`
+   * centres it against the whole block — what an ACTION wants: a "View store"
+   * button beside a two-line name/category read as floating above the row when
+   * it was pinned to the first line.
+   */
+  trailingAlign?: "start" | "center";
   /** Small unread dot pinned to the leading badge. */
   showDot?: boolean;
   /**
@@ -46,6 +54,7 @@ export default function ListItem({
   subtitle,
   meta,
   trailing,
+  trailingAlign = "start",
   showDot,
   dotLabel = "Unread",
   asListItem = false,
@@ -79,16 +88,31 @@ export default function ListItem({
         </div>
       )}
 
-      <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 text-body text-foreground-primary line-clamp-1">{title}</div>
+      {trailingAlign === "center" ? (
+        // The trailing control sits beside the WHOLE text block, vertically
+        // centred against it, rather than inside the title's own row.
+        <div className="flex flex-1 min-w-0 items-center justify-between gap-3">
+          <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+            <div className="min-w-0 text-body text-foreground-primary line-clamp-1">{title}</div>
+            {subtitle && (
+              <p className="text-body-sm text-foreground-secondary line-clamp-2">{subtitle}</p>
+            )}
+            {meta && <p className="text-caption text-foreground-muted">{meta}</p>}
+          </div>
           {trailing && <div className="flex-shrink-0">{trailing}</div>}
         </div>
-        {subtitle && (
-          <p className="text-body-sm text-foreground-secondary line-clamp-2">{subtitle}</p>
-        )}
-        {meta && <p className="text-caption text-foreground-muted">{meta}</p>}
-      </div>
+      ) : (
+        <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 text-body text-foreground-primary line-clamp-1">{title}</div>
+            {trailing && <div className="flex-shrink-0">{trailing}</div>}
+          </div>
+          {subtitle && (
+            <p className="text-body-sm text-foreground-secondary line-clamp-2">{subtitle}</p>
+          )}
+          {meta && <p className="text-caption text-foreground-muted">{meta}</p>}
+        </div>
+      )}
     </Element>
   );
 

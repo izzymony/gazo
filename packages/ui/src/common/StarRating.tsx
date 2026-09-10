@@ -48,8 +48,17 @@ export default function StarRating({
       <svg
         viewBox="0 0 24 24"
         aria-hidden="true"
-        fill={filled ? "rgb(var(--warning-foreground-rgb))" : "rgb(var(--surface-muted-rgb))"}
-        stroke={filled ? "rgb(var(--warning-foreground-rgb))" : "rgb(var(--outline-strong-rgb))"}
+        // Brand yellow with a brandDeep outline — the same rule the empty-state
+        // illustrations follow: a brand-yellow mark used illustratively gets an
+        // outline so it holds an edge on a light surface.
+        //
+        // It used to be `--warning-foreground` (a dark amber) filled AND
+        // stroked, which read as a muddy rust and, more to the point, was the
+        // wrong token: a five-star rating is not a warning. Nothing about a
+        // review should borrow the colour the app uses to say something is
+        // wrong.
+        fill={filled ? "var(--brand)" : "rgb(var(--surface-muted-rgb))"}
+        stroke={filled ? "var(--brand-deep)" : "rgb(var(--outline-strong-rgb))"}
         strokeWidth={size === "lg" ? 1.5 : 2}
         className={DIMENSION[size]}>
         <path

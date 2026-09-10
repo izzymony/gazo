@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import useBusinessStore from "@/store/businessStore";
 import { paginatedFetcher } from "@/app/(auth)/welcome/pagination";
 import useAuthStore from "@/store/authStore";
-// import Spotlights from "@/features/seller-dashboard/spotlight"; // Hidden for v2
+import DataSort from "@/features/seller-dashboard/datasort";
 
 const Page = () => {
   const router = useRouter();
@@ -24,11 +24,14 @@ const Page = () => {
   const tabs = ["Products", "Collections", "Discount"];
   const [active, setActive] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  // The Products tab's controls live in the tab bar's row, so the page holds
+  // their state alongside the active tab.
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState<"ascending" | "descending">("ascending");
   const tabContents = [
-    <Product key={0} />,
+    <Product key={0} searchTerm={searchTerm} sortOrder={sortOrder} />,
     <Collections key={1} />,
     <Discount key={2} />,
-    // <Spotlights key={3} />, // Hidden for v2
   ];
 
   const fetcher = useCallback(
@@ -61,16 +64,19 @@ const Page = () => {
           // beside the add button — two controls competing for the same corner
           // of the screen, each with its own hand-picked offset above the nav.
           // It is a navigation, not an action, so it belongs in the header.
+          // `size="md"` — text-body (14px), matching every other action in the
+          // app. At `sm` it was text-body-sm (12px), noticeably smaller than
+          // the title it sits beside.
           trailing={
             <Button
               variant="link"
-              size="sm"
+              size="md"
               fullWidth={false}
               loading={isRefreshing}
               loadingText="Loading…"
               onClick={handleViewStorefront}>
               View store
-              <SquareArrowUpRight size={18} />
+              <SquareArrowUpRight size={18} aria-hidden="true" />
             </Button>
           }
         />
@@ -79,6 +85,24 @@ const Page = () => {
         tabs={tabs}
         tabContents={tabContents}
         onTabChange={(value: number) => setActive(value)}
+        // The controls belong to the Products tab, so they only appear on it —
+        // but they sit in the SAME slot as analytics' period row, which is what
+        // makes the header → tabs → controls rhythm identical on both screens.
+        generalContent={
+          active === 0 ? (
+            <DataSort
+              sortOrder={sortOrder}
+              onSortToggle={() =>
+                setSortOrder((order) =>
+                  order === "ascending" ? "descending" : "ascending"
+                )
+              }
+              onSortOrderChange={setSortOrder}
+              searchValue={searchTerm}
+              onSearchChange={setSearchTerm}
+            />
+          ) : undefined
+        }
       />
 
       {/* The add action. `fixed`, like every other floating control: it is

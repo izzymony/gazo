@@ -338,6 +338,16 @@ export const formatTrendForNigerianMarket = (
   };
 };
 
+/**
+ * What to show when a product has no photo.
+ *
+ * Several places fell back to `""`, and an empty `src` makes the browser draw
+ * its BROKEN-IMAGE icon — so a product without a picture looked like a product
+ * whose picture had failed to load. The literal path was also copied into six
+ * files, one of them with different capitalisation.
+ */
+export const PRODUCT_IMAGE_FALLBACK = "/PRODUCT IMAGE (2).png";
+
 // Utility function to transform image URLs for mobile compatibility
 export const getMobileCompatibleImageUrl = (imageUrl: string): string => {
   if (!imageUrl) return '';

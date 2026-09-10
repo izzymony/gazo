@@ -21,6 +21,7 @@ import {
 import { supportWhatsAppUrl } from "@/lib/support";
 import Link from "next/link";
 import ListItem from "@vibaar/ui/common/ListItem";
+import Button from "@vibaar/ui/common/Button";
 import EarningsCard from "@/features/wallet/EarningsCard";
 
 const Sellercard = ({
@@ -64,6 +65,9 @@ const Selling = () => {
         // (`text-body` twice), so the row read flat with no primary line, and
         // the buyer tab's copy of it used a different avatar size again.
         <ListItem
+          // The action sits beside the whole two-line block, not pinned to the
+          // first line of it.
+          trailingAlign="center"
           leading={
             <StoreLogo
               src={typeof store?.logo === "string" ? store.logo : undefined}
@@ -75,12 +79,12 @@ const Selling = () => {
           title={store?.name ?? ""}
           subtitle={store?.category ?? ""}
           trailing={
-            <Link
-              href="/dashboard/storefront"
-              className="flex items-center gap-1 text-body-sm font-medium text-brandDeep underline-offset-4 hover:underline">
+            // The same control as the catalog header's "View store" — one
+            // spelling of the action, on the primitive, at the same size.
+            <Button variant="link" size="md" fullWidth={false} href="/dashboard/storefront">
               View store
-              <ChevronRight size={16} aria-hidden="true" />
-            </Link>
+              <ChevronRight size={18} aria-hidden="true" />
+            </Button>
           }
         />
       )}

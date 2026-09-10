@@ -86,4 +86,41 @@ describe("FilterBar", () => {
       expect(screen.queryByRole("button", { name: "Sort" })).not.toBeInTheDocument();
     });
   });
+
+  /**
+   * The control row under a tab bar existed three times: as pills here, as a
+   * hand-rolled row with two `w-9 h-9` circles on the catalog, and inline on
+   * analytics. Three implementations meant three vertical rhythms, which is why
+   * the gap under the tab bar differed between screens showing one pattern.
+   * The `leading` slot is what makes all three THIS row.
+   */
+  describe("leading and trailing slots", () => {
+    const rowOf = (container: HTMLElement) => container.querySelector("div > div")!.className;
+
+    it("keeps one row rhythm whether it holds pills or a custom control", () => {
+      const { container: pills } = render(
+        <FilterBar pills={PILLS} activePill={0} onPillChange={() => {}} />
+      );
+      const { container: custom } = render(<FilterBar leading={<span>ascending</span>} />);
+      expect(rowOf(custom)).toBe(rowOf(pills));
+    });
+
+    it("gives the leading slot the same vertical padding the pills get", () => {
+      render(<FilterBar leading={<span>ctl</span>} />);
+      expect(screen.getByText("ctl").parentElement!.className).toContain("py-2");
+    });
+
+    it("renders trailing content before the search and sort controls", () => {
+      render(<FilterBar leading={<span>ctl</span>} trailing={<span>Tue</span>} />);
+      expect(screen.getByText("Tue").nextElementSibling).toHaveAttribute(
+        "aria-label",
+        "Search"
+      );
+    });
+
+    it("does not require pills at all", () => {
+      render(<FilterBar leading={<span>ctl</span>} />);
+      expect(screen.queryByRole("group")).not.toBeInTheDocument();
+    });
+  });
 });

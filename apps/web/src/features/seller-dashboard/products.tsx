@@ -1,16 +1,19 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import React, { useState } from "react";
-import DataSort from "./datasort";
-import { formatCurrency, formatDate, getMobileCompatibleImageUrl } from "@/lib/utils";
-import useProductStore from "@/store/productStore";
+import React from "react";
+import {
+  formatCurrency,
+  formatDate,
+  getMobileCompatibleImageUrl,
+  PRODUCT_IMAGE_FALLBACK,
+} from "@/lib/utils";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import Section from "@vibaar/ui/common/Section";
-import { useRouter } from "next/navigation";
+import ListItem from "@vibaar/ui/common/ListItem";
+import Badge from "@vibaar/ui/common/Badge";
 import useBusinessStore, { BusinessProduct } from "@/store/businessStore";
-import useAuthStore from "@/store/authStore";
 import StatusBadge from "@/features/orders/StatusBadge";
 import Link from "next/link";
 
@@ -18,73 +21,82 @@ interface ProductProps {
   product: BusinessProduct;
 }
 
-const ProductComp: React.FC<ProductProps> = ({ product }: ProductProps) => {
-  const router = useRouter();
-  const { store } = useBusinessStore();
+/**
+ * One catalog row.
+ *
+ * It hand-rolled the `[thumb][title/detail][price]` skeleton that `ListItem`
+ * exists to own — with six arbitrary values pinning the 60px thumbnail, a
+ * `w-[100%]`, and three different spacing mechanisms (`gap-2`, `space-x-8`,
+ * `gap-4`) inside one 82px row. The category chip was a bare `<span>` emitted
+ * as a fourth sibling with no wrapper and no margin, which is why it hung below
+ * the row instead of sitting in it; `Badge` is the chip primitive.
+ *
+ * The thumbnail's `src` fell back to `""` when a product had no image, and an
+ * empty `src` renders the browser's BROKEN-IMAGE icon — which is what every
+ * row without a photo was showing.
+ */
+const ProductComp: React.FC<ProductProps> = ({ product }: ProductProps) => (
+  <ListItem
+    className="relative items-center"
+    trailingAlign="center"
+    leading={
+      <img
+        src={
+          product?.image?.[0]
+            ? getMobileCompatibleImageUrl(product.image[0])
+            : PRODUCT_IMAGE_FALLBACK
+        }
+        alt=""
+        loading="lazy"
+        decoding="async"
+        className="h-14 w-14 rounded-field border border-outline-subtle object-cover"
+      />
+    }
+    title={
+      <Link
+        href={`/dashboard/catalog/product/${product?.id}`}
+        className="font-medium after:absolute after:inset-0">
+        {product?.title}
+      </Link>
+    }
+    subtitle={
+      <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span>Stock: {product?.stock ?? 0}</span>
+        {product?.tag && product.tag.length > 0 && (
+          <span>{product.tag.length} variants</span>
+        )}
+        {product?.category?.name && <Badge tone="neutral">{product.category.name}</Badge>}
+      </span>
+    }
+    meta={`Last modified: ${formatDate(new Date(product?.created_at || Date.now()))}`}
+    trailing={
+      <span className="flex flex-col items-end gap-1">
+        <span className="text-body font-medium text-foreground-primary">
+          {formatCurrency(product?.price ? +product.price : 0)}
+        </span>
+        <StatusBadge status={product?.status === "active" ? "active" : "Draft"} />
+      </span>
+    }
+  />
+);
 
-  return (
-    <Link href={`/dashboard/catalog/product/${product?.id}`} className="cursor-pointer">
-      <div className="flex justify-between gap-2">
-        <img
-          src={product.image ? getMobileCompatibleImageUrl(product.image[0]) : ""}
-          alt="Product"
-          className="object-cover h-[60px] w-[60px] min-w-[60px] min-h-[60px] max-w-[60px] max-h-[60px] rounded-field flex-shrink-0"
-        />
-        <div className="w-[100%]">
-          <div className="flex space-x-8 justify-between">
-            <span className="text-body font-medium line-clamp-2">
-              {product?.title} - {product?.description}
-            </span>
-            <p className="text-body font-medium text-foreground-primary ml-auto">
-              {formatCurrency(product?.price ? +product.price : 0)}
-            </p>
-          </div>
-          <div className="flex gap-4">
-            <p className="text-body-sm text-foreground-primary">Stock: {product?.stock}</p>
-            <span className="text-body-sm space-x-1 flex items-center rounded-field text-foreground-primary">
-              {product?.tag && product?.tag.length > 0 && (
-                <span>Variant: {product?.tag.length}</span>
-              )}
-            </span>
-          </div>
-          <div className="flex justify-between w-full mt-1">
-            <div className="text-caption text-foreground-muted">
-              Last modified:{" "}
-              {formatDate(new Date(product?.created_at || Date.now()))}
-            </div>
-            <StatusBadge status={product?.status === "active" ? "active" : "Draft"} />
-          </div>
-          {product?.category?.name && (
-            <span className=" text-body-sm px-3 py-1 rounded-field bg-surface-muted">
-              {product?.category?.name}
-            </span>
-          )}
-        </div>
-      </div>
-    </Link>
-  );
-};
-
-const Product = () => {
-  const { products } = useProductStore();
+/**
+ * The catalog's product list.
+ *
+ * The sort/search row it used to render itself now lives in the catalog page's
+ * `Tabs generalContent`, beside the tab bar — the same slot analytics and the
+ * storefront put theirs in. A control for a tab's contents belongs with the
+ * tabs, not inside the panel, and having it in two different places is what
+ * made the gap under the tab bar differ between these two screens.
+ */
+const Product = ({
+  searchTerm = "",
+  sortOrder = "ascending",
+}: {
+  searchTerm?: string;
+  sortOrder?: "ascending" | "descending";
+}) => {
   const { businessProduct } = useBusinessStore();
-  const { user } = useAuthStore();
-  const [sortProduct, setSortProduct] = useState<"ascending" | "descending">(
-    "ascending"
-  );
-
-  //("products pay ", products, user?.business?.id, user);
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const handleSortToggle = () => {
-    setSortProduct((prevproduct) =>
-      prevproduct === "ascending" ? "descending" : "ascending"
-    );
-  };
-
-  const handleSortChange = (option: "ascending" | "descending") => {
-    setSortProduct(option);
-  };
 
   const filteredProducts = businessProduct
     ?.filter(
@@ -95,36 +107,23 @@ const Product = () => {
     .sort((a, b) => {
       const dateA = a?.created_at ? new Date(a.created_at).getTime() : 0;
       const dateB = b?.created_at ? new Date(b.created_at).getTime() : 0;
-      return sortProduct === "ascending" ? dateA - dateB : dateB - dateA;
+      return sortOrder === "ascending" ? dateA - dateB : dateB - dateA;
     });
 
-  //("filtered ", filteredProducts, businessProduct, products);
-
   return (
-    <div className="space-y-6">
-      <DataSort
-        sortOrder={sortProduct}
-        onSortToggle={handleSortToggle}
-        onSortOrderChange={handleSortChange}
-        searchValue={searchTerm}
-        onSearchChange={setSearchTerm}
-      />
-      <Section>
-        {businessProduct.length > 0 ? (
-          filteredProducts
-            .reverse()
-            ?.map((product, index) => (
-              <ProductComp key={index} product={product} />
-            ))
-        ) : (
-          <EmptyState
-            image="/images/emptystate/products_empty_state.svg"
-            title="No products yet."
-            subtitle="Start by adding a product to your store."
-          />
-        )}
-      </Section>
-    </div>
+    <Section>
+      {businessProduct.length > 0 ? (
+        filteredProducts
+          .reverse()
+          ?.map((product, index) => <ProductComp key={index} product={product} />)
+      ) : (
+        <EmptyState
+          image="/images/emptystate/products_empty_state.svg"
+          title="No products yet."
+          subtitle="Start by adding a product to your store."
+        />
+      )}
+    </Section>
   );
 };
 
