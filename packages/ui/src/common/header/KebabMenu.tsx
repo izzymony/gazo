@@ -60,14 +60,11 @@ const KebabMenu = ({ isOpen, setIsOpen, store }: KebabMenuProps) => (
         viewBox="0 0 36 37"
         fill="none"
         xmlns="http://www.w3.org/2000/svg">
-        <rect
-          y="0.320312"
-          width="36"
-          height="36"
-          rx="18"
-          fill="black"
-          fillOpacity="0.03"
-        />
+        {/* No plate. A 36px `rx=18` black-3% circle used to be drawn behind the
+            dots, permanently — so on the storefront hero this control wore a
+            faint ring that its sibling BackButton did not, and the pair read as
+            two different kinds of button. Hover and focus states belong to the
+            control, not to the artwork. */}
         <mask
           id="mask0_7046_239079"
           maskUnits="userSpaceOnUse"

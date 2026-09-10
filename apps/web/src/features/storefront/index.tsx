@@ -1,32 +1,27 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Tabs from "@vibaar/ui/common/Tabs";
 import VendorDataSort from "@/features/storefront/VendorDatatSort";
 import AllProducts from "@/features/storefront/AllProducts";
 import useScroll from "@/hooks/useScroll";
 import { usePathname, useSearchParams, useParams, useRouter } from "next/navigation";
-import Loader from "@vibaar/ui/common/Loader";
 import StorefrontSkeleton from "./StorefrontSkeleton";
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import { Modal } from "@vibaar/ui/modal/Modal";
-import Image from "next/image";
 import VendorNav from "./VendorNav";
-import EmptyState from "@vibaar/ui/common/EmptyState";
+import { StoreDeals, StoreReviews } from "./StoreTabs";
 import Button from "@vibaar/ui/common/Button";
 import { formatNigerianCurrency } from "@/lib/utils";
-import { paginatedFetcher } from "@/app/(auth)/welcome/pagination";
-import useAuthStore from "@/store/authStore";
 import { trackStoreViewed } from "@/lib/analytics";
 import { toast } from "sonner";
 import { Check, Copy, FaStar } from "@vibaar/ui/icons";
 import FloatingAction from "@/design-system/common/FloatingAction";
-import { getPublicProductUrl, getPublicStoreUrl } from "@/lib/shareUrls";
+import { getPublicProductUrl, getPublicStoreUrl, canShareStore } from "@/lib/shareUrls";
 import Badge from "@vibaar/ui/common/Badge";
 import StorefrontHeader from "@/features/storefront/StorefrontHeader";
 import KebabMenu from "@vibaar/ui/common/header/KebabMenu";
-import Link from "next/link";
 import ShareModal from "@vibaar/ui/common/ShareModal";
 
 // One class string for the six stat labels — it was repeated verbatim in each,
@@ -70,8 +65,17 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
   const tab = ["Products", "Deals", "Reviews"];
   const { isScrolled, scrollRef } = useScroll(20);
   const searchParams = useSearchParams();
-  const { stor: viewedStore, store: ownStore, storeStats, fetchStoreStats, theme, stores, getStoreById, fetchStores, fetchStoresBySearch, fetchStoreByTag, setStore, businessProduct, getAuthenticatedUserStore, fetchBusinessProduct, setBusinessProducts } = useBusinessStore();
-  const { user } = useAuthStore();
+  const {
+    stor: viewedStore,
+    store: ownStore,
+    storeStats,
+    fetchStoreStats,
+    fetchStoresBySearch,
+    fetchStoreByTag,
+    setStore,
+    businessProduct,
+    getAuthenticatedUserStore,
+  } = useBusinessStore();
   const [isPublishSuccessful, setIsPublishSuccessful] = useState(
     searchParams.get("status") === "new-product"
   );
@@ -164,7 +168,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     },
   ];
 
-  const { fetchProducts, setProducts } = useProductStore();
+  const { products: allProducts, fetchProducts, setProducts } = useProductStore();
 
   // ONE resolved vendor for the whole screen. The owner surface reads the
   // signed-in user's own business; the public surface reads the vendor resolved
@@ -174,6 +178,14 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
   // too (the leak that showed a seller their own store on other vendors' pages).
   const currentStore = isOwnerView ? ownStore : viewedStore;
   const currentStoreId = currentStore?.id;
+
+  // This store's products, from whichever slot the surface loads them into —
+  // the same rule AllProducts applies. The Deals and Reviews tabs are built
+  // from these; they used to be two hardcoded empty states, so a store with
+  // both discounts and reviews showed "No deals listed yet." to its own owner.
+  const storeProducts = isOwnerView
+    ? businessProduct ?? []
+    : allProducts.filter((item) => item.business_id === currentStoreId);
 
   // Rev-2 server-prime: seed the vendor's products from the server-resolved initial
   // data so AllProducts renders on first paint (before/instead of the client fetch).
@@ -228,9 +240,22 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
 
       try {
         if (isOwnerView) {
-          // Seller mode: load the authenticated user's store + all product pages.
-          await getAuthenticatedUserStore();
-          await paginatedFetcher(fetchBusinessProduct, setBusinessProducts, user);
+          // Seller mode: resolve the signed-in user's own store.
+          //
+          // ONCE. This used to also re-run the paginated product fetch that
+          // DetailFetcher already runs for the whole dashboard, and — worse —
+          // the effect listed `user` in its deps while its own call replaced
+          // `user` by identity on every resolve (`getMe` does
+          // `set({ user: { ...user, business } })`). New identity → re-render →
+          // deps changed → fetch again, without end: a permanent /users/me plus
+          // four /business/get-all-products cycle that re-keyed the product grid
+          // and flipped loading on every pass. That is why the seller side felt
+          // like its buttons did nothing — the page was rebuilding underneath
+          // every tap. Products come from DetailFetcher; this only fills the
+          // store slot, and only when it is actually empty.
+          if (!useBusinessStore.getState().store?.id) {
+            await getAuthenticatedUserStore();
+          }
         } else if (storeTag) {
           // Buyer mode, /@{handle}: resolve by the stable tag — ONE indexed lookup.
           // Rev-2 server-prime: skip the fetch when the server already resolved this
@@ -249,9 +274,11 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
       }
     };
 
-    // Only run when the tag/vendor or path changes
+    // Only run when the tag/vendor or path changes. NOT on `user`: the owner
+    // branch's own call replaces it, so listing it here made the effect
+    // re-trigger itself forever (see above).
     loadStoreData();
-  }, [storeTag, params.vendor, pathname, getAuthenticatedUserStore, fetchStoreByTag, fetchStoresBySearch, fetchBusinessProduct, setBusinessProducts, user]);
+  }, [storeTag, params.vendor, pathname, getAuthenticatedUserStore, fetchStoreByTag, fetchStoresBySearch]);
 
   // Measure the compact header so the sticky tab bar and filter row sit exactly
   // below it (its height varies with the store's theme/name) — no gap, no overlap.
@@ -277,8 +304,12 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     }
   }, [currentStore?.id, currentStore?.name, isLoadingVendor, isOwnerView]);
 
-  // Check if store not found (hot-fix for store switching bug)
-  const storeNotFound = !isLoadingVendor && !currentStore && !isOwnerView;
+  // No store to show. Both surfaces get this, and the owner needs it MORE than
+  // the shopper does: their store comes from `/users/me`, and when that call
+  // fails (an expired token, a user with no business) the page used to render
+  // anyway with `store = null` — an unnamed shop, a banner colour seeded from
+  // `undefined`, "—" in every stat, and a share link of `vibaar.com/@`.
+  const storeNotFound = !isLoadingVendor && !currentStore;
 
   // Get the most recently created product for sharing
   const newestProduct = businessProduct && businessProduct.length > 0 ? businessProduct[0] : null;
@@ -334,29 +365,35 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
     },
   ];
 
-  if (isLoadingVendor && !isOwnerView) {
-    // Rev-2 (R2e): a layout-matching skeleton instead of a full-page blank loader.
+  // Rev-2 (R2e): a layout-matching skeleton instead of a full-page blank loader.
+  // The owner gets one too — their store is a network round-trip like anyone
+  // else's, and excluding them meant the owner's first paint was a storefront
+  // drawn from nothing.
+  if (isLoadingVendor) {
     return <StorefrontSkeleton />;
   }
 
-  // Handle store not found error
   if (storeNotFound) {
     return (
-      <div className="flex flex-col items-center justify-center h-full px-4">
-        <div className="text-center max-w-md">
-          <div className="text-6xl mb-4">🏪</div>
-          <h2 className="text-h2 font-semibold text-foreground-primary mb-2">
-            Store not found
+      <div className="flex h-full flex-col items-center justify-center px-4">
+        <div className="max-w-md text-center">
+          <div className="mb-4 text-6xl">🏪</div>
+          <h2 className="mb-2 text-h2 font-semibold text-foreground-primary">
+            {isOwnerView ? "We couldn't load your store" : "Store not found"}
           </h2>
-          <p className="text-body text-foreground-secondary mb-6">
-            The store you&apos;re looking for doesn&apos;t exist or may have been
-            removed.
+          <p className="mb-6 text-body text-foreground-secondary">
+            {isOwnerView
+              ? "Check your connection and try again. If this keeps happening, sign out and back in."
+              : "The store you're looking for doesn't exist or may have been removed."}
           </p>
           <Button
             variant="filled"
-            onClick={() => router.push("/shop")}
-            className="max-w-[max-content] mx-auto">
-            Browse all stores
+            fullWidth={false}
+            onClick={() =>
+              isOwnerView ? getAuthenticatedUserStore() : router.push("/shop")
+            }
+            className="mx-auto">
+            {isOwnerView ? "Try again" : "Browse all stores"}
           </Button>
         </div>
       </div>
@@ -426,17 +463,33 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
             actions={
               isOwnerView ? (
                 <>
-                  <Link
-                    href="/dashboard/storefront/details"
-                    prefetch
-                    className="flex min-h-9 items-center rounded-pill bg-brand px-4 text-body-sm font-medium text-brandInk">
-                    Edit store
-                  </Link>
+                  {/* Both are Buttons now. "Edit store" was a hand-rolled Link
+                      pill at 36px and "Share store" a Button `sm` at 28px, so
+                      two controls in one row disagreed on height, radius, hover
+                      and focus — and only one of them had a focus ring at all.
+                      Edit is the primary owner action, share is secondary. */}
                   <Button
                     size="sm"
                     variant="filled"
-                    onClick={() => setIsShareStoreOpen(true)}
-                    className="w-auto">
+                    fullWidth={false}
+                    onClick={() => router.push("/dashboard/storefront/details")}>
+                    Edit store
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="bordered"
+                    fullWidth={false}
+                    onClick={() => {
+                      // A store with no handle has no public address; sharing
+                      // it handed out `vibaar.com/@`.
+                      if (!canShareStore(currentStore || {})) {
+                        toast.error(
+                          "Set your store handle before sharing — Storefront → Store details."
+                        );
+                        return;
+                      }
+                      setIsShareStoreOpen(true);
+                    }}>
                     Share store
                   </Button>
                 </>
@@ -491,16 +544,8 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
                 sortToggle={sortToggle}
                 isNewStore={isNewStore}
               />,
-              <EmptyState
-                key={1}
-                image="/images/emptystate/products_empty_state.svg"
-                title="No deals listed yet."
-              />,
-              <EmptyState
-                key={2}
-                image="/images/emptystate/products_empty_state.svg"
-                title="No reviews listed yet."
-              />,
+              <StoreDeals key={1} products={storeProducts} storeTag={currentStore?.tag} />,
+              <StoreReviews key={2} products={storeProducts} />,
             ]}
             generalContent={
               <VendorDataSort

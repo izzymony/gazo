@@ -626,9 +626,15 @@ const useProductStore = create<ProductState>()(
         id: string | string[],
         user: "buy" | "sell" = "buy"
       ) => {
-        console.log('🚀🚀🚀 PRODUCTSTORE GETPRODUCTBYID CALLED WITH:', { user, id });
-        console.log('🔥 FUNCTION EXECUTION CONFIRMED - V4 Cache Reset Successful');
-        set({ isLoading: true, error: null });
+        // `product: null` up front. It used to be left alone, so when the fetch
+        // failed — an expired token, or an id the caller does not own, both of
+        // which the seller route hits — the catch set `error` and the page went
+        // on rendering the PREVIOUS product's title, price and images. Nothing
+        // else cleared it, and the seller route has no server-primed product to
+        // fall back to, so the wrong product was the only thing on screen.
+        // (`{}` is this slot's empty value, as at initialisation — every reader
+        // tests `product?.id`.)
+        set({ isLoading: true, error: null, product: {} as ProductData });
         try {
           const response = (await Client({
             path:
@@ -637,42 +643,20 @@ const useProductStore = create<ProductState>()(
                 : `/business/get-product/${id}`,
             method: "GET",
           })) as AxiosResponse;
-          //("setting id passed => ", response.data);
-          console.log('🔧 ProductStore API Response:', response.data);
-          // Extract both product and combinations data from API response
           const responseData = response.data.data;
 
-          // For public endpoints: {data: {product: {...}, combinations: [...]}}
-          // For business endpoints: {data: {...}} (direct product object)
+          // Both endpoints answer `{data: {product, combinations}}` — the
+          // business one is explicitly written to match the public one. The
+          // bare-object fallback stays for older responses.
           const productData = responseData.product ? responseData.product : responseData;
           const combinations = responseData.combinations || [];
 
-          console.log('🔧 ProductStore response structure:', {
-            'responseData': Object.keys(responseData),
-            'has responseData.product': !!responseData.product,
-            'has responseData.combinations': !!responseData.combinations,
-            'selected productData source': responseData.product ? 'responseData.product' : 'responseData'
+          set({
+            product: {
+              ...productData,
+              variant_combinations: combinations,
+            },
           });
-
-          console.log('🔧 ProductStore extracted data:', {
-            'productData.variants': productData?.variants,
-            'productData has variants': !!productData?.variants,
-            'variants length': productData?.variants?.length,
-            'combinations': combinations
-          });
-
-          // Add combinations to product data if available
-          const productWithCombinations = {
-            ...productData,
-            variant_combinations: combinations
-          };
-
-          console.log('🔧 ProductStore final product:', {
-            'productWithCombinations.variants': productWithCombinations?.variants,
-            'has variants after spread': !!productWithCombinations?.variants
-          });
-
-          set({ product: productWithCombinations });
         } catch (error) {
           const err = error as AxiosError<{ error: string }>;
           set({ error: err.message });
@@ -811,6 +795,9 @@ const useProductStore = create<ProductState>()(
                     user_id: ratingPayload.user_id,
                     rate: ratingPayload.rate,
                     comment: ratingPayload.comment,
+                    // The server stamps this; the optimistic copy omitted it,
+                    // so a review rendered with a blank date until a reload.
+                    created_at: new Date().toISOString(),
                   },
                 ],
               };

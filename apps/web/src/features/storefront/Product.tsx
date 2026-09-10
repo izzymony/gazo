@@ -24,6 +24,9 @@ import ProductCTA from "./product/ProductCTA";
 import { FaStar } from "@vibaar/ui/icons";
 import ShareModal from "@vibaar/ui/common/ShareModal";
 import Loader from "@vibaar/ui/common/Loader";
+import Button from "@vibaar/ui/common/Button";
+import ReviewCard from "@vibaar/ui/common/ReviewCard";
+import StarRating from "@vibaar/ui/common/StarRating";
 import { toast } from "sonner";
 import useAuthStore from "@/store/authStore";
 import { CartsItems } from "@/lib/newinterface";
@@ -32,7 +35,7 @@ import ImageCarousel from "./carousel";
 import LocationModal from "@/hooks/locationmodal";
 import { useDelivery } from "./useDelivery";
 import { trackViewItem, trackAddToCart, trackProductShared } from "@/lib/analytics";
-import { getPublicProductUrl } from "@/lib/shareUrls";
+import { getPublicProductUrl, canShareProduct } from "@/lib/shareUrls";
 import { parseStoreHandle } from "@/lib/urlHelpers";
 import StorefrontHeader, {
   HEADER_COLLAPSE_MS,
@@ -88,6 +91,7 @@ const Product = ({
 
   const {
     product: storeProduct,
+    isLoading: isProductLoading,
     getProductById,
     getProductByPublicId,
     setProduct,
@@ -303,7 +307,12 @@ const Product = ({
   } = useDelivery({ product, productId, count, user, setLoading });
 
 
-  const productRatings: { rate: number }[] = product?.product_rating ?? [];
+  // `is_blocked` is moderation. It arrives on every rating and was ignored
+  // here, so a review taken down for abuse still showed on the product page —
+  // it was only filtered when the ratings endpoint was queried directly.
+  const productRatings: { rate: number; is_blocked?: boolean }[] = (
+    product?.product_rating ?? []
+  ).filter((r: { is_blocked?: boolean }) => !r?.is_blocked);
   const ratings =
     productRatings.length > 0
       ? Math.round(
@@ -360,7 +369,7 @@ const Product = ({
       return prev;
     });
   };
-  const liked = spotlightProduct.find((it) => it.product_id === product.id)
+  const liked = spotlightProduct.find((it) => it.product_id === product?.id)
     ? true
     : false;
 
@@ -520,6 +529,18 @@ const Product = ({
   const handleShareClick = () => {
     if (typeof window === 'undefined') return;
 
+    // No handle, no public address. This used to build and share
+    // `vibaar.com/@/p/slug-` without a word — a dead link, handed to whoever
+    // the seller sent it to.
+    if (!canShareProduct(product, store || {})) {
+      toast.error(
+        isOwnerView
+          ? "Set your store handle before sharing — Storefront → Store details."
+          : "This product doesn't have a public link yet."
+      );
+      return;
+    }
+
     const publicUrl = getPublicProductUrl(product, store || {});
 
     // Only use Web Share API on mobile devices (desktop share sheets aren't useful)
@@ -650,8 +671,38 @@ const Product = ({
     });
   };
 
-  if (loading) {
+  if (loading || isProductLoading) {
     return <Loader />;
+  }
+
+  // Nothing resolved. The page had no branch for this at all: a failed fetch —
+  // an expired token or an id the seller does not own, both of which the
+  // dashboard route hits — used to leave the previous product on screen, and
+  // once that was fixed it would have rendered an empty shell instead.
+  if (!product?.id) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center px-4">
+        <div className="max-w-md text-center">
+          <h2 className="mb-2 text-h2 font-semibold text-foreground-primary">
+            Product not found
+          </h2>
+          <p className="mb-6 text-body text-foreground-secondary">
+            {isOwnerView
+              ? "We couldn't load this product. Check your connection and try again."
+              : "This product isn't available any more."}
+          </p>
+          <Button
+            variant="filled"
+            fullWidth={false}
+            onClick={() =>
+              isOwnerView ? router.push("/dashboard/catalog") : router.push("/shop")
+            }
+            className="mx-auto">
+            {isOwnerView ? "Back to catalog" : "Browse products"}
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -763,15 +814,26 @@ const Product = ({
             title="Ratings & Reviews"
             initiallyOpen={true}
             className="px-5 lg:px-0 pb-24 lg:pb-4">
-            {product?.product_rating && product.product_rating.length > 0 ? (
-              product.product_rating.map((item: any, index: number) => (
-                <Rating
-                  key={item.id ?? index}
-                  rate={item.rate}
-                  comment={item.comment}
-                  date={item.created_at}
-                />
-              ))
+            {productRatings.length > 0 ? (
+              <div className="flex flex-col gap-3">
+                {/* The score for the product, above the reviews that make it
+                    up — the list showed individual reviews with no summary. */}
+                <div className="flex items-center gap-2">
+                  <StarRating value={ratings} size="sm" />
+                  <p className="text-body-sm text-foreground-secondary">
+                    {ratings.toFixed(1)} · {productRatings.length}{" "}
+                    {productRatings.length === 1 ? "review" : "reviews"}
+                  </p>
+                </div>
+                {productRatings.map((item: any, index: number) => (
+                  <ReviewCard
+                    key={item.id ?? index}
+                    rating={item.rate}
+                    comment={item.comment}
+                    date={item.created_at}
+                  />
+                ))}
+              </div>
             ) : (
               <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
                 <FaStar size={28} className="text-foreground-disabled" />
@@ -834,7 +896,7 @@ const Product = ({
         onDecrement={decrement}
         onBuyNow={handleBuyNow}
         onAddToCart={handleAddToCart}
-        onEdit={() => router.replace(`/dashboard/catalog/product/create/manual/edit/${productId}`)}
+        onEdit={() => router.push(`/dashboard/catalog/product/create/manual/edit/${productId}`)}
         onShare={handleShareClick}
       />
 
@@ -873,44 +935,3 @@ const Product = ({
 
 export default Product;
 
-function Rating({
-  rate,
-  comment,
-  date,
-}: {
-  rate: number;
-  comment: string;
-  date: string;
-}) {
-  const formatedDate = new Date(date);
-  const dates = isNaN(formatedDate.getTime()) ? "" : formatedDate.toDateString();
-  return (
-    <div className="flex flex-col gap-2 rounded-field border border-outline p-3">
-      <div className="flex w-full items-center justify-between gap-3">
-        {/* Five stars, filled to the score.
-            This rendered `Array(rate)` copies of a 40-line masked inline SVG, so
-            a 3-star review showed three stars with no sense of the scale, and a
-            screen reader got nothing at all. */}
-        <div className="flex items-center gap-0.5">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <FaStar
-              key={star}
-              size={14}
-              aria-hidden="true"
-              className={star <= rate ? "text-warning-foreground" : "text-foreground-disabled"}
-            />
-          ))}
-          <span className="sr-only">{rate} out of 5 stars</span>
-        </div>
-        <p className="text-body-sm text-foreground-muted">{dates}</p>
-      </div>
-      <p className="text-body-sm font-normal text-foreground-secondary">
-        &quot;{comment}&quot;
-      </p>
-
-      {/* Reviewer name / purchase details intentionally omitted: the API does not
-          provide them yet, and hardcoding "Buyers name" / "Bought White, M" was
-          fabricated data (W1.10). Re-add when real reviewer data is available. */}
-    </div>
-  );
-}

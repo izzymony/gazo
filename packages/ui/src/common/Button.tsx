@@ -20,7 +20,12 @@ const buttonVariants = cva(
   {
     variants: {
       size: {
-        sm: "py-1.5 px-4 text-body-sm",
+        // `min-h-9` is the 36px touch floor, the same one IconButton (`md`),
+        // Switch and ChipToggle already hold. Padding alone put `sm` at 28px,
+        // which is how the storefront hero ended up with a 36px hand-rolled
+        // "Edit store" pill sitting beside a 28px "Share store" Button — the
+        // hand-rolled one existed because the primitive was the wrong height.
+        sm: "min-h-9 py-1.5 px-4 text-body-sm",
         md: "py-3 px-4 text-body",
         lg: "py-4 px-6 text-body-lg",
       },

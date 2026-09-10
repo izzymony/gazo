@@ -197,8 +197,15 @@ const AllProducts = ({
                   oldPrice={item?.old_price ? +item.old_price : undefined}
                   rating={rate}
                   saved={spotlighted}
-                  onSave={() => handleLikeClick(item.id + "")}
-                  onAddToCart={(event) => handleAddToCart(event, item)}
+                  // Shopper actions, on the shopper's surface only. These were
+                  // passed unconditionally, so a seller looking at their own
+                  // storefront was offered "Add … to wishlist" and "Add … to
+                  // cart" on their own products. The owner's action on a
+                  // product is to open it — Edit and Share live there.
+                  onSave={isDashboard ? undefined : () => handleLikeClick(item.id + "")}
+                  onAddToCart={
+                    isDashboard ? undefined : (event) => handleAddToCart(event, item)
+                  }
                   onPrefetch={() => prefetch(href)}
                 />
               );

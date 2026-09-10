@@ -45,30 +45,29 @@ export default function ExpandableIconMenu({
     }
   };
 
-  const handleCopy = async (val: string) => {
-    if (!isOpen) return;
-    try {
-      await navigator.clipboard.writeText(val);
-      toast.success("Successfully copied " + val);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-      toast.error("Failed to copy link");
+  /**
+   * A stored profile can be a bare handle (`bukkystyles`), an `@handle`, or a
+   * full URL, because the store-details form accepts all three. Normalise to a
+   * destination.
+   */
+  const profileUrl = (platform: string, value: string) => {
+    const raw = value.trim();
+    if (/^https?:\/\//i.test(raw)) return raw;
+    const handle = raw.replace(/^@/, "");
+    switch (platform) {
+      case "instagram":
+        return `https://instagram.com/${handle}`;
+      case "tiktok":
+        return `https://tiktok.com/@${handle}`;
+      case "facebook":
+        return `https://facebook.com/${handle}`;
+      case "whatsapp":
+        return `https://wa.me/${handle.replace(/[^\d]/g, "")}`;
+      case "x":
+        return `https://x.com/${handle}`;
+      default:
+        return raw;
     }
-  };
-
-  const handleIconClick = (id: number, link?: string) => {
-    if (link || link === "") {
-      handleCopy(link);
-    }
-    if (id !== 0) {
-      //("Clicked icon", id);
-    }
-    setIsOpen(false); // Collapse
-  };
-
-  const handleMain = (link: string) => {
-    handleCopy(link);
-    setIsOpen(!isOpen);
   };
 
   // Define all available social media platforms with their icons
@@ -210,8 +209,9 @@ export default function ExpandableIconMenu({
     return profileValue && profileValue.trim() !== "";
   }).map((platform, index) => ({
     id: index + 1,
+    name: platform.id,
     icon: platform.icon,
-    link: socialProfiles[platform.id as keyof SocialProfiles] || "",
+    href: profileUrl(platform.id, socialProfiles[platform.id as keyof SocialProfiles] || ""),
   }));
 
   return (
@@ -222,9 +222,18 @@ export default function ExpandableIconMenu({
           overflow button in the storefront and product headers. */}
       {isOpen && items.length > 0 && (
       <motion.div className="inline-flex z-dropdown items-center gap-2 rounded-pill px-2 py-2 backdrop-blur-sm bg-surface-subtle shadow-card">
+        {/* Links, because that is what they are. Tapping a store's Instagram
+            icon used to COPY the handle to the clipboard and close the menu —
+            `handleCopy` on every one of them, with the only method that opened
+            anything (`handleMain`) defined and never called. Nothing took the
+            shopper to the profile. */}
         {items.map((item, index) => (
           <AnimatePresence key={item.id}>
-            <motion.button
+            <motion.a
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Open ${item.name} profile`}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
@@ -232,10 +241,10 @@ export default function ExpandableIconMenu({
                 duration: 0.2,
                 delay: index * 0.05,
               }}
-              onClick={() => handleIconClick(item.id, item.link)}
-              className="hover:bg-surface-muted rounded-full">
+              onClick={() => setIsOpen(false)}
+              className="rounded-full hover:bg-surface-muted">
               {item.icon}
-            </motion.button>
+            </motion.a>
           </AnimatePresence>
         ))}
       </motion.div>
@@ -254,7 +263,7 @@ export default function ExpandableIconMenu({
               }}
               onClick={() => {
                 handleShare();
-                handleIconClick(items.length + 1);
+                setIsOpen(false);
               }}
               className="p-1 rounded-full hover:bg-surface-muted">
               <svg
