@@ -1,18 +1,13 @@
 
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React from "react";
-import {
-  formatCurrency,
-  formatDate,
-  getMobileCompatibleImageUrl,
-  PRODUCT_IMAGE_FALLBACK,
-} from "@/lib/utils";
+import { formatCurrency, formatDate } from "@/lib/utils";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import Section from "@vibaar/ui/common/Section";
 import ListItem from "@vibaar/ui/common/ListItem";
 import Badge from "@vibaar/ui/common/Badge";
+import ProductImage from "@/design-system/common/ProductImage";
 import useBusinessStore, { BusinessProduct } from "@/store/businessStore";
 import StatusBadge from "@/features/orders/StatusBadge";
 import Link from "next/link";
@@ -40,16 +35,9 @@ const ProductComp: React.FC<ProductProps> = ({ product }: ProductProps) => (
     className="relative items-center"
     trailingAlign="center"
     leading={
-      <img
-        src={
-          product?.image?.[0]
-            ? getMobileCompatibleImageUrl(product.image[0])
-            : PRODUCT_IMAGE_FALLBACK
-        }
-        alt=""
-        loading="lazy"
-        decoding="async"
-        className="h-14 w-14 rounded-field border border-outline-subtle object-cover"
+      <ProductImage
+        src={product?.image}
+        className="h-14 w-14 rounded-field border border-outline-subtle"
       />
     }
     title={

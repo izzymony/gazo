@@ -12,12 +12,8 @@ import { IoCubeOutline, DeliveryTruck } from "@vibaar/ui/icons";
 import { useRouter } from "next/navigation";
 import useOrderStore from "@/store/orderStore";
 import useBusinessStore from "@/store/businessStore";
-import {
-  formatCurrency,
-  formatDate,
-  getMobileCompatibleImageUrl,
-  PRODUCT_IMAGE_FALLBACK,
-} from "@/lib/utils";
+import { formatCurrency, formatDate } from "@/lib/utils";
+import ProductImage from "@/design-system/common/ProductImage";
 import useAuthStore from "@/store/authStore";
 import { OrderDatas } from "@/lib/order";
 import useShippingStore from "@/store/shippingStore";
@@ -66,14 +62,9 @@ const OrderComp = ({
         router.push(`orders/${order?.id}`);
       }}>
       <div className="flex justify-between gap-2">
-        <img
-          src={
-            product?.image?.[0]
-              ? getMobileCompatibleImageUrl(product.image[0])
-              : PRODUCT_IMAGE_FALLBACK
-          }
-          alt="Product"
-          className="object-cover h-10 w-10 rounded-field border border-outline-strong"
+        <ProductImage
+          src={product?.image}
+          className="h-10 w-10 rounded-field border border-outline-strong"
         />
         <div className="w-[100%]">
           <div className="flex items-center gap-3">

@@ -7,6 +7,7 @@ import ReviewCard from "@vibaar/ui/common/ReviewCard";
 import StarRating from "@vibaar/ui/common/StarRating";
 import Badge from "@vibaar/ui/common/Badge";
 import { formatCurrency, getMobileCompatibleImageUrl } from "@/lib/utils";
+import ProductImage from "@/design-system/common/ProductImage";
 
 /**
  * The storefront's Deals and Reviews tabs.
@@ -61,21 +62,10 @@ export function StoreDeals({
         const price = Number(item.price);
         const was = Number(item.old_price);
         const off = Math.round(((was - price) / was) * 100);
-        const image = item?.image?.[0]
-          ? getMobileCompatibleImageUrl(item.image[0])
-          : "/PRODUCT IMAGE (2).png";
-
         const body = (
           <>
             <div className="relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={image}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className="aspect-square w-full rounded-card object-cover"
-              />
+              <ProductImage src={item?.image} className="aspect-square w-full rounded-card" />
               <Badge tone="brand" variant="solid" className="absolute left-2 top-2">
                 {off}% off
               </Badge>
