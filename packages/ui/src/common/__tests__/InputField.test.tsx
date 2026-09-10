@@ -102,4 +102,92 @@ describe("InputField", () => {
     render(<InputField type="text" name="referral" placeholder="Referral" value="" onChange={() => {}} required={false} />);
     expect(screen.getByRole("textbox")).not.toBeRequired();
   });
+
+  describe("drops — a value chosen in a picker elsewhere", () => {
+    // It was a <div onClick> wrapping a <p>: the whole control was unreachable
+    // by keyboard, and three of them sit on the discount-creation flow.
+    it("is a real button", () => {
+      render(
+        <InputField
+          name="discountType"
+          placeholder="Discount Type"
+          type="drop"
+          drops
+          value="Coupon code"
+          onChange={() => {}}
+          dropAction={() => {}}
+        />
+      );
+      expect(screen.getByRole("button", { name: /Discount Type/ })).toBeInTheDocument();
+    });
+
+    it("opens the picker from the keyboard", async () => {
+      const dropAction = jest.fn();
+      render(
+        <InputField
+          name="discountType"
+          placeholder="Discount Type"
+          type="drop"
+          drops
+          value=""
+          onChange={() => {}}
+          dropAction={dropAction}
+        />
+      );
+      screen.getByRole("button").focus();
+      await userEvent.keyboard("{Enter}");
+      expect(dropAction).toHaveBeenCalled();
+    });
+
+    it("announces that it opens something, and shows its value", () => {
+      render(
+        <InputField
+          name="discountType"
+          placeholder="Discount Type"
+          type="drop"
+          drops
+          value="Buy X get Y free"
+          onChange={() => {}}
+          dropAction={() => {}}
+        />
+      );
+      const button = screen.getByRole("button");
+      expect(button).toHaveAttribute("aria-haspopup", "dialog");
+      expect(button).toHaveTextContent("Buy X get Y free");
+    });
+
+    it("carries its error to assistive tech like the input does", () => {
+      render(
+        <InputField
+          name="discountType"
+          placeholder="Discount Type"
+          type="drop"
+          drops
+          value=""
+          error="Pick a discount type"
+          onChange={() => {}}
+          dropAction={() => {}}
+        />
+      );
+      expect(screen.getByRole("button")).toHaveAttribute("aria-invalid", "true");
+      expect(screen.getByRole("alert")).toHaveTextContent("Pick a discount type");
+    });
+
+    it("cannot be opened when disabled", () => {
+      const dropAction = jest.fn();
+      render(
+        <InputField
+          name="discountType"
+          placeholder="Discount Type"
+          type="drop"
+          drops
+          disabled
+          value=""
+          onChange={() => {}}
+          dropAction={dropAction}
+        />
+      );
+      expect(screen.getByRole("button")).toBeDisabled();
+    });
+  });
 });

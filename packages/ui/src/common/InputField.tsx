@@ -6,11 +6,6 @@ import IconButton from "./IconButton";
 import { BiChevronDown, CiSearch, MdVisibility, MdVisibilityOff, Package } from "../icons";
 import PasswordCriteria from "./PasswordCriteria";
 //
-interface Option {
-  label: string | number;
-  value: string | number;
-}
-
 type NativeInputProps = Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
   | "type"
@@ -40,7 +35,6 @@ export interface InputFieldProps extends NativeInputProps {
   type:
     | "text"
     | "password"
-    | "dropdown"
     | "textarea"
     | "number"
     | "date"
@@ -54,7 +48,6 @@ export interface InputFieldProps extends NativeInputProps {
   name: string;
   showNairaSymbol?: boolean;
   showPercentage?: boolean;
-  showWeightSymbol?: boolean;
   showProductIcon?: boolean;
   showSearch?: boolean;
   onEnterPress?: () => void; // New prop for Enter key handling
@@ -65,8 +58,6 @@ export interface InputFieldProps extends NativeInputProps {
   className?: string;
   /** Classes for the native input itself. */
   inputClassName?: string;
-  options?: Option[];
-  flag?: string;
   modal?: (val: boolean) => void;
   icon?: boolean;
   mode?: "signin" | "signup";
@@ -83,7 +74,6 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(function 
     value,
     name,
     showNairaSymbol = false,
-    showWeightSymbol = false,
     error,
     isReadonly,
     disabled,
@@ -92,9 +82,6 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(function 
     showPercentage,
     showProductIcon,
     showSearch,
-    options = [],
-    flag,
-    modal = () => {},
     icon,
     mode = "signup",
     drops = false,
@@ -116,16 +103,8 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(function 
   const inputId = id ?? `input-${generatedId.replace(/:/g, "")}`;
   const errorId = `${inputId}-error`;
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isDropOpen, setIsDropOpen] = useState(false);
   const togglePasswordVisibility = () =>
     setIsPasswordVisible(!isPasswordVisible);
-  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
-  const toggleDrop = () => {
-    setIsDropOpen(!isDropOpen);
-    modal(!isDropOpen);
-  };
-
   // Handle Enter key press for form submission
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     onKeyDown?.(e);
@@ -140,7 +119,6 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(function 
   return (
     <>
       <div
-        onClick={drops ? dropAction : undefined}
         className={cn(
           "peer relative z-10 flex h-[52px] w-full flex-col rounded-field border border-outline-strong px-3 focus-within:ring-1",
           error
@@ -158,7 +136,7 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(function 
             type={
               type === "password" && isPasswordVisible
                 ? "text"
-                : type === "dropdown" || type === "textarea" || type === "drop"
+                : type === "textarea" || type === "drop"
                   ? "text"
                   : type
             }
@@ -185,34 +163,49 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(function 
               "peer relative z-10 mt-[22px] bg-transparent text-body font-medium text-foreground-primary focus:outline-none focus:ring-0",
               showNairaSymbol || showPercentage || showProductIcon || showSearch
                 ? "pl-6"
-                : showWeightSymbol
-                  ? "pl-5"
-                  : undefined,
+                : undefined,
               inputClassName
             )}
             placeholder=" "
             autoFocus={
               autoFocus ??
-              (showNairaSymbol || showPercentage || showWeightSymbol || showProductIcon || showSearch)
+              (showNairaSymbol || showPercentage || showProductIcon || showSearch)
             }
           />
         )}
+        {/* A `drops` field has no <input>: it displays a value chosen in a
+            picker elsewhere. It used to be a <div onClick> wrapping a <p>, so
+            the whole control was unreachable by keyboard — three of these sit
+            on the discount-creation flow. It is a button now, which is what an
+            "open the picker" control has been all along. `aria-haspopup`
+            promises the dialog; the label names it, since a button has no
+            <label> association of its own. */}
         {drops && (
-          <div
-            className="peer relative z-10 mt-[22px] bg-transparent text-body font-medium text-foreground-primary focus:outline-none focus:ring-0">
-            <p>{value}</p>
-          </div>
+          <button
+            type="button"
+            id={inputId}
+            onClick={dropAction}
+            disabled={disabled}
+            aria-haspopup="dialog"
+            aria-labelledby={`${inputId}-label`}
+            aria-invalid={error ? true : ariaInvalid}
+            aria-describedby={
+              [ariaDescribedBy, error ? errorId : undefined].filter(Boolean).join(" ") || undefined
+            }
+            className="peer relative z-10 mt-[22px] w-full bg-transparent text-left text-body font-medium text-foreground-primary focus:outline-none focus:ring-0">
+            {value}
+          </button>
         )}
 
         {/* Placeholder Label */}
         <label
+          id={`${inputId}-label`}
           htmlFor={!drops ? inputId : undefined}
           className={`absolute transition-all duration-200 ease-in-out
              ${type === "textarea" && "!top-[35%]"}
                           ${type === "date" && "!top-1/2"}
             ${
               showNairaSymbol ||
-              showWeightSymbol ||
               showPercentage ||
               showProductIcon ||
               showSearch ||
@@ -238,7 +231,6 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(function 
         {/* Leading adornment — one component, four call sites (was four
             identical absolutely-positioned spans). */}
         {showNairaSymbol && <Adornment>₦</Adornment>}
-        {showWeightSymbol && <Adornment>Kg</Adornment>}
         {showPercentage && <Adornment>%</Adornment>}
         {showProductIcon && (
           <Adornment>
@@ -259,52 +251,14 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(function 
           />
         )}
 
-        {/* Dropdown */}
-        {type === "dropdown" && (
-          <>
-            <span
-              onClick={toggleDropdown}
-              className="absolute z-20 right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-foreground-muted">
-              <BiChevronDown size={25} />
-            </span>
-            {isDropdownOpen && (
-              <div className="absolute left-0 top-full z-20 mt-1 h-[100px] w-full rounded-field border border-outline bg-surface shadow-card">
-                {options.map((option) => (
-                  <div
-                    key={option.value}
-                    onClick={() => {
-                      onChange?.({
-                        target: { name: option.label, value: option.value },
-                      } as React.ChangeEvent<HTMLInputElement>);
-                      setIsDropdownOpen(false);
-                    }}
-                    className="cursor-pointer px-4 py-2 hover:bg-neutral-100">
-                    {option.label}
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-
-        {type === "drop" && (
-          <>
-            {icon && (
-              <span
-                onClick={toggleDrop}
-                className="absolute z-20 right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-foreground-muted">
-                <BiChevronDown size={25} />
-              </span>
-            )}
-            {flag && (
-              <img
-                className="absolute z-20 right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-foreground-muted rounded-full w-8 h-8 object-cover"
-                onClick={toggleDrop}
-                src={`https://flagcdn.com/w40/${flag}.png`}
-                alt="USA Flag"
-              />
-            )}
-          </>
+        {/* The chevron is decorative: the whole control is the button, so a
+            second focusable target here would only add a dead tab stop. */}
+        {type === "drop" && icon && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute z-20 right-4 top-1/2 -translate-y-1/2 text-foreground-muted">
+            <BiChevronDown size={25} />
+          </span>
         )}
       </div>
 

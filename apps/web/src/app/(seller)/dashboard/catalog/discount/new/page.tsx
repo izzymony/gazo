@@ -140,10 +140,6 @@ function Page() {
             <InputField
               name="discountType"
               placeholder="Discount Type"
-              options={[
-                { value: "Coupon code", label: "Coupon code" },
-                { value: "buy_x_get_y", label: "Buy X get Y free" },
-              ]}
               value={formik.values.discountType}
               onChange={() => {}}
               type="drop"

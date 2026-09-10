@@ -6,7 +6,7 @@
  * variants and states, a behavioural test suite, and no accessibility defect
  * recorded against it.
  *
- * 36 of 37 meet that bar today; InputField is the last candidate. Documenting
+ * EVERY primitive and component meets that bar today. Documenting
  * the library is what revealed the work: most components carried a recorded
  * a11y gap — an unnamed dialog, a menu without arrow-key roving, a rating
  * conveyed by colour alone, a section title that is a <p> — and closing those
@@ -46,7 +46,7 @@ const entries = [
   ["common/HeaderSlides", "pattern"],
   ["common/HeroHeader", "pattern"],
   ["common/IconButton", "primitive", "stable"],
-  ["common/InputField", "primitive"],
+  ["common/InputField", "primitive", "stable"],
   ["common/inputs", "internal"],
   ["common/List", "component", "stable"],
   ["common/ListItem", "component", "stable"],
