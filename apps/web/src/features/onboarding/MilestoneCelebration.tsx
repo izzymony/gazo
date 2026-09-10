@@ -171,7 +171,7 @@ export default function MilestoneCelebration() {
           }}
         >
           <div className="flex flex-col items-center text-center px-4 py-5">
-            <div className="w-14 h-14 rounded-full bg-[#FFEAEE] flex items-center justify-center mb-3">
+            <div className="w-14 h-14 rounded-full bg-brand/10 flex items-center justify-center mb-3">
               <span className="text-2xl">{activeModal.emoji}</span>
             </div>
             <h2 className="text-body-lg font-semibold text-foreground-primary mb-1.5">

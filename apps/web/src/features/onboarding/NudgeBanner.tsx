@@ -39,7 +39,7 @@ export default function NudgeBanner() {
   return (
     <BottomModal isOpen={true} onClose={dismissNudge}>
       <div className="flex flex-col items-center text-center px-4 py-6">
-        <div className="w-14 h-14 rounded-full bg-[#FFEAEE] flex items-center justify-center mb-4">
+        <div className="w-14 h-14 rounded-full bg-brand/10 flex items-center justify-center mb-4">
           <ShoppingBag size={28} className="text-brandDeep" />
         </div>
         <h2 className="text-body-lg font-semibold text-foreground-primary mb-2">

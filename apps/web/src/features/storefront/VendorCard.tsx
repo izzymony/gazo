@@ -92,7 +92,10 @@ export default function VendorCard({
       onMouseEnter={onPrefetch}
       onTouchStart={onPrefetch}
       className={cn(
-        "relative mb-2 w-full overflow-hidden rounded-card bg-surface-inverse shadow-card transition-transform hover:scale-[1.01] hover:shadow-pop",
+        // FIXED height, at every breakpoint. A vendor with no preview products
+        // used to collapse to a short card, so the recently-viewed rail scrolled
+        // a row of different-height tiles past you. Cards in a set are one height.
+        "relative mb-2 h-52 w-full overflow-hidden rounded-card bg-surface-inverse shadow-card transition-transform hover:scale-[1.01] hover:shadow-pop md:h-60 lg:h-64",
         className
       )}
       style={
@@ -108,7 +111,11 @@ export default function VendorCard({
       {/* Scrim, so white text reads over any vendor's photo. */}
       <div aria-hidden="true" className="absolute inset-0 bg-overlay/70" />
 
-      <div className="relative z-10 flex h-full w-full flex-col gap-3 p-3">
+      {/* justify-between, so the slack a fixed height leaves falls BETWEEN the
+          vendor's identity row and its product rail rather than under them. That
+          gap is what made the original card feel taller; a flat `gap-3` closed it
+          up and the card read cramped. */}
+      <div className="relative z-10 flex h-full w-full flex-col justify-between gap-4 p-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2">
             <StoreLogo src={logo} storeName={name} size={40} />
