@@ -109,18 +109,16 @@ const Page = () => {
                         onChange={formik.handleChange}
                         error={formik.errors.state}
                     />
-                    <div onClick={() => setIsLocationModalOpen(true)} className="cursor-pointer">
-                        <InputField
+                    <InputField
                             name="searchAddress"
                             placeholder="Tap to search address"
-                            type="text"
+                            type="drop"
                             value={formik.values.searchAddress}
                             onChange={formik.handleChange}
                             error={formik.errors.searchAddress}
-                            isReadonly={true}
-                            className="cursor-pointer"
+                            drops
+                            dropAction={() => setIsLocationModalOpen(true)}
                         />
-                    </div>
                 </Section>
             </form>
 

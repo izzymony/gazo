@@ -37,7 +37,7 @@
       "deferred": 39
     },
     "non-interactive-onclick": {
-      "live": 20,
+      "live": 17,
       "deferred": 16
     },
     "dynamic-classname": {
@@ -584,16 +584,13 @@
     "native-button|apps/web/src/hooks/LocationModalImpl.tsx|<button>": 2,
     "non-interactive-onclick|apps/web/src/app/(buyer)/cart/order-confirmed/[id]/page.tsx|<div onClick>": 1,
     "non-interactive-onclick|apps/web/src/app/(buyer)/cart/page.tsx|<div onClick>": 2,
-    "non-interactive-onclick|apps/web/src/app/(buyer)/cart/shipping-profile/new/page.tsx|<div onClick>": 1,
     "non-interactive-onclick|apps/web/src/app/(buyer)/cart/shipping-profile/page.tsx|<div onClick>": 1,
     "non-interactive-onclick|apps/web/src/app/(buyer)/orders/page.tsx|<div onClick>": 1,
     "non-interactive-onclick|apps/web/src/app/(buyer)/profile/edit-profile/page.tsx|<div onClick>": 1,
     "non-interactive-onclick|apps/web/src/app/(buyer)/profile/page.tsx|<div onClick>": 1,
-    "non-interactive-onclick|apps/web/src/app/(buyer)/profile/shipping-address/edit/page.tsx|<div onClick>": 1,
     "non-interactive-onclick|apps/web/src/app/(buyer)/shop/page.tsx|<div onClick>": 2,
     "non-interactive-onclick|apps/web/src/app/(buyer)/shop/spotlights/wishlistcomponent.tsx|<div onClick>": 1,
     "non-interactive-onclick|apps/web/src/app/(seller)/dashboard/orders/page.tsx|<div onClick>": 1,
-    "non-interactive-onclick|apps/web/src/app/(seller)/dashboard/storefront/address/page.tsx|<div onClick>": 1,
     "non-interactive-onclick|apps/web/src/app/(seller)/dashboard/storefront/details/page.tsx|<div onClick>": 1,
     "non-interactive-onclick|apps/web/src/components/BackOnClick.tsx|<div onClick>": 1,
     "non-interactive-onclick|apps/web/src/features/product-setup/EnhancedProductOptions.tsx|<div onClick>": 2,

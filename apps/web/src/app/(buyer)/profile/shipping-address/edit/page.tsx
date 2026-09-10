@@ -179,21 +179,16 @@ const Page = () => {
             </div>
           </div>
         </div>
-        <div
-          onClick={() => setIsLocationModalOpen(true)}
-          className="cursor-pointer"
-        >
-          <InputField
-            type="text"
+        <InputField
+            type="drop"
             name="houseAddress"
             value={formik.values.houseAddress}
             onChange={formik.handleChange}
             placeholder="Tap to select address"
             error={formik.errors?.houseAddress}
-            isReadonly={true}
-            className="cursor-pointer"
+            drops
+            dropAction={() => setIsLocationModalOpen(true)}
           />
-        </div>
       </Section>
 
       <LocationModal
