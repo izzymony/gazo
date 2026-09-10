@@ -9,7 +9,7 @@ import useProductStore from "@/store/productStore";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import img1 from "../../../../../public/PRODUCT IMAGE (2).png";
-import ExploreCard from "@/features/storefront/explorecard";
+import VendorCard from "@/features/storefront/VendorCard";
 import {
   generateSessionSeed,
   createVendorBackgroundMap,
@@ -18,7 +18,7 @@ import {
 const Page = () => {
   const router = useRouter();
   const [likedItems] = useState<number[]>([]);
-  const { recent, addWishlist } = useProductStore();
+  const { recent, addWishlist, spotlightProduct } = useProductStore();
   const { fetchStores, stores, store, setStore } = useBusinessStore();
 
   useEffect(() => {
@@ -66,43 +66,37 @@ const Page = () => {
               items.business_id
             );
             return (
-              <ExploreCard
+              <VendorCard
                 key={items.id}
-                cardAction={() => {
-                  if (businessDetails) {
-                    setStore(businessDetails);
-                  }
-                  router.push(storePath(items.business));
+                href={storePath(items.business)}
+                vendorId={items.business_id}
+                name={items.business?.name || ""}
+                logo={businessDetails?.logo as string | undefined}
+                category={businessDetails?.category}
+                rating={businessDetails?.average_rating}
+                followers={businessDetails?.followers_count}
+                backgroundImage={(items.products || []).find((p: any) => p.image?.[0])?.image?.[0]}
+                products={(items.products || []).map((item: any) => ({
+                  id: item.id,
+                  title: item.title,
+                  image: item.image,
+                  price: item.price,
+                  old_price: item.old_price,
+                  rating: item.product_rating?.length
+                    ? Math.round(
+                        item.product_rating.reduce(
+                          (a: number, b: { rate: number }) => a + b.rate,
+                          0
+                        ) / item.product_rating.length
+                      )
+                    : 0,
+                }))}
+                productHref={(product) => productPath(items.business, product)}
+                savedProductIds={spotlightProduct.map((sp: { product_id?: string }) => sp.product_id)}
+                onSaveProduct={(product) => product.id && handleLikeClick(product.id)}
+                onPrefetch={() => {
+                  if (businessDetails) setStore(businessDetails);
                 }}
-                smallCardAction={(e, item) => {
-                  e.stopPropagation();
-                  if (items.business) {
-                    router.push(
-                      productPath(items.business, item)
-                    );
-                  }
-                }}
-                likedItems={likedItems}
-                handleLikeClick={(ite) => handleLikeClick(ite)}
-                image={img1.src}
-                bussinessName={items.business.name}
-                id={items.id}
-                store={items.products}
-                category=""
-                vendorTheme={{
-                  backgroundColor:
-                    businessDetails?.business_setting?.personalised_settings
-                      ?.background_color,
-                  backgroundImage:
-                    businessDetails?.business_setting?.personalised_settings
-                      ?.background_image,
-                  backgroundType:
-                    businessDetails?.business_setting?.personalised_settings
-                      ?.background_state,
-                }}
-                dynamicBackgroundImage={vendorBackgroundMap.get(
-                  items.business_id
-                )}
               />
             );
           })}

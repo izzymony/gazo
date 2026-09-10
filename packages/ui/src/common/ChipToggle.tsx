@@ -10,6 +10,13 @@ type ChipToggleProps = Omit<
 > & {
   /** Whether this chip is the selected one. Drives `aria-pressed`. */
   selected: boolean;
+  /**
+   * `onDark` for a chip sitting over imagery — a vendor card's Follow control
+   * on the shopper's photo backdrop. The default pair is built for a light
+   * surface and disappears on one. Without this the two toggles that live over
+   * photos were hand-rolled as bare `text-white` buttons with no pressed state.
+   */
+  tone?: "default" | "onDark";
   children: React.ReactNode;
 };
 
@@ -33,7 +40,7 @@ type ChipToggleProps = Omit<
  * by colour.
  */
 const ChipToggle = React.forwardRef<HTMLButtonElement, ChipToggleProps>(
-  function ChipToggle({ selected, className, children, ...rest }, ref) {
+  function ChipToggle({ selected, tone = "default", className, children, ...rest }, ref) {
     return (
       <button
         {...rest}
@@ -43,9 +50,13 @@ const ChipToggle = React.forwardRef<HTMLButtonElement, ChipToggleProps>(
         className={cn(
           "inline-flex min-h-9 items-center whitespace-nowrap rounded-pill px-4 text-body-sm transition-colors",
           focusRing,
-          selected
-            ? "bg-surface-inverse font-medium text-foreground-inverse"
-            : "bg-surface-subtle text-foreground-primary hover:bg-surface-muted",
+          tone === "onDark"
+            ? selected
+              ? "bg-white/25 font-medium text-white"
+              : "text-white hover:bg-white/15"
+            : selected
+              ? "bg-surface-inverse font-medium text-foreground-inverse"
+              : "bg-surface-subtle text-foreground-primary hover:bg-surface-muted",
           className
         )}>
         {children}

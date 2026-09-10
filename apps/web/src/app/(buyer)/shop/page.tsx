@@ -20,7 +20,7 @@ import SearchInput from "@/features/storefront/SearchInput";
 import HeaderSlides from "@vibaar/ui/common/HeaderSlides";
 import { BusinessData } from "@/lib/types";
 import EmptyState from "@vibaar/ui/common/EmptyState";
-import ExploreCard from "@/features/storefront/explorecard";
+import VendorCard from "@/features/storefront/VendorCard";
 import useShippingStore from "@/store/shippingStore";
 import useAuthStore from "@/store/authStore";
 import useOrderStore from "@/store/orderStore";
@@ -326,48 +326,42 @@ const Page: React.FC = () => {
                           <div
                             key={r.id}
                             className="w-[340px] md:w-[400px] lg:w-[450px] flex-shrink-0">
-                            <ExploreCard
-                              cardAction={() => {
-                                if (details) {
-                                  setStore(details);
-                                }
-                                router.push(storePath(details));
+                            <VendorCard
+                              href={storePath(details)}
+                              vendorId={r.business_id}
+                              name={details?.name || ""}
+                              logo={details?.logo as string | undefined}
+                              category={details?.category}
+                              rating={details?.average_rating}
+                              followers={details?.followers_count}
+                              backgroundImage={backgroundMap.get(r.business_id)}
+                              products={(r.products || []).map((item: any) => ({
+                                id: item.id,
+                                title: item.title,
+                                image: item.image,
+                                price: item.price,
+                                old_price: item.old_price,
+                                rating: item.product_rating?.length
+                                  ? Math.round(
+                                      item.product_rating.reduce(
+                                        (a: number, b: { rate: number }) => a + b.rate,
+                                        0
+                                      ) / item.product_rating.length
+                                    )
+                                  : 0,
+                              }))}
+                              productHref={(product) => productPath(details, product)}
+                              savedProductIds={spotlightProduct.map((sp) => sp.product_id)}
+                              onSaveProduct={(product) =>
+                                product.id && addWishlist(product.id)
+                              }
+                              onPrefetch={() => {
+                                if (details) setStore(details);
+                                prefetch(storePath(details));
                               }}
-                              onPrefetch={() => prefetch(storePath(details))}
                               onPrefetchProduct={(item) =>
                                 prefetch(productPath(details, item))
                               }
-                              smallCardAction={(e, item) => {
-                                setLoadings(true);
-                                e.stopPropagation();
-                                router.push(productPath(details, item));
-                              }}
-                              likedItems={likedItems}
-                              handleLikeClick={(ite) => handleLikeClick(ite)}
-                              image={img1.src}
-                              bussinessName={details?.name || ""}
-                              category={details?.category || ""}
-                              id={r.business_id}
-                              store={r.products || []}
-                              vendorTheme={{
-                                backgroundColor:
-                                  details?.business_setting?.personalised_settings
-                                    ?.background_color,
-                                backgroundImage:
-                                  details?.business_setting?.personalised_settings
-                                    ?.background_image,
-                                backgroundType:
-                                  details?.business_setting?.personalised_settings
-                                    ?.background_state,
-                              }}
-                              businessDetails={{
-                                logo: details?.logo as string | undefined,
-                                followers_count: details?.followers_count,
-                                average_rating: details?.average_rating,
-                              }}
-                              dynamicBackgroundImage={backgroundMap.get(
-                                r.business_id
-                              )}
                             />
                           </div>
                         );
@@ -469,60 +463,45 @@ const Page: React.FC = () => {
                         />
                       ))
                     : shopVendors.map((v) => (
-                        <ExploreCard
+                        <VendorCard
                           key={v.id}
-                          cardAction={() => {
-                            // Navigate by tag (storefront server-resolves it); record
-                            // the view in the background (non-blocking).
-                            router.push(storePath(v));
-                            addRecentViewed(
-                              { business_ids: [v.id] },
-                              () => fetchRecentlyViewedBusiness()
+                          href={storePath(v)}
+                          vendorId={v.id}
+                          name={v.name}
+                          logo={v.logo}
+                          category={v.category}
+                          rating={v.average_rating}
+                          followers={v.followers_count}
+                          backgroundImage={backgroundMap.get(v.id)}
+                          products={(v.preview_products || []).map((item: any) => ({
+                            id: item.id,
+                            title: item.title,
+                            image: item.image,
+                            price: item.price,
+                            old_price: item.old_price,
+                            rating: item.product_rating?.length
+                              ? Math.round(
+                                  item.product_rating.reduce(
+                                    (a: number, b: { rate: number }) => a + b.rate,
+                                    0
+                                  ) / item.product_rating.length
+                                )
+                              : 0,
+                          }))}
+                          productHref={(product) => productPath(v, product)}
+                          savedProductIds={spotlightProduct.map((sp) => sp.product_id)}
+                          onSaveProduct={(product) => product.id && addWishlist(product.id)}
+                          onPrefetch={() => {
+                            prefetch(storePath(v));
+                            // Record the view in the background (non-blocking).
+                            addRecentViewed({ business_ids: [v.id] }, () =>
+                              fetchRecentlyViewedBusiness()
                             ).catch((error) => {
-                              console.error(
-                                "Error adding to recent viewed:",
-                                error
-                              );
+                              console.error("Error adding to recent viewed:", error);
                             });
                           }}
-                          onPrefetch={() => prefetch(storePath(v))}
-                          onPrefetchProduct={(item) =>
-                            prefetch(productPath(v, item))
-                          }
-                          smallCardAction={(e, item) => {
-                            addRecentViewed(
-                              { business_ids: [v.id] },
-                              () => fetchRecentlyViewedBusiness()
-                            );
-                            setLoadings(true);
-                            e.stopPropagation();
-                            router.push(productPath(v, item));
-                          }}
-                          likedItems={likedItems}
-                          handleLikeClick={(ite) => handleLikeClick(ite)}
-                          image={img1.src}
-                          bussinessName={v.name}
-                          category={v.category}
-                          id={v.id}
-                          store={v.preview_products || []}
-                          vendorTheme={{
-                            backgroundColor:
-                              v.business_setting?.personalised_settings
-                                ?.background_color,
-                            backgroundImage:
-                              v.business_setting?.personalised_settings
-                                ?.background_image,
-                            backgroundType:
-                              v.business_setting?.personalised_settings
-                                ?.background_state,
-                          }}
-                          businessDetails={{
-                            logo: v.logo,
-                            followers_count: v.followers_count,
-                            average_rating: v.average_rating,
-                          }}
-                          dynamicBackgroundImage={backgroundMap.get(v.id)}
-                        />
+                          onPrefetchProduct={(item) => prefetch(productPath(v, item))}
+                                                />
                       ))}
                 </div>
 
