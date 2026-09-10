@@ -172,7 +172,7 @@ Enter "${username}" in the Referral ID field when signing up.`;
               disabled={!referralInfo?.can_withdraw || isWithdrawing}
               className={`px-4 py-2 rounded-full text-body-sm font-medium border ${
                 referralInfo?.can_withdraw
-                  ? "bg-transparent border-white text-brandInk"
+                  ? "bg-transparent border-brandInk text-brandInk hover:bg-brandInk/10"
                   : "bg-brandInk/20 border-brandInk/30 text-brandInk/70 cursor-not-allowed"
               }`}
             >

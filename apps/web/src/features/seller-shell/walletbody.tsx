@@ -24,6 +24,7 @@ import {
   Wallet,
 } from "@vibaar/ui/icons";
 import IconButton from "@vibaar/ui/common/IconButton";
+import Button from "@vibaar/ui/common/Button";
 
 export default function WalletBody({ action }: { action: () => void }) {
   const router = useRouter();
@@ -142,7 +143,7 @@ export default function WalletBody({ action }: { action: () => void }) {
               onClick={action}
               className="-ml-2"
             />
-            <p className="text-h2 font-medium text-white">Wallet</p>
+            <p className="text-h2 font-medium text-brandInk">Wallet</p>
           </div>
           <div className="flex items-center gap-2">
             <IconButton
@@ -167,11 +168,16 @@ export default function WalletBody({ action }: { action: () => void }) {
               {price ? "₦" + walletAnalytics.available_balance : "******"}
             </p>
           </div>
-          <button
+          {/* Ink, not white. This sits on the brand hero, where white is
+              1.28:1 — the border was invisible and the label barely there. */}
+          <Button
+            size="sm"
+            variant="bordered"
+            fullWidth={false}
             onClick={() => router.push("/dashboard/payouts/withdraw")}
-            className="border border-white rounded-pill px-4 py-1 text-body-sm font-medium text-white">
+            className="border-brandInk bg-transparent text-brandInk hover:bg-brandInk/10 active:bg-brandInk/10">
             Withdraw
-          </button>
+          </Button>
         </div>
           </HeroHeader>
         }>

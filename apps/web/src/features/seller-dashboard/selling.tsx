@@ -17,11 +17,11 @@ import {
   PrivacyLock,
   LegalDoc,
   Logout,
-  Gift,
-  FaStar,
 } from "@vibaar/ui/icons";
 import { supportWhatsAppUrl } from "@/lib/support";
 import Link from "next/link";
+import ListItem from "@vibaar/ui/common/ListItem";
+import EarningsCard from "@/features/wallet/EarningsCard";
 
 const Sellercard = ({
   text,
@@ -55,63 +55,37 @@ const Selling = () => {
     ? rewardsInfo.total_credit
     : (user?.shopping_credit || 0) + (user?.withdrawable_credit || 0);
 
-    // pb clears the fixed ModeSwitch pill (bottom-[72px]) so the Log out row is reachable on mobile
+    // pb clears the fixed ModeSwitch pill (bottom-20 + 44px) so Log out stays reachable on mobile
   return (
     <div className="w-full space-y-6 pb-24 lg:pb-6">
       {store?.id && (
-        <div className="flex justify-between items-center py-2">
-          <div className="flex gap-2 items-center">
+        // ListItem, not a fourth hand-rolled copy of [avatar][name/sub][action].
+        // The hand-rolled one gave the name and the category the SAME size
+        // (`text-body` twice), so the row read flat with no primary line, and
+        // the buyer tab's copy of it used a different avatar size again.
+        <ListItem
+          leading={
             <StoreLogo
               src={typeof store?.logo === "string" ? store.logo : undefined}
               storeName={store?.name || "Store"}
-              size={36}
+              size={40}
               className="ring-1 ring-outline"
             />
-            <div className="flex flex-col">
-              <p className="text-body font-medium">{store?.name + ""}</p>
-              <p className="text-foreground-muted font-normal text-body">
-                {store?.category + ""}
-              </p>
-            </div>
-          </div>
-          <Link href={`/dashboard/storefront`} className="text-brandDeep flex gap-1 items-center cursor-pointer">
-            View store
-            <ChevronRight size={20} />
-          </Link>
-        </div>
+          }
+          title={store?.name ?? ""}
+          subtitle={store?.category ?? ""}
+          trailing={
+            <Link
+              href="/dashboard/storefront"
+              className="flex items-center gap-1 text-body-sm font-medium text-brandDeep underline-offset-4 hover:underline">
+              View store
+              <ChevronRight size={16} aria-hidden="true" />
+            </Link>
+          }
+        />
       )}
 
-      {/* Rewards access card */}
-      <Link href={"/profile/referrals"} className="cursor-pointer overflow-hidden">
-        <div className="relative bg-gradient-to-r from-brand to-brand/70 rounded-card p-4 text-brandInk shadow-card">
-          {/* Decorative sparkle */}
-          <div className="absolute top-2 right-3 opacity-30">
-            <FaStar size={16} className="text-brandInk" />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-brandInk/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                <Gift size={20} className="text-brandInk" />
-              </div>
-              <div>
-                <p className="text-brandInk/80 text-caption font-normal uppercase tracking-wide">
-                  Available Earnings
-                </p>
-                <p className="text-brandInk text-body-lg font-semibold">
-                  ₦{creditBalance.toLocaleString()}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-brandInk/70 text-body-sm">Earn rewards</span>
-              <div className="w-6 h-6 bg-brandInk/20 rounded-full flex items-center justify-center">
-                <ChevronRight size={14} className="text-brandInk" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </Link>
+      <EarningsCard amount={creditBalance} />
 
       <div>
         <p className="mb-4 text-foreground-primary font-medium text-body">Menu</p>

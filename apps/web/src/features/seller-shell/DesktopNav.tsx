@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import Image from "next/image";
+import { usePathname } from "next/navigation";
+import ModeSwitch from "@/design-system/common/ModeSwitch";
 import { HelpSquare } from "@vibaar/ui/icons";
 import NavItem from "@vibaar/ui/common/NavItem";
 import BrandLogo from "@vibaar/ui/common/BrandLogo";
@@ -10,7 +10,6 @@ import { SELLER_NAV, activeSellerNav } from "./sellerNav";
 
 export default function DesktopNav() {
   const pathName = usePathname();
-  const router = useRouter();
   const activeNavItem = activeSellerNav(pathName);
   const [loadingRoute, setLoadingRoute] = useState<string | null>(null);
 
@@ -53,20 +52,10 @@ export default function DesktopNav() {
 
       {/* Bottom Section - Switch to Buyer & Help */}
       <div className="pt-6 border-t border-outline space-y-2">
-        {/* Switch to Buying */}
-        <button
-          type="button"
-          onClick={() => router.push("/shop")}
-          className="relative flex w-full items-center gap-2 rounded-full bg-brand px-4 py-3 text-brandInk shadow-pop transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40 focus-visible:ring-offset-1">
-          <Image
-            src="/icons/Switch-to-buying.svg"
-            alt="Switch to buying"
-            width={20}
-            height={20}
-            className="w-5 h-5"
-          />
-          <span className="text-body font-medium">Switch to buying</span>
-        </button>
+        {/* The same control as the mobile switch, not a second copy of it. This
+            was a duplicate button with the same classes and the same
+            white-on-yellow glyph, so fixing one left the other wrong. */}
+        <ModeSwitch variant="rail" />
 
         {/* Help & Support Button */}
         <a
