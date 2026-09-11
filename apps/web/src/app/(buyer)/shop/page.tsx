@@ -9,7 +9,6 @@ import { FaStar, Search, X, Heart, ShoppingCartAdd } from "@vibaar/ui/icons";
 import Button from "@vibaar/ui/common/Button";
 import useScroll from "@/hooks/useScroll";
 import VendorNav from "@/features/storefront/VendorNav";
-import img1 from "../../../../public/PRODUCT IMAGE (2).png";
 import useBusinessStore from "@/store/businessStore";
 import { useCategories } from "@/hooks/useCategories";
 import { useRoutePrefetch } from "@/hooks/useRoutePrefetch";
@@ -396,7 +395,7 @@ const Page: React.FC = () => {
                               src={
                                 item?.product.image
                                   ? getMobileCompatibleImageUrl(item?.product.image[0])
-                                  : "/PRODUCT IMAGE (2).png"
+                                  : "/images/product-placeholder.svg"
                               }
                               alt={item.product.title ?? ""}
                               className="w-[140px] h-[140px] object-cover rounded-card"

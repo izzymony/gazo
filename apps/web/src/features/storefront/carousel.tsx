@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import useModalBehaviour from "@vibaar/ui/common/useModalBehaviour";
 import IconButton from "@vibaar/ui/common/IconButton";
 import { X } from "@vibaar/ui/icons";
-import { getMobileCompatibleImageUrl, cn } from "@/lib/utils";
+import { getMobileCompatibleImageUrl, cn, PRODUCT_IMAGE_FALLBACK } from "@/lib/utils";
 
 const ImageCarousel = ({
   product,
@@ -34,7 +34,7 @@ const ImageCarousel = ({
   // dropped you back at the top of the product page.
   useModalBehaviour({ isOpen: isFullscreen, onClose: closeFullscreen, panelRef: fullscreenRef });
 
-  const FALLBACK_IMAGE = "/PRODUCT IMAGE (2).png";
+  const FALLBACK_IMAGE = PRODUCT_IMAGE_FALLBACK;
 
   // One normalised list for every surface: the mobile strip, the desktop grid and
   // the fullscreen viewer each used to re-derive this inline, with a different

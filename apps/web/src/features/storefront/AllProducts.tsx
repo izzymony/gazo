@@ -9,7 +9,7 @@ import Button from "@vibaar/ui/common/Button";
 import Loader from "@vibaar/ui/common/Loader";
 import useProductStore from "@/store/productStore";
 import useOrderStore from "@/store/orderStore";
-import { getMobileCompatibleImageUrl } from "@/lib/utils";
+import { getMobileCompatibleImageUrl, PRODUCT_IMAGE_FALLBACK } from "@/lib/utils";
 import { buildSimpleCartItem, productHasVariants, trackSimpleAddToCart } from "@/lib/cart";
 import { ProductData } from "@/lib/types";
 import useBusinessStore, { BusinessProduct } from "@/store/businessStore";
@@ -191,7 +191,7 @@ const AllProducts = ({
                   imageSrc={
                     item?.image
                       ? getMobileCompatibleImageUrl(item?.image[0])
-                      : "/PRODUCT IMAGE (2).png"
+                      : PRODUCT_IMAGE_FALLBACK
                   }
                   price={item?.price ? +item.price : 0}
                   oldPrice={item?.old_price ? +item.old_price : undefined}

@@ -176,7 +176,7 @@ const OrderConfirmed = () => {
                               src={
                                 productDetails?.image
                                   ? getMobileCompatibleImageUrl(productDetails?.image[0])
-                                  : "/PRODUCT IMAGE (2).png"
+                                  : "/images/product-placeholder.svg"
                               }
                               alt={productDetails?.title}
                               className="w-12 h-12 object-cover rounded-field"
@@ -236,7 +236,7 @@ const OrderConfirmed = () => {
               onClick={() => handleProductClick(index)}>
               <div className="relative w-full aspect-square">
                 <img
-                  src={item.image ? getMobileCompatibleImageUrl(item.image[0]) : "/PRODUCT IMAGE (2).png"}
+                  src={item.image ? getMobileCompatibleImageUrl(item.image[0]) : "/images/product-placeholder.svg"}
                   alt={item.title}
                   className="w-full h-full object-cover"
                 />

@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { cn, formatCurrency, getMobileCompatibleImageUrl } from "@/lib/utils";
+import { cn, formatCurrency, getMobileCompatibleImageUrl, PRODUCT_IMAGE_FALLBACK } from "@/lib/utils";
 import StoreLogo from "@vibaar/ui/common/StoreLogo";
 import { FaStar, FiUsers, ChevronRight, Heart, HeartFilled } from "@vibaar/ui/icons";
 import ChipToggle from "@vibaar/ui/common/ChipToggle";
@@ -177,7 +177,7 @@ export default function VendorCard({
               const saved = savedProductIds.includes(product.id);
               const image = product.image?.[0]
                 ? getMobileCompatibleImageUrl(product.image[0])
-                : "/PRODUCT IMAGE (2).png";
+                : PRODUCT_IMAGE_FALLBACK;
               return (
                 <li
                   key={product.id ?? index}

@@ -349,7 +349,7 @@ const Page = () => {
               src={
                 selected.item?.image
                   ? selected.item.image[0]
-                  : "/PRODUCT IMAGE (2).png"
+                  : "/images/product-placeholder.svg"
               }
               className="w-[60px] h-[60px] object-cover rounded-field border border-outline"
               alt={selected.item?.title}

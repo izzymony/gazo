@@ -9,7 +9,7 @@ import Header from "@vibaar/ui/common/Header";
 import SelectVariants from "@/design-system/VariantSelector";
 import ImageCarousel from "@/features/storefront/carousel";
 import { Variation } from "@/lib/types";
-import { calculateDiscountPercentage, formatCurrency } from "@/lib/utils";
+import { calculateDiscountPercentage, formatCurrency, PRODUCT_IMAGE_FALLBACK } from "@/lib/utils";
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import Image from "next/image";
@@ -178,7 +178,7 @@ export default function ProductsPreview({
                   <Image
                     width={0}
                     height={0}
-                    src={image?.base64 || "/PRODUCT IMAGE (2).png"}
+                    src={image?.base64 || PRODUCT_IMAGE_FALLBACK}
                     alt={`Product Image ${index + 1}`}
                     className="w-full h-full object-cover select-none"
                     draggable={false}
@@ -190,7 +190,7 @@ export default function ProductsPreview({
                   <Image
                     width={0}
                     height={0}
-                    src="/PRODUCT IMAGE (2).png"
+                    src={PRODUCT_IMAGE_FALLBACK}
                     alt="Default Product"
                     className="w-full h-full object-cover select-none"
                     draggable={false}

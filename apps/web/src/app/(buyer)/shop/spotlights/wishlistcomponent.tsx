@@ -51,7 +51,7 @@ export default function WishlistComponent({
       }
       onClick={handleProductClick}>
       <img
-        src={item?.image ? getMobileCompatibleImageUrl(item?.image[0]) : "/PRODUCT IMAGE (2).png"}
+        src={item?.image ? getMobileCompatibleImageUrl(item?.image[0]) : "/images/product-placeholder.svg"}
         alt={item.title ?? ""}
         className="w-full h-[160px] object-cover rounded-card border"
         width={140}

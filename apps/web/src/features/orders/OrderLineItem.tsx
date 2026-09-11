@@ -1,4 +1,4 @@
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency, PRODUCT_IMAGE_FALLBACK } from "@/lib/utils";
 
 /**
  * A product line in an order: thumbnail, name, optional variant, price × qty.
@@ -40,7 +40,7 @@ export default function OrderLineItem({
         className
       )}>
       <img
-        src={image || "/PRODUCT IMAGE (2).png"}
+        src={image || PRODUCT_IMAGE_FALLBACK}
         alt={name}
         className="h-[60px] w-[60px] rounded-field border border-outline object-cover"
       />

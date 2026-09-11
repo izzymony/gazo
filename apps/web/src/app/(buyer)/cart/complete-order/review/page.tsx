@@ -57,7 +57,7 @@ const CartItem = ({
       <div className="flex gap-2 mb-4 bg-surface p-3 rounded-field">
         <div className="h-[60px] w-[60px]">
           <img
-            src={cart.image || "/PRODUCT IMAGE (2).png"}
+            src={cart.image || "/images/product-placeholder.svg"}
             alt=""
             className="rounded-field h-[60px] w-[60px] object-cover"
           />

@@ -154,7 +154,7 @@ const Cards = ({
           name={productName?.title as string}
           quantity={order.quantity}
           image={
-            productName?.image ? productName.image[0] : "/PRODUCT IMAGE (2).png"
+            productName?.image ? productName.image[0] : "/images/product-placeholder.svg"
           }
           price={order.price}
           variant={order.variant_selection}
@@ -540,7 +540,7 @@ const Order = () => {
               src={
                 ratedProduct?.image
                   ? ratedProduct.image[0]
-                  : "/PRODUCT IMAGE (2).png"
+                  : "/images/product-placeholder.svg"
               }
               className="w-[60px] h-[60px] object-cover rounded-field border border-outline"
               alt={ratedProduct?.title || ""}

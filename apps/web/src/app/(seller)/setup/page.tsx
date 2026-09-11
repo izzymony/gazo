@@ -52,7 +52,7 @@ export default function Page() {
             </div>
           </div>
           <img
-            src="/PRODUCT IMAGE (2).PNG"
+            src="/images/product-placeholder.svg"
             alt="img"
             className="object-cover w-[100%] h-[100%]"
           />

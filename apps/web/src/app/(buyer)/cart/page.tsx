@@ -274,7 +274,7 @@ const Page = () => {
       <div className="flex gap-2 mb-4 bg-surface rounded-field">
         <div className="h-20 w-20">
           <img
-            src={cart.image || "/PRODUCT IMAGE (2).png"}
+            src={cart.image || "/images/product-placeholder.svg"}
             alt=""
             className="rounded-field h-[80px] w-[80px] object-cover"
           />
@@ -360,7 +360,7 @@ const Page = () => {
               <div className="flex justify-between items-center w-full">
                 <div className="flex gap-1 items-center">
                   <img
-                    src={cart.title.img || "/PRODUCT IMAGE (2).png"}
+                    src={cart.title.img || "/images/product-placeholder.svg"}
                     alt=""
                     className="rounded-full h-[20px] w-[20px] object-cover"
                   />

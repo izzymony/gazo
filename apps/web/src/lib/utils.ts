@@ -374,7 +374,7 @@ export const formatTrendForNigerianMarket = (
  * whose picture had failed to load. The literal path was also copied into six
  * files, one of them with different capitalisation.
  */
-export const PRODUCT_IMAGE_FALLBACK = "/PRODUCT IMAGE (2).png";
+export const PRODUCT_IMAGE_FALLBACK = "/images/product-placeholder.svg";
 
 // Utility function to transform image URLs for mobile compatibility
 export const getMobileCompatibleImageUrl = (imageUrl: string): string => {

@@ -1,0 +1,20 @@
+<svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Product placeholder. Replaces "PRODUCT IMAGE (2).png", which was the old
+       Instashop pink butterfly — so every product without a photo showed the
+       previous brand. Brand yellow with a brandDeep outline, the rule brand
+       marks used illustratively follow. -->
+  <rect width="160" height="160" rx="16" fill="#FAFAFA"/>
+  <circle cx="80" cy="78" r="42" fill="#FFE500" fill-opacity="0.22"/>
+  <!-- Frame -->
+  <rect x="44" y="52" width="72" height="56" rx="8"
+        fill="#FFE500" stroke="#665C00" stroke-width="3" stroke-linejoin="round"/>
+  <!-- Horizon + peak, drawn in the deep tone so the mark holds its shape -->
+  <path d="M44 92l18-16 14 12 12-14 28 24v2a8 8 0 0 1-8 8H52a8 8 0 0 1-8-8v-8z"
+        fill="#665C00" fill-opacity="0.18"/>
+  <path d="M52 96l14-13 13 11 13-13 20 17" stroke="#665C00" stroke-width="3"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="66" cy="70" r="5" fill="#FFFAD1" stroke="#665C00" stroke-width="3"/>
+  <!-- Sparkles, matching the empty-state set -->
+  <path d="M126 44l1.6 4.4 4.4 1.6-4.4 1.6-1.6 4.4-1.6-4.4-4.4-1.6 4.4-1.6z" fill="#665C00"/>
+  <path d="M34 112l1.2 3.3 3.3 1.2-3.3 1.2-1.2 3.3-1.2-3.3-3.3-1.2 3.3-1.2z" fill="#665C00"/>
+</svg>

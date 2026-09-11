@@ -8,7 +8,6 @@ import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
-import img1 from "../../../../../public/PRODUCT IMAGE (2).png";
 import VendorCard from "@/features/storefront/VendorCard";
 import {
   generateSessionSeed,
