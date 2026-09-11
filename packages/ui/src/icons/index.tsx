@@ -35,6 +35,8 @@ import {
   Search01Icon,
   StarIcon,
   InstagramIcon,
+  Facebook01Icon,
+  WhatsappIcon,
   Location01Icon,
   TiktokIcon,
   NewTwitterIcon,
@@ -192,6 +194,8 @@ export const FaHeart = make(FavouriteIcon);
 export const FaPlus = make(PlusSignIcon);
 export const FaStar = make(StarIcon);
 export const FaInstagram = make(InstagramIcon);
+export const FaFacebook = make(Facebook01Icon);
+export const FaWhatsapp = make(WhatsappIcon);
 export const FaLocationDot = make(Location01Icon);
 export const FaTiktok = make(TiktokIcon);
 export const FaXTwitter = make(NewTwitterIcon);

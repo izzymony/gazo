@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import RootLayoutClient from "./rootLayoutClient";
 import "../styles/globals.css";
-import { Toaster } from "sonner";
+import AppToaster from "@vibaar/ui/common/AppToaster";
 import { outfit } from "./fonts";
 
 // One self-hosted brand face (see ./fonts): Outfit, for display and body alike.
@@ -91,7 +91,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body className={outfit.className}>
         <RootLayoutClient>{children}</RootLayoutClient>
-        <Toaster position="top-right"/>
+        <AppToaster />
       </body>
     </html>
   );
