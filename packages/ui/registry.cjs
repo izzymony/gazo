@@ -24,6 +24,10 @@ const entries = [
   ["AnimatedHeader", "pattern"],
   ["common/Accordion", "component", "stable"],
   ["common/ActivityItem", "component", "stable"],
+  // Added 2026-09-11 with the seller-side pass. `candidate`, not `stable`:
+  // stable requires a playground specimen as well as a behavioural test, and
+  // none of these four has one yet.
+  ["common/AppToaster", "component", "candidate"],
   ["common/Avatar", "primitive", "stable"],
   ["common/Badge", "primitive", "stable"],
   ["common/BottomModal", "component", "stable"],
@@ -31,11 +35,14 @@ const entries = [
   ["common/Button", "primitive", "stable"],
   ["common/Surface", "primitive", "stable"],
   ["common/Checkbox", "primitive", "stable"],
+  // Added in 4de55ed and never registered — exactly the drift this guard catches.
+  ["common/ChipToggle", "component", "candidate"],
   ["common/DetailList", "component", "stable"],
   ["common/DetailRow", "component", "stable"],
   ["common/Dialog", "component", "stable"],
   ["common/DisclosureButton", "primitive", "stable"],
   ["common/DropdownMenu", "component", "stable"],
+  ["common/DropdownSelect", "component", "candidate"],
   ["common/EmptyState", "pattern"],
   ["common/ErrorState", "pattern"],
   ["common/FilterBar", "component", "stable"],
@@ -57,10 +64,12 @@ const entries = [
   ["common/NavigationTabs", "component", "stable"],
   ["common/PasswordCriteria", "component", "stable"],
   ["common/RadioGroup", "component", "stable"],
+  ["common/ReviewCard", "component", "candidate"],
   ["common/SearchField", "component", "stable"],
   ["common/SelectableCard", "primitive", "stable"],
   ["common/Section", "primitive", "stable"],
   ["common/Spinner", "primitive", "stable"],
+  ["common/StarRating", "component", "candidate"],
   ["common/ShareModal", "pattern"],
   ["common/StepNavigation", "component", "stable"],
   ["common/StoreLogo", "component", "stable"],
