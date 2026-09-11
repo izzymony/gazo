@@ -66,6 +66,9 @@ const entries = [
   ["common/RadioGroup", "component", "stable"],
   ["common/ReviewCard", "component", "candidate"],
   ["common/SearchField", "component", "stable"],
+  // Added 2026-09-11 with the marketplace header. `candidate` until it has a
+  // specimen: the three carousels it replaces are not migrated to it yet.
+  ["common/SlideDots", "component", "candidate"],
   ["common/SelectableCard", "primitive", "stable"],
   ["common/Section", "primitive", "stable"],
   ["common/Spinner", "primitive", "stable"],
