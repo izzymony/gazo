@@ -773,6 +773,35 @@ func (s *BusinessController) GetShopVendors(c *gin.Context) {
 			biz := businesses[i]
 			// limit=previewN → items are the preview strip, total is the exact count.
 			previews, count, _ := s.product.GetAllProductsOrderedByOrders(1, previewN, "", "", "", biz.ID, "")
+
+			// Send ONLY what a vendor card draws.
+			//
+			// These went out as whole product records, associations and all, and
+			// `variants` alone was 7.9MB of a 7.8MB page — one vendor with a large
+			// variant matrix contributed 5.6MB by itself. The marketplace card
+			// shows a thumbnail, a title and a price; it has never read a variant.
+			// On the 3G connections this app is built for, that payload could not
+			// arrive inside the client's 30s timeout, so the feed failed with a
+			// timeout while the query itself took under 100ms.
+			strip := make([]gin.H, len(previews))
+			for j, p := range previews {
+				// The card shows an average, so only the scores travel.
+				rates := make([]float32, len(p.ProductRating))
+				for k, r := range p.ProductRating {
+					rates[k] = r.Rate
+				}
+				strip[j] = gin.H{
+					"id":        p.ID,
+					"public_id": p.PublicID,
+					"slug":      p.Slug,
+					"title":     p.Title,
+					"image":     p.Image,
+					"price":     p.Price,
+					"old_price": p.OldPrice,
+					"rates":     rates,
+				}
+			}
+
 			vendors[i] = gin.H{
 				"id":               biz.ID,
 				"name":             biz.Name,
@@ -784,7 +813,7 @@ func (s *BusinessController) GetShopVendors(c *gin.Context) {
 				"average_rating":   0.0,
 				"business_setting": biz.BusinessSetting,
 				"product_count":    count,
-				"preview_products": previews,
+				"preview_products": strip,
 			}
 		}(i)
 	}

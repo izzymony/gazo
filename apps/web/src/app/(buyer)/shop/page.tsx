@@ -479,12 +479,15 @@ const Page: React.FC = () => {
                             image: item.image,
                             price: item.price,
                             old_price: item.old_price,
-                            rating: item.product_rating?.length
+                            // `rates` is just the scores. The feed used to send
+                            // each preview product's whole record — associations
+                            // and all — and `variants` alone was 7.9MB of a
+                            // 7.8MB page, which could not arrive inside the
+                            // client's timeout on a 3G connection.
+                            rating: item.rates?.length
                               ? Math.round(
-                                  item.product_rating.reduce(
-                                    (a: number, b: { rate: number }) => a + b.rate,
-                                    0
-                                  ) / item.product_rating.length
+                                  item.rates.reduce((a: number, b: number) => a + b, 0) /
+                                    item.rates.length
                                 )
                               : 0,
                           }))}

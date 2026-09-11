@@ -23,6 +23,18 @@ import createQuotaSafeStorage from "@/utils/quotaSafeStorage";
 // server-paginated + server-ranked, each carrying a small preview strip + exact
 // product count. Replaces the old /shop broad-pull (250 products + 500 stores)
 // + client-side grouping.
+export interface ShopVendorPreview {
+  id: string;
+  public_id: string;
+  slug: string;
+  title: string;
+  image?: string[];
+  price: number;
+  old_price: number;
+  /** Review scores only — the card shows their average. */
+  rates: number[];
+}
+
 export interface ShopVendor {
   id: string;
   name: string;
@@ -40,7 +52,10 @@ export interface ShopVendor {
     };
   };
   product_count: number;
-  preview_products: ProductData[];
+  // A PROJECTION, not a product. The feed sends only what a vendor card draws;
+  // typing it as ProductData invited exactly the mistake that made this payload
+  // 7.8MB — reading fields off it that the card never shows.
+  preview_products: ShopVendorPreview[];
 }
 
 // 2-column grid; keep the page (and thus the backend's per-vendor preview
