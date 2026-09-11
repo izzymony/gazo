@@ -4,9 +4,11 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/response"
+	fileupload "github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/file-upload"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/services"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
@@ -82,13 +84,32 @@ func (s *UserController) GetMe(c *gin.Context) {
 }
 
 func (s *UserController) UpdateUser(c *gin.Context) {
-	logger.Info("GetUser")
+	logger.Info("UpdateUser")
 
 	request := requests.UpdateUserRequest{}
 	err := c.ShouldBind(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
+	}
+
+	// The avatar arrives as a FILE on a multipart submit, and a file cannot bind
+	// onto the ProfileImage string — so upload it here and hand the service the
+	// resulting URL. Same shape as BusinessController's logo handling. On the
+	// JSON path profile_image carries a data-URI (or an already-hosted URL) and
+	// this block is skipped.
+	if strings.Contains(c.GetHeader("Content-Type"), "multipart/form-data") {
+		file, _, fileErr := c.Request.FormFile("profile_image")
+		if fileErr == nil && file != nil {
+			defer file.Close()
+			url, uploadErr := fileupload.UploadFileWithFallback(file)
+			if uploadErr != nil {
+				logger.Error("Error uploading profile image: " + uploadErr.Error())
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to upload profile image"})
+				return
+			}
+			request.ProfileImage = url
+		}
 	}
 
 	userIdentifier, isGuest, err := helper.GetUserIdentifier(c)

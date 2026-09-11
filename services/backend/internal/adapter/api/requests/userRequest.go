@@ -18,14 +18,20 @@ type SignUpRequest struct {
 	ReferralUsername string `json:"referral_username,omitempty"`
 }
 
+// UpdateUserRequest is bound from BOTH JSON and multipart/form-data (the avatar
+// submit). Gin maps a multipart body by the `form` tag and falls back to the Go
+// FIELD NAME when it is absent — so without these tags every field bound empty,
+// `binding:"required"` on Firstname failed, and every avatar change 400'd with
+// "invalid request". The file itself is NOT bound here (`form:"-"`): a file
+// cannot map onto a string, so the handler uploads it and sets the URL.
 type UpdateUserRequest struct {
-	Firstname        string `json:"firstname" binding:"required"`
-	Lastname         string `json:"lastname"`
-	Username         string `json:"username"`
-	PhoneNumber      string `json:"phone_number"`
-	DateOfBirth      string `json:"date_of_birth"`
-	ProfileImage     string `json:"profile_image"`
-	ReferralUsername string `json:"referral_username,omitempty"` // Optional referral code during profile completion
+	Firstname        string `json:"firstname" form:"firstname" binding:"required"`
+	Lastname         string `json:"lastname" form:"lastname"`
+	Username         string `json:"username" form:"username"`
+	PhoneNumber      string `json:"phone_number" form:"phone_number"`
+	DateOfBirth      string `json:"date_of_birth" form:"date_of_birth"`
+	ProfileImage     string `json:"profile_image" form:"-"`
+	ReferralUsername string `json:"referral_username,omitempty" form:"referral_username"` // Optional referral code during profile completion
 }
 
 type LoginRequest struct {

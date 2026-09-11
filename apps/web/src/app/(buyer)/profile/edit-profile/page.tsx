@@ -119,18 +119,21 @@ const Page = () => {
           formData.append('date_of_birth', values.dob || '');
           
           // Use FormData for upload
-          await updateUser(formData as any, () => {
+          await updateUser(formData, () => {
             toast.success("Profile updated successfully!");
             router.back();
           });
         } else {
-          // No new image, just update other fields
+          // No new image, so profile_image is deliberately OMITTED: the server
+          // leaves the stored avatar untouched when the field is absent. Echoing
+          // the existing Cloudinary URL back made the server try to base64-decode
+          // a URL, which always failed — so anyone who already had an avatar
+          // could not save their name or date of birth at all.
           const payload = {
             firstname: values.firstname,
             lastname: values.lastname,
             username: values.user_name,
             date_of_birth: values.dob,
-            profile_image: user?.profile_image || "",
           };
           
           await updateUser(payload, () => {
