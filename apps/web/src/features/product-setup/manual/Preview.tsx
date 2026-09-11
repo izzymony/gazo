@@ -271,7 +271,7 @@ export default function ProductsPreview({
               .fill(null)
               .map((_: string, index: number) => (
                 <div key={index}>
-                  <FaStar size={14} className="text-warning-foreground" />
+                  <FaStar size={14} className="text-brandDeep" />
                 </div>
               ))}
             <p className="text-foreground-muted text-body font-normal">(5 sold)</p>
@@ -367,7 +367,7 @@ export default function ProductsPreview({
                 <h3 className="font-medium text-body-sm">{store?.name}</h3>
                 <p className="text-foreground-muted text-caption font-normal flex items-center gap-1">
                   {store?.category} ·{" "}
-                  <FaStar size={12} className="text-warning-foreground" />
+                  <FaStar size={12} className="text-brandDeep" />
                   5.4 · 100k{" "}
                   <FiUsers size={12} className="text-foreground-secondary" />
                 </p>

@@ -24,6 +24,7 @@ import useProductStore from "@/store/productStore";
 import useBusinessStore from "@/store/businessStore";
 import InputField from "@vibaar/ui/common/InputField";
 import Button from "@vibaar/ui/common/Button";
+import ChipToggle from "@vibaar/ui/common/ChipToggle";
 import useAuthStore from "@/store/authStore";
 // import Image from "next/image";
 import useShippingStore from "@/store/shippingStore";
@@ -577,16 +578,12 @@ const Order = () => {
                 { label: "Excellent", value: 4 },
                 { label: "Outstanding", value: 5 },
               ].map((chip) => (
-                <button
+                <ChipToggle
                   key={chip.value}
-                  onClick={() => handleChipClick(chip.value)}
-                  className={`px-3 py-1 rounded-full border text-caption font-medium cursor-pointer transition-colors duration-300 ${
-                    rating === chip.value
-                      ? "bg-warning-foreground border-warning-foreground text-foreground-primary"
-                      : "bg-surface-muted border-outline text-foreground-secondary"
-                  }`}>
+                  selected={rating === chip.value}
+                  onClick={() => handleChipClick(chip.value)}>
                   {chip.label}
-                </button>
+                </ChipToggle>
               ))}
             </div>
           </div>

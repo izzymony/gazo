@@ -18,6 +18,7 @@ import { formatCurrency, getMobileCompatibleImageUrl } from "@/lib/utils";
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import EmptyState from "@vibaar/ui/common/EmptyState";
+import ChipToggle from "@vibaar/ui/common/ChipToggle";
 import Button from "@vibaar/ui/common/Button";
 import NavigationTabs from "@vibaar/ui/common/NavigationTabs";
 import useAuthStore from "@/store/authStore";
@@ -71,7 +72,7 @@ const ReviewIcon = ({
       </p>
       <div className="flex space-x-3 bg-surface rounded-field p-2">
         <div className="bg-warning-surface p-2 rounded-field gap-1 justify-center items-center flex font-medium text-body-sm text-foreground-primary">
-          <FaStar size={14} className="text-warning-foreground" aria-hidden="true" />
+          <FaStar size={14} className="text-brandDeep" aria-hidden="true" />
           {rate}
         </div>
         <div className="flex-1">
@@ -386,16 +387,12 @@ const Page = () => {
                 { label: "Excellent", value: 4 },
                 { label: "Outstanding", value: 5 },
               ].map((chip) => (
-                <button
+                <ChipToggle
                   key={chip.value}
-                  onClick={() => setRating(chip.value)}
-                  className={`px-3 py-1 rounded-full border text-caption font-medium cursor-pointer transition-colors duration-300 ${
-                    rating === chip.value
-                      ? "bg-warning-foreground border-warning-foreground text-foreground-primary"
-                      : "bg-surface-muted border-outline text-foreground-secondary"
-                  }`}>
+                  selected={rating === chip.value}
+                  onClick={() => setRating(chip.value)}>
                   {chip.label}
-                </button>
+                </ChipToggle>
               ))}
             </div>
           </div>

@@ -203,7 +203,7 @@ export default function VendorCard({
                     </p>
                     {Number(product.rating) > 0 && (
                       <span className="mt-0.5 flex items-center gap-1 text-micro text-white/80">
-                        <FaStar size={10} className="text-warning-foreground" aria-hidden="true" />
+                        <FaStar size={10} className="text-brandDeep" aria-hidden="true" />
                         {product.rating}
                         <span className="sr-only">out of 5 stars</span>
                       </span>

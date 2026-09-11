@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { cn } from "@vibaar/utils";
 import Avatar from "./Avatar";
 import StarRating from "./StarRating";
+import { User } from "../icons";
 
 export interface ReviewCardProps {
   /** Score, 0–5. */
@@ -49,14 +50,15 @@ const formatDate = (date?: string | Date): string => {
  * bordered row with five stars, a date, and the comment wrapped in `&quot;`
  * marks UNCONDITIONALLY — so a rating left without a written review rendered as
  * a bare pair of quotation marks with nothing between them. The seller's
- * "Reviewed" tab drew the richer card the design wanted (avatar, store, product,
- * date, a "Bought White, M" chip, tag pills) but every value in it was a
- * hardcoded string — "Gucci Store", "Product name goes here" — behind a `data`
- * array pinned to `[]`, so it was unreachable code describing a fiction.
+ * "Reviewed" tab drew the richer card (avatar, store, product, date, a "Bought
+ * White, M" chip) but every value in it was a hardcoded string behind a `data`
+ * array pinned to `[]` — unreachable code describing a fiction.
  *
- * This is the second design with the first one's honesty. Author, subject and
- * meta are optional because the API cannot supply them today; a review with only
- * a score and a date renders as exactly that, and nothing is filled in for it.
+ * Reading order is what the reader came for: the SCORE and what was said, then
+ * who said it and when, then what it was about. An anonymous review does not
+ * get a coloured initial — `Avatar`'s fallback hashes the name into a palette,
+ * so passing it a literal "?" produced a bright pink disc with a question mark,
+ * which read as a broken image rather than "we don't know who".
  */
 export default function ReviewCard({
   rating,
@@ -74,52 +76,57 @@ export default function ReviewCard({
   return (
     <article
       className={cn(
-        "flex gap-3 rounded-card border border-outline bg-surface p-4",
+        "flex flex-col gap-3 rounded-card border border-outline bg-surface p-4",
         className
       )}>
-      <Avatar
-        src={author?.avatarUrl}
-        name={who || "?"}
-        size={36}
-        className="shrink-0"
-      />
-
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-          <p className="text-body-sm font-medium text-foreground-primary">
-            {/* No name from the API means no name on the card. */}
-            {who || "A shopper"}
-          </p>
-          {when && <p className="text-caption text-foreground-muted">{when}</p>}
-        </div>
-
-        <StarRating value={rating} size="xs" />
-
-        {subject?.title && (
-          <div className="flex items-center gap-2">
-            {subject.imageUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={subject.imageUrl}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className="h-8 w-8 shrink-0 rounded-field border border-outline-subtle object-cover"
-              />
-            )}
-            <p className="truncate text-caption text-foreground-secondary">
-              {subject.title}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          {who ? (
+            <Avatar src={author?.avatarUrl} name={who} size={32} className="shrink-0" />
+          ) : (
+            // Not a person we can name — a neutral mark, not a coloured initial.
+            <span
+              aria-hidden="true"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-muted text-foreground-muted">
+              <User size={16} />
+            </span>
+          )}
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <p className="truncate text-body-sm font-medium text-foreground-primary">
+              {who || "A shopper"}
             </p>
+            <StarRating value={rating} size="xs" />
           </div>
+        </div>
+        {when && (
+          <p className="shrink-0 text-caption text-foreground-muted">{when}</p>
         )}
-
-        {/* Only when there IS one. This is the empty-quotes bug. */}
-        {text && (
-          <p className="text-body-sm text-foreground-primary">{text}</p>
-        )}
-
-        {meta}
       </div>
+
+      {/* Only when there IS one. This is the empty-quotes bug. */}
+      {text && <p className="text-body-sm text-foreground-primary">{text}</p>}
+
+      {subject?.title && (
+        // What was reviewed, as one quiet chip rather than a loose thumbnail
+        // and a stray line of text.
+        <div className="flex items-center gap-2 self-start rounded-pill bg-surface-subtle py-1 pl-1 pr-3">
+          {subject.imageUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={subject.imageUrl}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="h-6 w-6 shrink-0 rounded-full object-cover"
+            />
+          )}
+          <p className="truncate text-caption text-foreground-secondary">
+            {subject.title}
+          </p>
+        </div>
+      )}
+
+      {meta}
     </article>
   );
 }

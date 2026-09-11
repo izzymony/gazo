@@ -11,7 +11,13 @@ import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import { Modal } from "@vibaar/ui/modal/Modal";
 import VendorNav from "./VendorNav";
-import { StoreDeals, StoreReviews } from "./StoreTabs";
+import {
+  StoreDeals,
+  StoreReviews,
+  DealsControls,
+  ReviewsControls,
+  type DealSort,
+} from "./StoreTabs";
 import Button from "@vibaar/ui/common/Button";
 import { formatNigerianCurrency } from "@/lib/utils";
 import { trackStoreViewed } from "@/lib/analytics";
@@ -82,6 +88,10 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchValue, setSearchValue] = useState("");
   const [sortToggle, setSortToggle] = useState(false);
+  // Which tab is showing, so its own control row can be the one rendered.
+  const [activeTab, setActiveTab] = useState(0);
+  const [dealSort, setDealSort] = useState<DealSort>("Biggest discount");
+  const [reviewFilter, setReviewFilter] = useState("All");
   const [isLoadingVendor, setIsLoadingVendor] = useState(true);
 
   const [copied, setCopied] = useState(false);
@@ -109,7 +119,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
       value: (
         <span className="flex items-center gap-1">
           {storeStats.ratings ? Number(storeStats.ratings).toFixed(1) : "—"}
-          <FaStar size={14} className="text-warning-foreground" aria-hidden="true" />
+          <FaStar size={14} className="text-brandDeep" aria-hidden="true" />
         </span>
       ),
       label: (
@@ -535,6 +545,7 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
             // padding of its own, so the row — and its underline — ran flush to
             // both screen edges here and nowhere else.
             tabClass="px-4 md:px-6 lg:px-8"
+            onTabChange={setActiveTab}
             tabContents={[
               <AllProducts
                 key={0}
@@ -544,16 +555,32 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
                 sortToggle={sortToggle}
                 isNewStore={isNewStore}
               />,
-              <StoreDeals key={1} products={storeProducts} storeTag={currentStore?.tag} />,
-              <StoreReviews key={2} products={storeProducts} />,
+              <StoreDeals
+                key={1}
+                products={storeProducts}
+                storeTag={currentStore?.tag}
+                sort={dealSort}
+              />,
+              <StoreReviews key={2} products={storeProducts} filter={reviewFilter} />,
             ]}
+            // Each tab's OWN controls. One shared row put the product TAG pills
+            // above Deals and above Reviews as well — filters that cannot apply
+            // to what is under them. The row still lives in the tab bar's block,
+            // so the header → tabs → controls rhythm is unchanged; only its
+            // contents follow the tab.
             generalContent={
-              <VendorDataSort
-                onFilterChange={(filter) => setActiveFilter(filter)}
-                onSortToggle={() => setSortToggle(!sortToggle)}
-                searchValue={searchValue}
-                onSearchChange={(value) => setSearchValue(value)}
-              />
+              activeTab === 1 ? (
+                <DealsControls sort={dealSort} onSortChange={setDealSort} />
+              ) : activeTab === 2 ? (
+                <ReviewsControls filter={reviewFilter} onFilterChange={setReviewFilter} />
+              ) : (
+                <VendorDataSort
+                  onFilterChange={(filter) => setActiveFilter(filter)}
+                  onSortToggle={() => setSortToggle(!sortToggle)}
+                  searchValue={searchValue}
+                  onSearchChange={(value) => setSearchValue(value)}
+                />
+              )
             }
           />
         </div>

@@ -88,7 +88,7 @@ export function ProductVendorInfo({
               {store?.category && <span className="truncate">{store.category}</span>}
               <span aria-hidden="true">·</span>
               <span className="inline-flex items-center gap-1">
-                <FaStar size={12} className="text-warning-foreground" aria-hidden="true" />
+                <FaStar size={12} className="text-brandDeep" aria-hidden="true" />
                 {Number(store?.average_rating || 0).toFixed(1)}
                 <span className="sr-only">average rating</span>
               </span>

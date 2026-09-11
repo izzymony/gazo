@@ -32,6 +32,16 @@ describe("ReviewCard", () => {
       expect(screen.getByText("A shopper")).toBeInTheDocument();
     });
 
+    // `Avatar`'s fallback hashes the name into a colour palette and shows its
+    // initial — so passing it a literal "?" for an anonymous review produced a
+    // bright pink disc with a question mark in it, which reads as a broken
+    // image rather than "we don't know who wrote this".
+    it("shows a neutral mark for an anonymous review, not a coloured initial", () => {
+      const { container } = render(<ReviewCard rating={3} />);
+      expect(container.textContent).not.toContain("?");
+      expect(container.querySelector("svg")).not.toBeNull();
+    });
+
     it("uses a real name when one is supplied", () => {
       render(<ReviewCard rating={3} author={{ name: "Bukky A." }} />);
       expect(screen.getByText("Bukky A.")).toBeInTheDocument();

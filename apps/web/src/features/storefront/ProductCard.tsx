@@ -105,7 +105,7 @@ export default function ProductCard({
           <div className="flex justify-between">
             <p className="text-caption font-medium">{formatCurrency(price)}</p>
             <div className="flex gap-1 items-center">
-              <FaStar size={12} className="text-warning-foreground" aria-hidden="true" />
+              <FaStar size={12} className="text-brandDeep" aria-hidden="true" />
               <p className="text-caption text-foreground-muted">
                 {rating}
                 <span className="sr-only"> out of 5 stars</span>

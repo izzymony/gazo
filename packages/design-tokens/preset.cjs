@@ -169,6 +169,18 @@ module.exports = {
         // not: the class was in the markup, matched no utility, and emitted
         // nothing, so the nav sat under the indicator on every notched phone.
         safe: "env(safe-area-inset-bottom)",
+        // The height of a form row — an InputField, or a row you tap to edit
+        // one. 52px is off the 4px scale (13 × 4), which is why it has always
+        // been written as the arbitrary `h-[52px]` and why rows that were meant
+        // to match it drifted to 60 and 64.
+        //
+        // NEW code uses this. The existing `h-[52px]` call sites — InputField
+        // included — are deliberately NOT migrated here: a token is invisible
+        // to Tailwind until the config is re-read, so switching a primitive
+        // used on ~93 call sites to a brand-new token is a change that cannot
+        // be verified by tsc, lint or tests, only by looking. Migrate them in
+        // their own pass, with a restart and a render.
+        field: "52px",
       },
       zIndex: {
         dropdown: "var(--z-dropdown)",

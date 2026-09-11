@@ -1,4 +1,5 @@
 import { formatCurrency, calculateDiscountPercentage } from "@/lib/utils";
+import StarRating from "@vibaar/ui/common/StarRating";
 import Badge from "@vibaar/ui/common/Badge";
 import IconButton from "@vibaar/ui/common/IconButton";
 import { PiShareFatThin, Heart, HeartFilled, FaStar } from "@vibaar/ui/icons";
@@ -80,21 +81,9 @@ export default function ProductInfo({
 
       {(ratings > 0 || salesNum > 0) && (
         <div className="mt-2 flex items-center gap-2 text-body-sm text-foreground-muted">
-          {ratings > 0 && (
-            <span className="flex items-center gap-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <FaStar
-                  key={star}
-                  size={14}
-                  aria-hidden="true"
-                  className={
-                    star <= ratings ? "text-warning-foreground" : "text-foreground-disabled"
-                  }
-                />
-              ))}
-              <span className="sr-only">{ratings} out of 5 stars</span>
-            </span>
-          )}
+          {/* The shared five-star row — this was a sixth hand-rolled copy, and
+              the only one still colouring its stars with the WARNING token. */}
+          {ratings > 0 && <StarRating value={ratings} size="xs" />}
           {salesNum > 0 && <span>({salesNum} sold)</span>}
         </div>
       )}
