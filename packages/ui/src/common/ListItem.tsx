@@ -3,9 +3,19 @@ import { cn } from "@vibaar/utils";
 import { focusRingInset } from "../styles";
 
 interface ListItemProps {
-  /** Left visual — an icon badge / avatar. Rendered in a fixed 40px slot so
+  /** Left visual — an icon badge / avatar. Rendered in a fixed square slot so
    *  every list row (activity, notification, transaction) shares one rhythm. */
   leading?: ReactNode;
+  /**
+   * Size of that slot. `md` (40px) suits an icon or an avatar; `lg` (56px) is
+   * for a product photo, which needs to be legible as a picture.
+   *
+   * It matters that the slot and its contents agree: the slot is a flex box, so
+   * a thumbnail larger than it SHRINKS to the slot's width while keeping its own
+   * height — a 56px product photo in the 40px slot rendered 40 wide by 56 tall,
+   * squashed horizontally. Sizing the slot is the only way to change it.
+   */
+  leadingSize?: "md" | "lg";
   /** Primary line. A ReactNode so callers can colour it (e.g. credit/debit). */
   title: ReactNode;
   /** Secondary line (e.g. a message body). */
@@ -50,6 +60,7 @@ interface ListItemProps {
  */
 export default function ListItem({
   leading,
+  leadingSize = "md",
   title,
   subtitle,
   meta,
@@ -78,7 +89,11 @@ export default function ListItem({
         className
       )}>
       {leading && (
-        <div className="relative flex-shrink-0 w-10 h-10 flex items-center justify-center">
+        <div
+          className={cn(
+            "relative flex flex-shrink-0 items-center justify-center overflow-hidden",
+            leadingSize === "lg" ? "h-14 w-14" : "h-10 w-10"
+          )}>
           {leading}
           {showDot && (
             <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-brand rounded-full border-2 border-white">

@@ -34,10 +34,12 @@ const ProductComp: React.FC<ProductProps> = ({ product }: ProductProps) => (
   <ListItem
     className="relative items-center"
     trailingAlign="center"
+    leadingSize="lg"
     leading={
       <ProductImage
         src={product?.image}
-        className="h-14 w-14 rounded-field border border-outline-subtle"
+        // Square, filling the lg slot exactly.
+        className="h-full w-full rounded-field border border-outline-subtle"
       />
     }
     title={

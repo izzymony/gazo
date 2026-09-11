@@ -14,29 +14,22 @@ interface ClientParams {
 
 type ClientResponse = AxiosResponse<unknown>;
 
-// Store refresh promise to prevent multiple simultaneous refresh attempts
-let isRefreshing = false;
-type RefreshSubscriber = {
-  resolve: (token: string) => void;
-  reject: (error: unknown) => void;
-};
-let refreshSubscribers: RefreshSubscriber[] = [];
-
-const onRefreshed = (newToken: string) => {
-  refreshSubscribers.forEach(({ resolve }) => resolve(newToken));
-  refreshSubscribers = [];
-};
-
-// W2.1: when the refresh itself fails, reject every queued request instead of
-// leaving them pending forever (the old code only ever resolved on success).
-const onRefreshFailed = (error: unknown) => {
-  refreshSubscribers.forEach(({ reject }) => reject(error));
-  refreshSubscribers = [];
-};
-
-const addRefreshSubscriber = (subscriber: RefreshSubscriber) => {
-  refreshSubscribers.push(subscriber);
-};
+/**
+ * The in-flight token refresh, shared by every request that meets a 401 while
+ * it is running. Null when no refresh is happening.
+ *
+ * This was a boolean flag plus a list of subscribers, and the two could not be
+ * kept in step. The refresher flushed the list the instant the refresh settled,
+ * but `isRefreshing` stayed true for the whole of its own retry afterwards — so
+ * a request that 401'd inside that window saw the flag, added itself to a list
+ * that had already been flushed, and waited on a promise nobody would ever
+ * settle. It hung until the page was reloaded: no rejection, no timeout (the
+ * axios timeout covers the request, not this wrapper), just a spinner. On a
+ * screen that fires a dozen calls at once, that window is easy to hit.
+ *
+ * A promise cannot drift out of step with itself.
+ */
+let refreshPromise: Promise<string> | null = null;
 
 // Dynamic API URL detection for mobile and desktop support
 const getBaseURL = () => {
@@ -116,80 +109,62 @@ export const Client = async <T = unknown>(
       if (status === 401) {
         const originalRequest = axiosConfig;
 
-        if (!isRefreshing) {
-          isRefreshing = true;
-          try {
-            // Attempt to refresh the token
+        // Start a refresh, or join the one already running. Every caller awaits
+        // the SAME promise, so none can be added after the result is handed out.
+        if (!refreshPromise) {
+          refreshPromise = (async () => {
             if (!refreshToken) {
               throw new Error("No refresh token available");
             }
 
-            // Call your refresh token endpoint
             const refreshResponse = await Axios.post(
-              baseURL + "/refresh-token", // Adjust this endpoint to match your backend
-              {
-                refresh_token: refreshToken,
-              },
+              baseURL + "/refresh-token",
+              { refresh_token: refreshToken },
               { headers: { "Content-Type": "application/json" } }
             );
 
             const newAccessToken = refreshResponse.data.data.access_token;
-            const newRefreshToken = refreshResponse.data.data.refresh_token; // Optional, if provided
+            const newRefreshToken = refreshResponse.data.data.refresh_token; // Optional
 
-            // Update tokens in cookies
             Cookies.set("accessToken", newAccessToken, { expires: 2 });
             if (newRefreshToken) {
               Cookies.set("refreshToken", newRefreshToken, { expires: 10 });
             }
 
-            // Notify subscribers of the new token
-            onRefreshed(newAccessToken);
-
-            // Retry the original request with the new token
-            originalRequest.headers = {
-              ...originalRequest.headers,
-              Authorization: `Bearer ${newAccessToken}`,
-            };
-            return await Axios(originalRequest);
-          } catch (refreshError) {
-            console.error("Token refresh failed:", refreshError);
-            // Always fail the queued requests so they don't hang forever (W2.1).
-            onRefreshFailed(refreshError);
-            // Only treat this as a DEAD SESSION — clear tokens + bounce to
-            // sign-in — if the request was actually authenticated. A guest
-            // (no access token AND no refresh token) hitting an auth-only
-            // endpoint gets an expected 401: reject it, but NEVER hard-redirect.
-            // That redirect is what kicked guests off /shop, storefronts, and
-            // the add-address step. Seller routes stay protected by the
-            // middleware, so relaxing this can't leak the seller side.
-            const hadSession = Boolean(token) || Boolean(refreshToken);
-            if (hadSession) {
-              Cookies.remove("accessToken");
-              Cookies.remove("refreshToken");
-              if (typeof window !== "undefined") {
-                window.location.href = "/signin?step=1";
-              }
-            }
-            throw refreshError;
-          } finally {
-            isRefreshing = false;
-          }
+            return newAccessToken as string;
+          })().finally(() => {
+            // Cleared once settled, so the NEXT 401 starts a fresh attempt
+            // rather than re-using a stale outcome.
+            refreshPromise = null;
+          });
         }
 
-        // Queue requests while a refresh is in flight; resolve on success,
-        // reject if the refresh fails (W2.1).
-        return new Promise<AxiosResponse<T>>((resolve, reject) => {
-          addRefreshSubscriber({
-            resolve: (newToken: string) => {
-              originalRequest.headers = {
-                ...originalRequest.headers,
-                Authorization: `Bearer ${newToken}`,
-              };
-              resolve(Axios(originalRequest));
-            },
-            reject,
-          });
-        });
+        try {
+          const newAccessToken = await refreshPromise;
+          originalRequest.headers = {
+            ...originalRequest.headers,
+            Authorization: `Bearer ${newAccessToken}`,
+          };
+          return await Axios(originalRequest);
+        } catch (refreshError) {
+          console.error("Token refresh failed:", refreshError);
+          // Only treat this as a DEAD SESSION — clear tokens + bounce to
+          // sign-in — if the request was actually authenticated. A guest
+          // (no access token AND no refresh token) hitting an auth-only
+          // endpoint gets an expected 401: reject it, but NEVER hard-redirect.
+          // That redirect is what kicked guests off /shop, storefronts, and
+          // the add-address step. Seller routes stay protected by the
+          // middleware, so relaxing this can't leak the seller side.
+          const hadSession = Boolean(token) || Boolean(refreshToken);
+          if (hadSession) {
+            Cookies.remove("accessToken");
+            Cookies.remove("refreshToken");
+            if (typeof window !== "undefined") {
+              window.location.href = "/signin?step=1";
+            }
+          }
+          throw refreshError;
+        }
       }
 
       // Log detailed error response for other errors
