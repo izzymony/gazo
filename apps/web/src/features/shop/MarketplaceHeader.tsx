@@ -242,7 +242,7 @@ export default function MarketplaceHeader({
             // headline and dots clear it by construction and the reservation
             // scales with the mark instead of being a max-width guessed once
             // against one phone.
-            className="relative mx-auto max-w-5xl px-4 pb-10 pr-32 pt-5 md:px-6 md:pr-44 lg:px-5 lg:pb-8 lg:pr-72 lg:pt-7"
+            className="relative mx-auto max-w-5xl px-4 pb-11 pr-32 pt-7 md:px-6 md:pb-12 md:pr-48 lg:px-5 lg:pb-14 lg:pr-96 lg:pt-14"
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}>
             {/* The mark, bleeding past the content column. Anchored to the
@@ -255,10 +255,13 @@ export default function MarketplaceHeader({
               width={999}
               height={781}
               priority
-              className="pointer-events-none absolute -right-6 top-1/2 w-40 -translate-y-1/2 select-none md:w-52 lg:-right-10 lg:w-64"
+              className="pointer-events-none absolute -right-10 top-1/2 w-48 -translate-y-1/2 select-none md:-right-12 md:w-64 lg:-right-16 lg:w-96"
             />
 
-            <p className="relative text-h2 font-medium text-brandInk lg:text-h1">
+            {/* Bold, and a real step up at lg. A band exists to say one thing
+                loudly; at medium weight it reads as a caption with a lot of
+                yellow around it. */}
+            <p className="relative text-h2 font-bold leading-snug text-brandInk lg:text-display">
               {slides[active]}
             </p>
 
@@ -268,7 +271,7 @@ export default function MarketplaceHeader({
               onSelect={setActive}
               itemLabel="message"
               tone="onBrand"
-              className="relative mt-1"
+              className="relative mt-2 lg:mt-3"
             />
           </div>
         </div>
