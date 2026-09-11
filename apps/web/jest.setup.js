@@ -84,3 +84,15 @@ afterEach(() => {
   localStorage.clear()
   sessionStorage.clear()
 })
+// jsdom ships no ResizeObserver, and components that measure their own layout
+// need one — VendorCard watches its product rail to know when it has scrolled
+// to the end. A no-op stub is right for jsdom: nothing there has a size to
+// observe, so the callback would never fire anyway. The behaviour that DOES
+// matter (the initial measurement) runs synchronously in the effect.
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+}

@@ -203,4 +203,26 @@ module.exports = {
       },
     },
   },
+  plugins: [
+    /**
+     * `fade-edge-r` — a horizontal rail that runs off the right edge of its
+     * container instead of stopping at a padding line.
+     *
+     * A scrolling row needs to LOOK scrollable. Boxed inside its parent's
+     * padding it reads as a finished row that happens to be clipped, and the
+     * last item is cut with a hard vertical edge. Masking the trailing edge to
+     * transparent says "there is more", and does it without painting a gradient
+     * — so it works over a photo, a scrim or a flat surface alike, which an
+     * overlay approach cannot.
+     */
+    function fadeEdge({ addUtilities }) {
+      const mask = "linear-gradient(to right, #000 calc(100% - 2.5rem), transparent 100%)";
+      addUtilities({
+        ".fade-edge-r": {
+          "-webkit-mask-image": mask,
+          "mask-image": mask,
+        },
+      });
+    },
+  ],
 };

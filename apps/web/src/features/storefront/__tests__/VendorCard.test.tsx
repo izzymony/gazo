@@ -106,6 +106,40 @@ describe("VendorCard", () => {
     });
   });
 
+  /**
+   * The rail must span the whole card, not the padded column inside it. Boxed
+   * in the card's `p-3` the last product stopped at a hard vertical edge 12px
+   * short of the card, so the row read as a finished list that happened to be
+   * clipped rather than as something you can scroll.
+   */
+  describe("product rail", () => {
+    const rail = (container: HTMLElement) => container.querySelector("ul")!;
+
+    it("breaks out of the card's padding so it can scroll edge to edge", () => {
+      const { container } = render(
+        <VendorCard href="#" name="Bukky" products={PRODUCTS} productHref={() => "#"} />
+      );
+      expect(rail(container).className).toContain("-mx-3");
+    });
+
+    it("keeps the start inset, so the first product lines up with the name", () => {
+      const { container } = render(
+        <VendorCard href="#" name="Bukky" products={PRODUCTS} productHref={() => "#"} />
+      );
+      expect(rail(container).className).toContain("pl-3");
+    });
+
+    // jsdom gives every element zero width, so scrollWidth === clientWidth and
+    // the rail reports itself as fully scrolled — which is the correct state
+    // for a row with nothing more to show.
+    it("drops the trailing fade when there is nothing further to scroll to", () => {
+      const { container } = render(
+        <VendorCard href="#" name="Bukky" products={PRODUCTS} productHref={() => "#"} />
+      );
+      expect(rail(container).className).not.toContain("fade-edge-r");
+    });
+  });
+
   it("names each wishlist toggle after its product", () => {
     render(
       <VendorCard

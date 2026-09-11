@@ -1,12 +1,13 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { cn, formatCurrency, getMobileCompatibleImageUrl, PRODUCT_IMAGE_FALLBACK } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import StoreLogo from "@vibaar/ui/common/StoreLogo";
 import { FaStar, FiUsers, ChevronRight, Heart, HeartFilled } from "@vibaar/ui/icons";
 import ChipToggle from "@vibaar/ui/common/ChipToggle";
 import IconButton from "@vibaar/ui/common/IconButton";
+import ProductImage from "@/design-system/common/ProductImage";
 import useFollowVendor from "./useFollowVendor";
 
 export interface VendorCardProduct {
@@ -83,6 +84,32 @@ export default function VendorCard({
   className,
 }: VendorCardProps) {
   const { isFollowing, toggle, canFollow } = useFollowVendor(vendorId);
+
+  // Whether the product rail has run out of things to scroll to, so the
+  // trailing fade can be dropped. Also true when everything already fits.
+  const railRef = useRef<HTMLUListElement>(null);
+  const [railAtEnd, setRailAtEnd] = useState(true);
+
+  const measureRail = useCallback(() => {
+    const el = railRef.current;
+    if (!el) return;
+    // 1px of slack: sub-pixel widths mean scrollLeft rarely lands exactly.
+    setRailAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 1);
+  }, []);
+
+  // Measure once the row has laid out, and again if the card resizes — the
+  // grid reflows at every breakpoint, and a row that fitted at one width
+  // overflows at the next.
+  useEffect(() => {
+    const el = railRef.current;
+    if (!el) return;
+    measureRail();
+    const ro = new ResizeObserver(measureRail);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [measureRail, products.length]);
+
+  const handleRailScroll = measureRail;
   const hasRating = Number(rating) > 0;
   const hasFollowers = Number(followers) > 0;
 
@@ -172,24 +199,39 @@ export default function VendorCard({
         </div>
 
         {products.length > 0 && (
-          <ul className="flex list-none gap-3 overflow-x-auto scrollbar-hide pb-1">
+          /* The rail spans the FULL card, not the padded column.
+             `-mx-3` cancels the card's own padding so the row can scroll from
+             one edge to the other; `pl-3` puts the inset back at the START
+             only, so the first product still lines up with the vendor's name
+             above it. Boxed inside the padding — which is how this was — the
+             last item stopped at a hard vertical edge 12px short of the card,
+             and the row read as a finished list that happened to be clipped
+             rather than as something you can scroll.
+
+             The trailing fade is dropped once you reach the end: a fade still
+             sitting there when there is nothing more to see dims the last
+             product for no reason. */
+          <ul
+            ref={railRef}
+            onScroll={handleRailScroll}
+            className={cn(
+              "-mx-3 flex list-none gap-3 overflow-x-auto scrollbar-hide pb-1 pl-3",
+              !railAtEnd && "fade-edge-r"
+            )}>
             {products.map((product, index) => {
               const saved = savedProductIds.includes(product.id);
-              const image = product.image?.[0]
-                ? getMobileCompatibleImageUrl(product.image[0])
-                : PRODUCT_IMAGE_FALLBACK;
               return (
                 <li
                   key={product.id ?? index}
                   onMouseEnter={() => onPrefetchProduct?.(product)}
                   onTouchStart={() => onPrefetchProduct?.(product)}
                   className="relative z-10 flex w-48 shrink-0 items-center gap-2 rounded-field border border-white/20 bg-surface/10 p-2 backdrop-blur-md">
-                  <img
-                    src={image}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                    className="h-20 w-14 shrink-0 rounded-field border border-white/10 object-cover"
+                  {/* ProductImage, not a bare <img>: these URLs 404 whenever the
+                      file was uploaded from another environment, and a broken
+                      src draws the browser glyph. Only `onError` catches that. */}
+                  <ProductImage
+                    src={product.image}
+                    className="h-20 w-14 shrink-0 rounded-field border border-white/10"
                   />
                   <div className="flex min-w-0 flex-1 flex-col">
                     <p className="line-clamp-1 text-caption font-normal text-white">
