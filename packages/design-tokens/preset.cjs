@@ -154,8 +154,12 @@ module.exports = {
         'footer-hero': 'linear-gradient(90deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.2) 100%), linear-gradient(rgba(254, 44, 85, 0) 31.929%, rgba(254, 44, 85, 0.85) 85.643%)',
       },
       borderRadius: {
+        // outer = inner + 8px inset, at every level: panel → card → media.
+        // See the `radius` block in tokens.cjs for the rule.
+        media: "var(--radius-media)",
         field: "var(--radius-field)",
         card: "var(--radius-card)",
+        panel: "var(--radius-panel)",
         pill: "var(--radius-pill)",
       },
       boxShadow: {
@@ -203,26 +207,17 @@ module.exports = {
       },
     },
   },
-  plugins: [
-    /**
-     * `fade-edge-r` — a horizontal rail that runs off the right edge of its
-     * container instead of stopping at a padding line.
-     *
-     * A scrolling row needs to LOOK scrollable. Boxed inside its parent's
-     * padding it reads as a finished row that happens to be clipped, and the
-     * last item is cut with a hard vertical edge. Masking the trailing edge to
-     * transparent says "there is more", and does it without painting a gradient
-     * — so it works over a photo, a scrim or a flat surface alike, which an
-     * overlay approach cannot.
-     */
-    function fadeEdge({ addUtilities }) {
-      const mask = "linear-gradient(to right, #000 calc(100% - 2.5rem), transparent 100%)";
-      addUtilities({
-        ".fade-edge-r": {
-          "-webkit-mask-image": mask,
-          "mask-image": mask,
-        },
-      });
-    },
-  ],
 };
+
+// DELIBERATELY NOT PROVIDED: a `fade-edge-*` mask utility.
+//
+// Masking a scrolling rail's trailing edge is the obvious way to say "there is
+// more" — and it silently breaks every `backdrop-filter` inside it. An element
+// with a mask becomes a backdrop root, so a descendant can only sample what is
+// painted within that element: the frosted product tiles in VendorCard sampled
+// nothing and rendered as flat transparent panes. It was invisible until you
+// scrolled to the end, because that is when the class came off.
+//
+// Verified, not assumed: two identical rails over the same striped backdrop,
+// one masked and one not — the masked tiles showed sharp stripes, the unmasked
+// ones blurred. Fade a rail with a positioned sibling gradient instead.

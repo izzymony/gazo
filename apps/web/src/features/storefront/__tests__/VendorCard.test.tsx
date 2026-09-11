@@ -113,30 +113,60 @@ describe("VendorCard", () => {
    * clipped rather than as something you can scroll.
    */
   describe("product rail", () => {
-    const rail = (container: HTMLElement) => container.querySelector("ul")!;
+    const setup = () =>
+      render(<VendorCard href="#" name="Bukky" products={PRODUCTS} productHref={() => "#"} />)
+        .container;
+    const rail = (c: HTMLElement) => c.querySelector("ul")!;
 
     it("breaks out of the card's padding so it can scroll edge to edge", () => {
-      const { container } = render(
-        <VendorCard href="#" name="Bukky" products={PRODUCTS} productHref={() => "#"} />
-      );
-      expect(rail(container).className).toContain("-mx-3");
+      expect(rail(setup()).parentElement!.className).toContain("-mx-2");
     });
 
-    it("keeps the start inset, so the first product lines up with the name", () => {
-      const { container } = render(
-        <VendorCard href="#" name="Bukky" products={PRODUCTS} productHref={() => "#"} />
-      );
-      expect(rail(container).className).toContain("pl-3");
+    it("keeps the start inset, so the first product lines up with the logo", () => {
+      expect(rail(setup()).className).toContain("pl-2");
     });
 
-    // jsdom gives every element zero width, so scrollWidth === clientWidth and
-    // the rail reports itself as fully scrolled — which is the correct state
-    // for a row with nothing more to show.
-    it("drops the trailing fade when there is nothing further to scroll to", () => {
+    /**
+     * THE REGRESSION THIS GUARDS. Fading the rail with `mask-image` makes it a
+     * backdrop root, so the frosted tiles inside it can only sample what is
+     * painted within the rail — nothing — and `backdrop-blur` silently stops
+     * working. It read as "the blur only works when scrolled to the end",
+     * because the end is when the mask came off. Fade with a sibling, never a
+     * mask on an ancestor of something frosted.
+     */
+    it("never masks the rail — a mask would kill the tiles' backdrop blur", () => {
+      const el = rail(setup());
+      expect(el.className).not.toMatch(/mask|fade-edge/);
+      expect(el.getAttribute("style") ?? "").not.toContain("mask");
+    });
+
+    it("keeps the frosted tile treatment", () => {
+      expect(setup().querySelector("li")!.className).toContain("backdrop-blur");
+    });
+  });
+
+  /**
+   * Radii nest by a rule: outer = inner + the 8px inset between them, so
+   * panel 24 → card 16 → media 8. Drawn any other way the corners are not
+   * concentric and the gap thickens around the diagonal.
+   */
+  describe("concentric radii", () => {
+    it("goes panel → card → media down the nesting, each 8px apart", () => {
       const { container } = render(
         <VendorCard href="#" name="Bukky" products={PRODUCTS} productHref={() => "#"} />
       );
-      expect(rail(container).className).not.toContain("fade-edge-r");
+      expect(container.querySelector("section")!.className).toContain("rounded-panel");
+      expect(container.querySelector("li")!.className).toContain("rounded-card");
+      expect(container.querySelector("li img")!.className).toContain("rounded-media");
+    });
+
+    it("insets by the same 8px at every level", () => {
+      const { container } = render(
+        <VendorCard href="#" name="Bukky" products={PRODUCTS} productHref={() => "#"} />
+      );
+      // The card's own inset, and the tile's around its thumbnail.
+      expect(container.querySelector("section > div.relative")!.className).toContain("p-2");
+      expect(container.querySelector("li")!.className).toContain("p-2");
     });
   });
 

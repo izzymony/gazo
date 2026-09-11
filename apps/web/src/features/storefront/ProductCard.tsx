@@ -52,7 +52,7 @@ export default function ProductCard({
   return (
     <article className={cn("group relative", className)}>
       <div className="gap-2 items-center flex flex-col transition-transform hover:scale-[1.02]">
-        <div className="relative w-full aspect-square rounded-field lg:rounded-card overflow-hidden">
+        <div className="relative aspect-square w-full overflow-hidden rounded-card">
           <img
             src={imageSrc}
             alt=""

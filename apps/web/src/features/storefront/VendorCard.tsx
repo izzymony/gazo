@@ -122,7 +122,11 @@ export default function VendorCard({
         // FIXED height, at every breakpoint. A vendor with no preview products
         // used to collapse to a short card, so the recently-viewed rail scrolled
         // a row of different-height tiles past you. Cards in a set are one height.
-        "relative mb-2 h-52 w-full overflow-hidden rounded-card bg-surface-inverse shadow-card transition-transform hover:scale-[1.01] hover:shadow-pop md:h-60 lg:h-64",
+        // `panel` (24), because this card HOLDS cards: 24 = the tile's 16 plus
+        // the 8px inset between them. Radius is constant across breakpoints —
+        // only the height grows — since a corner does not become a different
+        // shape on a wider screen.
+        "relative mb-2 h-52 w-full overflow-hidden rounded-panel bg-surface-inverse shadow-card transition-transform hover:scale-[1.01] hover:shadow-pop md:h-60 lg:h-64",
         className
       )}
       style={
@@ -142,8 +146,15 @@ export default function VendorCard({
           vendor's identity row and its product rail rather than under them. That
           gap is what made the original card feel taller; a flat `gap-3` closed it
           up and the card read cramped. */}
-      <div className="relative z-10 flex h-full w-full flex-col justify-between gap-4 p-3">
-        <div className="flex items-start justify-between gap-3">
+      {/* p-2 — the ONE inset, 8px, the same at every level of this card. It was
+          12, which is what put the corners out of step: 8 between tile and
+          image, 12 between card and tile. */}
+      <div className="relative z-10 flex h-full w-full flex-col justify-between gap-4 p-2">
+        {/* px-2/pt-2 on top of the card's own p-2, so the vendor's logo sits
+            16px from the card edge — exactly where a product thumbnail sits
+            (8 for the card, 8 for the tile). The identity row and the products
+            below it therefore share one left edge. */}
+        <div className="flex items-start justify-between gap-3 px-2 pt-2">
           <div className="flex min-w-0 items-center gap-2">
             <StoreLogo src={logo} storeName={name} size={40} />
             <div className="min-w-0">
@@ -199,25 +210,23 @@ export default function VendorCard({
         </div>
 
         {products.length > 0 && (
-          /* The rail spans the FULL card, not the padded column.
-             `-mx-3` cancels the card's own padding so the row can scroll from
-             one edge to the other; `pl-3` puts the inset back at the START
-             only, so the first product still lines up with the vendor's name
-             above it. Boxed inside the padding — which is how this was — the
-             last item stopped at a hard vertical edge 12px short of the card,
-             and the row read as a finished list that happened to be clipped
-             rather than as something you can scroll.
+          /* The rail spans the FULL card, not the padded column. `-mx-2`
+             cancels the card's own inset so the row scrolls edge to edge;
+             `pl-2` puts it back at the START only, so the first tile sits 8px
+             in and its thumbnail lands 16px from the card edge — the same line
+             the vendor's logo above it starts on.
 
-             The trailing fade is dropped once you reach the end: a fade still
-             sitting there when there is nothing more to see dims the last
-             product for no reason. */
+             The trailing fade is a POSITIONED SIBLING, never a mask on the
+             rail. A mask makes its element a backdrop root, so the frosted
+             tiles inside could only sample what was painted within the rail —
+             i.e. nothing — and `backdrop-blur` silently did nothing. It looked
+             like the blur "only worked at the end" purely because that is when
+             the mask came off. See the note in preset.cjs. */
+          <div className="relative -mx-2">
           <ul
             ref={railRef}
             onScroll={handleRailScroll}
-            className={cn(
-              "-mx-3 flex list-none gap-3 overflow-x-auto scrollbar-hide pb-1 pl-3",
-              !railAtEnd && "fade-edge-r"
-            )}>
+            className="flex list-none gap-2 overflow-x-auto scrollbar-hide pb-1 pl-2">
             {products.map((product, index) => {
               const saved = savedProductIds.includes(product.id);
               return (
@@ -225,32 +234,47 @@ export default function VendorCard({
                   key={product.id ?? index}
                   onMouseEnter={() => onPrefetchProduct?.(product)}
                   onTouchStart={() => onPrefetchProduct?.(product)}
-                  className="relative z-10 flex w-48 shrink-0 items-center gap-2 rounded-field border border-white/20 bg-surface/10 p-2 backdrop-blur-md">
+                  // `card` (16) = the image's 8 plus the 8px `p-2` around it.
+                  // Items STRETCH rather than centre, so the text column is as
+                  // tall as the thumbnail and can pin its own contents to that
+                  // height — centred, the title floated mid-image and the price
+                  // sat above the image's bottom edge.
+                  className="relative z-10 flex w-48 shrink-0 items-stretch gap-2 rounded-card border border-white/20 bg-surface/10 p-2 backdrop-blur-md">
                   {/* ProductImage, not a bare <img>: these URLs 404 whenever the
                       file was uploaded from another environment, and a broken
                       src draws the browser glyph. Only `onError` catches that. */}
                   <ProductImage
                     src={product.image}
-                    className="h-20 w-14 shrink-0 rounded-field border border-white/10"
+                    className="h-20 w-14 shrink-0 rounded-media border border-white/10"
                   />
-                  <div className="flex min-w-0 flex-1 flex-col">
-                    <p className="line-clamp-1 text-caption font-normal text-white">
-                      <Link
-                        href={productHref(product)}
-                        prefetch={false}
-                        onClick={(event) => event.stopPropagation()}
-                        className="rounded-sm after:absolute after:inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
-                        {product.title}
-                      </Link>
-                    </p>
-                    {Number(product.rating) > 0 && (
-                      <span className="mt-0.5 flex items-center gap-1 text-micro text-white/80">
-                        <FaStar size={10} className="text-brandDeep" aria-hidden="true" />
-                        {product.rating}
-                        <span className="sr-only">out of 5 stars</span>
-                      </span>
-                    )}
-                    <div className="mt-1 flex items-end justify-between gap-2">
+                  {/* justify-between against the 80px thumbnail: title to its
+                      top edge, price row to its bottom. */}
+                  <div className="flex min-w-0 flex-1 flex-col justify-between">
+                    {/* Title and its rating travel together at the TOP, so
+                        `justify-between` has exactly two things to separate and
+                        the price cannot drift upward when a product has no
+                        rating. */}
+                    <div className="min-w-0">
+                      <p className="line-clamp-2 text-caption font-normal text-white">
+                        <Link
+                          href={productHref(product)}
+                          prefetch={false}
+                          onClick={(event) => event.stopPropagation()}
+                          className="rounded-sm after:absolute after:inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+                          {product.title}
+                        </Link>
+                      </p>
+                      {Number(product.rating) > 0 && (
+                        <span className="mt-0.5 flex items-center gap-1 text-micro text-white/80">
+                          <FaStar size={10} className="text-brandDeep" aria-hidden="true" />
+                          {product.rating}
+                          <span className="sr-only">out of 5 stars</span>
+                        </span>
+                      )}
+                    </div>
+                    {/* Price row sits on the thumbnail's bottom edge, with the
+                        wishlist toggle on that same line. */}
+                    <div className="flex items-end justify-between gap-2">
                       <div className="flex min-w-0 flex-col">
                         {product.old_price ? (
                           <span className="text-micro font-normal text-white/60 line-through">
@@ -288,6 +312,19 @@ export default function VendorCard({
               );
             })}
           </ul>
+            {/* The "there is more" cue: a gradient laid OVER the rail's
+                trailing edge, not a mask on it. Dropped once you reach the end
+                (and when everything already fits), so it never dims the last
+                product for nothing. It resolves to the card's own base colour;
+                on a card carrying a vendor photo the true backdrop is that
+                photo under a 70% scrim, which is near-identical but not exact. */}
+            {!railAtEnd && (
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-r from-transparent to-surface-inverse"
+              />
+            )}
+          </div>
         )}
       </div>
     </section>

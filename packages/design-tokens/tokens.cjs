@@ -174,9 +174,27 @@ const color = {
 
 const tokens = {
   color,
+  /**
+   * Radii nest by a rule, not by taste: **outer = inner + the padding between
+   * them**, and that padding is 8px at every level. Corners drawn any other way
+   * are not concentric — the gap between an inner and an outer corner thickens
+   * or thins around the diagonal, which is the "wrongly calculated" look.
+   *
+   *   panel 24  ──8──▶  card 16  ──8──▶  media 8
+   *
+   * So a vendor card (panel) holds product tiles (card) at an 8px inset, and a
+   * tile holds its thumbnail (media) at another 8px. An element with NO padding
+   * keeps its parent's radius — a product card whose image fills it edge to edge
+   * is 16 on both.
+   *
+   * `field` is not part of this chain: it is the form-row radius (inputs, tap
+   * rows), which sit in a page rather than nested inside cards.
+   */
   radius: {
+    media: "8px",
     field: "12px",
     card: "16px",
+    panel: "24px",
     pill: "9999px",
   },
   shadow: {

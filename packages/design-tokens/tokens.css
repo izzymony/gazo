@@ -86,8 +86,10 @@
   --hue-emerald-surface-rgb: 236 253 245;
   --hue-emerald-surface-strong-rgb: 209 250 229;
   --hue-emerald-border-rgb: 167 243 208;
+  --radius-media: 8px;
   --radius-field: 12px;
   --radius-card: 16px;
+  --radius-panel: 24px;
   --radius-pill: 9999px;
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-pop: 0 4px 24px rgba(0, 0, 0, 0.12);
