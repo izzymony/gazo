@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@vibaar/ui/common/Header";
 import StepNavigation from "@vibaar/ui/common/StepNavigation";
-import VendorNav from "@/features/storefront/VendorNav";
 import { FaStar, MdFavoriteBorder } from "@vibaar/ui/icons";
 import { useParams, useRouter } from "next/navigation";
 import CartIcon from "@/assets/icons/CartIcon";
@@ -281,7 +280,6 @@ const OrderConfirmed = () => {
             </div>
           ))}
         </div>
-        <VendorNav />
       </div>
     </PageShell>
   );

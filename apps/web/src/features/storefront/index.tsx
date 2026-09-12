@@ -10,7 +10,6 @@ import StorefrontSkeleton from "./StorefrontSkeleton";
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import { Modal } from "@vibaar/ui/modal/Modal";
-import VendorNav from "./VendorNav";
 import {
   StoreDeals,
   StoreReviews,
@@ -674,8 +673,6 @@ const VendorStoreFront: React.FC<VendorStoreFrontProps> = ({
         shareUrl={getPublicStoreUrl(currentStore || {})}
         shareText={`Check out ${currentStore?.name || "my store"} on Vibaar!`}
       />
-
-      <VendorNav isOwnerView={isOwnerView} />
     </>
   );
 };

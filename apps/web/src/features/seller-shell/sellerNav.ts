@@ -8,6 +8,7 @@ import {
   type IconProps,
 } from "@vibaar/ui/icons";
 import type React from "react";
+import { createRoutePolicy } from "@/lib/routePolicy";
 
 export type SellerNavLink = {
   Icon: React.ComponentType<IconProps>;
@@ -120,37 +121,13 @@ export const SELLER_NAV_POLICY: ReadonlyArray<readonly [template: string, mode: 
 ];
 
 /*
- * Resolution is two-pass, and static wins.
- *
- * Segment count alone does not disambiguate. `/dashboard/catalog/product/create`
+ * Resolution is delegated to the shared matcher, which resolves literals before
+ * patterns. That ordering is load-bearing here: `/dashboard/catalog/product/create`
  * and `/dashboard/catalog/product/:productId` are both five segments, so a plain
- * wildcard scan would read the CREATE FLOW as a product detail page and hand it a
- * rail. Resolving literals from a map first makes that impossible by
- * construction — there is no comparator to get wrong and no tie to break.
+ * wildcard scan reads the CREATE FLOW as a product detail page and hands a
+ * distraction-free form a navigation rail.
  */
-const STATIC_POLICY = new Map<string, SellerNavMode>(
-  SELLER_NAV_POLICY.filter(([template]) => !template.includes(":"))
-);
-const DYNAMIC_POLICY = SELLER_NAV_POLICY.filter(([template]) => template.includes(":"));
-
-/** Tolerate a trailing slash; Next does not emit one, but a hand-typed URL can. */
-function normalise(pathName: string): string {
-  return pathName.length > 1 && pathName.endsWith("/") ? pathName.slice(0, -1) : pathName;
-}
-
-function matchDynamic(pathName: string): SellerNavMode | undefined {
-  const actual = pathName.split("/");
-  for (const [template, mode] of DYNAMIC_POLICY) {
-    const expected = template.split("/");
-    if (expected.length !== actual.length) continue;
-    const hit = expected.every(
-      (segment, index) =>
-        segment.startsWith(":") ? actual[index].length > 0 : segment === actual[index]
-    );
-    if (hit) return mode;
-  }
-  return undefined;
-}
+const POLICY = createRoutePolicy<SellerNavMode>(SELLER_NAV_POLICY);
 
 /**
  * Whether this route was classified above, as opposed to merely resolving.
@@ -160,9 +137,7 @@ function matchDynamic(pathName: string): SellerNavMode | undefined {
  * coverage test needs to do.
  */
 export function hasSellerNavPolicy(pathName: string | null | undefined): boolean {
-  if (!pathName) return false;
-  const path = normalise(pathName);
-  return STATIC_POLICY.has(path) || matchDynamic(path) !== undefined;
+  return POLICY.has(pathName);
 }
 
 /**
@@ -171,9 +146,7 @@ export function hasSellerNavPolicy(pathName: string | null | undefined): boolean
  * the coverage test means it cannot stay unclassified for long.
  */
 export function sellerNavMode(pathName: string | null | undefined): SellerNavMode {
-  if (!pathName) return "none";
-  const path = normalise(pathName);
-  return STATIC_POLICY.get(path) ?? matchDynamic(path) ?? "none";
+  return POLICY.resolve(pathName) ?? "none";
 }
 
 /**

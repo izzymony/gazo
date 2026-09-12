@@ -5,7 +5,6 @@
 
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@vibaar/ui/common/Header";
-import VendorNav from "@/features/storefront/VendorNav";
 import ChatList from "@/features/chat/ChatList";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/store/authStore";
@@ -46,7 +45,6 @@ export default function Inbox() {
       ) : (
         <>
           {messagesTab}
-          <VendorNav />
         </>
       )}
     </PageShell>

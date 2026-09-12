@@ -4,7 +4,6 @@
 import React, { useState, useEffect } from "react";
 import Selling from "@/features/seller-dashboard/selling";
 import Buying from "@/features/seller-dashboard/buying";
-import VendorNav from "@/features/storefront/VendorNav";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@vibaar/ui/common/Header";
 import Badge from "@vibaar/ui/common/Badge";
@@ -167,7 +166,6 @@ const Page = () => {
           )}
         </div>
       </PageShell>
-      <VendorNav />
       <ModeSwitch />
 
       {isModalOpen && (

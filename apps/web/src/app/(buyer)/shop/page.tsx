@@ -8,7 +8,6 @@ import { storePath, productPath } from "@/lib/urlHelpers";
 import { FaStar, Search, X, Heart, ShoppingCartAdd } from "@vibaar/ui/icons";
 import Button from "@vibaar/ui/common/Button";
 import useScroll from "@/hooks/useScroll";
-import VendorNav from "@/features/storefront/VendorNav";
 import useBusinessStore from "@/store/businessStore";
 import { useCategories } from "@/hooks/useCategories";
 import { useRoutePrefetch } from "@/hooks/useRoutePrefetch";
@@ -217,7 +216,6 @@ const Page: React.FC = () => {
             </Button>
           </div>
         </div>
-        <VendorNav />
       </div>
     );
   }
@@ -550,7 +548,6 @@ const Page: React.FC = () => {
           </div>
         </div>
       </div>
-      <VendorNav />
     </div>
   );
 };

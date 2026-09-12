@@ -189,6 +189,8 @@ module.exports = {
         // gutter the dashboard frame reserves for it, and — through
         // `shell-inset` below — by anything fixed that has to clear it.
         rail: "var(--rail-width)",
+        // The buyer's collapsed desktop rail.
+        "buyer-rail": "var(--buyer-rail-width)",
         // How far a viewport-fixed element must be inset to clear the shell it
         // sits in. Zero unless a layout says otherwise, so PageShell's action
         // bar is unchanged everywhere except inside a shell that sets it.

@@ -22,7 +22,6 @@ import ChipToggle from "@vibaar/ui/common/ChipToggle";
 import Button from "@vibaar/ui/common/Button";
 import NavigationTabs from "@vibaar/ui/common/NavigationTabs";
 import useAuthStore from "@/store/authStore";
-import VendorNav from "@/features/storefront/VendorNav";
 import H1 from "@vibaar/ui/common/Typography";
 import Image from "next/image";
 import useShippingStore from "@/store/shippingStore";
@@ -318,7 +317,6 @@ const Page = () => {
           );
         })
       )}
-      <VendorNav />
     </div>
   );
 

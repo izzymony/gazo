@@ -14,7 +14,6 @@ import Button from "@vibaar/ui/common/Button";
 import IconButton from "@vibaar/ui/common/IconButton";
 import { Minus, Plus, Delete, CircleCheck } from "@vibaar/ui/icons";
 import NavigationTabs from "@vibaar/ui/common/NavigationTabs";
-import VendorNav from "@/features/storefront/VendorNav";
 import Loader from "@vibaar/ui/common/Loader";
 import useShippingStore from "@/store/shippingStore";
 import { CartsItems } from "@/lib/newinterface";
@@ -400,8 +399,6 @@ const Page = () => {
           );
         })
       )}
-
-      {carts?.length <= 0 && <VendorNav />}
     </div>
   );
 

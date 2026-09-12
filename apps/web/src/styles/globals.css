@@ -189,6 +189,49 @@ a {
 
 @layer utilities {
   /*
+   * The buyer's desktop rail is an OVERLAY, not a layout column.
+   *
+   * It has no surface of its own and the page shows through it, so the frame
+   * must not be padded: `/shop`'s header gradient runs edge to edge and passes
+   * underneath the rail, and padding the frame would push it off the screen.
+   * Instead the shell marks itself, and foreground containers opt in.
+   *
+   * Deliberately NOT `--shell-inset`. That variable already means something on
+   * the seller side, where the frame applies `pl-shell-inset` to its OUTER box;
+   * shared in-flow containers like PageShell's content and Header's wrapper sit
+   * inside that padded frame, so teaching them to read it would indent seller
+   * content twice. This obstruction resolves to zero everywhere except inside a
+   * buyer shell that has a rail.
+   */
+  .buyer-rail-overlay {
+    --buyer-rail-obstruction: var(--buyer-rail-width);
+  }
+
+  /*
+   * Clear the rail — but only by however much is actually missing.
+   *
+   * The centred column already clears the rail at wider viewports, so adding a
+   * flat 5rem would shove `/shop` sideways by exactly the amount that misaligns
+   * it. `centred margin` is how far the max-w-5xl column already starts from the
+   * edge; the extra is whatever the rail still covers beyond that, and never
+   * less than zero.
+   *
+   *   1024px  margin 0    -> adds 80px
+   *   1280px  margin 128  -> adds 0
+   *   1440px  margin 208  -> adds 0
+   *
+   * Each consumer keeps its OWN gutter: this is a margin on top of whatever
+   * padding the component already has, not a replacement for it.
+   */
+  .rail-safe-foreground {
+    --rail-safe-centred-margin: max(0px, (100vw - 64rem) / 2);
+    margin-inline-start: max(
+      0px,
+      calc(var(--buyer-rail-obstruction, 0px) - var(--rail-safe-centred-margin))
+    );
+  }
+
+  /*
    * Declares how far a viewport-fixed descendant must be inset to clear this
    * shell. The seller dashboard frame carries it whenever the desktop rail is
    * mounted; PageShell's fixed action bar reads it through `left-shell-inset`.

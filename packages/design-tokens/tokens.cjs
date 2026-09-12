@@ -213,6 +213,11 @@ const tokens = {
    */
   chrome: {
     rail: "16rem",
+    // The buyer's desktop rail. Narrower because it is a collapsed icon column,
+    // and it is a token for the same reason `rail` is: the rail's own width and
+    // the clearance foreground content needs to avoid it must agree, and if the
+    // rail ever expands that has to be one number rather than a hunt.
+    "buyer-rail": "5rem",
   },
   zIndex: {
     dropdown: "30",

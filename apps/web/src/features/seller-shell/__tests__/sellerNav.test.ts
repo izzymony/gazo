@@ -1,5 +1,5 @@
-import { readdirSync } from "node:fs";
-import { join, relative, sep } from "node:path";
+import { join } from "node:path";
+import { routeTemplatesIn } from "@/test-support/routeWalker";
 import {
   SELLER_NAV,
   SELLER_NAV_POLICY,
@@ -10,33 +10,12 @@ import {
 
 const DASHBOARD_ROUTES = join(__dirname, "..", "..", "..", "app", "(seller)", "dashboard");
 
-/** Every route that actually exists on disk, as a policy template. */
-function routeTemplatesOnDisk(): string[] {
-  const found: string[] = [];
-  const walk = (dir: string) => {
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      const path = join(dir, entry.name);
-      if (entry.isDirectory()) {
-        // Route groups and private folders do not contribute a URL segment; the
-        // dashboard has none today, but Next allows them and a silent miss here
-        // would look like an unclassified route.
-        if (entry.name.startsWith("(") || entry.name.startsWith("_")) continue;
-        walk(path);
-      } else if (entry.name === "page.tsx") {
-        const rel = relative(DASHBOARD_ROUTES, dir);
-        const segments = rel === "" ? [] : rel.split(sep);
-        found.push(
-          "/dashboard" +
-            segments
-              .map((s) => "/" + (s.startsWith("[") ? ":" + s.slice(1, -1) : s))
-              .join("")
-        );
-      }
-    }
-  };
-  walk(DASHBOARD_ROUTES);
-  return found.sort();
-}
+/**
+ * Shared with the buyer coverage test. It recurses into route groups without
+ * adding a segment — this file used to skip them outright, which would have
+ * hidden every page inside a group from the very test meant to catch one.
+ */
+const routeTemplatesOnDisk = () => routeTemplatesIn(DASHBOARD_ROUTES, "/dashboard");
 
 describe("sellerNavMode", () => {
   it("carries both navs on every destination the nav itself links to", () => {
