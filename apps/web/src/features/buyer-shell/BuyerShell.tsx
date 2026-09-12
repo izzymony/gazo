@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { cn } from "@vibaar/utils";
 import BuyerBottomNav from "./BuyerBottomNav";
+import BuyerDesktopNav from "./BuyerDesktopNav";
 import {
   resolveBuyerNav,
   routeNeedsContext,
@@ -51,6 +52,7 @@ function BuyerFrame({
         "relative h-dvh w-full overflow-hidden",
         policy.desktopRail && "buyer-rail-overlay"
       )}>
+      {policy.desktopRail && <BuyerDesktopNav />}
       {children}
       {showBar && <BuyerBottomNav />}
     </div>

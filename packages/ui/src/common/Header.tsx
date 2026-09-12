@@ -57,7 +57,7 @@ export default function Header({
         className
       )}>
       {/* Desktop max-width wrapper */}
-      <div className="w-full lg:max-w-5xl lg:mx-auto pt-3 pb-0 px-4 lg:px-5">
+      <div className="w-full lg:max-w-5xl lg:mx-auto pt-3 pb-0 px-4 lg:px-5 rail-safe-foreground">
         <div className="flex flex-row items-center bg-surface h-[36px]">
           {leading ??
             (onBack && (

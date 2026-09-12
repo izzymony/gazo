@@ -54,7 +54,10 @@ export default function PageShell({
   const container =
     width === "full"
       ? "w-full"
-      : "w-full max-w-full lg:max-w-5xl lg:mx-auto";
+      : // `rail-safe-foreground` is inert unless a shell declares an obstruction,
+        // and adds only the clearance actually missing — at 1280 and above the
+        // centred column already clears a rail, so it adds nothing there.
+        "w-full max-w-full lg:max-w-5xl lg:mx-auto rail-safe-foreground";
 
   return (
     <>

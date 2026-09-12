@@ -24,6 +24,10 @@ const customJestConfig = {
     '^@/store/(.*)$': '<rootDir>/src/store/$1',
     '^@/assets/(.*)$': '<rootDir>/src/assets/$1',
     '^@/styles/(.*)$': '<rootDir>/src/styles/$1',
+    // The workspace UI package. Jest does not resolve its `./*` exports
+    // pattern, so subpath imports that build fine would fail here.
+    '^@vibaar/ui/icons$': '<rootDir>/../../packages/ui/src/icons/index.tsx',
+    '^@vibaar/ui/(.*)$': '<rootDir>/../../packages/ui/src/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
   

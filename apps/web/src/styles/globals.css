@@ -204,31 +204,46 @@ a {
    * buyer shell that has a rail.
    */
   .buyer-rail-overlay {
-    --buyer-rail-obstruction: var(--buyer-rail-width);
+    --buyer-rail-obstruction: 0px;
   }
 
   /*
-   * Clear the rail — but only by however much is actually missing.
+   * Only where the rail actually is. It is `hidden lg:flex`, so below that
+   * breakpoint there is nothing to clear and any clearance would be a phone
+   * indenting its content for a rail that is not there.
+   */
+  @media (min-width: 1024px) {
+    .buyer-rail-overlay {
+      --buyer-rail-obstruction: var(--buyer-rail-width);
+    }
+  }
+
+  /*
+   * Clear the rail — by however much is actually missing, and no more.
    *
-   * The centred column already clears the rail at wider viewports, so adding a
-   * flat 5rem would shove `/shop` sideways by exactly the amount that misaligns
-   * it. `centred margin` is how far the max-w-5xl column already starts from the
-   * edge; the extra is whatever the rail still covers beyond that, and never
-   * less than zero.
+   * The centred max-w-5xl column already clears the rail at wider viewports, so
+   * a flat 5rem would shove `/shop` sideways by exactly the amount that
+   * misaligns it against every other page:
    *
-   *   1024px  margin 0    -> adds 80px
-   *   1280px  margin 128  -> adds 0
-   *   1440px  margin 208  -> adds 0
+   *   1024px  centred margin 0    -> adds 80px
+   *   1280px  centred margin 128  -> adds 0
+   *   1440px  centred margin 208  -> adds 0
    *
-   * Each consumer keeps its OWN gutter: this is a margin on top of whatever
-   * padding the component already has, not a replacement for it.
+   * A TRANSPARENT START BORDER rather than margin or padding, which sounds odd
+   * and is the only thing that composes. These containers are `mx-auto`, so a
+   * margin fights the centring — set it and the column stops being centred; and
+   * they carry their own `px-*`, so padding-inline-start collides with a gutter
+   * that differs per component (px-8 on the banner, px-6 on the feed sheet, px-5
+   * on PageShell and Header). Nothing else in the stack sets a start border, so
+   * this adds to whatever geometry the component already has instead of
+   * replacing part of it — which is the whole requirement.
    */
   .rail-safe-foreground {
-    --rail-safe-centred-margin: max(0px, (100vw - 64rem) / 2);
-    margin-inline-start: max(
-      0px,
-      calc(var(--buyer-rail-obstruction, 0px) - var(--rail-safe-centred-margin))
-    );
+    border-inline-start: max(
+        0px,
+        calc(var(--buyer-rail-obstruction, 0px) - max(0px, (100vw - 64rem) / 2))
+      )
+      solid transparent;
   }
 
   /*
