@@ -37,6 +37,7 @@ const entries = [
   ["animated/SlideContent", "pattern"],
   ["animated/slidesData", "internal"],
   ["AnimatedHeader", "pattern"],
+  ["AuthSplitShell", "pattern", "stable"],
   ["common/Accordion", "component", "candidate"],
   ["common/ActivityItem", "component", "candidate"],
   // Added 2026-09-11 with the seller-side pass. `candidate`, not `stable`:
