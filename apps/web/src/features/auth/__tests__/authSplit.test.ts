@@ -65,3 +65,18 @@ describe("auth step zero renders one tree", () => {
     expect(button).toContain("md:h-14");
   });
 });
+
+/**
+ * `router.push("vendors")` — no leading slash, and no /vendors route exists.
+ * It resolved to /vendors, which (buyer)/[handle] claims because that
+ * catch-all takes every single-segment path, so the signed-out front door's
+ * marketplace action landed on a storefront-not-found for a vendor called
+ * "vendors" — served as HTTP 200, so nothing flagged it.
+ */
+describe("the marketplace action points at a route that exists", () => {
+  it.each(OVERVIEWS)("%s", (_name, path) => {
+    const source = read(path);
+    expect(source).toContain('router.push("/shop")');
+    expect(source).not.toContain('push("vendors")');
+  });
+});

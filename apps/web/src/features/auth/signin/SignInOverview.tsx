@@ -196,7 +196,7 @@ export default function SignInOverview() {
   const handleExploreMarketplaceClick = async () => {
     setButtonLoading(prev => ({ ...prev, exploreMarketplace: true }));
     try {
-      await router.push("vendors");
+      await router.push("/shop");
       // Loading will stop naturally when component unmounts during navigation
     } catch (error) {
       setButtonLoading(prev => ({ ...prev, exploreMarketplace: false }));
