@@ -1,0 +1,18 @@
+<svg width="999" height="781" viewBox="0 0 999 781" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!--
+  The brand mark as an OUTLINE: brand fill, brand-deep stroke.
+
+  Geometry is copied verbatim from icon-yellow.svg - only fill/stroke differ.
+  If the mark ever changes, regenerate this from that file rather than editing
+  the path data here.
+
+  This is the "brand colour used illustratively" treatment: a yellow mark on a
+  yellow ground is invisible without an edge, so it carries a brand-deep
+  outline. Stroke is sized for a 200-400px render.
+
+  Hex rather than var(): an external SVG has no access to the page's custom
+  properties. brand #FFE500, brand-deep #665C00 - both from tokens.cjs.
+-->
+<path d="M774.211 256.429C714.026 181.2 616.448 181.2 556.264 256.429L532.309 286.373L665.237 452.533L798.166 286.373L774.211 256.429Z" fill="#FFE500" stroke="#665C00" stroke-width="12" stroke-linejoin="round"/>
+<path d="M441.901 256.422C381.717 181.193 284.139 181.193 223.955 256.422L200 286.366L390.111 524.003C450.295 599.232 547.873 599.232 608.057 524.003L632.012 494.059L441.901 256.422Z" fill="#FFE500" stroke="#665C00" stroke-width="12" stroke-linejoin="round"/>
+</svg>

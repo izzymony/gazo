@@ -31,61 +31,55 @@ const HeaderSlides = () => {
     <div className="relative">
       {/* Slider Content */}
       <div className="relative bg-brand pb-3 flex justify-between items-center transition-all duration-500 ease-in-out overflow-hidden">
-        <div className="w-full max-w-full lg:max-w-5xl lg:mx-auto flex justify-between items-center px-4 md:px-6 lg:px-8">
+        {/* The mark, three layers deep: two big echoes at 15% black over the
+            yellow, then the mark itself in brand fill with a brand-deep
+            outline. A yellow mark on a yellow ground needs that edge — the
+            same rule the empty-state illustrations follow.
+
+            Anchored to the BAND, which is full-bleed, and NOT to the
+            max-w-5xl content column. Inside the column its right edge landed
+            mid-viewport on desktop and drew a hard vertical seam across the
+            band; out here it runs off the real screen edge instead.
+
+            What it replaced: forty lines of inlined path data that were the
+            OLD Instashop butterfly — the geometry still sitting in the dead
+            public/instashop.svg, recoloured from the old pink to var(--brand).
+            A recolour, not a replacement, which is why the rebrand missed it
+            and no colour gate ever flagged it. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 right-0 w-40 select-none md:w-48 lg:w-52">
+          <Image
+            src="/brand/icon-black.svg"
+            alt=""
+            width={999}
+            height={781}
+            className="absolute -right-2 top-1/2 w-full -translate-y-3/4 scale-150 opacity-15"
+          />
+          <Image
+            src="/brand/icon-black.svg"
+            alt=""
+            width={999}
+            height={781}
+            className="absolute -right-24 top-1/2 w-full -translate-y-1/4 scale-150 opacity-15"
+          />
+          <Image
+            src="/brand/icon-outline.svg"
+            alt=""
+            width={999}
+            height={781}
+            priority
+            className="absolute -right-6 top-1/2 w-full -translate-y-1/2"
+          />
+        </div>
+
+        {/* `relative` lifts the copy above the decoration behind it. min-h
+            holds the band open: its height used to come from the 99px mark
+            that sat in this row. */}
+        <div className="relative flex min-h-24 w-full max-w-full items-center justify-between px-4 pr-40 md:px-6 md:pr-48 lg:mx-auto lg:max-w-5xl lg:px-8">
           <p className="text-brandInk text-body md:text-body-lg font-medium max-w-[250px] lg:max-w-[400px] w-full">
             {slideTexts[activeSlide]}
           </p>
-
-          {/* The brand mark, in its discs.
-
-              The mark was forty lines of inlined path data — and it was the OLD
-              Instashop butterfly: byte-for-byte the geometry still sitting in
-              the dead public/instashop.svg, with the old pink hex swapped for
-              var(--brand). That swap is why the rebrand missed it and why no
-              colour check ever caught it. Pointing at the brand asset means the
-              next rebrand reaches this header for free.
-
-              The discs are tonal rather than solid black. A filled black blob
-              is the loudest thing on the buyer's first screen, and the seller
-              hero already decorates its band the other way — pattern1.svg lays
-              a dark neutral over the same yellow at 10%. Both sides match now. */}
-          <div
-            aria-hidden="true"
-            className="relative -mr-4 flex-shrink-0 md:-mr-6 lg:-mr-8">
-            <svg
-              width="131"
-              height="99"
-              viewBox="0 0 99 69"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="block">
-              <circle
-                cx="79.9688"
-                cy="45"
-                r="79.9688"
-                fill="rgb(var(--neutral-900-rgb))"
-                fillOpacity="0.1"
-              />
-              <circle
-                cx="79.9663"
-                cy="44.9973"
-                r="52.5989"
-                fill="rgb(var(--neutral-900-rgb))"
-                fillOpacity="0.1"
-              />
-            </svg>
-            {/* Centred on the inner disc: its middle sits at (105.8, 64.6) in
-                this 131x99 box, so a 44px mark starts 3px from the right edge
-                and 48px down — both on the spacing scale. */}
-            <Image
-              src="/brand/icon-black.svg"
-              alt=""
-              width={44}
-              height={34}
-              priority
-              className="pointer-events-none absolute right-1 top-12 w-11 select-none"
-            />
-          </div>
         </div>
       </div>
 
