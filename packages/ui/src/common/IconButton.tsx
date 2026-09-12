@@ -13,7 +13,14 @@ import type { IconProps } from "../icons";
 //   variant — plain (dark icon on light) · muted (secondary dark) · onDark (white
 //             icon on hero/colored bg) · filled (brand pill) · soft (brand tint pill)
 //   size    — sm 32px · md 36px (default, meets 36px touch min) · lg 44px
-const iconButtonVariants = cva(
+/**
+ * Exported because the same treatment is sometimes needed on an element that
+ * must NOT be a button. A control that changes the URL is a link — it has to be
+ * middle-clickable, openable in a new tab, and copyable — so it cannot use this
+ * component, but it should still look identical rather than restate the classes
+ * and drift from them.
+ */
+export const iconButtonVariants = cva(
   cn(
     "inline-flex items-center justify-center shrink-0 rounded-full transition-colors duration-200 disabled:opacity-50 disabled:pointer-events-none touch-manipulation cursor-pointer",
     focusRing

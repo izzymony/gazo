@@ -118,6 +118,24 @@ describe("BuyerDesktopNav", () => {
   });
 
   describe("the seller switch", () => {
+    /**
+     * It is the one control in the rail that is an offer rather than a
+     * destination, and it carries the same filled brand treatment it has as a
+     * floating pill on mobile and a full-width button on the seller rail —
+     * otherwise it reads as another grey glyph.
+     */
+    it("keeps the filled brand treatment it has everywhere else", () => {
+      renderAt("/shop");
+      const link = screen.getByRole("link", { name: "Start selling" });
+      expect(link).toHaveClass("bg-brand", "text-brandInk");
+      expect(link.className).toMatch(/hover:bg-brandHover/);
+    });
+
+    it("stays a link, so it can be opened in a new tab", () => {
+      renderAt("/shop");
+      expect(screen.getByRole("link", { name: "Start selling" }).tagName).toBe("A");
+    });
+
     it("says start selling without a store", () => {
       expect(renderAt("/shop")).toBeTruthy();
       expect(screen.getByRole("link", { name: "Start selling" })).toHaveAttribute(

@@ -3,17 +3,32 @@
 import Link from "next/link";
 import Image from "next/image";
 import Tooltip from "@vibaar/ui/common/Tooltip";
+import { iconButtonVariants } from "@vibaar/ui/common/IconButton";
 import { Store, User } from "@vibaar/ui/icons";
 import { focusRing } from "@vibaar/ui/styles";
 import { cn } from "@vibaar/utils";
 import { useAuthSnapshot } from "@/hooks/useAuthSnapshot";
 import { useSellerDestination } from "@/hooks/useAuthSnapshot";
 
+/** The account slot — secondary, so it stays quiet. */
 const control = cn(
   "flex size-11 items-center justify-center rounded-field transition-colors",
   "text-foreground-muted hover:bg-surface-muted hover:text-foreground-secondary",
   focusRing
 );
+
+/*
+ * The seller switch keeps the filled brand treatment it has everywhere else —
+ * the floating pill on mobile and the full-width button on the seller rail both
+ * use Button's `filled`, and this is the same fill at icon size. It is the one
+ * thing in the rail that is an offer rather than a destination, and it should
+ * not read as another grey glyph.
+ *
+ * Borrowed from IconButton rather than restated: it has to be a LINK, since it
+ * changes the URL and must be middle-clickable and openable in a new tab, so it
+ * cannot be that component — but it should be indistinguishable from it.
+ */
+const sellerSwitch = iconButtonVariants({ variant: "filled", size: "lg" });
 
 /**
  * The rail's bottom group: what you are, and the way across to selling.
@@ -48,7 +63,7 @@ export default function BuyerRailAccount() {
   return (
     <div className="flex flex-col items-center gap-1">
       <Tooltip label={sellerLabel}>
-        <Link href={seller.href} aria-label={sellerLabel} className={control}>
+        <Link href={seller.href} aria-label={sellerLabel} className={sellerSwitch}>
           <Store size={22} aria-hidden="true" />
         </Link>
       </Tooltip>
