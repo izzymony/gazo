@@ -12,11 +12,6 @@ interface AnimatedImagesProps {
 export default function AnimatedImages({ currentSlide }: AnimatedImagesProps) {
   const containerRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Initialize refs array
-  useEffect(() => {
-    containerRefs.current = Array(slidesData.length).fill(null);
-  }, []);
-
   const animateSlide = useCallback(
     (container: HTMLDivElement | null, index: number) => {
       if (!container) return;
@@ -86,9 +81,9 @@ export default function AnimatedImages({ currentSlide }: AnimatedImagesProps) {
   );
 
   useEffect(() => {
-    if (containerRefs.current[currentSlide]) {
-      animateSlide(containerRefs.current[currentSlide], currentSlide);
-    }
+    // Returning animateSlide's own cleanup matters: it clears the pending
+    // spread timeout, which otherwise fires against a detached element.
+    return animateSlide(containerRefs.current[currentSlide], currentSlide);
   }, [currentSlide, animateSlide]);
 
   useEffect(() => {

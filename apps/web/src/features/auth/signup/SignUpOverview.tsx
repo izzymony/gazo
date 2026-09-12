@@ -558,7 +558,7 @@ export default function SignUpOverview() {
         <>
           {step === 0 ? (
             <AuthSplitShell
-              mediaClassName="h-[240px] sm:h-[500px] md:h-auto"
+              mediaClassName="h-96 sm:h-[500px] md:h-auto"
               media={<AnimatedImages currentSlide={currentSlide} />}>
               <SlideContent
                 currentSlide={currentSlide}
