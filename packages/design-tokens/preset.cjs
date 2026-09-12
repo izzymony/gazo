@@ -186,19 +186,6 @@ module.exports = {
         // their own pass, with a restart and a render.
         field: "52px",
       },
-      gridTemplateRows: {
-        // The collapse pair. A region that has to animate between "there" and
-        // "gone" without anyone hardcoding its height: the child grid track
-        // goes 1fr -> 0fr and the content, in an overflow-hidden wrapper, is
-        // squeezed out. The alternative is a max-h constant that silently
-        // clips the day someone adds a line of copy to the region.
-        //
-        // NEW code only, like `spacing.field` below it — no existing
-        // collapsing surface is migrated here. A token is invisible to
-        // Tailwind until the config is re-read.
-        collapsed: "0fr",
-        expanded: "1fr",
-      },
       zIndex: {
         dropdown: "var(--z-dropdown)",
         sticky: "var(--z-sticky)",
