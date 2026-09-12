@@ -13,6 +13,7 @@ import Image from "next/image";
 import Button from "@vibaar/ui/common/Button";
 import { toast } from "sonner";
 import { CircleCheck } from "@vibaar/ui/icons";
+import AuthSplitShell from "@vibaar/ui/AuthSplitShell";
 
 export default function Welcome() {
   const [activeTab, setActiveTab] = useState("sell");
@@ -127,110 +128,95 @@ export default function Welcome() {
   }
 
   return (
-    <div className="h-screen w-full max-w-full lg:max-w-5xl lg:mx-auto flex flex-col overflow-hidden">
-      {/* Hero Section - Better balanced */}
-      <div className="h-[38vh] sm:h-[42vh] md:h-[45vh] relative flex-shrink-0">
-        {/* Background Image */}
-        <Image
-          src="/images/welcome-bg.webp"
-          fill
-          alt="Welcome background"
-          priority
-          className="object-cover"
-        />
+    <AuthSplitShell
+      mediaClassName="h-[38vh] sm:h-[42vh] md:h-auto"
+      media={
+        <>
+          <Image
+            src="/images/welcome-bg-v2.webp"
+            fill
+            alt=""
+            priority
+            sizes="(min-width: 768px) 50vw, 100vw"
+            className="object-cover"
+          />
 
-        {/* Gradient Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white via-white/70 to-transparent z-10" />
+          {/* Fades the band into the content beneath it. Mobile only: in the
+              detached desktop pane there is nothing below to fade into, so a
+              gradient there reads as a rendering fault rather than a join. */}
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-surface via-surface/70 to-transparent md:hidden" />
+        </>
+      }
+      contentClassName="gap-5"
+      footerAction={
+        <Button
+          onClick={handleNavigation}
+          loading={isNavigating}
+          loadingText={activeTab === "buy" ? "Loading marketplace..." : "Launching store..."}
+          variant="filled"
+          className="text-body-sm sm:text-body-lg font-semibold">
+          {activeTab === "buy" ? "Start shopping" : "Launch your store"}
+        </Button>
+      }>
+      <div className="text-center">
+        <h1 className="text-h1 font-medium text-foreground-primary leading-tight">
+          Welcome to <span className="text-brandDeep font-bold">Vibaar</span>, <span className="font-bold">{userName}</span>! 👋
+        </h1>
       </div>
 
-      {/* Content Section - Strictly controlled height */}
-      <div className="flex-1 bg-surface flex flex-col min-h-0">
-        {/* Scrollable Content Area - Better spaced */}
-        <div className="flex-1 px-4 md:px-6 lg:px-8 pb-2 overflow-y-auto min-h-0">
-          <div className="max-w-md mx-auto space-y-5">
+      <div className="flex justify-center">
+        <div className="flex bg-surface-muted rounded-full p-1 w-full max-w-sm">
+          {[
+            { key: "sell", label: "I want to sell" },
+            { key: "buy", label: "I want to buy" },
+          ].map((option) => (
+            <button
+              key={option.key}
+              type="button"
+              onClick={() => handleTabClick(option.key)}
+              aria-pressed={activeTab === option.key}
+              className={`relative flex flex-1 items-center justify-center gap-1 rounded-full px-3 py-2 text-body-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40 ${
+                activeTab === option.key
+                  ? "bg-surface text-brandDeep shadow-card"
+                  : "text-foreground-secondary"
+              }`}>
+              <span>{option.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
 
-            {/* Welcome Text */}
-            <div className="text-center">
-              <h1 className="text-h1 font-medium text-foreground-primary leading-tight">
-                Welcome to <span className="text-brandDeep font-bold">Vibaar</span>, <span className="font-bold">{userName}</span>! 👋
-              </h1>
-            </div>
+      <div className="text-center">
+        <h2 className="text-body-lg font-medium text-foreground-primary">
+          {activeTab === "sell" ? "Why sellers choose Vibaar" : "Why buyers love Vibaar"}
+        </h2>
+      </div>
 
-            {/* Tab Switcher */}
-            <div className="flex justify-center">
-              <div className="flex bg-surface-muted rounded-full p-1 w-full max-w-sm">
-                {[
-                  { key: "sell", label: "I want to sell" },
-                  { key: "buy", label: "I want to buy" },
-                ].map((option) => (
-                  <button
-                    key={option.key}
-                    type="button"
-                    onClick={() => handleTabClick(option.key)}
-                    aria-pressed={activeTab === option.key}
-                    className={`relative flex flex-1 items-center justify-center gap-1 rounded-full px-3 py-2 text-body-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40 ${
-                      activeTab === option.key
-                        ? "bg-surface text-brandDeep shadow-card"
-                        : "text-foreground-secondary"
-                    }`}>
-                    <span>{option.label}</span>
-                  </button>
-                ))}
+      <div className="bg-brand/10 border border-brandDeep/20 rounded-card p-4">
+        <ul className="space-y-3">
+          {(activeTab === "sell"
+            ? [
+              "Set Up Your Store in Minutes",
+              "Reach more buyers at zero cost",
+              "Manage Orders and Shipping Easily",
+              "Grow Your Business With Vibaar",
+            ]
+            : [
+              "Shop from verified Instagram sellers",
+              "Safe payments with buyer guarantee",
+              "Free shipping on verified orders",
+              "Track orders & connect with sellers",
+            ]
+          ).map((feature) => (
+            <li key={feature} className="flex items-center gap-3">
+              <div className="flex-shrink-0">
+                <CircleCheck size={18} className="text-brandDeep" />
               </div>
-            </div>
-
-            {/* Dynamic subtitle */}
-            <div className="text-center">
-              <h2 className="text-body-lg font-medium text-foreground-primary">
-                {activeTab === "sell" ? "Why sellers choose Vibaar" : "Why buyers love Vibaar"}
-              </h2>
-            </div>
-
-            {/* Features List */}
-            <div className="bg-brand/10 border border-brandDeep/20 rounded-card p-4">
-              <ul className="space-y-3">
-                {(activeTab === "sell"
-                  ? [
-                    "Set Up Your Store in Minutes",
-                    "Reach more buyers at zero cost",
-                    "Manage Orders and Shipping Easily",
-                    "Grow Your Business With Vibaar",
-                  ]
-                  : [
-                    "Shop from verified Instagram sellers",
-                    "Safe payments with buyer guarantee",
-                    "Free shipping on verified orders",
-                    "Track orders & connect with sellers",
-                  ]
-                ).map((feature) => (
-                  <li key={feature} className="flex items-center gap-3">
-                    <div className="flex-shrink-0">
-                      <CircleCheck size={18} className="text-brandDeep" />
-                    </div>
-                    <span className="text-body-sm font-medium text-foreground-primary">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-          </div>
-        </div>
-
-        {/* Fixed Button at Bottom - Guaranteed space */}
-        <div className="flex-shrink-0 pb-3 px-4 md:px-6 lg:px-8 bg-surface border-t border-outline">
-          <div className="max-w-md mx-auto">
-            <Button
-              onClick={handleNavigation}
-              loading={isNavigating}
-              loadingText={activeTab === "buy" ? "Loading marketplace..." : "Launching store..."}
-              variant="filled"
-              className="text-body-sm sm:text-body-lg font-semibold">
-              {activeTab === "buy" ? "Start shopping" : "Launch your store"}
-            </Button>
-          </div>
-        </div>
-
+              <span className="text-body-sm font-medium text-foreground-primary">{feature}</span>
+            </li>
+          ))}
+        </ul>
       </div>
-    </div>
+    </AuthSplitShell>
   );
 }

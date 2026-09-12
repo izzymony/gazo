@@ -30,10 +30,13 @@ jest.mock('next/navigation', () => ({
   },
 }))
 
-// Mock Next.js Image component
+// Mock Next.js Image component.
+// next/image's own props are not DOM attributes, so they are dropped rather
+// than spread: passing `fill`/`priority` through makes React warn about a
+// non-boolean attribute on every test that renders a filled image.
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props) => {
+  default: ({ fill, priority, loader, quality, placeholder, blurDataURL, unoptimized, ...props }) => {
     // eslint-disable-next-line jsx-a11y/alt-text
     return <img {...props} />
   },
