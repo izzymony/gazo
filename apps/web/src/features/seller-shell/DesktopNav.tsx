@@ -19,7 +19,7 @@ export default function DesktopNav() {
   }, [pathName]);
 
   return (
-    <nav className="hidden lg:flex fixed left-0 top-0 h-screen w-64 bg-surface border-r border-outline flex-col py-6 px-4 z-sticky">
+    <nav className="hidden lg:flex fixed left-0 top-0 h-screen w-rail bg-surface border-r border-outline flex-col py-6 px-4 z-sticky">
       {/* Logo/Brand */}
       <div className="mb-8 px-3">
         <BrandLogo width={140} className="mb-2" />

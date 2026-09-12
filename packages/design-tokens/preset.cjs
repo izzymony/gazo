@@ -185,6 +185,14 @@ module.exports = {
         // be verified by tsc, lint or tests, only by looking. Migrate them in
         // their own pass, with a restart and a render.
         field: "52px",
+        // The seller desktop rail (--rail-width). Used by the rail, by the
+        // gutter the dashboard frame reserves for it, and — through
+        // `shell-inset` below — by anything fixed that has to clear it.
+        rail: "var(--rail-width)",
+        // How far a viewport-fixed element must be inset to clear the shell it
+        // sits in. Zero unless a layout says otherwise, so PageShell's action
+        // bar is unchanged everywhere except inside a shell that sets it.
+        "shell-inset": "var(--shell-inset, 0px)",
       },
       zIndex: {
         dropdown: "var(--z-dropdown)",

@@ -74,19 +74,84 @@ describe("seller dashboard frame", () => {
     expect(nav.previousElementSibling).toBe(pageBox);
   });
 
-  it("shows the nav on a hub", () => {
-    renderAt("/dashboard/catalog");
-    expect(screen.getByTestId("bottom-nav")).toBeInTheDocument();
-    expect(screen.getByTestId("desktop-nav")).toBeInTheDocument();
+  describe("navigation visibility", () => {
+    /**
+     * The defect this replaced: ONE boolean gated both navs, so walking from a
+     * hub into a detail page took the desktop rail away with the mobile bar.
+     * The rail sits in a gutter the frame reserves anyway, so removing it bought
+     * nothing and made the page jump. They are separate questions now.
+     */
+    it("carries both on a hub", () => {
+      renderAt("/dashboard/catalog");
+      expect(screen.getByTestId("bottom-nav")).toBeInTheDocument();
+      expect(screen.getByTestId("desktop-nav")).toBeInTheDocument();
+    });
+
+    it.each([
+      "/dashboard/orders/order-1",
+      "/dashboard/catalog/product/abc-123",
+      "/dashboard/wallet",
+      "/dashboard/settings/billing",
+    ])("keeps the rail and drops the bar on %s", (path) => {
+      renderAt(path);
+      expect(screen.getByTestId("desktop-nav")).toBeInTheDocument();
+      expect(screen.queryByTestId("bottom-nav")).not.toBeInTheDocument();
+    });
+
+    it.each([
+      "/dashboard/catalog/product/create",
+      "/dashboard/catalog/discount/new",
+      "/dashboard/storefront/details",
+    ])("drops both on the create flow %s", (path) => {
+      renderAt(path);
+      expect(screen.queryByTestId("desktop-nav")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("bottom-nav")).not.toBeInTheDocument();
+    });
+
+    // Editing is as focused as creating. The route says "edit", not "create",
+    // which is why the policy names routes instead of matching on the word.
+    it("drops both on the product edit flow", () => {
+      renderAt("/dashboard/catalog/product/create/manual/edit/abc-123");
+      expect(screen.queryByTestId("desktop-nav")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("bottom-nav")).not.toBeInTheDocument();
+    });
   });
 
-  it.each([
-    "/dashboard/storefront/details",
-    "/dashboard/catalog/product/abc-123",
-    "/dashboard/orders/order-1",
-  ])("hides the nav on the focused flow %s", (path) => {
-    renderAt(path);
-    expect(screen.queryByTestId("bottom-nav")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("desktop-nav")).not.toBeInTheDocument();
+  describe("the rail's gutter", () => {
+    /**
+     * The rail is `fixed`, so the frame's padding is the only thing holding a
+     * column open for it. The two were independent — padding unconditional,
+     * rail gated — so every nav-free route indented 256px for a rail that was
+     * never drawn. One flag drives both now, in both directions.
+     */
+    it.each(["/dashboard/catalog", "/dashboard/orders/order-1"])(
+      "reserves the gutter wherever the rail is drawn (%s)",
+      (path) => {
+        const { container } = renderAt(path);
+        expect(screen.getByTestId("desktop-nav")).toBeInTheDocument();
+        expect(container.querySelector(".h-dvh")).toHaveClass("pl-shell-inset");
+      }
+    );
+
+    it("reserves nothing where the rail is not drawn", () => {
+      const { container } = renderAt("/dashboard/catalog/product/create");
+      expect(screen.queryByTestId("desktop-nav")).not.toBeInTheDocument();
+      expect(container.querySelector(".h-dvh")).not.toHaveClass("pl-shell-inset");
+    });
+
+    /**
+     * The same flag also declares the inset a viewport-fixed descendant needs to
+     * clear the rail — PageShell's action bar reads it. A create flow has no
+     * rail, so it must not declare one, or its action bar would indent past a
+     * rail that is not there.
+     */
+    it("declares the fixed-element inset only alongside a rail", () => {
+      const withRail = renderAt("/dashboard/orders/order-1");
+      expect(withRail.container.querySelector(".h-dvh")).toHaveClass("shell-inset-rail");
+      withRail.unmount();
+
+      const without = renderAt("/dashboard/storefront/details");
+      expect(without.container.querySelector(".h-dvh")).not.toHaveClass("shell-inset-rail");
+    });
   });
 });

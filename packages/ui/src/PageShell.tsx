@@ -101,7 +101,19 @@ export default function PageShell({
             <div
               className={cn(
                 "bottom-0 w-full max-w-full border-t border-outline-subtle bg-surface px-3 pb-5 z-sticky lg:mx-auto lg:max-w-5xl",
-                footerPosition === "fixed" ? "fixed left-0 right-0" : "sticky"
+                // `left-shell-inset` is 0 unless a shell declares otherwise, so this
+                // is unchanged everywhere except inside one that does — today, the
+                // seller dashboard, whose desktop rail it has to clear.
+                //
+                // `lg:w-auto` is load-bearing, not tidying. With a non-zero inset,
+                // `left` + `right` + `w-full` is over-constrained, so CSS drops
+                // `right` and the bar keeps its full width from an indented left
+                // edge — hanging 256px off the side of a 1024px viewport. Letting
+                // the width fall out of the remaining space is what keeps both
+                // edges honest.
+                footerPosition === "fixed"
+                  ? "fixed left-shell-inset right-0 lg:w-auto"
+                  : "sticky"
               )}>
               {footerAction}
             </div>

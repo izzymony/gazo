@@ -5,19 +5,25 @@ import DesktopNav from "@/features/seller-shell/DesktopNav";
 import React from "react";
 import DetailFetcher from "./fectproducts";
 import { usePathname } from "next/navigation";
-import { isSellerHub } from "@/features/seller-shell/sellerNav";
+import { cn } from "@vibaar/utils";
+import { sellerNavMode } from "@/features/seller-shell/sellerNav";
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Nav belongs to the navigable hubs only. Everything deeper is a focused flow
-  // (a form, a product, an order) that the user finishes and backs out of.
-  const showNav = isSellerHub(pathname);
+  // The two navs answer different questions, so they no longer share a boolean.
+  // The bar takes 60px from the page, so a focused flow drops it. The rail sits
+  // in a gutter the frame reserves anyway, so it stays for anything you are
+  // reading — and only a create or edit flow, which is deliberately
+  // distraction-free, goes without either. See sellerNavMode.
+  const mode = sellerNavMode(pathname);
+  const showRail = mode !== "none";
+  const showBar = mode === "full";
 
   return (
     <>
       {/* Desktop sidebar — fixed, outside the frame, hidden under lg. */}
-      {showNav && <DesktopNav />}
+      {showRail && <DesktopNav />}
 
       {/* THE FRAME. It is a column: page above, nav below.
           The page box is bounded, positioned, and does NOT scroll — the same
@@ -43,12 +49,21 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
           Keep these three properties together: bounded (`min-h-0 flex-1` inside
           the `h-dvh` column), positioned (`relative`), non-scrolling
           (`overflow-hidden`). Pages own scrolling. */}
-      <div className="flex h-dvh w-full flex-col lg:pl-64">
+      <div
+        className={cn(
+          "flex h-dvh w-full flex-col",
+          // The rail is `fixed`, so this padding is the only thing reserving its
+          // gutter — and it used to be applied unconditionally, which left every
+          // nav-free route indenting 256px for a rail that was never rendered.
+          // Both now hang off the same flag, and both read the same token, so the
+          // gutter cannot drift from the rail that fills it.
+          showRail && "shell-inset-rail pl-shell-inset"
+        )}>
         <div className="relative min-h-0 flex-1 overflow-hidden">{children}</div>
 
         {/* In flow, not fixed: the frame subtracts the bar's height from the
             page box, so no page needs to guess it with a bottom margin. */}
-        {showNav && <BottomNav />}
+        {showBar && <BottomNav />}
       </div>
     </>
   );

@@ -188,6 +188,29 @@ a {
 }
 
 @layer utilities {
+  /*
+   * Declares how far a viewport-fixed descendant must be inset to clear this
+   * shell. The seller dashboard frame carries it whenever the desktop rail is
+   * mounted; PageShell's fixed action bar reads it through `left-shell-inset`.
+   *
+   * Breakpoint-scoped because the rail itself is (`hidden lg:flex`): below lg
+   * there is nothing to clear and a bar must span the full width.
+   *
+   * A custom property rather than a utility on the bar, because the bar is a
+   * shared primitive that must not know which shell it is inside — and because
+   * custom properties inherit down the DOM, which is what reaches a `fixed`
+   * descendant whose containing block is the viewport, not its parent.
+   */
+  .shell-inset-rail {
+    --shell-inset: 0px;
+  }
+
+  @media (min-width: 1024px) {
+    .shell-inset-rail {
+      --shell-inset: var(--rail-width);
+    }
+  }
+
   /* iOS Safe Area Support */
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);

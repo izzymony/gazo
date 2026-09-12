@@ -111,6 +111,36 @@ describe("PageShell", () => {
       expect(screen.getByRole("main")).not.toHaveClass("pb-24");
     });
 
+    /**
+     * The bar is fixed to the viewport, so a shell with chrome down one side —
+     * the seller dashboard's desktop rail — would have the bar run underneath
+     * it. Rather than teach a shared primitive which shells exist, the bar
+     * reads an inset that a shell may declare; `shell-inset` is 0 unless one
+     * does, so every other caller is unchanged.
+     */
+    it("clears whatever inset the surrounding shell declares", () => {
+      const { container } = render(
+        <PageShell footerAction={<button>Save</button>}>content</PageShell>
+      );
+      const bar = container.querySelector(".fixed")!;
+      expect(bar).toHaveClass("left-shell-inset", "right-0");
+      expect(bar).not.toHaveClass("left-0");
+    });
+
+    /**
+     * With a non-zero inset, `left` + `right` + `w-full` is over-constrained:
+     * CSS drops `right` and the bar keeps its FULL width from an indented left
+     * edge, hanging off the side of the viewport. Letting the width fall out of
+     * the space between the two edges is what keeps both of them honest.
+     */
+    it("takes its desktop width from the space between its edges, not the viewport", () => {
+      const { container } = render(
+        <PageShell footerAction={<button>Save</button>}>content</PageShell>
+      );
+      const bar = container.querySelector(".fixed")!;
+      expect(bar).toHaveClass("lg:w-auto");
+    });
+
     it("can keep the action bar inside a composed shell", () => {
       const { container } = render(
         <PageShell footerPosition="contained" footerAction={<button>Save</button>}>

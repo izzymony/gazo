@@ -201,6 +201,19 @@ const tokens = {
     card: "0 1px 3px rgba(0, 0, 0, 0.08)",
     pop: "0 4px 24px rgba(0, 0, 0, 0.12)",
   },
+  /**
+   * Fixed chrome whose width other layout has to agree with.
+   *
+   * `rail` is the seller dashboard's desktop sidebar. Three things must say the
+   * same number about it — the rail's own width, the gutter the dashboard frame
+   * reserves so content clears it, and the inset a viewport-fixed action bar
+   * needs to avoid running underneath it. It was written twice before this
+   * existed (`w-64` on the rail, `lg:pl-64` on the frame), which is two places
+   * for them to disagree.
+   */
+  chrome: {
+    rail: "16rem",
+  },
   zIndex: {
     dropdown: "30",
     sticky: "40",
@@ -273,6 +286,9 @@ const cssVariables = {
   ),
   ...Object.fromEntries(Object.entries(tokens.radius).map(([name, value]) => [`--radius-${name}`, value])),
   ...Object.fromEntries(Object.entries(tokens.shadow).map(([name, value]) => [`--shadow-${name}`, value])),
+  ...Object.fromEntries(
+    Object.entries(tokens.chrome).map(([name, value]) => [`--${name}-width`, value])
+  ),
   ...Object.fromEntries(Object.entries(tokens.zIndex).map(([name, value]) => [`--z-${name}`, value])),
 };
 
