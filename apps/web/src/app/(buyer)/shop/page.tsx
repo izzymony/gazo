@@ -398,7 +398,11 @@ const Page: React.FC = () => {
                                   : "/images/product-placeholder.svg"
                               }
                               alt={item.product.title ?? ""}
-                              className="w-[140px] h-[140px] object-cover rounded-card"
+                              // Fluid and square, the way the shared ProductCard
+                              // does it. Pinned at 140x140 the image stayed that
+                              // size while its grid column grew past 180 on
+                              // desktop, so it sat letterboxed in its own card.
+                              className="w-full aspect-square object-cover rounded-card"
                               width={140}
                               height={140}
                             />
