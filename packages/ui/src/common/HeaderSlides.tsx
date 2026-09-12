@@ -45,25 +45,36 @@ const HeaderSlides = () => {
             paths, so the layering can't drift out of register the way three
             stacked images did.
 
-            Anchored to the BAND, which is full-bleed, and NOT to the max-w-5xl
-            content column. Inside the column its right edge landed mid-viewport
-            on desktop and drew a hard vertical seam across the band; out here
-            it runs off the real screen edge instead.
+            It tracks the CONTENT COLUMN, not the viewport. The band is
+            full-bleed, so anchoring the mark to the band left it pinned to the
+            screen edge — fine at 1024, but on a wide monitor the content is a
+            centred 1024 column and the mark ends up stranded hundreds of pixels
+            out in the margin, attached to nothing.
+
+            This is not the arrangement that once drew a hard vertical seam
+            across the band. That was the mark's tonal discs being CLIPPED by
+            the column's edge. The lockup is a transparent asset now with no box
+            to clip, so it can sit in the column and still bleed past it.
 
             What it replaced: forty lines of inlined path data that were the OLD
             Instashop butterfly — the geometry still sitting in the dead
             public/instashop.svg, recoloured from the old pink to var(--brand).
             A recolour, not a replacement, which is why the rebrand missed it
             and no colour gate ever flagged it. */}
-        <Image
-          src="/brand/icon-stack.svg"
-          alt=""
+        <div
           aria-hidden="true"
-          width={1084}
-          height={739}
-          priority
-          className="pointer-events-none absolute -right-8 top-1/2 w-56 -translate-y-2/3 select-none opacity-50 md:w-72 lg:w-80"
-        />
+          className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="relative mx-auto h-full w-full max-w-full lg:max-w-5xl">
+            <Image
+              src="/brand/icon-stack.svg"
+              alt=""
+              width={1084}
+              height={739}
+              priority
+              className="absolute -right-8 top-1/2 w-56 -translate-y-2/3 select-none opacity-50 md:w-72 lg:-right-10 lg:w-80"
+            />
+          </div>
+        </div>
 
         {/* `relative` lifts the copy above the decoration behind it. The right
             padding reserves the mark's column so the headline cannot run under
