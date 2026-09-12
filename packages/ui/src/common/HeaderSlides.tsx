@@ -36,7 +36,7 @@ const HeaderSlides = () => {
             the seam disappears instead of being covered by the sheet's lip. */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-b from-transparent to-surface lg:h-16"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-surface md:h-28 lg:h-32"
         />
 
         {/* The mark, as the three-layer lockup the brand uses: two echoes
@@ -74,7 +74,7 @@ const HeaderSlides = () => {
             99px mark that sat in this row — and it steps up with the viewport.
             At one height for every width the band was 108px on a 27" display,
             which is what forced the lockup to crop so hard there. */}
-        <div className="relative flex min-h-32 w-full max-w-full flex-col justify-center gap-3 px-4 pr-40 md:min-h-36 md:px-6 md:pr-48 lg:mx-auto lg:min-h-40 lg:max-w-5xl lg:px-8">
+        <div className="relative flex min-h-32 w-full max-w-full flex-col justify-start gap-3 px-4 pr-40 pt-5 md:min-h-36 md:px-6 md:pr-48 lg:mx-auto lg:min-h-40 lg:max-w-5xl lg:px-8">
           <p className="text-brandInk text-body md:text-body-lg font-medium max-w-[250px] lg:max-w-[400px] w-full">
             {slideTexts[activeSlide]}
           </p>
