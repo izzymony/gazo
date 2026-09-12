@@ -133,7 +133,7 @@ export default function Welcome() {
       media={
         <>
           <Image
-            src="/images/welcome-bg-v2.webp"
+            src="/images/welcome-bg-v3.webp"
             fill
             alt=""
             priority
@@ -141,9 +141,11 @@ export default function Welcome() {
             className="object-cover"
           />
 
-          {/* Fades the band into the content beneath it. Mobile only: in the
-              detached desktop pane there is nothing below to fade into, so a
-              gradient there reads as a rendering fault rather than a join. */}
+          {/* One complete artwork, rendered edge to edge, with the crop left
+              to object-cover. The fade is CSS and mobile-only: it joins the
+              band to the content beneath it, which the detached desktop pane
+              has no need of — there the image shows uninterrupted. Kept out
+              of the asset deliberately, so the two crops stay independent. */}
           <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-surface via-surface/70 to-transparent md:hidden" />
         </>
       }
