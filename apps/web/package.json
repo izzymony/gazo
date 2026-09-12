@@ -15,7 +15,8 @@
     "cf:deploy": "CF_BUILD=1 node scripts/playground-guard.mjs run -- opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion && opennextjs-cloudflare deploy",
     "drift": "node scripts/design-drift.mjs",
     "drift:check": "node scripts/design-drift.mjs --check",
-    "drift:baseline": "node scripts/design-drift.mjs --update-baseline"
+    "drift:baseline": "node scripts/design-drift.mjs --update-baseline",
+    "ui:documented": "node scripts/check-ui-documented.cjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

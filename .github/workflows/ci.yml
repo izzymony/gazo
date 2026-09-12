@@ -39,6 +39,12 @@ jobs:
       # Cleanups lower the floor; a deliberate rise must be re-baselined.
       - run: node apps/web/scripts/design-drift.mjs --check
       - run: pnpm test
+      # Is each @vibaar/ui module actually reachable from the product? Spans
+      # workspaces, so it cannot live in the package's own Jest run. Follows
+      # intra-library imports, so a primitive used only through another
+      # component still counts as adopted. Fails when a module claims a stable
+      # API, has no consumer, and offers no disposition explaining why.
+      - run: node scripts/check-ui-adoption.cjs
       # Build smoke. Verified env-safe: both apps compile with NO .env files
       # present. Fonts are self-hosted (F3) so there is no build-time Google
       # fetch, Sentry is inert without a DSN, and the statically-generated

@@ -11,7 +11,8 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "ui:adoption": "node scripts/check-ui-adoption.cjs"
   },
   "devDependencies": {
     "turbo": "^2.3.3"
