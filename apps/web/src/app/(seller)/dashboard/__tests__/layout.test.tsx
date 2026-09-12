@@ -92,6 +92,7 @@ describe("seller dashboard frame", () => {
       "/dashboard/catalog/product/abc-123",
       "/dashboard/wallet",
       "/dashboard/settings/billing",
+      "/dashboard/storefront/details",
     ])("keeps the rail and drops the bar on %s", (path) => {
       renderAt(path);
       expect(screen.getByTestId("desktop-nav")).toBeInTheDocument();
@@ -101,8 +102,8 @@ describe("seller dashboard frame", () => {
     it.each([
       "/dashboard/catalog/product/create",
       "/dashboard/catalog/discount/new",
-      "/dashboard/storefront/details",
-    ])("drops both on the create flow %s", (path) => {
+      "/dashboard/settings/billing/add-card",
+    ])("drops both on %s", (path) => {
       renderAt(path);
       expect(screen.queryByTestId("desktop-nav")).not.toBeInTheDocument();
       expect(screen.queryByTestId("bottom-nav")).not.toBeInTheDocument();
@@ -150,7 +151,7 @@ describe("seller dashboard frame", () => {
       expect(withRail.container.querySelector(".h-dvh")).toHaveClass("shell-inset-rail");
       withRail.unmount();
 
-      const without = renderAt("/dashboard/storefront/details");
+      const without = renderAt("/dashboard/catalog/product/create");
       expect(without.container.querySelector(".h-dvh")).not.toHaveClass("shell-inset-rail");
     });
   });

@@ -63,6 +63,10 @@ describe("sellerNavMode", () => {
     "/dashboard/transactions/summary",
     "/dashboard/settings/billing",
     "/dashboard/settings/security",
+    "/dashboard/storefront/details",
+    "/dashboard/storefront/customise",
+    "/dashboard/storefront/address",
+    "/dashboard/storefront/shipping",
   ])("keeps the rail and drops the bar on %s", (path) => {
     expect(sellerNavMode(path)).toBe("desktop-only");
   });
@@ -74,15 +78,43 @@ describe("sellerNavMode", () => {
     "/dashboard/catalog/product/create/manual/new",
     "/dashboard/catalog/product/create/manual/edit/abc-123",
     "/dashboard/storefront/create",
-    "/dashboard/storefront/customise",
-    "/dashboard/storefront/details",
-    "/dashboard/storefront/address",
-    "/dashboard/storefront/shipping",
     "/dashboard/payouts/addaccount",
     "/dashboard/settings/billing/add-card",
     "/dashboard/settings/change-password",
-  ])("drops both navs on the create/edit flow %s", (path) => {
+  ])("drops both navs on %s", (path) => {
     expect(sellerNavMode(path)).toBe("none");
+  });
+
+  /**
+   * The boundary is the interaction, not the URL depth or the hub you arrived
+   * from — which is the thing an eye skimming the policy will get wrong. Each
+   * pair below sits under one parent, one segment apart, on opposite sides.
+   */
+  describe("amending what exists keeps the rail; adding something new does not", () => {
+    it.each([
+      ["/dashboard/settings/billing", "/dashboard/settings/billing/add-card"],
+      ["/dashboard/payouts", "/dashboard/payouts/addaccount"],
+      ["/dashboard/settings/security", "/dashboard/settings/change-password"],
+      ["/dashboard/catalog/product/abc-123", "/dashboard/catalog/product/create"],
+    ])("%s keeps it, %s does not", (keeps, drops) => {
+      expect(sellerNavMode(keeps)).toBe("desktop-only");
+      expect(sellerNavMode(drops)).toBe("none");
+    });
+
+    // Reached through Settings and four segments deep, but they change a field
+    // on a store that already exists rather than starting a new thing.
+    it.each([
+      "/dashboard/storefront/details",
+      "/dashboard/storefront/customise",
+      "/dashboard/storefront/address",
+      "/dashboard/storefront/shipping",
+    ])("%s edits in place, so it keeps the rail", (path) => {
+      expect(sellerNavMode(path)).toBe("desktop-only");
+    });
+
+    it("but creating the storefront itself does not", () => {
+      expect(sellerNavMode("/dashboard/storefront/create")).toBe("none");
+    });
   });
 
   /**
@@ -129,8 +161,8 @@ describe("hasSellerNavPolicy", () => {
    * makes the coverage test below mean anything.
    */
   it("separates a classified none from an unclassified one", () => {
-    expect(sellerNavMode("/dashboard/storefront/details")).toBe("none");
-    expect(hasSellerNavPolicy("/dashboard/storefront/details")).toBe(true);
+    expect(sellerNavMode("/dashboard/settings/change-password")).toBe("none");
+    expect(hasSellerNavPolicy("/dashboard/settings/change-password")).toBe(true);
 
     expect(sellerNavMode("/dashboard/invented")).toBe("none");
     expect(hasSellerNavPolicy("/dashboard/invented")).toBe(false);
@@ -172,6 +204,7 @@ describe("activeSellerNav", () => {
     expect(activeSellerNav("/dashboard/orders/order-1")).toBe("Orders");
     expect(activeSellerNav("/dashboard/catalog/product/abc")).toBe("Catalog");
     expect(activeSellerNav("/dashboard/storefront/details")).toBe("Settings");
+    expect(activeSellerNav("/dashboard/settings/change-password")).toBe("Settings");
   });
 
   it("lights nothing where the route is not a rail destination", () => {

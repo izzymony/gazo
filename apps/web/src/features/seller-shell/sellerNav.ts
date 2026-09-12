@@ -40,11 +40,20 @@ export const SELLER_NAV: SellerNavLink[] = [
  * Which navigation a route carries.
  *
  *   full          the hubs you switch between — rail and bar
- *   desktop-only  a detail, financial or settings-index page. The bar would
- *                 compete with the page for 60px it cannot spare; the rail sits
- *                 in a gutter the frame reserves anyway, and taking it away is
- *                 what made the page jump on the way in and out.
- *   none          a create or edit flow, deliberately distraction-free
+ *   desktop-only  anything you read or amend in place: a detail page, a listing,
+ *                 an overview, a settings form that edits what is already there.
+ *                 The bar would compete with the page for 60px it cannot spare;
+ *                 the rail sits in a gutter the frame reserves anyway, and taking
+ *                 it away is what made the page jump on the way in and out.
+ *   none          adding a new thing, or an edit serious enough to want the
+ *                 screen to itself — deliberately distraction-free
+ *
+ * The line is the interaction, not the URL depth or which hub you arrived from.
+ * `storefront/details` is reached through Settings and is four segments deep, but
+ * it changes a field on a store that already exists, so it keeps the rail;
+ * `settings/billing/add-card` sits beside a page that keeps the rail and does not,
+ * because adding a card is its own errand. "Critical" covers the two edits you
+ * would not want to fumble halfway through — a password, and a live product.
  *
  * The two navs used to share one boolean, which is the whole defect: desktop and
  * mobile were forced to agree when they answer different questions.
@@ -88,19 +97,25 @@ export const SELLER_NAV_POLICY: ReadonlyArray<readonly [template: string, mode: 
   ["/dashboard/settings/billing", "desktop-only"],
   ["/dashboard/settings/security", "desktop-only"],
 
-  // Create and edit flows — neither.
+  // Storefront settings — these amend a store that already exists rather than
+  // starting something new, so they read as pages you edit in place, not as
+  // flows you enter and leave.
+  ["/dashboard/storefront/details", "desktop-only"],
+  ["/dashboard/storefront/customise", "desktop-only"],
+  ["/dashboard/storefront/address", "desktop-only"],
+  ["/dashboard/storefront/shipping", "desktop-only"],
+
+  // Adding something new — neither nav.
   ["/dashboard/catalog/discount/new", "none"],
   ["/dashboard/catalog/product/create", "none"],
   ["/dashboard/catalog/product/create/manual", "none"],
   ["/dashboard/catalog/product/create/manual/new", "none"],
-  ["/dashboard/catalog/product/create/manual/edit/:productId", "none"],
   ["/dashboard/storefront/create", "none"],
-  ["/dashboard/storefront/customise", "none"],
-  ["/dashboard/storefront/details", "none"],
-  ["/dashboard/storefront/address", "none"],
-  ["/dashboard/storefront/shipping", "none"],
   ["/dashboard/payouts/addaccount", "none"],
   ["/dashboard/settings/billing/add-card", "none"],
+
+  // Edits that want the screen to themselves.
+  ["/dashboard/catalog/product/create/manual/edit/:productId", "none"],
   ["/dashboard/settings/change-password", "none"],
 ];
 
