@@ -97,6 +97,7 @@
   --buyer-rail-width: 5rem;
   --z-dropdown: 30;
   --z-sticky: 40;
+  --z-shell: 45;
   --z-modal: 50;
   --z-toast: 60;
 }

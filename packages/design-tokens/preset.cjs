@@ -199,6 +199,7 @@ module.exports = {
       zIndex: {
         dropdown: "var(--z-dropdown)",
         sticky: "var(--z-sticky)",
+        shell: "var(--z-shell)",
         modal: "var(--z-modal)",
         toast: "var(--z-toast)",
       },

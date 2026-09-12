@@ -1,5 +1,6 @@
 "use client";
 
+import type React from "react";
 import { ReactNode } from "react";
 import Link from "next/link";
 import { cn } from "@vibaar/utils";
@@ -18,7 +19,20 @@ import { focusRing } from "../styles";
  */
 export type NavItemVariant = "bar" | "floating" | "rail" | "compact-rail";
 
-export interface NavItemProps {
+/**
+ * The wiring a describing overlay needs on the focusable element itself.
+ *
+ * Listed explicitly rather than spread from `...rest`: these have to land on
+ * the anchor — `aria-describedby` on a wrapper describes nothing, and focus
+ * events on a wrapper fire for the wrong node — and naming them keeps the
+ * primitive's surface honest about what a caller may reach into.
+ */
+type DescribableProps = Pick<
+  React.ComponentPropsWithoutRef<"a">,
+  "aria-describedby" | "onPointerEnter" | "onPointerLeave" | "onFocus" | "onBlur" | "onKeyDown"
+>;
+
+export interface NavItemProps extends DescribableProps {
   href: string;
   /**
    * The glyph. A node rather than a component type, so a caller can hand over
@@ -121,10 +135,12 @@ export default function NavItem({
   disabled = false,
   variant = "bar",
   className,
+  ...describable
 }: NavItemProps) {
   const styles = VARIANT[variant] ?? VARIANT.bar;
   return (
     <Link
+      {...describable}
       href={href}
       prefetch
       aria-current={active ? "page" : undefined}

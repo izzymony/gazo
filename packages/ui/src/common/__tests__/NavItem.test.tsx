@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import NavItem from "../NavItem";
 
@@ -85,6 +85,45 @@ describe("NavItem", () => {
       expect(link).not.toHaveClass("bg-brand-50");
       expect(link).toHaveClass("text-foreground-muted");
     });
+  });
+
+  describe("describable by an overlay", () => {
+    /**
+     * A tooltip has to reach the ANCHOR: `aria-describedby` on a wrapper
+     * describes nothing, and focus handlers on a wrapper fire for the wrong
+     * node. NavItem used to drop these silently, so a tooltip wrapped around it
+     * rendered and never opened — while the same tooltip around a bare Link
+     * worked, which is what made it look like a tooltip bug.
+     */
+    it("forwards the description to the link itself", () => {
+      render(
+        <NavItem href="/shop" icon={icon} label="Shop" aria-describedby="tip-1" />
+      );
+      expect(screen.getByRole("link", { name: "Shop" })).toHaveAttribute(
+        "aria-describedby",
+        "tip-1"
+      );
+    });
+
+    it("forwards pointer and focus handlers to the link itself", () => {
+      const onPointerEnter = jest.fn();
+      const onFocus = jest.fn();
+      render(
+        <NavItem
+          href="/shop"
+          icon={icon}
+          label="Shop"
+          onPointerEnter={onPointerEnter}
+          onFocus={onFocus}
+        />
+      );
+      const link = screen.getByRole("link", { name: "Shop" });
+      fireEvent.pointerEnter(link);
+      fireEvent.focus(link);
+      expect(onPointerEnter).toHaveBeenCalled();
+      expect(onFocus).toHaveBeenCalled();
+    });
+
   });
 
   describe("badge", () => {

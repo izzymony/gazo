@@ -22,6 +22,11 @@ jest.mock("../BuyerBottomNav", () => ({
   default: () => <div data-testid="bottom-nav" />,
 }));
 
+jest.mock("../BuyerDesktopNav", () => ({
+  __esModule: true,
+  default: () => <div data-testid="rail" />,
+}));
+
 function renderAt(pathname: string, params = "") {
   mockPathname.mockReturnValue(pathname);
   mockSearchParams.mockReturnValue(new URLSearchParams(params));
@@ -61,6 +66,24 @@ describe("BuyerShell", () => {
       const frame = container.firstElementChild!;
       expect(frame).toHaveClass("buyer-rail-overlay");
       expect(frame.className).not.toMatch(/\bp[lxs]?-/);
+    });
+
+    /**
+     * The rail leads the tab order, and wins the paint by z-index instead.
+     *
+     * Both were nearly got wrong in the same place: PageShell's header is
+     * `lg:sticky` and full width, and at equal z-index it painted over the
+     * rail's top and swallowed the brand mark on every route that has one.
+     * Ordering the rail after the page fixed that and put the app's primary
+     * navigation last for a keyboard user — a worse fault than the one it cured.
+     */
+    it("renders the rail before the page, so it leads the tab order", () => {
+      const { container } = renderAt("/shop");
+      const kids = [...container.firstElementChild!.children];
+      const page = screen.getByText("page");
+      expect(kids.indexOf(screen.getByTestId("rail"))).toBeLessThan(
+        kids.findIndex((k) => k === page || k.contains(page))
+      );
     });
 
     it("drops the marker where there is no rail, so nothing reserves a gutter", () => {

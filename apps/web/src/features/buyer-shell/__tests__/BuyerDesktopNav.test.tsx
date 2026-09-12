@@ -41,6 +41,15 @@ describe("BuyerDesktopNav", () => {
       const rail = container.querySelector("nav")!;
       expect(rail).toHaveClass("hidden", "lg:flex", "fixed", "start-0", "w-buyer-rail");
     });
+
+    /**
+     * Above page chrome, not level with it. PageShell's header is `lg:sticky`
+     * and full width, so at `z-sticky` it painted over the rail's brand mark.
+     */
+    it("sits above page-level sticky chrome", () => {
+      const { container } = renderAt("/shop");
+      expect(container.querySelector("nav")).toHaveClass("z-shell");
+    });
   });
 
   describe("destinations", () => {

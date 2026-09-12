@@ -222,6 +222,12 @@ const tokens = {
   zIndex: {
     dropdown: "30",
     sticky: "40",
+    // Shell chrome — app navigation that frames the page, above anything the
+    // page itself makes sticky. A page header is `sticky` and full width, so at
+    // equal z it covered the buyer rail's brand mark; the alternative was
+    // ordering the rail after the page, which fixed the paint and put the app's
+    // primary navigation last in the tab order.
+    shell: "45",
     modal: "50",
     toast: "60",
   },

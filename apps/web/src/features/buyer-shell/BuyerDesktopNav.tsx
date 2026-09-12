@@ -35,10 +35,10 @@ export default function BuyerDesktopNav() {
   return (
     <nav
       aria-label="Marketplace"
-      className="fixed inset-y-0 start-0 z-sticky hidden w-buyer-rail flex-col items-center justify-between py-6 lg:flex">
+      className="fixed inset-y-0 start-0 z-shell hidden w-buyer-rail flex-col items-center justify-between py-6 lg:flex">
       <Tooltip label="Shop">
         <Link href="/shop" aria-label="Vibaar home" className={`rounded-field ${focusRing}`}>
-          <BrandLogo shape="mark" width={30} alt="" />
+          <BrandLogo shape="mark" width={45} alt="" />
         </Link>
       </Tooltip>
 

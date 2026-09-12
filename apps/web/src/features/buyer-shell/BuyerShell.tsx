@@ -52,6 +52,11 @@ function BuyerFrame({
         "relative h-dvh w-full overflow-hidden",
         policy.desktopRail && "buyer-rail-overlay"
       )}>
+      {/* First, so the app's primary navigation leads the tab order. It sits
+          above page chrome by z-index (`z-shell`) rather than by document order:
+          PageShell's header is `lg:sticky` and full width, and at equal z it
+          covered the rail's brand mark — but reordering to fix that put the rail
+          last for a keyboard user, which is the worse of the two faults. */}
       {policy.desktopRail && <BuyerDesktopNav />}
       {children}
       {showBar && <BuyerBottomNav />}
