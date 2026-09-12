@@ -59,8 +59,8 @@ const HeaderSlides = () => {
           src="/brand/icon-stack.svg"
           alt=""
           aria-hidden="true"
-          width={1231}
-          height={839}
+          width={1084}
+          height={739}
           priority
           className="pointer-events-none absolute -right-8 top-1/2 w-56 -translate-y-2/3 select-none opacity-50 md:w-72 lg:w-80"
         />
