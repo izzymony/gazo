@@ -31,6 +31,14 @@ const HeaderSlides = () => {
     <div className="relative">
       {/* Slider Content */}
       <div className="relative bg-brand pb-3 flex justify-between items-center transition-all duration-500 ease-in-out overflow-hidden">
+        {/* The band dissolves into the page rather than stopping at a line.
+            The sheet below is `bg-surface`, so fading to the same token means
+            the seam disappears instead of being covered by the sheet's lip. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-b from-transparent to-surface lg:h-16"
+        />
+
         {/* The mark, as the three-layer lockup the brand uses: two echoes
             behind it, then the mark in brand yellow with a black outline. All
             three live in ONE asset (brand/icon-stack.svg) built from the same
@@ -54,33 +62,38 @@ const HeaderSlides = () => {
           width={1231}
           height={839}
           priority
-          className="pointer-events-none absolute -right-8 top-1/2 w-56 -translate-y-1/2 select-none md:w-72 lg:w-80"
+          className="pointer-events-none absolute -right-8 top-1/2 w-56 -translate-y-2/3 select-none md:w-72 lg:w-80"
         />
 
         {/* `relative` lifts the copy above the decoration behind it. The right
             padding reserves the mark's column so the headline cannot run under
             it; the echoes are free to sit behind text, which is what makes them
-            read as echoes rather than a second logo. min-h holds the band open:
-            its height used to come from the 99px mark that sat in this row. */}
-        <div className="relative flex min-h-24 w-full max-w-full items-center justify-between px-4 pr-40 md:px-6 md:pr-48 lg:mx-auto lg:max-w-5xl lg:px-8">
+            read as echoes rather than a second logo.
+
+            min-h is what holds the band open — its height used to come from the
+            99px mark that sat in this row — and it steps up with the viewport.
+            At one height for every width the band was 108px on a 27" display,
+            which is what forced the lockup to crop so hard there. */}
+        <div className="relative flex min-h-32 w-full max-w-full flex-col justify-center gap-3 px-4 pr-40 md:min-h-36 md:px-6 md:pr-48 lg:mx-auto lg:min-h-40 lg:max-w-5xl lg:px-8">
           <p className="text-brandInk text-body md:text-body-lg font-medium max-w-[250px] lg:max-w-[400px] w-full">
             {slideTexts[activeSlide]}
           </p>
-        </div>
-      </div>
 
-      {/* Dots for navigation */}
-      <div className="absolute bottom-4 left-0 w-full">
-        <div className="w-full max-w-full lg:max-w-5xl lg:mx-auto px-4 md:px-6 lg:px-8 flex space-x-2 mb-2">
-        {slideTexts.map((_, index) => (
-          <div
-            key={index}
-            onClick={() => handleDotClick(index)}
-            className={`w-[6px] h-[6px] rounded-full cursor-pointer ${index === activeSlide ? "bg-brandInk/70" : "bg-brandInk/25"
-              }`}
-          />
-        ))}
+          {/* In the flow under the headline, not pinned to the band's bottom
+              edge. Pinned, they drifted away from the copy as the band grew and
+              ended up sitting in the fade below. */}
+          <div className="flex space-x-2">
+            {slideTexts.map((_, index) => (
+              <div
+                key={index}
+                onClick={() => handleDotClick(index)}
+                className={`w-[6px] h-[6px] rounded-full cursor-pointer ${index === activeSlide ? "bg-brandInk/70" : "bg-brandInk/25"
+                  }`}
+              />
+            ))}
+          </div>
         </div>
+
       </div>
     </div>
   );
