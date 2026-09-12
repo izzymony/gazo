@@ -10,6 +10,9 @@ import { cn } from "@vibaar/utils";
  *
  * This existed four times (signin + signup, each with a mobile and a desktop
  * block) as a styled <div> wrapping a second <div> that carried the onClick.
+ * AuthSplitShell collapsed that fork to one tree, so the `layout` prop that
+ * selected between the two blocks' sizing went with it — the two sizes are now
+ * one responsive class.
  * That shape had three defects, all fixed here by rendering a real Button:
  *
  *   1. Not a button. A clickable <div> is not keyboard focusable, exposes no
@@ -34,16 +37,11 @@ export default function AuthOptionButton({
   option,
   loading = false,
   onSelect,
-  layout = "mobile",
 }: {
   option: AuthOption;
   loading?: boolean;
   onSelect: (option: AuthOption) => void;
-  /** The two blocks differ only in height and label size. */
-  layout?: "mobile" | "desktop";
 }) {
-  const desktop = layout === "desktop";
-
   return (
     <Button
       onClick={() => onSelect(option)}
@@ -57,8 +55,8 @@ export default function AuthOptionButton({
       variant={option.isPrimary ? "filled" : "bordered"}
       className={cn(
         "w-full rounded-full",
-        desktop ? "h-14 text-body-lg font-medium" : "h-[52px] text-body font-normal",
-        option.isSecondary && desktop && "border-2",
+        "h-[52px] text-body font-normal md:h-14 md:text-body-lg md:font-medium",
+        option.isSecondary && "md:border-2",
         option.isSecondary && "hover:bg-brand hover:text-brandInk",
         !option.isPrimary &&
           !option.isSecondary &&

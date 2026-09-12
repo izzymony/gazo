@@ -19,11 +19,11 @@ import Loader from "@vibaar/ui/common/Loader";
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import useOrderStore from "@/store/orderStore";
-import AnimatedHeader from "@vibaar/ui/AnimatedHeader";
 import Footer from "@vibaar/ui/common/Footer";
 import AnimatedImages from "@vibaar/ui/animated/AnimatedImages";
+import AuthSplitShell from "@vibaar/ui/AuthSplitShell";
 import SlideContent from "@vibaar/ui/animated/SlideContent";
-import Link from "next/link";
+import { slidesData } from "@vibaar/ui/animated/slidesData";
 import { trackLogin, setUserProperties } from "@/lib/analytics";
 
 const validationSchema = Yup.object({
@@ -74,7 +74,7 @@ export default function SignInOverview() {
   // Auto-advance slides every 8 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % 3);
+      setCurrentSlide((prev) => (prev + 1) % slidesData.length);
     }, 8000);
     return () => clearInterval(interval);
   }, []);
@@ -278,133 +278,57 @@ export default function SignInOverview() {
       ) : (
         <>
           {step === 0 ? (
-            <>
-              {/* MOBILE LAYOUT (< md) */}
-              <div className="md:hidden w-full flex flex-col min-h-[100dvh]">
-                <div className="flex-1 h-[240px] sm:h-[500px] flex-shrink-0">
-                  <AnimatedHeader />
-                </div>
-                <div className="flex-1 flex flex-col justify-center px-4 pt-28">
-                  <div className="w-full mx-auto space-y-2.5">
-                    <ul className="space-y-2.5 text-foreground-primary gap-0 flex flex-col w-full">
-                      {signupOptions.map((option, index) => {
-                        const isLoading =
-                          (option.title === "Create my account" && buttonLoading.createAccount) ||
-                          (option.title === "Login to my account" && buttonLoading.loginAccount);
+            <AuthSplitShell
+              mediaClassName="h-[240px] sm:h-[500px] md:h-auto"
+              media={<AnimatedImages currentSlide={currentSlide} />}>
+              <SlideContent
+                currentSlide={currentSlide}
+                onSlideChange={setCurrentSlide}
+              />
 
-                        return (
-                          <AuthOptionButton
-                            key={option?.title}
-                            option={option}
-                            loading={isLoading}
-                            onSelect={selectAuthOption}
-                            layout="mobile"
-                          />
-                        );
-                      })}
-                    </ul>
-                                        <div className="mt-2">
-                      <Button
-                        onClick={handleExploreMarketplaceClick}
-                        loading={buttonLoading.exploreMarketplace}
-                        loadingText="Explore Marketplace"
-                        variant="bordered"
-                        fullWidth={false}
-                        className="mx-auto w-full max-w-xs">
-                        <Image
-                          src="/icons/shopping_cart.svg"
-                          alt=""
-                          aria-hidden="true"
-                          width={24}
-                          height={24}
-                        />
-                        Explore Marketplace
-                      </Button>
-                      <p className="mt-3 text-center text-body-sm font-normal text-foreground-secondary">
-                        Discover Instagram vendors and products
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-auto">
-                    <Footer />
-                  </div>
-                </div>
-              </div>
+              <div className="flex flex-col gap-2.5 md:gap-5">
+                <ul className="flex flex-col gap-2.5 md:gap-5">
+                  {signupOptions.map((option) => {
+                    const isLoading =
+                      (option.title === "Create my account" && buttonLoading.createAccount) ||
+                      (option.title === "Login to my account" && buttonLoading.loginAccount);
 
-              {/* DESKTOP LAYOUT (>= md) */}
-              <div className="hidden md:flex w-full max-w-7xl mx-auto min-h-screen px-4 md:px-6 lg:px-8 py-4 md:py-6 gap-6 md:gap-8">
-                {/* LEFT SIDE - Animated Images (50%) */}
-                <div className="w-1/2 rounded-3xl overflow-hidden shadow-pop">
-                  <AnimatedImages currentSlide={currentSlide} />
-                </div>
-
-                {/* RIGHT SIDE - Content (50%) */}
-                <div className="w-1/2 flex items-center justify-center px-8">
-                  <div className="w-full max-w-md flex flex-col gap-4">
-                    {/* Top Section - Slide Content */}
-                    <div className="mt-3">
-                      <SlideContent
-                        currentSlide={currentSlide}
-                        onSlideChange={setCurrentSlide}
+                    return (
+                      <AuthOptionButton
+                        key={option?.title}
+                        option={option}
+                        loading={isLoading}
+                        onSelect={selectAuthOption}
                       />
-                    </div>
+                    );
+                  })}
+                </ul>
 
-                    {/* Middle Section - Buttons */}
-                    <div className="flex flex-col gap-5">
-                      <ul className="flex flex-col gap-5">
-                        {signupOptions.map((option, index) => {
-                          const isLoading =
-                            (option.title === "Create my account" && buttonLoading.createAccount) ||
-                            (option.title === "Login to my account" && buttonLoading.loginAccount);
-
-                          return (
-                            <AuthOptionButton
-                              key={option?.title}
-                              option={option}
-                              loading={isLoading}
-                              onSelect={selectAuthOption}
-                              layout="desktop"
-                            />
-                          );
-                        })}
-                      </ul>
-
-                                            {/* Explore Marketplace Button */}
-                      <Button
-                        onClick={handleExploreMarketplaceClick}
-                        loading={buttonLoading.exploreMarketplace}
-                        loadingText="Explore Marketplace"
-                        variant="bordered"
-                        fullWidth={false}
-                        className="w-full">
-                        <Image
-                          src="/icons/shopping_cart.svg"
-                          alt=""
-                          aria-hidden="true"
-                          width={24}
-                          height={24}
-                        />
-                        Explore Marketplace
-                      </Button>
-                    </div>
-
-                    {/* Bottom Section - Footer */}
-                    <div className="mt-6">
-                      <p className="text-body-sm text-foreground-muted text-center">
-                        By continuing, I agree to Vibaar&apos;s{" "} <br />
-                        <Link href="/terms" className="text-brandDeep hover:underline">
-                          Terms of use
-                        </Link>
-                        {" "}and{" "}
-                        <Link href="/privacy" className="text-brandDeep hover:underline">
-                          Privacy Policy
-                        </Link>
-                      </p>
-                    </div>
-                  </div>
+                <div>
+                  <Button
+                    onClick={handleExploreMarketplaceClick}
+                    loading={buttonLoading.exploreMarketplace}
+                    loadingText="Explore Marketplace"
+                    variant="bordered"
+                    fullWidth={false}
+                    className="mx-auto w-full max-w-xs md:max-w-none">
+                    <Image
+                      src="/icons/shopping_cart.svg"
+                      alt=""
+                      aria-hidden="true"
+                      width={24}
+                      height={24}
+                    />
+                    Explore Marketplace
+                  </Button>
+                  <p className="mt-3 text-center text-body-sm font-normal text-foreground-secondary md:hidden">
+                    Discover Instagram vendors and products
+                  </p>
                 </div>
               </div>
-            </>
+
+              <Footer />
+            </AuthSplitShell>
           ) : (
             <PageShell
               header={

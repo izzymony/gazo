@@ -36,7 +36,6 @@ const entries = [
   ["animated/AnimatedImages", "pattern"],
   ["animated/SlideContent", "pattern"],
   ["animated/slidesData", "internal"],
-  ["AnimatedHeader", "pattern"],
   ["AuthSplitShell", "pattern", "stable"],
   ["common/Accordion", "component", "candidate"],
   ["common/ActivityItem", "component", "candidate"],
