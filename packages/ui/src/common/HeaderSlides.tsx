@@ -62,7 +62,7 @@ const HeaderSlides = () => {
           width={1231}
           height={839}
           priority
-          className="pointer-events-none absolute -right-8 top-1/2 w-56 -translate-y-2/3 select-none md:w-72 lg:w-80"
+          className="pointer-events-none absolute -right-8 top-1/2 w-56 -translate-y-2/3 select-none opacity-50 md:w-72 lg:w-80"
         />
 
         {/* `relative` lifts the copy above the decoration behind it. The right
