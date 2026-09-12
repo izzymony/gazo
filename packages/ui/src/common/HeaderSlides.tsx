@@ -51,10 +51,10 @@ const HeaderSlides = () => {
           src="/brand/icon-stack.svg"
           alt=""
           aria-hidden="true"
-          width={1318}
-          height={1100}
+          width={1231}
+          height={839}
           priority
-          className="pointer-events-none absolute -right-8 top-1/2 w-40 -translate-y-1/2 select-none md:w-44 lg:w-48"
+          className="pointer-events-none absolute -right-8 top-1/2 w-56 -translate-y-1/2 select-none md:w-72 lg:w-80"
         />
 
         {/* `relative` lifts the copy above the decoration behind it. The right
@@ -62,7 +62,7 @@ const HeaderSlides = () => {
             it; the echoes are free to sit behind text, which is what makes them
             read as echoes rather than a second logo. min-h holds the band open:
             its height used to come from the 99px mark that sat in this row. */}
-        <div className="relative flex min-h-24 w-full max-w-full items-center justify-between px-4 pr-28 md:px-6 md:pr-36 lg:mx-auto lg:max-w-5xl lg:px-8">
+        <div className="relative flex min-h-24 w-full max-w-full items-center justify-between px-4 pr-40 md:px-6 md:pr-48 lg:mx-auto lg:max-w-5xl lg:px-8">
           <p className="text-brandInk text-body md:text-body-lg font-medium max-w-[250px] lg:max-w-[400px] w-full">
             {slideTexts[activeSlide]}
           </p>

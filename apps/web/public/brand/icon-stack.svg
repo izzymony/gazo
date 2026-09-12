@@ -1,38 +1,43 @@
-<svg viewBox="-110 -110 1318 1100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="-117 -29 1231 839" fill="none" xmlns="http://www.w3.org/2000/svg">
 <!--
-  The brand mark as the three-layer lockup from Figma (node 73:8989): two
-  echoes behind it, then the mark in brand yellow with a black outline.
+  The brand mark as the three-layer lockup from Figma (node 73:8989): the
+  outlined mark, and two larger copies of it behind at 10% and 15% black.
 
-  The SAME two paths three times, copied verbatim from icon-yellow.svg. The
-  echoes are the mark grown outward by a thick round-joined stroke in its own
-  colour, so each hugs the silhouette rather than drifting off it at the
-  corners.
+  The echoes are SCALED COPIES of the whole outlined mark - not the mark grown
+  by a thick stroke. That was the first thing tried and it is wrong twice over:
+  a round join turned the silhouette into a soft blob when the design is
+  faceted, and a miter join hung a spike off the bottom that is not in the
+  design at all. Scaling is also what the numbers say. The inner echo's
+  measured aspect, 1.478, is the aspect of the mark WITH its outline, 1.4766 -
+  not the aspect of the bare paths, 1.573 - and solving for the outline width
+  that makes those agree gives 38 units, which is independently what the mark's
+  own outline measures. Scaled, the corners stay sharp because they are the
+  mark's own corners.
 
   Figma strokes the mark OUTSIDE the path; SVG only centres a stroke. So the
-  outline is drawn as a filled+stroked halo underneath and the yellow is laid
-  over it: the fill keeps the path's full size and the black sits entirely
-  outside, which is what makes the counters read fat rather than pinched.
+  outline is a filled+stroked halo underneath with the yellow laid over it,
+  which is the same thing: 77 centred = 38 outside, and the fill keeps the
+  path's full width so the counters read fat rather than pinched.
 
-  Values read off the Figma source rather than guessed - the echoes are black
-  at 10% and 15%, stacked, and the outline is pure black, not brand-deep. The
-  three widths were then measured back out of a render and matched against the
-  same measurement of Figma's.
+  Everything here was measured off the source, not guessed - the two echo
+  alphas from its pixels, the scales and outline width from its geometry.
+  Verified back the same way: layer heights land within 1% of Figma's, widths
+  within 5%.
 
-  Regenerate from icon-yellow.svg if the mark ever changes.
+  Regenerate from icon-yellow.svg if the mark ever changes: same two paths,
+  three times, scaled 1.80 and 1.38 about the mark's centre (499.1, 390.2).
 -->
-<g fill="#000000" stroke="#000000" stroke-linejoin="round" stroke-linecap="round">
-  <g opacity="0.1" stroke-width="598">
+<g fill="#000000" stroke="#000000" stroke-width="77" stroke-linejoin="miter" stroke-miterlimit="4">
+  <g opacity="0.1" transform="translate(499.1 390.2) scale(1.8) translate(-499.1 -390.2)">
     <path d="M774.211 256.429C714.026 181.2 616.448 181.2 556.264 256.429L532.309 286.373L665.237 452.533L798.166 286.373L774.211 256.429Z"/>
     <path d="M441.901 256.422C381.717 181.193 284.139 181.193 223.955 256.422L200 286.366L390.111 524.003C450.295 599.232 547.873 599.232 608.057 524.003L632.012 494.059L441.901 256.422Z"/>
   </g>
-  <g opacity="0.15" stroke-width="327">
+  <g opacity="0.15" transform="translate(499.1 390.2) scale(1.38) translate(-499.1 -390.2)">
     <path d="M774.211 256.429C714.026 181.2 616.448 181.2 556.264 256.429L532.309 286.373L665.237 452.533L798.166 286.373L774.211 256.429Z"/>
     <path d="M441.901 256.422C381.717 181.193 284.139 181.193 223.955 256.422L200 286.366L390.111 524.003C450.295 599.232 547.873 599.232 608.057 524.003L632.012 494.059L441.901 256.422Z"/>
   </g>
-  <g stroke-width="77">
-    <path d="M774.211 256.429C714.026 181.2 616.448 181.2 556.264 256.429L532.309 286.373L665.237 452.533L798.166 286.373L774.211 256.429Z"/>
-    <path d="M441.901 256.422C381.717 181.193 284.139 181.193 223.955 256.422L200 286.366L390.111 524.003C450.295 599.232 547.873 599.232 608.057 524.003L632.012 494.059L441.901 256.422Z"/>
-  </g>
+  <path d="M774.211 256.429C714.026 181.2 616.448 181.2 556.264 256.429L532.309 286.373L665.237 452.533L798.166 286.373L774.211 256.429Z"/>
+  <path d="M441.901 256.422C381.717 181.193 284.139 181.193 223.955 256.422L200 286.366L390.111 524.003C450.295 599.232 547.873 599.232 608.057 524.003L632.012 494.059L441.901 256.422Z"/>
 </g>
 <g fill="#FFE500">
   <path d="M774.211 256.429C714.026 181.2 616.448 181.2 556.264 256.429L532.309 286.373L665.237 452.533L798.166 286.373L774.211 256.429Z"/>
