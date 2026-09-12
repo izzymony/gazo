@@ -10,10 +10,13 @@ import { focusRing } from "../styles";
 /**
  * `bar` is the stacked icon-over-label form used by edge-to-edge mobile bars.
  * `floating` adds the contained selection surface and 44px touch geometry a
- * floating tab bar needs. `rail` is the horizontal row used by the desktop
- * sidebar.
+ * floating tab bar needs. `rail` is the horizontal labelled row used by the
+ * seller's 256px sidebar. `compact-rail` is the square glyph used by a collapsed
+ * icon column — its own variant rather than `rail` with the padding overridden,
+ * because `rail` is a full-width row with a full-width selection surface and
+ * label geometry, none of which a 5rem column wants.
  */
-export type NavItemVariant = "bar" | "floating" | "rail";
+export type NavItemVariant = "bar" | "floating" | "rail" | "compact-rail";
 
 export interface NavItemProps {
   href: string;
@@ -71,6 +74,17 @@ const VARIANT: Record<NavItemVariant, { base: string; active: string; idle: stri
     active: "bg-brand-50 text-brandDeep",
     idle:
       "text-foreground-muted hover:bg-surface-subtle hover:text-foreground-secondary active:bg-surface-muted",
+  },
+  /*
+   * A square target in a narrow column. The selection is carried by the glyph
+   * rather than by a filled row: at this width a full-width active surface is
+   * most of the rail, which reads as a highlighted column rather than as a
+   * chosen destination.
+   */
+  "compact-rail": {
+    base: "size-11 flex-col justify-center rounded-field",
+    active: "text-brandDeep",
+    idle: "text-foreground-muted hover:bg-surface-muted hover:text-foreground-secondary",
   },
   rail: {
     base: "w-full flex-row justify-start gap-3 px-4 py-3 rounded-field text-body",
@@ -149,7 +163,11 @@ export default function NavItem({
           decides whether it is also drawn. */}
       <span
         className={
-          showLabel ? (variant === "rail" ? undefined : "text-caption font-medium") : "sr-only"
+          showLabel && variant !== "compact-rail"
+            ? variant === "rail"
+              ? undefined
+              : "text-caption font-medium"
+            : "sr-only"
         }>
         {label}
       </span>

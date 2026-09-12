@@ -48,6 +48,37 @@ describe("NavItem", () => {
       );
     });
 
+    /**
+     * A collapsed icon column, not a labelled row with the padding overridden.
+     * `rail` is full-width with a full-width selection surface; at 5rem that
+     * surface is most of the rail and reads as a highlighted column rather than
+     * as a chosen destination, so the glyph carries the state instead.
+     */
+    describe("compact-rail", () => {
+      it("is a square target, centred, with no full-width surface", () => {
+        render(<NavItem href="/shop" icon={icon} label="Shop" variant="compact-rail" />);
+        const link = screen.getByRole("link", { name: "Shop" });
+        expect(link).toHaveClass("size-11", "justify-center");
+        expect(link).not.toHaveClass("w-full");
+      });
+
+      it("marks selection on the glyph, not with a filled row", () => {
+        render(<NavItem href="/shop" icon={icon} label="Shop" variant="compact-rail" active />);
+        const link = screen.getByRole("link", { name: "Shop" });
+        expect(link).toHaveClass("text-brandDeep");
+        expect(link.className).not.toMatch(/\bbg-brand/);
+      });
+
+      it("keeps the name for assistive tech even when asked to show a label", () => {
+        render(
+          <NavItem href="/shop" icon={icon} label="Shop" variant="compact-rail" showLabel />
+        );
+        // There is no room to draw one, but it must still be announced.
+        expect(screen.getByRole("link", { name: "Shop" })).toBeInTheDocument();
+        expect(screen.getByText("Shop")).toHaveClass("sr-only");
+      });
+    });
+
     it("keeps an unselected floating tab off the brand tint", () => {
       render(<NavItem href="/shop" icon={icon} label="Shop" variant="floating" />);
       const link = screen.getByRole("link", { name: "Shop" });

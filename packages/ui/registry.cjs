@@ -90,6 +90,7 @@ const entries = [
   ["common/StoreLogo", "component", "candidate"],
   ["common/StoreStatusBadge", "component", "candidate"],
   ["common/Switch", "primitive", "stable"],
+  ["common/Tooltip", "primitive", "stable"],
   ["common/Tabs", "component", "stable"],
   ["common/TransactionIcon", "component", "candidate"],
   ["common/TrendIndicator", "component", "candidate"],
