@@ -382,7 +382,6 @@ const useProductStore = create<ProductState>()(
       },
 
       verifyOtpSent: async (payload) => {
-        console.log(payload);
         set({ isLoading: true, error: null });
         try {
           await Client({
@@ -390,10 +389,18 @@ const useProductStore = create<ProductState>()(
             method: "POST",
             data: payload,
           }).then((response) => response as ProductResponse);
+          // Kept: the signup and forgot-password screens do not announce this
+          // themselves, so removing it would leave both flows silent. The
+          // withdrawal caller has its own message and is guarded there.
           toast.success("Otp verified!");
         } catch (error) {
           set({ error: (error as Error).message });
           handleAxiosError(error);
+          // Re-throw so callers can tell a rejected code from an accepted one.
+          // Swallowing here made `await verifyOtpSent(...)` resolve on a wrong
+          // code, so the withdrawal screen announced "OTP verification
+          // successful!!!" on top of the error it had just shown.
+          throw error;
         } finally {
           set({ isLoading: false });
         }

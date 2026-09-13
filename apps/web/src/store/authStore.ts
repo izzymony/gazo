@@ -722,17 +722,20 @@ const useAuthStore = create<AuthState>()(
             data: addressPayload,
           })) as AxiosResponse<{ data: { message: string } }>;
 
-          toast.success("Shipping address updated successfully!");
+          // No toast here: the only caller (profile/shipping-address/edit)
+          // announces both outcomes itself, so toasting here showed the user
+          // TWO success messages for one save.
           if (callback) {
             callback();
           }
           return response.data;
         } catch (error) {
           const err = error as AxiosError<{ error: string }>;
-          toast.error(
-            err.response?.data?.error || "Failed to update shipping address"
-          );
           set({ error: err.message });
+          // Re-throw so the caller's catch actually runs. Swallowing here let
+          // `await updateShippingAddress(...)` resolve on failure, so the page
+          // toasted success and router.replace'd away from an unsaved edit.
+          throw error;
         } finally {
           set({ isLoading: false });
         }

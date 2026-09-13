@@ -75,8 +75,17 @@ const RATCHETED = [
   "native-button",
   "inline-svg",
   "non-interactive-onclick",
+  // Announcing a write nobody verified. A product edit displayed "Product
+  // updated successfully!" beside the real error because the store swallowed
+  // the rejection and the component toasted regardless. Ratcheted on the
+  // toast shape only, which needs no guess about what counts as a write.
+  "unverified-success",
 ];
-const ADVISORY = ["dynamic-classname"];
+// `unverified-navigation` is advisory on purpose: "is this call a write?" is
+// not statically decidable, so the rule leans on naming and will have false
+// positives. Advisory surfaces them without blocking; promote it once the
+// noise is understood.
+const ADVISORY = ["dynamic-classname", "unverified-navigation"];
 
 /**
  * Test sources are not a production surface. A fixture that uses an inline
@@ -346,6 +355,87 @@ function readTag(src, index) {
   return src.slice(index, limit);
 }
 
+/**
+ * Index of the `}` closing the block opened at `open`. Quote-aware in the same
+ * shallow way as readTag above: enough for real source, and a miss only costs
+ * a finding rather than a wrong one.
+ */
+function matchBrace(src, open) {
+  let depth = 0;
+  let quote = null;
+  let comment = null; // "line" | "block"
+  for (let i = open; i < src.length; i += 1) {
+    const c = src[i];
+    const next = src[i + 1];
+
+    // Comments MUST be skipped, not just quotes: an apostrophe in prose
+    // ("there's a new image") otherwise opens a string that never closes, and
+    // the rest of the function stops being tracked at all.
+    if (comment === "line") {
+      if (c === "\n") comment = null;
+      continue;
+    }
+    if (comment === "block") {
+      if (c === "*" && next === "/") {
+        comment = null;
+        i += 1;
+      }
+      continue;
+    }
+    if (quote) {
+      if (c === quote && src[i - 1] !== "\\") quote = null;
+      continue;
+    }
+    if (c === "/" && next === "/") {
+      comment = "line";
+      i += 1;
+    } else if (c === "/" && next === "*") {
+      comment = "block";
+      i += 1;
+    } else if (c === '"' || c === "'" || c === "`") quote = c;
+    else if (c === "{") depth += 1;
+    else if (c === "}") {
+      depth -= 1;
+      if (depth === 0) return i;
+    }
+  }
+  return -1;
+}
+
+/** Character ranges inside a `try { ... }` block. */
+function tryBlockRanges(src) {
+  const ranges = [];
+  for (const m of src.matchAll(/\btry\s*\{/g)) {
+    const open = src.indexOf("{", m.index);
+    const close = matchBrace(src, open);
+    if (close > open) ranges.push([open, close]);
+  }
+  return ranges;
+}
+
+/** `src` from `index` through `lines` more newlines — the look-ahead window. */
+function sliceLines(src, index, lines) {
+  let seen = 0;
+  for (let i = index; i < src.length; i += 1) {
+    if (src[i] !== "\n") continue;
+    seen += 1;
+    if (seen > lines) return src.slice(index, i);
+  }
+  return src.slice(index);
+}
+
+/**
+ * Cut a look-ahead at the end of the enclosing function body — a line holding
+ * nothing but a closing brace. Without it the window runs past `};` into the
+ * next declaration and matches a `router.back()` that belongs to unrelated JSX.
+ * Applied to the navigation rule only: the success rule must keep looking past
+ * the `}` of an intervening if/else to see the toast that follows it.
+ */
+const stopAtBlockEnd = (text) => text.split(/\n\s*\}[;,)]?\s*(?=\n)/)[0];
+
+/** Reads may be followed by anything; an unchecked WRITE is what lies. */
+const READ_PREFIX = /^(?:get|fetch|load|refresh|read|list|search|resolve|use|validate)/i;
+
 function analyseFile(path, src, isRealClass, cssClasses, exemptions, knownVars) {
   const rel = relative(REPO_ROOT, path);
   const findings = [];
@@ -428,6 +518,41 @@ function analyseFile(path, src, isRealClass, cssClasses, exemptions, knownVars) 
     if (!/\bonClick=/.test(tag)) continue;
     if (/\bonTouch(Start|Move|End)=|\bonMouseDown=|\bonDrag/.test(tag)) continue;
     add("non-interactive-onclick", m.index, `<${m[1]} onClick>`);
+  }
+
+  // --- writes announced without being verified -----------------------------
+  // An `await` OUTSIDE any try block cannot tell success from failure: if the
+  // action re-throws the rejection is unhandled, and if it swallows (the
+  // common case here — 100+ catch blocks return normally on error) the next
+  // line runs on a write that never landed. Announcing or navigating there
+  // tells the user something untrue.
+  const tryRanges = tryBlockRanges(src);
+  const guarded = (i) => tryRanges.some(([open, close]) => i > open && i < close);
+
+  for (const m of src.matchAll(/\bawait\s+([A-Za-z_$][\w$.]*)\s*\(/g)) {
+    if (guarded(m.index)) continue;
+    const callee = m[1];
+    const ahead = sliceLines(src, m.index, 10);
+
+    if (/\btoast\.success\s*\(/.test(ahead)) {
+      add("unverified-success", m.index, `await ${callee}() then toast.success`);
+    }
+    if (
+      !READ_PREFIX.test(callee.split(".").pop()) &&
+      /\brouter\.(push|back|replace)\s*\(/.test(stopAtBlockEnd(ahead))
+    ) {
+      add("unverified-navigation", m.index, `await ${callee}() then router navigation`);
+    }
+  }
+
+  // The callback shape the await rule cannot see: `write().then(() => router…)`
+  // with no `.catch`. This is how a failed payout account still sent the seller
+  // to the payouts list as though it had been added.
+  for (const m of src.matchAll(/\.then\s*\(\s*(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>/g)) {
+    const ahead = sliceLines(src, m.index, 6);
+    if (!/\brouter\.(push|back|replace)\s*\(/.test(ahead)) continue;
+    if (/\.catch\s*\(/.test(ahead)) continue;
+    add("unverified-navigation", m.index, ".then(() => router…) with no .catch");
   }
 
   return findings;

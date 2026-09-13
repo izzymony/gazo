@@ -112,7 +112,15 @@ function Page() {
         valid_from: toISODate(formik.values.startDate),
         valid_to: toISODate(formik.values.endDate),
       };
-      await createDiscount(couponData);
+      // Leave the form only on a confirmed create. createDiscount used to
+      // resolve on failure, so router.back() discarded the whole filled-in
+      // form for a discount that was never created.
+      try {
+        await createDiscount(couponData);
+      } catch {
+        // createDiscount toasts the reason; stay put so the input survives.
+        return;
+      }
       router.back();
     },
   });

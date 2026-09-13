@@ -42,9 +42,16 @@ export default function Page() {
       bank_code: +selectedBank.BankCode,
       bank: banks,
     };
-    await createBank(datas).then(() => {
-      router.push("/dashboard/payouts");
-    });
+    // Navigate only on a confirmed create. The `.then()` had no `.catch()`, and
+    // createBank used to resolve on failure — so a rejected bank account still
+    // sent the user to the payouts list as though it had been added.
+    try {
+      await createBank(datas);
+    } catch {
+      // createBank toasts the reason; stay on the form so it can be corrected.
+      return;
+    }
+    router.push("/dashboard/payouts");
   };
 
   const response = otp ? (

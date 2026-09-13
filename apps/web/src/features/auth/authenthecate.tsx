@@ -4,7 +4,6 @@
 
 import { useCallback, useState } from "react";
 import OtpInput from "./otp";
-import { toast } from "sonner";
 import IconButton from "@vibaar/ui/common/IconButton";
 import { BiArrowBack } from "@vibaar/ui/icons";
 
@@ -27,11 +26,21 @@ export default function Authenthecate({
 }) {
   const [otpValue, setOtpValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const handleComplete = useCallback(async (val: any) => {
+  // `otpAction` is in the dep list: with `[]` the callback captured the first
+  // render's prop and kept calling a stale closure.
+  //
+  // No toast either way: verifyOtpSent reports both outcomes itself. This used
+  // to announce "OTP verification successful!!!" unconditionally — the store
+  // swallowed rejections, so a WRONG code produced the error toast and the
+  // success toast together.
+  const handleComplete = useCallback(async (val: string) => {
     setOtpValue(val);
-    await otpAction(val);
-    toast.success("OTP verification successful!!!");
-  }, []);
+    try {
+      await otpAction(val);
+    } catch {
+      // Reported by the store; nothing to add.
+    }
+  }, [otpAction]);
 
   return (
     <div className="flex-1 h-screen w-screen py-3 px-4 flex flex-col justify-between">

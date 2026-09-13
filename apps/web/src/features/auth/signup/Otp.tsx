@@ -40,11 +40,19 @@ const Otp = ({
             onComplete={async (val) => {
               setOtpValue(val);
               setFieldValue("otp", val);
-              await verifyOtpSent({
-                identifier: email,
-                otp: val,
-                verification_type: "register_otp",
-              });
+              try {
+                await verifyOtpSent({
+                  identifier: email,
+                  otp: val,
+                  verification_type: "register_otp",
+                });
+              } catch {
+                // verifyOtpSent reports the failure itself. It now re-throws, and
+                // this handler is awaited by OtpInput with no catch of its own —
+                // without this the rejection would surface as an unhandled
+                // promise rejection. The parent step gate is unchanged here; see
+                // the follow-up about advancing without a verified result.
+              }
             }}
           // otp={otp}
           // error={error && error}

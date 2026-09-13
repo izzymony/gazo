@@ -346,13 +346,21 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
 
                 // The updateProduct now automatically handles state synchronization
                 let updatedProduct;
+                // The fallback below re-READS the product; a successful read says
+                // nothing about whether the WRITE landed. Without this flag the
+                // catch fell through to toast.success, so a failed save was
+                // announced as "Product updated successfully!" next to the real
+                // error toast the store had already raised.
+                let updateSucceeded = false;
                 try {
                     updatedProduct = await updateProduct(productId, productPayload as unknown as Parameters<typeof updateProduct>[1]);
+                    updateSucceeded = true;
                     console.log('✅ Product updated successfully via store! Staying on edit page.');
                 } catch (updateError) {
                     console.warn('⚠️ Store update failed, trying fallback refresh...', updateError);
 
-                    // Fallback: Manual refresh if store update fails
+                    // Fallback: re-sync local state to what the server actually
+                    // holds. Recovery only — it must not mark the write verified.
                     try {
                         updatedProduct = await getProductByIds(productId);
                         if (updatedProduct) {
@@ -379,7 +387,12 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     console.error('❌ No product data received after update');
                 }
 
-                toast.success('Product updated successfully!');
+                // Only on a confirmed write. The store already raised the error
+                // toast (handleAxiosError) before re-throwing, so a failure is
+                // reported exactly once and this stays silent.
+                if (updateSucceeded) {
+                    toast.success('Product updated successfully!');
+                }
             } catch (error) {
                 console.error("❌ Error updating product:", error);
                 // Stay on page so user can fix the issue and try again

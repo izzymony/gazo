@@ -875,24 +875,50 @@ const useBusinessStore = create<BusinessState>()(
         set({ businessProduct: data }),
 
       createBank: async (val: BankData) => {
-        //(val);
         set({ isLoading: true, error: null });
+        // Set once the guard below has already told the user why it failed, so
+        // the catch can report anything else (a non-axios error included)
+        // without producing a second toast for the same failure.
+        let reported = false;
         try {
           const response = (await Client({
             path: "/business/add-bank-account",
             method: "POST",
             data: val,
           })) as AxiosResponse;
-          //(response.data);
-          if (response.data.message) {
-            //(response.data);
-            toast.success("Bank added successfully");
-          } else {
-            toast.error("Failed to create bank");
+
+          // AddBankAccount answers every failure with a non-2xx + {error}, which
+          // axios rejects — so reaching here already means success. The guard is
+          // defensive only, and must NOT be the old `if (response.data.message)`:
+          // that treated any non-empty message as success, "invalid account"
+          // included. Note the success string is "Bank account added
+          // successfully", not the "successful" that response.NewCustomResponse
+          // emits elsewhere, so don't unify these two checks.
+          const ok =
+            response.status >= 200 &&
+            response.status < 300 &&
+            !response.data?.error;
+          if (!ok) {
+            const message =
+              response.data?.error ||
+              response.data?.message ||
+              "Failed to create bank";
+            toast.error(message);
+            reported = true;
+            // Throw rather than fall through: the caller navigates to the
+            // payouts list on resolve, so returning normally here announced a
+            // bank account that was never added.
+            throw new Error(message);
           }
+          toast.success("Bank added successfully");
         } catch (error) {
           const err = error as AxiosError<{ error: string }>;
           set({ error: err.message });
+          // This catch was silent — a failed add showed the user nothing at all.
+          if (!reported) {
+            toast.error(err.response?.data?.error || "Failed to create bank");
+          }
+          throw error;
         } finally {
           set({ isLoading: false });
         }
@@ -1152,6 +1178,8 @@ const useBusinessStore = create<BusinessState>()(
       },
       createDiscount: async (data: CreateCoupon) => {
         set({ isLoading: true, error: null });
+        // See createBank: guards the user against two toasts for one failure.
+        let reported = false;
         //("data is ", data);
         try {
           const response = (await Client({
@@ -1160,17 +1188,30 @@ const useBusinessStore = create<BusinessState>()(
             data: data,
           })) as AxiosResponse;
 
-          if (response.data.message === "successful") {
-            toast.success("Coupon created discount.");
-          } else {
-            toast.error("Failed to create discount.");
+          // "successful" is what response.NewCustomResponse emits, so this
+          // literal is right for THIS endpoint (createBank's differs).
+          if (response.data.message !== "successful") {
+            const message =
+              response.data?.error ||
+              response.data?.message ||
+              "Failed to create discount.";
+            toast.error(message);
+            reported = true;
+            // Throw rather than fall through: the caller router.back()s on
+            // resolve, so a failed create used to close the form and discard
+            // everything the user had typed.
+            throw new Error(message);
           }
+          toast.success("Coupon created discount.");
         } catch (error) {
           const err = error as AxiosError<{ error: string }>;
           set({ error: err.message });
-          toast.error(
-            err.response?.data?.error || "Failed to create doscount."
-          );
+          // Skip when the guard above already reported it, so the user sees one
+          // message rather than two.
+          if (!reported) {
+            toast.error(err.response?.data?.error || "Failed to create discount.");
+          }
+          throw error;
         } finally {
           set({ isLoading: false });
         }
@@ -1925,6 +1966,15 @@ const useBusinessStore = create<BusinessState>()(
               pattern: "/pattern1.svg",
             },
           });
+
+          // Success path ONLY. This used to sit in `finally`, which runs after a
+          // failure too — so callers that navigate or refetch in the callback
+          // did it on a save that never landed: the store-address screen
+          // router.back()'d as if saved, and the details screen refetched over
+          // the failed edit, silently reverting what the user typed.
+          if (callback) {
+            callback();
+          }
         } catch (error) {
           const err = error as AxiosError<{ error: string }>;
           set({ error: err.message });
@@ -1933,9 +1983,6 @@ const useBusinessStore = create<BusinessState>()(
           toast.error(errorMessage);
         } finally {
           set({ isLoading: false });
-          if (callback) {
-            callback();
-          }
         }
       },
 
