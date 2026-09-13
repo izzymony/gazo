@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { slidesData } from "./slidesData";
+import useMediaActive from "../common/useMediaActive";
 
 interface SlideContentProps {
   currentSlide: number;
@@ -8,17 +9,29 @@ interface SlideContentProps {
 }
 
 export default function SlideContent({ currentSlide, onSlideChange }: SlideContentProps) {
+  const showWordmark = useMediaActive("md");
+
   return (
     <div className="relative">
-      {/* Desktop Logo (hidden on mobile) */}
-      <Image
-        src="/brand/logo-black.svg"
-        alt="Company Logo"
-        width={180}
-              height={52}
-        className="hidden md:block mx-auto mb-12"
-        priority
-      />
+      {/* Desktop wordmark. Gated on a MOUNT, not `hidden md:block` — a
+          display:none image is still fetched, so the old class shipped it to
+          every phone that never saw it. `useMediaActive` returns false on the
+          server, so it does not reach the mobile HTML at all.
+
+          The box is reserved at its rendered height so mounting it after
+          hydration does not shift the column, which is vertically centred and
+          would otherwise jump by half the logo's height. */}
+      <div className="hidden md:flex md:h-14 md:mb-12 md:items-center md:justify-center">
+        {showWordmark && (
+          <Image
+            src="/brand/logo-black.svg"
+            alt="Company Logo"
+            width={180}
+            height={52}
+            priority
+          />
+        )}
+      </div>
 
       {/* Slide Text Content */}
       <div className="grid grid-cols-1">

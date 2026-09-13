@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { CircleCheck } from "@vibaar/ui/icons";
 import AuthSplitShell from "@vibaar/ui/AuthSplitShell";
 import BrandLogo from "@vibaar/ui/common/BrandLogo";
+import useMediaActive from "@vibaar/ui/common/useMediaActive";
 
 export default function Welcome() {
   const [activeTab, setActiveTab] = useState("sell");
@@ -124,6 +125,9 @@ export default function Welcome() {
 
   const userName = getUserName();
 
+  // Desktop wordmark: a mount, not a `hidden` class — see the slot below.
+  const showWordmark = useMediaActive("md");
+
   if (loading) {
     return <Loader />;
   }
@@ -161,16 +165,25 @@ export default function Welcome() {
         </Button>
       }>
       <div className="text-center">
-        {/* Desktop only, so this column opens the way the auth screens do —
-            they share a frame and should start the same way.
+{/* Desktop wordmark, so this column opens the way the auth screens
+            do — they share a frame and should start the same way.
 
-            Not on mobile: the greeting already reads "Welcome to Vibaar", so a
-            wordmark directly above it says the brand twice inside 80px, which
-            is why this screen never carried one there. (Unlike the auth
-            artwork, welcome's hero has no mark of its own — the headline is
-            what carries it.) `hidden` still costs the request, but it is one
-            small SVG against artwork already being fetched. */}
-        <BrandLogo width={180} className="mx-auto mb-8 hidden md:block" />
+            Gated on a MOUNT rather than `hidden md:block`: a display:none
+            image is still fetched, so the class alone shipped it to every
+            phone. `useMediaActive` is false on the server, so it never reaches
+            the mobile HTML.
+
+            Not on mobile by design either: the greeting already reads
+            "Welcome to Vibaar", so a wordmark directly above it says the brand
+            twice inside 80px. (Unlike the auth artwork, welcome's hero carries
+            no mark of its own — the headline is what carries it.)
+
+            The box is reserved at its rendered height, because this column is
+            vertically centred and a post-hydration mount would otherwise shift
+            everything beneath it. */}
+        <div className="hidden md:flex md:h-14 md:mb-8 md:items-center md:justify-center">
+          {showWordmark && <BrandLogo width={180} />}
+        </div>
 
         {/* Matches SlideContent's scale exactly. It was `text-h1` at every
             width, so beside a 40px auth headline in the same frame this one
