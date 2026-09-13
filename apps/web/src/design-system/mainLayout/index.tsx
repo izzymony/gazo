@@ -1,35 +1,46 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import Header from "@vibaar/ui/common/Header";
 import IconButton from "@vibaar/ui/common/IconButton";
 import { CiSearch } from "@vibaar/ui/icons";
 import SearchInput from "@/features/storefront/SearchInput";
 import Footer from "@vibaar/ui/common/Footer";
-import Button from "@vibaar/ui/common/Button";
 import { MainLayoutProps } from "@/lib/types";
 import Image from "next/image";
 
+/**
+ * LEGACY, one caller left: app/(buyer)/shop/spotlights. Not to be adopted —
+ * `PageShell` is the systematic page layout, and retiring this file with its last
+ * importer is tracked separately as R4.
+ *
+ * ITS TWO ACTION BARS ARE GONE. Both were
+ * `fixed bottom-0 left-0 right-0 ... lg:max-w-5xl lg:mx-auto`: a page-wide CTA
+ * bar pinned to the viewport floor at every width, which is precisely what the
+ * desktop rule forbids. They were also duplicated — the `staticContent` branch
+ * and the default branch each carried a byte-identical copy — so any fix to one
+ * silently missed the other.
+ *
+ * Removing them is behaviour-neutral and that is checkable rather than hopeful:
+ * both sat behind `showBtn`, and the single remaining caller passes `headerProps`
+ * and nothing else. Neither bar has been reachable in the running app.
+ *
+ * Thirteen props existed only to fill those bars and are gone with them:
+ * buttonText, btnClass, onClickBtn, buttonType, isButtonLoading, showBtn,
+ * showBeforeBtn, beforeButtonContent, afterButtonContent, showDivider,
+ * secondaryText, secondaryLink, otpCheckMailNotification. A future caller cannot
+ * now ask this layout for a fixed CTA bar, which is the point — deleting the
+ * markup without deleting the props would leave the invitation standing.
+ *
+ * `pb-[100px]` went with them: it existed to clear a bar that can no longer
+ * render, and left 100px of dead scroll at the foot of the one live screen.
+ */
 export default function MainLayout({
-  buttonText,
-  btnClass,
-  onClickBtn,
-  secondaryText,
-  secondaryLink,
-  imgSrc,
   children,
   headerProps,
   staticContent = false,
   showFooter = false,
-  showBtn = false,
-  showBeforeBtn = false,
-  showDivider = false,
-  buttonType = "button",
-  otpCheckMailNotification = false,
-  isButtonLoading = false,
-  beforeButtonContent,
-  afterButtonContent,
+  imgSrc,
   addSpace = false,
 }: MainLayoutProps) {
   // The search term used to live inside Header itself, which is why Header —
@@ -77,69 +88,10 @@ export default function MainLayout({
             <div className="flex-1 overflow-y-auto scrollbar-hide">
               {children}
             </div>
-            {/* Buttons Section */}
-            {showBtn && (
-              <div className={`fixed bottom-0 left-0 right-0 w-full max-w-full lg:max-w-5xl lg:mx-auto pb-5 px-3 bg-surface border-t border-outline-subtle z-sticky ${btnClass}`}>
-                {otpCheckMailNotification && (
-                  <p className="text-body text-foreground-secondary font-normal text-start pb-8">
-                    If you haven't received the mail try checking your <br />
-                    spam folder or resending it.
-                  </p>
-                )}
-
-                {showDivider && (
-                  <hr className="w-full text-foreground-secondary" />
-                )}
-
-                {/* Content Before Button */}
-                {showBeforeBtn && (
-                  <div className="w-full flex flex-row items-center gap-5 mt-0">
-                    <div className="">{beforeButtonContent}</div>
-
-                    {buttonText && (
-                      <Button
-                        type={buttonType}
-                        loading={isButtonLoading}
-                        // className="mt-0"
-                        onClick={() => onClickBtn?.()}>
-                        {buttonText}
-                      </Button>
-                    )}
-                  </div>
-                )}
-
-                {/* Button */}
-                {buttonText && !showBeforeBtn && (
-                  <Button
-                    type={buttonType}
-                    loading={isButtonLoading}
-                    onClick={() => {
-                      console.log(`${buttonText} button clicked`);
-                      onClickBtn?.();
-                    }}>
-                    {buttonText}
-                  </Button>
-                )}
-
-                {/* Content After Button */}
-                {afterButtonContent && (
-                  <div className="mt-4">{afterButtonContent}</div>
-                )}
-
-                {/* Secondary Text and Link */}
-                {secondaryText && secondaryLink && (
-                  <Link
-                    href={secondaryLink}
-                    className="text-brandDeep text-body font-medium w-full text-center py-3 px-6 flex justify-center mt-3">
-                    {secondaryText}
-                  </Link>
-                )}
-              </div>
-            )}
           </div>
         ) : (
           <div className="flex flex-col h-full">
-            <main className="flex-1 overflow-y-auto scrollbar-hide pb-[100px] mt-2.5">
+            <main className="flex-1 overflow-y-auto scrollbar-hide mt-2.5">
               {/* Centered Image */}
               <div className="flex flex-col items-center justify-center ">
                 {addSpace && <div className="mt-[120px]" />}
@@ -157,66 +109,6 @@ export default function MainLayout({
               </div>
               {children}
             </main>
-
-            {/* Buttons Section */}
-            {showBtn && (
-              <div className={`fixed bottom-0 left-0 right-0 w-full max-w-full lg:max-w-5xl lg:mx-auto pb-5 px-3 bg-surface border-t border-outline-subtle z-sticky ${btnClass}`}>
-                {otpCheckMailNotification && (
-                  <p className="text-body text-foreground-secondary font-normal text-start pb-8">
-                    If you haven't received the mail try checking your <br />
-                    spam folder or resending it.
-                  </p>
-                )}
-
-                {showDivider && (
-                  <hr className="w-full text-foreground-secondary" />
-                )}
-
-                {/* Content Before Button */}
-                {showBeforeBtn && (
-                  <div className="w-full flex flex-row items-center gap-5 mt-0">
-                    <div className="">{beforeButtonContent}</div>
-
-                    {buttonText && (
-                      <Button
-                        type={buttonType}
-                        loading={isButtonLoading}
-                        // className="mt-0"
-                        onClick={() => onClickBtn?.()}>
-                        {buttonText}
-                      </Button>
-                    )}
-                  </div>
-                )}
-
-                {/* Button */}
-                {buttonText && !showBeforeBtn && (
-                  <Button
-                    type={buttonType}
-                    loading={isButtonLoading}
-                    onClick={() => {
-                      console.log(`${buttonText} button clicked`);
-                      onClickBtn?.();
-                    }}>
-                    {buttonText}
-                  </Button>
-                )}
-
-                {/* Content After Button */}
-                {afterButtonContent && (
-                  <div className="mt-4">{afterButtonContent}</div>
-                )}
-
-                {/* Secondary Text and Link */}
-                {secondaryText && secondaryLink && (
-                  <Link
-                    href={secondaryLink}
-                    className="text-brandDeep text-body font-medium w-full text-center py-3 px-6 flex justify-center mt-3">
-                    {secondaryText}
-                  </Link>
-                )}
-              </div>
-            )}
           </div>
         )}
       </div>

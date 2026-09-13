@@ -30,31 +30,28 @@ export interface HeaderProps {
   handleSearchClick?: () => void;
 }
 
+/**
+ * LEGACY layout, one caller left — see design-system/mainLayout.
+ *
+ * The thirteen button props are gone with the two `fixed bottom-0` action bars
+ * they filled: buttonText, btnClass, onClickBtn, buttonType, isButtonLoading,
+ * showBtn, showBeforeBtn, beforeButtonContent, afterButtonContent, showDivider,
+ * secondaryText, secondaryLink, otpCheckMailNotification. Deleting the markup
+ * without deleting the props would have left a legacy layout still advertising a
+ * viewport-fixed CTA bar that the desktop rule forbids.
+ */
 export interface MainLayoutProps {
   addSpace?: boolean;
   title?: string;
-  btnClass?: string;
   description?: string;
   features?: string[];
   imageSrc?: string;
-  buttonType?: "button" | "reset" | "submit";
-  buttonText?: string;
-  onClickBtn?: () => void;
-  secondaryText?: string;
-  secondaryLink?: string;
   bgImage?: string;
   imgSrc?: string;
   children?: React.ReactNode;
   headerProps?: HeaderProps;
   showFooter?: boolean;
   staticContent?: boolean;
-  showBeforeBtn?: boolean;
-  beforeButtonContent?: React.ReactNode;
-  afterButtonContent?: React.ReactNode;
-  showDivider?: boolean;
-  showBtn?: boolean;
-  otpCheckMailNotification?: boolean;
-  isButtonLoading?: boolean;
 }
 export interface User {
   user_id?: string;
