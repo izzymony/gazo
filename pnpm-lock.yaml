@@ -340,6 +340,9 @@ importers:
       '@hugeicons/react':
         specifier: ^1.1.9
         version: 1.1.10(react@18.3.1)
+      '@vibaar/design-tokens':
+        specifier: workspace:*
+        version: link:../design-tokens
       '@vibaar/utils':
         specifier: workspace:*
         version: link:../utils

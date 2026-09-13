@@ -13,6 +13,13 @@ export type VibaarTokenContract = {
   radius: Record<string, string>;
   shadow: Record<string, string>;
   zIndex: Record<string, string>;
+  /**
+   * Tailwind's own breakpoints as data, so a resource decision in JS and a
+   * layout decision in CSS cannot name two different numbers. Layout belongs in
+   * CSS; read these only to decide whether an expensive subtree is worth
+   * mounting. A contract test pins them to Tailwind's resolved screens.
+   */
+  screens: Record<"sm" | "md" | "lg" | "xl" | "2xl", string>;
 };
 
 export const tokens: VibaarTokenContract;

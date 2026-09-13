@@ -149,6 +149,40 @@ console.log(
 );
 console.log("Brand neutral contract valid: neutral-50…950 exactly aliases Tailwind neutral");
 console.log("Neutral semantic contract valid: foreground and outline roles alias Tailwind neutral");
+// `tokens.screens` exists so a media query written in JavaScript and a `md:`
+// written in CSS cannot name two different numbers. It restates Tailwind's
+// defaults rather than overriding them, so the thing that can rot is Tailwind
+// changing underneath it — assert against the RESOLVED config, not the literal.
+{
+  const resolveConfig = require("tailwindcss/resolveConfig");
+  const preset = require("../preset.cjs");
+  const resolved = resolveConfig({ content: [], presets: [preset] });
+
+  for (const [name, value] of Object.entries(tokens.screens)) {
+    assert.equal(
+      resolved.theme.screens[name],
+      value,
+      `tokens.screens.${name} (${value}) must equal Tailwind's resolved ${name} ` +
+        `(${resolved.theme.screens[name]}) — JS reads these to decide whether to ` +
+        `mount expensive subtrees, and CSS reads the same number for layout`
+    );
+  }
+
+  // The size-container utility backs the auth media pane's container queries.
+  // It lives in the preset precisely so @vibaar/ui does not depend on an app
+  // stylesheet; if it were dropped the artwork would silently stop scaling.
+  const utilities = preset.plugins.flatMap((p) => {
+    const found = [];
+    p.handler({ addUtilities: (u) => found.push(...Object.keys(u)) });
+    return found;
+  });
+  assert.ok(
+    utilities.includes(".container-size"),
+    "the preset must provide .container-size — @vibaar/ui relies on it and must " +
+      "not fall back to an application stylesheet"
+  );
+}
+
 const roleSummary = Object.entries(toneRoleSteps)
   .map(([role, step]) => `${role} → ${step}`)
   .join(", ");

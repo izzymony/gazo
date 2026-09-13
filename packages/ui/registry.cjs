@@ -96,6 +96,7 @@ const entries = [
   ["common/TrendIndicator", "component", "candidate"],
   ["common/Typography", "primitive", "stable"],
   ["common/UserProfileImage", "component", "candidate"],
+  ["common/useMediaActive", "internal"],
   ["common/useModalBehaviour", "internal"],
   ["common/VerifiedCheck", "component", "candidate"],
   ["ConfettiCelebration", "pattern"],

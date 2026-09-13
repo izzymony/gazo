@@ -202,6 +202,30 @@ const tokens = {
     pop: "0 4px 24px rgba(0, 0, 0, 0.12)",
   },
   /**
+   * Tailwind's default breakpoints, restated here so JavaScript can read them.
+   *
+   * These are the framework's own values, repeated rather than changed — the
+   * preset does NOT declare `theme.screens`, so Tailwind's defaults are what
+   * every `md:` in the codebase already compiles to.
+   *
+   * They exist as data because a media query written in JS is otherwise a
+   * second, silent definition of the same number. `AnimatedImages` had exactly
+   * that: a literal `window.innerWidth >= 768` deciding layout, next to the
+   * `md:` classes deciding the rest, with nothing tying them together. A
+   * contract test asserts these still equal Tailwind's resolved screens, so if
+   * the framework's defaults ever move, the JS moves with them or the gate fails.
+   *
+   * Read them for RESOURCE decisions — whether an expensive subtree is worth
+   * mounting. Layout stays in CSS.
+   */
+  screens: {
+    sm: "640px",
+    md: "768px",
+    lg: "1024px",
+    xl: "1280px",
+    "2xl": "1536px",
+  },
+  /**
    * Fixed chrome whose width other layout has to agree with.
    *
    * `rail` is the seller dashboard's desktop sidebar. Three things must say the

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 const { tokens } = require("./tokens.cjs");
+const plugin = require("tailwindcss/plugin");
 
 const cssVariableScale = (name, scale) =>
   Object.fromEntries(
@@ -37,6 +38,30 @@ const toneScale = (tones, prefix = "") =>
  * @type {import('tailwindcss').Config}
  */
 module.exports = {
+  plugins: [
+    // Size containment, so a component can scale against the box it was GIVEN
+    // rather than against the viewport. Tailwind 3.4 ships no `container-type`
+    // utility and the official container-queries plugin is not installed, so
+    // the two alternatives were an arbitrary property at every call site or a
+    // class in the app's globals.css. The second is what `rail-safe-foreground`
+    // does, and it is wrong for anything in @vibaar/ui: a package component
+    // would silently depend on an application stylesheet, and break in the
+    // design-system playground or any other consumer that does not load it.
+    //
+    // Declared here instead, beside the tokens, so every consumer of the preset
+    // has it — and it is a real utility, so it raises no drift.
+    //
+    // `size`, not `inline-size`: the auth media pane must scale by height too,
+    // or a short desktop window crops the artwork instead of shrinking it.
+    // Note the containment contract — a size container cannot be sized BY its
+    // contents, so the element needs its dimensions from its own layout.
+    plugin(({ addUtilities }) => {
+      addUtilities({
+        ".container-size": { "container-type": "size" },
+        ".container-inline": { "container-type": "inline-size" },
+      });
+    }),
+  ],
   theme: {
     extend: {
       fontFamily: {
