@@ -158,12 +158,12 @@ const PaymentSucceful = () => {
           </p>
           <button
             onClick={() => router.push("/orders")}
-            className="text-brandDeep border border-brandDeep w-full max-w-[320px] rounded-full px-10 py-2 font-medium mx-auto block mt-8">
+            className="text-brandDeep border border-brandDeep w-full max-w-[320px] rounded-full px-10 py-2 font-medium mx-auto block mt-8 lg:w-fit lg:min-w-action lg:ml-auto lg:mr-0">
             View my orders
           </button>
           <button
             onClick={() => router.push("/cart")}
-            className="text-brandInk bg-brand w-full max-w-[320px] rounded-full px-10 py-2 font-medium mx-auto block mt-3">
+            className="text-brandInk bg-brand w-full max-w-[320px] rounded-full px-10 py-2 font-medium mx-auto block mt-3 lg:w-fit lg:min-w-action lg:ml-auto lg:mr-0">
             Back to cart
           </button>
         </div>
@@ -290,7 +290,7 @@ const PaymentSucceful = () => {
                   router.replace(`/signin?${signinParams.toString()}`);
                 }
           }
-          className="text-brandInk bg-brand w-full rounded-full px-10 md:px-24 py-2 font-medium mx-auto block mt-6">
+          className="text-brandInk bg-brand w-full rounded-full px-10 md:px-24 py-2 font-medium mx-auto block mt-6 lg:w-fit lg:min-w-action lg:ml-auto lg:mr-0">
           {user ? "View order details" : "Sign in"}
         </button>
       </div>

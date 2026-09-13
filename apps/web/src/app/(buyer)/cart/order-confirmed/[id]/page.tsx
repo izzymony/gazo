@@ -216,7 +216,7 @@ const OrderConfirmed = () => {
           {/* View Order Details Button */}
           <button
             onClick={() => router.push("/orders")}
-            className="border w-full border-outline text-brandDeep rounded-3xl px-10 md:px-24 py-2 font-medium mx-auto block mt-3">
+            className="border w-full border-outline text-brandDeep rounded-3xl px-10 md:px-24 py-2 font-medium mx-auto block mt-3 lg:w-fit lg:min-w-action lg:ml-auto lg:mr-0">
             View order details
           </button>
         </div>
