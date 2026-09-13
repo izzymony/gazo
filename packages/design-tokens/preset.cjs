@@ -290,6 +290,27 @@ module.exports = {
         // bar is unchanged everywhere except inside a shell that sets it.
         "shell-inset": "var(--shell-inset, 0px)",
       },
+      gridTemplateColumns: {
+        // The desktop page-header band. Column 1 is `minmax(0,1fr)` and NOT
+        // `1fr`: `1fr`'s automatic minimum is min-content, so the longest word
+        // in a title would push the action group off the row instead of
+        // truncating. A zero minimum is what lets `truncate` engage.
+        //
+        // The action column is `auto`, so it sizes to its own content and the
+        // title truncates against what genuinely remains. That reservation is
+        // the whole point — an absolutely-positioned action shares the header's
+        // coordinates but not its layout calculation, and a long title runs
+        // underneath it.
+        "page-band": "minmax(0,1fr) auto",
+        "page-band-status": "minmax(0,1fr) auto auto",
+      },
+      gridTemplateRows: {
+        // title/action row · progress · content. Progress gets its OWN row so
+        // row 1's height is the title/action row alone — as one opaque cell it
+        // would measure title+progress, and the action would centre against the
+        // combined height, drifting on the 9 stepper screens but not the rest.
+        "page-band": "auto auto minmax(0,1fr)",
+      },
       minWidth: {
         // The desktop inline page-action floor. A "Save" that hugs its label is
         // 78px and reads as incidental next to the content it commits; the

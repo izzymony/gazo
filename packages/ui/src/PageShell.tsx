@@ -1,7 +1,8 @@
 import { ReactNode, Ref } from "react";
 import { cn } from "@vibaar/utils";
+import PageHeaderBand, { type PageHeaderSpec } from "./PageHeaderBand";
 
-interface PageShellProps {
+interface PageShellBaseProps {
   /** Header element (BackHeader / StepHeader / etc.). It positions itself
    *  (absolute on mobile, sticky on lg), so the shell offsets content for it. */
   header?: ReactNode;
@@ -29,6 +30,23 @@ interface PageShellProps {
 }
 
 /**
+ * `header` and `pageHeader` are mutually exclusive, enforced by the type system
+ * rather than a runtime throw: a dev-time throw only fires on the code path
+ * someone happens to render, while `never` rejects both-at-once at compile time
+ * on every screen at once.
+ *
+ * `header` stays exactly as it was for the ~48 screens that carry no flow
+ * action. `pageHeader` is for the ones that do — it hands the shell the header
+ * AND the action together, which is the only way one component can place a
+ * single action node in the header row at `lg` and in the bottom bar below it.
+ */
+type PageShellProps = PageShellBaseProps &
+  (
+    | { header?: ReactNode; pageHeader?: never }
+    | { pageHeader: PageHeaderSpec; header?: never }
+  );
+
+/**
  * PageShell — the single systematic page layout (W3.7 / layout systematization).
  *
  * OWNS the shell concerns that were previously hand-set (and inconsistent) on
@@ -42,6 +60,7 @@ interface PageShellProps {
  */
 export default function PageShell({
   header,
+  pageHeader,
   hero,
   footerAction,
   footerPosition = "fixed",
@@ -58,6 +77,16 @@ export default function PageShell({
         // and adds only the clearance actually missing — at 1280 and above the
         // centred column already clears a rail, so it adds nothing there.
         "w-full max-w-full lg:max-w-5xl lg:mx-auto rail-safe-foreground";
+
+  // A flow page: the band owns the header, the content and the single action
+  // tree, because placing one node in two positions requires one owner.
+  if (pageHeader) {
+    return (
+      <PageHeaderBand {...pageHeader} contentClassName={contentClassName} scrollRef={scrollRef}>
+        {children}
+      </PageHeaderBand>
+    );
+  }
 
   return (
     <>

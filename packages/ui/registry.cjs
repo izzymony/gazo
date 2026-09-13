@@ -107,6 +107,9 @@ const entries = [
   ["ConfettiCelebration", "pattern"],
   ["icons/index", "asset"],
   ["modal/Modal", "deprecated"],
+  // The desktop frame for screens that own a flow action: one action node,
+  // last in the DOM, lifted into the header row at lg by grid placement.
+  ["PageHeaderBand", "pattern", "candidate"],
   ["PageShell", "pattern", "stable"],
   ["slidingcomponent", "pattern"],
   ["styles", "internal"],
