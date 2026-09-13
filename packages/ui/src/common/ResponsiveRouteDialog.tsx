@@ -71,9 +71,16 @@ export default function ResponsiveRouteDialog({
       className="fixed inset-0 z-modal lg:bg-overlay/60 lg:backdrop-blur-sm"
       onClick={onClose}>
       <div
-        // The centring layer, inset by the rail. `inset-0` below lg so the panel
-        // has the whole viewport to fill.
-        className="fixed inset-0 lg:left-shell-inset lg:flex lg:items-center lg:justify-center lg:p-8">
+        // The centring layer, inset by whichever rail is there. `inset-0` below
+        // lg so the panel has the whole viewport to fill.
+        //
+        // BOTH rail mechanisms, because the two shells clear their rails
+        // differently and a shared primitive must not know which one it is in.
+        // `left-shell-inset` reads the seller frame's reserved gutter;
+        // `rail-safe-foreground` is the transparent start border the buyer side
+        // uses for a rail that OVERLAYS a still-centred column. Each resolves to
+        // zero outside its own shell, so they cannot both apply.
+        className="rail-safe-foreground fixed inset-0 lg:left-shell-inset lg:flex lg:items-center lg:justify-center lg:p-8">
         <div
           ref={panelRef}
           role="dialog"
