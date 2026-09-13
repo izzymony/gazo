@@ -708,7 +708,7 @@ const Product = ({
   return (
     <div
       ref={scrollRef}
-      className="flex flex-col bg-surface w-full max-w-full lg:max-w-5xl lg:mx-auto h-full overflow-y-scroll scrollbar-hide pb-28 focus:outline-none">
+      className="flex flex-col bg-surface w-full max-w-full lg:max-w-5xl lg:mx-auto h-full overflow-y-scroll scrollbar-hide pb-28 lg:pb-8 focus:outline-none">
       {/* ONE header, always present.
           It used to render ProductHeader OR SmallHeader across a scroll
           threshold — two different components with two different positioning
@@ -854,9 +854,15 @@ const Product = ({
           {/* End Left Column */}
         </div>
 
-        {/* Right Column - Action Sidebar (Desktop only) */}
-        <div className="hidden lg:block lg:col-span-1">
-          <div className="sticky top-24 bg-surface rounded-2xl shadow-lg p-6 border border-gray-100">
+        {/* Right Column - the desktop aside.
+            `contents` below lg so this column has no box there: the reference
+            panel inside it is `hidden`, and ProductCTA falls through as the
+            `absolute` bottom bar it has always been. At lg it is a real column
+            and both are stacked in it, sticky together so the purchase action
+            stays reachable at short viewport heights. */}
+        <div className="contents lg:block lg:col-span-1">
+          <div className="contents lg:sticky lg:top-24 lg:block lg:space-y-4">
+          <div className="hidden lg:block bg-surface rounded-2xl shadow-lg p-6 border border-gray-100">
             {/* Variants Section - Only show if product has combinations enabled and actual variant data exists */}
             {reconstructedVariations && (
               <ProductVariants
@@ -886,23 +892,28 @@ const Product = ({
               </>
             )}
           </div>
-          {/* End Right Column - Action Sidebar */}
+
+          {/* ONE action node. Rendered here rather than as a sibling of the
+              grid, because at lg it has to be a cell of the aside column and
+              CSS cannot move a node between subtrees. Its mobile presentation
+              is unaffected: `absolute` resolves against the shell frame, not
+              against this parent. */}
+          <ProductCTA
+            isSeller={isOwnerView}
+            count={count}
+            isOutOfStock={isOutOfStock}
+            onIncrement={increment}
+            onDecrement={decrement}
+            onBuyNow={handleBuyNow}
+            onAddToCart={handleAddToCart}
+            onEdit={() => router.push(`/dashboard/catalog/product/create/manual/edit/${productId}`)}
+            onShare={handleShareClick}
+          />
+          </div>
+          {/* End Right Column - the desktop aside */}
         </div>
         {/* End 2-Column Layout */}
       </div>
-
-      {/* Sticky bottom action bar */}
-      <ProductCTA
-        isSeller={isOwnerView}
-        count={count}
-        isOutOfStock={isOutOfStock}
-        onIncrement={increment}
-        onDecrement={decrement}
-        onBuyNow={handleBuyNow}
-        onAddToCart={handleAddToCart}
-        onEdit={() => router.push(`/dashboard/catalog/product/create/manual/edit/${productId}`)}
-        onShare={handleShareClick}
-      />
 
       {/* Share Modal for Desktop */}
       <ShareModal
