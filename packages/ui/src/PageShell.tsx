@@ -89,9 +89,20 @@ export default function PageShell({
   }
 
   return (
-    <>
+    // The header and the column are wrapped in one flex column, and the column
+    // takes `flex-1` rather than `h-full`.
+    //
+    // `h-full` was wrong at lg and had been invisible: below lg the header is
+    // `absolute` and contributes no flow height, so 100% is right; at lg it is
+    // `sticky`, so it takes ~68px of flow ABOVE a sibling asking for the full
+    // 100% — and the column ran 68px past the viewport, into the shell's
+    // `overflow-hidden`. Nothing showed it while the action bar was `fixed`,
+    // because a fixed bar is positioned against the viewport and does not care
+    // what its container's height is. The moment the bar joins the flow, the
+    // last 68px of it is clipped.
+    <div className="flex flex-col h-full">
       {!hero && header}
-      <div className={cn("flex flex-col h-full", container)}>
+      <div className={cn("flex flex-col flex-1 min-h-0", container)}>
         <div className="flex flex-col h-full">
           <main
             ref={scrollRef}
@@ -133,6 +144,19 @@ export default function PageShell({
             <div
               className={cn(
                 "bottom-0 w-full max-w-full border-t border-outline-subtle bg-surface px-3 pb-5 z-sticky lg:mx-auto lg:max-w-5xl",
+                // THE DESKTOP FALLBACK. Screens classified `header` pass
+                // `pageHeader` and never reach this branch. What is left is
+                // everything that keeps a bar: the inline screens until each is
+                // migrated, the three invalid auth states that fall through to
+                // this shell and may not be edited individually, and — the case
+                // that makes this load-bearing rather than tidying — every
+                // route-backed dialog opened by direct URL or hard refresh,
+                // which renders its canonical page instead of the dialog.
+                //
+                // At lg the bar stops being a bar: out of fixed positioning, no
+                // top rule, and the action constrained and pushed right by the
+                // wrapper below. Below lg not one property changes.
+                "lg:border-t-0 lg:px-5 lg:pb-6",
                 // `left-shell-inset` is 0 unless a shell declares otherwise, so this
                 // is unchanged everywhere except inside one that does — today, the
                 // seller dashboard, whose desktop rail it has to clear.
@@ -144,14 +168,21 @@ export default function PageShell({
                 // the width fall out of the remaining space is what keeps both
                 // edges honest.
                 footerPosition === "fixed"
-                  ? "fixed left-shell-inset right-0 lg:w-auto"
+                  ? "fixed left-shell-inset right-0 lg:static lg:w-full"
                   : "sticky"
               )}>
-              {footerAction}
+              {/* `contents` below lg so this wrapper has no box at all there and
+                  the mobile bar is untouched; a real box at lg, right-aligned by
+                  `ml-auto`, floored at the 176px inline minimum and capped so a
+                  `w-full` Button inside an unmigrated screen is bounded instead
+                  of spanning the column. */}
+              <div className="contents lg:block lg:ml-auto lg:w-fit lg:min-w-action lg:max-w-sm">
+                {footerAction}
+              </div>
             </div>
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 }

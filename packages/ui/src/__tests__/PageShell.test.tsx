@@ -128,17 +128,54 @@ describe("PageShell", () => {
     });
 
     /**
-     * With a non-zero inset, `left` + `right` + `w-full` is over-constrained:
-     * CSS drops `right` and the bar keeps its FULL width from an indented left
-     * edge, hanging off the side of the viewport. Letting the width fall out of
-     * the space between the two edges is what keeps both of them honest.
+     * The desktop rule: no page CTA is viewport-fixed at lg. This bar is the
+     * fallback for everything still on `footerAction` — the inline screens, the
+     * invalid auth states that fall through here and are not edited
+     * individually, and every route-backed dialog reached by direct URL.
+     *
+     * It previously carried `lg:w-auto`, which existed because `fixed` + `left`
+     * + `right` + `w-full` is over-constrained under a non-zero shell inset:
+     * CSS drops `right` and the bar keeps its full width from an indented left
+     * edge. That hazard is gone with the fixed positioning, and `w-auto` became
+     * harmful — as a flex item it shrink-wrapped, and `mx-auto` then centred the
+     * result, which is the third thing the desktop rule forbids.
      */
-    it("takes its desktop width from the space between its edges, not the viewport", () => {
+    it("leaves fixed positioning at lg and does not shrink-wrap into the centre", () => {
       const { container } = render(
         <PageShell footerAction={<button>Save</button>}>content</PageShell>
       );
       const bar = container.querySelector(".fixed")!;
-      expect(bar).toHaveClass("lg:w-auto");
+      expect(bar).toHaveClass("lg:static", "lg:w-full");
+      expect(bar).not.toHaveClass("lg:w-auto");
+    });
+
+    it("constrains the desktop action and pushes it to the right edge", () => {
+      const { container } = render(
+        <PageShell footerAction={<button>Save</button>}>content</PageShell>
+      );
+      const wrapper = container.querySelector(".fixed > *")!;
+      // `contents` below lg is what keeps the mobile bar byte-identical: no box,
+      // so the button is still the bar's own child for layout.
+      expect(wrapper).toHaveClass("contents", "lg:block", "lg:ml-auto", "lg:w-fit");
+      expect(wrapper).toHaveClass("lg:min-w-action", "lg:max-w-sm");
+    });
+
+    /**
+     * Below lg the header is `absolute` and contributes no flow height, so the
+     * column asking for 100% was right. At lg it is `sticky` — in flow, above a
+     * sibling asking for the full height — and the column overran the viewport
+     * by the header's height, into the shell's `overflow-hidden`. A `fixed` bar
+     * hid it; a bar in the flow gets its last 68px clipped.
+     */
+    it("sizes the column against the space the sticky header leaves", () => {
+      const { container } = render(
+        <PageShell header={<div>h</div>} footerAction={<button>Save</button>}>
+          content
+        </PageShell>
+      );
+      const column = container.querySelector("main")!.parentElement!.parentElement!;
+      expect(column).toHaveClass("flex-1", "min-h-0");
+      expect(column).not.toHaveClass("h-full");
     });
 
     it("can keep the action bar inside a composed shell", () => {
