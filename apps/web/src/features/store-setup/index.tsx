@@ -7,10 +7,9 @@ import StoreDetails from "./StoreDetails";
 import { useEffect, useState } from "react";
 import useBusinessStore from "@/store/businessStore";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@vibaar/ui/common/Header";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import StepNavigation from "@vibaar/ui/common/StepNavigation";
 import Image from "next/image";
-import Button from "@vibaar/ui/common/Button";
 import { ChevronRight } from "@vibaar/ui/icons";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -257,7 +256,7 @@ const CreateStore = () => {
     // Success screen — store created
     <PageShell
       footerAction={
-        <Button
+        <PageActionButton
           onClick={() => {
             localStorage.setItem('newStoreCreated', 'true');
             localStorage.setItem('newStoreName', myStore?.name || '');
@@ -266,7 +265,7 @@ const CreateStore = () => {
           }}>
           Go to Dashboard
           <ChevronRight size={20} className="text-white" />
-        </Button>
+        </PageActionButton>
       }>
       <div className="flex flex-col items-center text-center pt-8">
         <Image
@@ -291,21 +290,19 @@ const CreateStore = () => {
     </PageShell>
   ) : (
     <PageShell
-      header={
-        <Header
-          onBack={handleBack}
-          title={`${step === 1
-            ? "Enter your store details"
-            : step === 2 && "Store address"
-            } `}
-          progress={<StepNavigation step={step} totalSteps={2} />}
-        />
-      }
-      footerAction={
-        <Button onClick={handleNextStep} loading={isLoading}>
-          {step === 2 ? "Finish setup" : "Continue"}
-        </Button>
-      }>
+      pageHeader={{
+        onBack: handleBack,
+        title: `${step === 1
+          ? "Enter your store details"
+          : step === 2 && "Store address"
+          } `,
+        progress: <StepNavigation step={step} totalSteps={2} />,
+        actions: (
+          <PageActionButton onClick={handleNextStep} loading={isLoading}>
+            {step === 2 ? "Finish setup" : "Continue"}
+          </PageActionButton>
+        ),
+      }}>
       <div className="flex flex-col w-full pt-4">
         {step === 1 && (
           <StoreDetails

@@ -44,8 +44,10 @@ interface PageHeaderBandProps extends PageHeaderSpec {
  * action absolutely over the header band: it shared the header's COORDINATES
  * but not its LAYOUT CALCULATION, so the title had nothing to yield to and a
  * long one ran underneath a wide action group. Here the action occupies an
- * `auto` track, the title's column is `minmax(0,1fr)`, and the title truncates
- * against the space that genuinely remains.
+ * `auto` track, the title's column is `1fr`, and the title truncates against
+ * the space that genuinely remains — which works because `HeaderRow` carries
+ * `min-w-0`. See the `page-band` tokens for the measurements behind `1fr`; the
+ * `minmax(0,1fr)` this started with left the action column 417px wide.
  *
  * FOCUS ORDER, STATED PLAINLY. Exactly-once placement cannot preserve both
  * mobile focus order and desktop visual order — tab order follows DOM, and one

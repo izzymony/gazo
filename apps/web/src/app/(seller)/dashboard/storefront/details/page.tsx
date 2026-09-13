@@ -14,7 +14,7 @@ import {
 } from "@vibaar/ui/icons";
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@vibaar/ui/common/Header";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import Button from "@vibaar/ui/common/Button";
 import Section from "@vibaar/ui/common/Section";
 import { cn } from "@/lib/utils";
@@ -254,17 +254,18 @@ const Page = () => {
   return (
     <>
       <PageShell
-        header={
-          <Header
-            onBack={() => router.back()}
-            title="Store Details"
-          />
-        }
-        footerAction={
-          <Button type="submit" onClick={() => formik.handleSubmit()} loading={isLoading}>
-            Save
-          </Button>
-        }>
+        pageHeader={{
+          onBack: () => router.back(),
+          title: "Store Details",
+          actions: (
+            <PageActionButton
+              type="submit"
+              onClick={() => formik.handleSubmit()}
+              loading={isLoading}>
+              Save
+            </PageActionButton>
+          ),
+        }}>
           {/* Image Upload Section */}
           <div className="relative flex flex-col items-center">
             <button

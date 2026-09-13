@@ -2,7 +2,7 @@
 
 import { ColoredPattern } from "@/features/seller-dashboard/coloredpattern";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@vibaar/ui/common/Header";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import Button from "@vibaar/ui/common/Button";
 import Section from "@vibaar/ui/common/Section";
 import useBusinessStore from "@/store/businessStore";
@@ -165,17 +165,15 @@ const Page: React.FC = () => {
 
   return (
     <PageShell
-      header={
-        <Header
-          onBack={() => router.back()}
-          title="Appearance"
-        />
-      }
-      footerAction={
-        <Button type="button" onClick={handleSave} loading={isLoading}>
-          Save
-        </Button>
-      }>
+      pageHeader={{
+        onBack: () => router.back(),
+        title: "Appearance",
+        actions: (
+          <PageActionButton type="button" onClick={handleSave} loading={isLoading}>
+            Save
+          </PageActionButton>
+        ),
+      }}>
       <Section title="Background style">
         <div className="w-full">
           {/* Tab Headers */}

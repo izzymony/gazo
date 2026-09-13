@@ -1,8 +1,7 @@
 "use client";
 import React, { useEffect } from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@vibaar/ui/common/Header";
-import Button from "@vibaar/ui/common/Button";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import Surface from "@vibaar/ui/common/Surface";
 import Section from "@vibaar/ui/common/Section";
 import { CircleCheck } from "@vibaar/ui/icons";
@@ -65,17 +64,15 @@ const Page = () => {
   };
   return (
     <PageShell
-      header={
-        <Header
-          onBack={() => router.back()}
-          title="My Shipping profiles"
-        />
-      }
-      footerAction={
-        <Button type="submit" onClick={Send}>
-          Add new Shipping profile
-        </Button>
-      }>
+      pageHeader={{
+        onBack: () => router.back(),
+        title: "My Shipping profiles",
+        actions: (
+          <PageActionButton type="submit" onClick={Send}>
+            Add new Shipping profile
+          </PageActionButton>
+        ),
+      }}>
       <div className="space-y-1">
         <p className="font-medium text-h1">Select shipping profile</p>
         <p className="text-caption font-normal text-foreground-secondary">

@@ -3,8 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import InputField from "@vibaar/ui/common/InputField";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@vibaar/ui/common/Header";
-import Button from "@vibaar/ui/common/Button";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import Section from "@vibaar/ui/common/Section";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
@@ -152,17 +151,18 @@ const Page = () => {
 
   return (
     <PageShell
-      header={
-        <Header
-          onBack={() => router.back()}
-          title="Edit Profile"
-        />
-      }
-      footerAction={
-        <Button type="button" onClick={() => formik.handleSubmit()} loading={isUploading}>
-          Save
-        </Button>
-      }>
+      pageHeader={{
+        onBack: () => router.back(),
+        title: "Edit Profile",
+        actions: (
+          <PageActionButton
+            type="button"
+            onClick={() => formik.handleSubmit()}
+            loading={isUploading}>
+            Save
+          </PageActionButton>
+        ),
+      }}>
       {/* Avatar (genuine graphic — left as UserProfileImage) */}
       <div
         className="relative flex justify-center items-center cursor-pointer"

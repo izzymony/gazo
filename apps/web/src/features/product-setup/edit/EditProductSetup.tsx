@@ -12,9 +12,8 @@ import Image from "next/image";
 import { toast } from "sonner";
 
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@vibaar/ui/common/Header";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import Loader from "@vibaar/ui/common/Loader";
-import Button from "@vibaar/ui/common/Button";
 import DisclosureButton from "@vibaar/ui/common/DisclosureButton";
 import Switch from "@vibaar/ui/common/Switch";
 import useAuthStore from "@/store/authStore";
@@ -631,40 +630,44 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
 
     return (
         <PageShell
-            header={
-                <Header
-                  onBack={() => router.back()}
-                  title="Edit Product"
-                />
-            }
             contentClassName="px-0"
-            footerAction={
-                <div className="flex gap-3">
-                    <Button
-                        variant="bordered"
-                        onClick={() => router.back()}
-                        className="flex-1 mt-0">
-                        Cancel
-                    </Button>
-                    <Button
-                        variant="filled"
-                        onClick={() => {
-                            if (Object.keys(formik.errors).length > 0) {
-                                const firstError = Object.values(formik.errors)[0];
-                                if (firstError) {
-                                    toast.error(`Please fix: ${firstError}`);
+            pageHeader={{
+                onBack: () => router.back(),
+                title: "Edit Product",
+                // The group keeps its own flex row at lg rather than dissolving
+                // into the band's action cell with `lg:contents`. Measured
+                // reason: the cell is `items-center`, and `bordered` is 2px
+                // taller than `filled` (its border is outside the padding box),
+                // so the two buttons rendered 46px and 44px with mismatched
+                // baselines. Its own row stretches them to a common 46px, which
+                // is also exactly what mobile has always done.
+                actions: (
+                    <div className="flex gap-3">
+                        <PageActionButton
+                            kind="secondary"
+                            onClick={() => router.back()}
+                            className="flex-1 mt-0 lg:flex-none">
+                            Cancel
+                        </PageActionButton>
+                        <PageActionButton
+                            onClick={() => {
+                                if (Object.keys(formik.errors).length > 0) {
+                                    const firstError = Object.values(formik.errors)[0];
+                                    if (firstError) {
+                                        toast.error(`Please fix: ${firstError}`);
+                                    }
+                                    return;
                                 }
-                                return;
-                            }
-                            formik.handleSubmit();
-                        }}
-                        loading={isLoading}
-                        className="flex-1 mt-0"
-                        type="button">
-                        {isLoading ? "Updating..." : "Update Product"}
-                    </Button>
-                </div>
-            }>
+                                formik.handleSubmit();
+                            }}
+                            loading={isLoading}
+                            className="flex-1 mt-0 lg:flex-none"
+                            type="button">
+                            {isLoading ? "Updating..." : "Update Product"}
+                        </PageActionButton>
+                    </div>
+                ),
+            }}>
             <div className="bg-surface-subtle min-h-full">
                 <form onSubmit={formik.handleSubmit} className="pb-4">
                     {/* Product Images & Basic Info */}

@@ -3,9 +3,8 @@
 
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@vibaar/ui/common/Header";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import Section from "@vibaar/ui/common/Section";
-import Button from "@vibaar/ui/common/Button";
 import useBusinessStore from "@/store/businessStore";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
@@ -125,15 +124,15 @@ export default function PayoutView() {
 
   return (
     <PageShell
-      header={
-        <Header
-          onBack={() => router.back()}
-          title="Payout Accounts"
-        />
-      }
-      footerAction={
-        <Button onClick={() => router.push("/dashboard/payouts/addaccount")}>Add account</Button>
-      }>
+      pageHeader={{
+        onBack: () => router.back(),
+        title: "Payout Accounts",
+        actions: (
+          <PageActionButton onClick={() => router.push("/dashboard/payouts/addaccount")}>
+            Add account
+          </PageActionButton>
+        ),
+      }}>
       <Section>
         {bankAccounts.length > 0 ? (
           bankAccounts.map((it, index) => (

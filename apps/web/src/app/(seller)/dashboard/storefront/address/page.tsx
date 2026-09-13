@@ -4,7 +4,7 @@ import InputField from '@vibaar/ui/common/InputField';
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import PageShell from '@vibaar/ui/PageShell';
-import Header from "@vibaar/ui/common/Header";
+import PageActionButton from '@vibaar/ui/common/PageActionButton';
 import Button from '@vibaar/ui/common/Button';
 import Section from '@vibaar/ui/common/Section';
 import { Check } from '@vibaar/ui/icons';
@@ -70,17 +70,18 @@ const Page = () => {
 
     return (
         <PageShell
-          header={
-            <Header
-              onBack={() => router.back()}
-              title="Store Address"
-            />
-          }
-          footerAction={
-            <Button type="submit" onClick={() => formik.handleSubmit()} loading={isLoading}>
-              Save
-            </Button>
-          }
+          pageHeader={{
+            onBack: () => router.back(),
+            title: "Store Address",
+            actions: (
+              <PageActionButton
+                type="submit"
+                onClick={() => formik.handleSubmit()}
+                loading={isLoading}>
+                Save
+              </PageActionButton>
+            ),
+          }}
         >
 
             {/* Form fields */}

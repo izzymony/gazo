@@ -11,9 +11,8 @@ import * as Yup from "yup";
 import { toast } from "sonner";
 
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@vibaar/ui/common/Header";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import StepNavigation from "@vibaar/ui/common/StepNavigation";
-import Button from "@vibaar/ui/common/Button";
 import Loader from "@vibaar/ui/common/Loader";
 import useAuthStore from "@/store/authStore";
 import useBusinessStore from "@/store/businessStore";
@@ -342,26 +341,24 @@ export default function ProgressiveProductSetup() {
 
     return (
         <PageShell
-            header={
-                <Header
-                  onBack={() => {
-                        if (step === 3) {
-                            router.back();
-                        } else if (step > 1) {
-                            router.push(`?step=${step - 1}`);
-                        } else {
-                            router.back();
-                        }
-                    }}
-                  title="Add Product"
-                  progress={<StepNavigation step={step} totalSteps={3} />}
-                />
-            }
-            footerAction={
-                <Button onClick={() => formik.handleSubmit()} loading={isLoading}>
-                    {getButtonText()}
-                </Button>
-            }>
+            pageHeader={{
+                onBack: () => {
+                    if (step === 3) {
+                        router.back();
+                    } else if (step > 1) {
+                        router.push(`?step=${step - 1}`);
+                    } else {
+                        router.back();
+                    }
+                },
+                title: "Add Product",
+                progress: <StepNavigation step={step} totalSteps={3} />,
+                actions: (
+                    <PageActionButton onClick={() => formik.handleSubmit()} loading={isLoading}>
+                        {getButtonText()}
+                    </PageActionButton>
+                ),
+            }}>
             <div className="flex flex-col w-full space-y-6 pt-4">
                 {formik && step === 1 && <Step1StartStrong formik={formik} />}
                 {formik && step === 2 && (

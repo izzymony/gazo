@@ -92,3 +92,35 @@ describe("PageHeaderBand", () => {
     expect(all).not.toMatch(/(^|\s)md:/);
   });
 });
+
+/**
+ * The track functions are pinned here because jsdom cannot measure them and the
+ * first version of this layout shipped the wrong ones: `minmax(0,1fr)` reads as
+ * the safer choice (zero minimum, so `truncate` engages) and is what a reviewer
+ * would reach for, but in Chrome it does not expand into the free space when a
+ * `1 / -1` item spans it — the header row measured 189px tall for a 48px row and
+ * the action column 417px wide for a 62px button.
+ *
+ * A string comparison is a weak test for a layout bug. It is here so that the
+ * next person to "fix" these tokens has to read why they are what they are.
+ */
+describe("page-band grid tokens", () => {
+  const preset = require("@vibaar/design-tokens/preset");
+
+  it("uses 1fr, not minmax(0,1fr), for the flexible column and row", () => {
+    const { gridTemplateColumns, gridTemplateRows } = preset.theme.extend;
+    expect(gridTemplateColumns["page-band"]).toBe("1fr auto");
+    expect(gridTemplateColumns["page-band-status"]).toBe("1fr auto auto");
+    expect(gridTemplateRows["page-band"]).toBe("auto auto 1fr");
+  });
+
+  // `1fr`'s automatic minimum is min-content, so the zero minimum that lets a
+  // long title clip has to come from the item instead.
+  it("keeps min-w-0 on the row placed in the flexible column", () => {
+    const src = require("fs").readFileSync(
+      require("path").join(__dirname, "../common/HeaderRow.tsx"),
+      "utf8"
+    );
+    expect(src).toContain("min-w-0");
+  });
+});

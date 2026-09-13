@@ -291,25 +291,44 @@ module.exports = {
         "shell-inset": "var(--shell-inset, 0px)",
       },
       gridTemplateColumns: {
-        // The desktop page-header band. Column 1 is `minmax(0,1fr)` and NOT
-        // `1fr`: `1fr`'s automatic minimum is min-content, so the longest word
-        // in a title would push the action group off the row instead of
-        // truncating. A zero minimum is what lets `truncate` engage.
+        // The desktop page-header band: a flexible title column and one `auto`
+        // column per trailing cell. The action column sizing to its own content
+        // is the whole point — an absolutely-positioned action would share the
+        // header's coordinates but not its layout calculation, so a long title
+        // would run underneath it. Here the title truncates against the space
+        // that genuinely remains.
         //
-        // The action column is `auto`, so it sizes to its own content and the
-        // title truncates against what genuinely remains. That reservation is
-        // the whole point — an absolutely-positioned action shares the header's
-        // coordinates but not its layout calculation, and a long title runs
-        // underneath it.
-        "page-band": "minmax(0,1fr) auto",
-        "page-band-status": "minmax(0,1fr) auto auto",
+        // `1fr`, NOT `minmax(0,1fr)`. This was the other way round and measured
+        // wrong in Chrome: with `<main>` spanning `1 / -1`, a `minmax(0,1fr)`
+        // track does not expand into the free space, and the default
+        // `justify-content: stretch` then splits that space across the tracks
+        // instead — the "auto" action column came out 417px wide inside a
+        // 984px band, with the button floating at its left edge. Measured, not
+        // reasoned: `1fr auto` gives 909.78 / 62.22 on the same page.
+        //
+        // The objection to `1fr` is that its automatic minimum is min-content,
+        // which would let a long title push the action off the row. That does
+        // not apply because `HeaderRow` sets `min-w-0`, so the item contributes
+        // a zero minimum to the track and `truncate` still engages. Verified at
+        // 1280 with a 96-character title: the action held at 62px on the right
+        // edge and the title clipped. Keep `min-w-0` on any item placed in this
+        // column — it is load-bearing here, not defensive.
+        "page-band": "1fr auto",
+        "page-band-status": "1fr auto auto",
       },
       gridTemplateRows: {
         // title/action row · progress · content. Progress gets its OWN row so
         // row 1's height is the title/action row alone — as one opaque cell it
         // would measure title+progress, and the action would centre against the
         // combined height, drifting on the 9 stepper screens but not the rest.
-        "page-band": "auto auto minmax(0,1fr)",
+        //
+        // Row 3 is `1fr` for the same measured reason as the columns above: as
+        // `minmax(0,1fr)` it refused to expand and the two `auto` rows absorbed
+        // the free space instead — a 48px header row rendered 189px tall and an
+        // EMPTY progress row rendered 141px tall. `1fr`'s min-content minimum is
+        // harmless here because the only item in the row is a scroll container,
+        // whose automatic minimum size is already zero.
+        "page-band": "auto auto 1fr",
       },
       minWidth: {
         // The desktop inline page-action floor. A "Save" that hugs its label is

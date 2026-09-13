@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@vibaar/ui/common/Header";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import Button from "@vibaar/ui/common/Button";
 import Section from "@vibaar/ui/common/Section";
 import Surface from "@vibaar/ui/common/Surface";
@@ -488,25 +488,25 @@ const Page = () => {
 
   return (
     <PageShell
-      header={
-        <Header
-          onBack={handleBack}
-          title="Shipping Method"
-        />
-      }
-      footerAction={
-        <div className="w-full">
-          {dirty && (
-            <p className="text-caption text-hue-orange-foreground text-center mb-2 flex items-center justify-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-hue-orange-foreground inline-block" />
-              Unsaved changes
-            </p>
-          )}
-          <Button onClick={handleSave} loading={isLoading} disabled={!dirty}>
+      pageHeader={{
+        onBack: handleBack,
+        title: "Shipping Method",
+        // The dirty notice moves to the band's `status` slot. Its own classes are
+        // carried over verbatim except `mb-2`, which the band now owns — and
+        // which was never the operative gap anyway: it collapsed against the
+        // button's larger `mt-4`, so the visible 16px is unchanged.
+        status: dirty ? (
+          <p className="text-caption text-hue-orange-foreground text-center flex items-center justify-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-hue-orange-foreground inline-block" />
+            Unsaved changes
+          </p>
+        ) : undefined,
+        actions: (
+          <PageActionButton onClick={handleSave} loading={isLoading} disabled={!dirty}>
             {dirty ? "Save changes" : "Saved"}
-          </Button>
-        </div>
-      }>
+          </PageActionButton>
+        ),
+      }}>
       <p className="text-body-sm text-foreground-secondary">
         Set how you deliver. Buyers see the right option at checkout based on where
         they are.

@@ -4,13 +4,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import RadioGroup from "@vibaar/ui/common/RadioGroup";
-import Button from "@vibaar/ui/common/Button";
 import Checkbox from "@vibaar/ui/common/Checkbox";
 import InputField from "@vibaar/ui/common/InputField";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@vibaar/ui/common/Header";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import Accordion from "@vibaar/ui/common/Accordion";
 import Dialog from "@vibaar/ui/common/Dialog";
 import { useRouter } from "next/navigation";
@@ -120,17 +119,15 @@ function Page() {
 
   return (
     <PageShell
-      header={
-        <Header
-          onBack={() => router.back()}
-          title="Create Discount"
-        />
-      }
-      footerAction={
-        <Button type="button" onClick={() => formik.handleSubmit()}>
-          Add Discount
-        </Button>
-      }>
+      pageHeader={{
+        onBack: () => router.back(),
+        title: "Create Discount",
+        actions: (
+          <PageActionButton type="button" onClick={() => formik.handleSubmit()}>
+            Add Discount
+          </PageActionButton>
+        ),
+      }}>
       <form
         onSubmit={formik.handleSubmit}
         className="w-full flex flex-col space-y-6">

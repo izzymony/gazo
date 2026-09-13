@@ -2,10 +2,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Accordion from "@vibaar/ui/common/Accordion";
 import DisclosureButton from "@vibaar/ui/common/DisclosureButton";
-import Button from "@vibaar/ui/common/Button";
 import ShareModal from "@vibaar/ui/common/ShareModal";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@vibaar/ui/common/Header";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import SelectVariants from "@/design-system/VariantSelector";
 import ImageCarousel from "@/features/storefront/carousel";
 import { Variation } from "@/lib/types";
@@ -133,18 +132,16 @@ export default function ProductsPreview({
 
   return (
     <PageShell
-      header={
-        <Header
-          onBack={() => setIsPreviewOpen(false)}
-          title="Product Preview"
-        />
-      }
       contentClassName="px-0"
-      footerAction={
-        <Button type="button" loading={isLoading} onClick={publish}>
-          Publish
-        </Button>
-      }>
+      pageHeader={{
+        onBack: () => setIsPreviewOpen(false),
+        title: "Product Preview",
+        actions: (
+          <PageActionButton type="button" loading={isLoading} onClick={publish}>
+            Publish
+          </PageActionButton>
+        ),
+      }}>
       <div>
         {/* Image Carousel with Enhanced Swipe */}
         <div

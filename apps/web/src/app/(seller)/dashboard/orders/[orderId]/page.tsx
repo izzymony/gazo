@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 import OrderLineItem from "@/features/orders/OrderLineItem";
 import DetailRow from "@vibaar/ui/common/DetailRow";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@vibaar/ui/common/Header";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import { Emergency } from "@vibaar/ui/svg";
 import Button from "@vibaar/ui/common/Button";
 import Dialog from "@vibaar/ui/common/Dialog";
@@ -394,36 +394,35 @@ const Order = ({ params }: { params: { orderId: string } }) => {
 
   return (
     <PageShell
-      header={
-        <Header
-          onBack={() => router.push("/dashboard/orders")}
-          title={`Order #${newOrder?.order?.invoice}`}
-          trailing={
-              <a
-                href={supportWhatsAppUrl(`Hi, I need help with order #${newOrder?.order?.invoice ?? ""}`)}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Get help with this order"
-                className="inline-flex items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40">
-                <Emergency />
-              </a>
-            }
-        />
-      }
-      footerAction={
-        canConfirmDelivered ? (
-          <Button
+      pageHeader={{
+        onBack: () => router.push("/dashboard/orders"),
+        title: `Order #${newOrder?.order?.invoice}`,
+        // The support link stays in `trailing` — it is header chrome, not the
+        // flow action, and at lg it sits at the right edge of the title column,
+        // immediately left of the action cell.
+        trailing: (
+          <a
+            href={supportWhatsAppUrl(`Hi, I need help with order #${newOrder?.order?.invoice ?? ""}`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Get help with this order"
+            className="inline-flex items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40">
+            <Emergency />
+          </a>
+        ),
+        actions: canConfirmDelivered ? (
+          <PageActionButton
             onClick={handleMarkDelivered}
             loading={isMarkingReady}
             loadingText="Updating...">
             Mark as delivered
-          </Button>
+          </PageActionButton>
         ) : canDispatch ? (
-          <Button onClick={() => setDispatchOpen(true)}>
+          <PageActionButton onClick={() => setDispatchOpen(true)}>
             Mark out for delivery
-          </Button>
+          </PageActionButton>
         ) : showReadyButton ? (
-          <Button
+          <PageActionButton
             onClick={async () => {
               if (newOrder?.id && !isMarkingReady) {
                 setIsMarkingReady(true);
@@ -442,9 +441,9 @@ const Order = ({ params }: { params: { orderId: string } }) => {
             loading={isMarkingReady}
             loadingText="Updating...">
             Order is ready for pickup
-          </Button>
-        ) : undefined
-      }>
+          </PageActionButton>
+        ) : undefined,
+      }}>
         <div className="w-full">
           {/* Status of rider */}
           <div
