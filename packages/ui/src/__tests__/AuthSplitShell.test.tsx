@@ -167,9 +167,12 @@ describe("AuthSplitShell", () => {
       expect(root(container).className).not.toMatch(/\bmax-w-7xl\b/);
     });
 
-    it("gives the media column the surplus while the content column clamps", () => {
+    it("splits 40/60 from lg, so both columns keep growing", () => {
       const { container } = render(<AuthSplitShell media={null}>content</AuthSplitShell>);
-      expect(root(container).className).toContain("lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]");
+      // A fixed content track sent every pixel past 1280 to the artwork, so the
+      // form ended up a narrow strip beside a growing picture. The extra width
+      // becomes whitespace — the inner wrapper is still capped at max-w-md.
+      expect(root(container).className).toContain("lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]");
     });
 
     it("insets the frame equally, so the media's top, bottom and right match", () => {

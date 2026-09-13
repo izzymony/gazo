@@ -14,6 +14,7 @@ import Button from "@vibaar/ui/common/Button";
 import { toast } from "sonner";
 import { CircleCheck } from "@vibaar/ui/icons";
 import AuthSplitShell from "@vibaar/ui/AuthSplitShell";
+import BrandLogo from "@vibaar/ui/common/BrandLogo";
 
 export default function Welcome() {
   const [activeTab, setActiveTab] = useState("sell");
@@ -160,7 +161,16 @@ export default function Welcome() {
         </Button>
       }>
       <div className="text-center">
-        <h1 className="text-h1 font-medium text-foreground-primary leading-tight">
+        {/* Desktop only: on mobile the artwork carries the brand mark already,
+            and repeating it above the greeting would say the same thing twice
+            in 80px. On desktop the column opens with it, as the auth screens
+            do — the two are the same frame and should start the same way. */}
+        <BrandLogo width={180} className="mx-auto mb-8 hidden md:block" />
+
+        {/* Matches SlideContent's scale exactly. It was `text-h1` at every
+            width, so beside a 40px auth headline in the same frame this one
+            read as a different screen. */}
+        <h1 className="text-h1 md:text-display md:leading-[44px] font-medium text-foreground-primary leading-tight text-balance">
           Welcome to <span className="text-brandDeep font-bold">Vibaar</span>, <span className="font-bold">{userName}</span>! 👋
         </h1>
       </div>

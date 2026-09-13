@@ -106,8 +106,17 @@ export default function AuthSplitShell({
         // the pane rendered zero-wide. `always` never hit it because its mobile
         // frame already carries `w-full`; `contents` has no box to carry one.
         "md:grid md:w-full md:h-dvh md:grid-cols-2 md:gap-8 md:p-6",
-        // Content clamps, media grows: 512 @1024, 768 @1280, 928 @1440.
-        "lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)] lg:p-8"
+        // 40/60 from `lg`. Proportional rather than "content clamps, media
+        // takes the rest": that version pinned the column at 448px, so every
+        // pixel past 1280 went to the artwork and the form sat in a narrow strip
+        // against a growing picture. Splitting the space keeps both growing, and
+        // the column's extra width becomes whitespace around the content rather
+        // than wider fields — the inner wrapper is still capped at `max-w-md`.
+        //
+        // `minmax(0,...)` on both tracks: a bare `2fr` floors at min-content, so
+        // a long unbroken string in the form would push the media pane narrower
+        // than its share instead of wrapping.
+        "lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:p-8"
       )}>
       <div
         className={cn(
