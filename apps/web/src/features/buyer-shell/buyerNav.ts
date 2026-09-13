@@ -173,8 +173,11 @@ const POLICY = createRoutePolicy<BuyerNavigationPolicy>(BUYER_NAV_POLICY);
  * carries the rail like every other account page. Treating it as unconditionally
  * nav-free would break the rule that ONLY active checkout hides the rail.
  *
- * Read from the explicit search parameter, never `document.referrer`, which is
- * unreliable and absent on a fresh load or a shared link.
+ * Read from the explicit search parameter, never `document.referrer`. That is
+ * not merely unreliable — in the App Router it reflects the DOCUMENT load and is
+ * never updated by a client-side `router.push`, so on the very path this exists
+ * to catch (in-app profile -> address form) it holds an unrelated URL. It is
+ * also empty on a fresh load or a shared link.
  */
 const CONTEXTUAL_ROUTE = "/cart/shipping-profile/new";
 
@@ -183,12 +186,21 @@ export const routeNeedsContext = (pathName: string | null | undefined) =>
 
 export type BuyerNavContext = { readonly from?: string | null };
 
+/**
+ * The single reading of "this is an account errand, not active checkout".
+ *
+ * Exported so the shell and the page cannot disagree. They did: the shell
+ * resolved nav from `?from` alone while the page ORed in a `document.referrer`
+ * check, so the two could reach opposite conclusions on the same render.
+ */
+export const isAccountContext = (from?: string | null): boolean => from === "profile";
+
 export function resolveBuyerNav(
   pathName: string | null | undefined,
   context: BuyerNavContext = {}
 ): BuyerNavigationPolicy {
   const base = POLICY.resolve(pathName) ?? NO_NAV;
-  if (routeNeedsContext(pathName) && context.from === "profile") {
+  if (routeNeedsContext(pathName) && isAccountContext(context.from)) {
     return RAIL_ONLY;
   }
   return base;

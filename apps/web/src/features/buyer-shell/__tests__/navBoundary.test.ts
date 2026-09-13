@@ -62,3 +62,30 @@ describe("buyer navigation boundary", () => {
     expect(stragglers).toEqual([]);
   });
 });
+
+/**
+ * THE REGRESSION THIS GUARDS.
+ *
+ * `/cart/shipping-profile/new` is the one buyer route whose navigation depends
+ * on context: from checkout it is mid-payment and nav-free; from the profile
+ * address list it is an account errand and carries the rail. The shell reads
+ * `?from=profile`. The page used to read `?from=profile` OR
+ * `document.referrer.includes("/profile")`.
+ *
+ * That second clause is not a weak signal, it is a wrong one. In the App Router
+ * `document.referrer` reflects the DOCUMENT load and is never updated by a
+ * client-side `router.push`, so on the in-app path it exists to catch it holds
+ * whatever URL first loaded the tab. It also gave the page and the shell two
+ * different answers on the same render.
+ *
+ * `isAccountContext` is now the single reading. Nothing under (buyer) may
+ * reintroduce a referrer sniff to answer the same question.
+ */
+describe("buyer routes never infer context from document.referrer", () => {
+  it("has no reference to document.referrer anywhere under (buyer)", () => {
+    const offenders = sourceFiles(join(SRC, "app", "(buyer)"))
+      .filter((file) => readFileSync(file, "utf8").includes("document.referrer"))
+      .map((file) => relative(SRC, file));
+    expect(offenders).toEqual([]);
+  });
+});

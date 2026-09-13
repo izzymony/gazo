@@ -10,6 +10,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import useAuthStore from "@/store/authStore";
 import useShippingStore from "@/store/shippingStore";
+import { isAccountContext } from "@/features/buyer-shell/buyerNav";
 import { formatPhoneNumber } from "@/lib/generator";
 // import CountryDropDown from "@/design-system/countrydropdown";
 import LocationModal from "@/hooks/locationmodal";
@@ -20,9 +21,12 @@ const Page = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Check if coming from profile (detect based on referrer or URL params)
-  const fromProfile = searchParams.get('from') === 'profile' ||
-    (typeof window !== 'undefined' && document.referrer.includes('/profile'));
+  // The explicit parameter is the ONLY signal. This used to OR in a referrer
+  // sniff, which in the App Router reflects the document load and is never
+  // updated by a client-side `router.push` — so it was wrong on exactly the
+  // in-app path it was added for, and it let this page disagree with the shell,
+  // which reads `?from` alone. Guarded by navBoundary.test.ts.
+  const fromProfile = isAccountContext(searchParams.get("from"));
 
   // const [country, setCountry] = React.useState<string>("Nigeria");
   const [isLocationModalOpen, setIsLocationModalOpen] = React.useState(false);
