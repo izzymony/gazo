@@ -290,6 +290,18 @@ module.exports = {
         // bar is unchanged everywhere except inside a shell that sets it.
         "shell-inset": "var(--shell-inset, 0px)",
       },
+      minWidth: {
+        // The desktop inline page-action floor. A "Save" that hugs its label is
+        // 78px and reads as incidental next to the content it commits; the
+        // design rule is a 160–200px band, and 176 sits in the middle of it.
+        //
+        // A token rather than an arbitrary value because it is a decision, not
+        // a measurement — and because `minWidth` carries NO spacing scale in
+        // Tailwind (its defaults are only 0/full/min/max/fit), so `min-w-44`
+        // silently generates nothing. That failure mode has already cost this
+        // codebase every input on the page once.
+        action: "176px",
+      },
       zIndex: {
         dropdown: "var(--z-dropdown)",
         sticky: "var(--z-sticky)",
