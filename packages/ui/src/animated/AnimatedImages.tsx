@@ -155,7 +155,7 @@ export default function AnimatedImages({ currentSlide }: AnimatedImagesProps) {
                       height={img.height}
                       alt={`Slide ${index + 1} icon ${idx + 1}`}
                       priority
-                      className="-mt-4 md:mt-6"
+                      className="-mt-4 origin-center scale-slide-card md:mt-6 md:scale-100"
                     />
                   </div>
                 ))}

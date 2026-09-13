@@ -587,7 +587,7 @@ export default function SignUpOverview() {
                     onClick={handleExploreMarketplaceClick}
                     loading={buttonLoading.exploreMarketplace}
                     loadingText="Explore Marketplace"
-                    variant="bordered"
+                    variant="ghost"
                     fullWidth={false}
                     className="mx-auto w-full max-w-xs md:max-w-none">
                     <Image

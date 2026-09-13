@@ -53,6 +53,16 @@ module.exports = {
         semibold: '600',
         bold: '700',
       },
+      scale: {
+        // The slideshow's floating cards, below `md`. Their artwork is sized
+        // for the 450px desktop cluster; the retired mobile fork carried its
+        // own copies at exactly two thirds (145/217, 155/232, 166/249,
+        // 152/228 — 0.667 every time), and unifying the two trees handed
+        // mobile the desktop sizes, which overhang a 390px screen by ~39px a
+        // side. Scaled rather than repositioned so each card keeps the centre
+        // `spread()` gives it, and the cards keep their differing widths.
+        "slide-card": "0.667",
+      },
       fontSize: {
         'hero-xl': ['180px', { lineHeight: '1', letterSpacing: '-0.04em' }],
         'hero': ['72px', { lineHeight: '1.1', letterSpacing: '-0.03em' }],
