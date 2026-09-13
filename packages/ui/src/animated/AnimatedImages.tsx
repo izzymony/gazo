@@ -141,7 +141,7 @@ export default function AnimatedImages({ currentSlide }: AnimatedImagesProps) {
               {/* Floating Icons */}
               <div
                 ref={setContainerRef(index)}
-                className="absolute top-1/2 left-1/2 w-[250px] h-[250px] md:w-[450px] md:h-[450px] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-30 p-3">
+                className="absolute top-1/2 left-1/2 w-[250px] md:w-[450px] md:h-[450px] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-30 p-3">
                 {slide.images.map((img, idx) => (
                   <div
                     key={`img-${index}-${idx}`}
@@ -164,8 +164,13 @@ export default function AnimatedImages({ currentSlide }: AnimatedImagesProps) {
           </div>
         ))}
 
-        {/* Mobile bottom gradient */}
-        <div className="absolute -bottom-12 left-0 right-0 h-[calc(6rem+1rem)] bg-gradient-to-t mt-3 from-white via-white/70 to-transparent backdrop-blur-[1px] z-20 md:hidden" />
+        {/* Joins the band to the content beneath it on mobile.
+            It must finish at `bottom-0` and reach FULL surface there. It used
+            to sit at `-bottom-12` with 48px hanging below, inside this
+            `overflow-hidden` header — so the overhang was clipped and the
+            gradient was still ~30% transparent where the band ended, leaving a
+            hard seam against the page. Nothing below to fade into at `md`. */}
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-surface via-surface/70 to-transparent z-20 md:hidden" />
       </header>
     </div>
   );
