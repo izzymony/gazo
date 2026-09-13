@@ -37,6 +37,8 @@ import FEATURES from "@/config/features";
 import { splitFullName, isValidFullName } from "@/lib/nameUtils";
 import { validateFullName, validatePhoneNumber, validateEmail, validateUsername } from "@/lib/validation";
 import { trackSignUp, setUserProperties, trackFormError } from "@/lib/analytics";
+import { resolveAuthStep } from "../authSteps";
+import useStepFocus from "../useStepFocus";
 
 // Check if OTP is enabled via feature flag
 const isOtpEnabled = FEATURES.OTP_VERIFICATION_ENABLED;
@@ -550,15 +552,65 @@ export default function SignUpOverview() {
   };
 
 
+  // Only audited-live steps enter the split. The ladder changes shape with the
+  // OTP flag — with it off, step 2 is the password screen and step 4 renders
+  // nothing at all — so the allowed set is asked for, not assumed from `> 0`.
+  const liveStep = resolveAuthStep("signup", step, { isOtpEnabled });
+  const stepRef = useStepFocus(liveStep);
+
   return (
     <>
       {isRedirecting ? (
         <Loader />
+      ) : liveStep === null ? (
+        // Not a state this migration audited — keep today's presentation
+        // exactly, rather than giving an empty column a desktop media panel.
+        <PageShell
+          header={<Header onBack={() => {
+                  router.back();
+                }}
+                title={<BrandLogo />}
+                progress={<StepNavigation step={!isOtpEnabled && step >= 2 ? step - 1 : step} totalSteps={isOtpEnabled ? 4 : 3} />} />}
+          footerAction={<Button
+                onClick={() => {
+                  if (!isLoading && !formik.isValidating) {
+                    formik.handleSubmit();
+                  }
+                }}
+                loading={isLoading || formik.isValidating}>
+                Continue
+              </Button>}>
+          <div className="flex flex-col w-full h-full pt-4" />
+        </PageShell>
       ) : (
-        <>
-          {step === 0 ? (
-            <AuthSplitShell
-              media={<AnimatedImages currentSlide={currentSlide} />}>
+        <AuthSplitShell
+          media={<AnimatedImages currentSlide={currentSlide} />}
+          mediaOn={liveStep === 0 ? "always" : "desktop"}
+          actionMode={liveStep === 0 ? "landing" : "step"}
+          header={
+            liveStep > 0 ? (
+              // `md:static lg:static`, not `md:static` alone: Header is
+              // `absolute lg:sticky lg:top-0` and responsive variants are
+              // independent, so without the `lg` term it goes sticky again at
+              // 1024 and, being `w-full z-sticky`, paints over the media pane.
+              <Header className="md:static lg:static" onBack={() => {
+                  router.back();
+                }}
+                title={<BrandLogo />}
+                progress={<StepNavigation step={!isOtpEnabled && step >= 2 ? step - 1 : step} totalSteps={isOtpEnabled ? 4 : 3} />} />
+            ) : undefined
+          }
+          footerAction={liveStep > 0 ? <Button
+                onClick={() => {
+                  if (!isLoading && !formik.isValidating) {
+                    formik.handleSubmit();
+                  }
+                }}
+                loading={isLoading || formik.isValidating}>
+                Continue
+              </Button> : undefined}>
+          {liveStep === 0 ? (
+            <>
               <SlideContent
                 currentSlide={currentSlide}
                 onSlideChange={setCurrentSlide}
@@ -606,30 +658,9 @@ export default function SignUpOverview() {
               </div>
 
               <Footer />
-            </AuthSplitShell>
+            </>
           ) : (
-            <PageShell
-              header={
-                <Header
-                  onBack={() => {
-                    router.back();
-                  }}
-                  title={<BrandLogo />}
-                  progress={<StepNavigation step={!isOtpEnabled && step >= 2 ? step - 1 : step} totalSteps={isOtpEnabled ? 4 : 3} />}
-                />
-              }
-              footerAction={
-                <Button
-                  onClick={() => {
-                    console.log("Continue button clicked - SignUp");
-                    if (!isLoading && !formik.isValidating) {
-                      formik.handleSubmit();
-                    }
-                  }}
-                  loading={isLoading || formik.isValidating}>
-                  Continue
-                </Button>
-              }>
+            <div ref={stepRef} className="contents">
               <div className="flex flex-col w-full h-full pt-4">
                 <div className="flex flex-col w-full flex-1">
                   {step === 1 && (
@@ -709,9 +740,9 @@ export default function SignUpOverview() {
                   )}
                 </div>
               </div>
-            </PageShell>
+            </div>
           )}
-        </>
+        </AuthSplitShell>
       )}
     </>
   );

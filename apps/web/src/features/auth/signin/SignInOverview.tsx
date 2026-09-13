@@ -25,6 +25,8 @@ import AuthSplitShell from "@vibaar/ui/AuthSplitShell";
 import SlideContent from "@vibaar/ui/animated/SlideContent";
 import { slidesData } from "@vibaar/ui/animated/slidesData";
 import { trackLogin, setUserProperties } from "@/lib/analytics";
+import { resolveAuthStep } from "../authSteps";
+import useStepFocus from "../useStepFocus";
 
 const validationSchema = Yup.object({
   identifier: Yup.string().required("Email is required"),
@@ -267,6 +269,13 @@ export default function SignInOverview() {
     }
   }, [identifierFromQuery, typeFromQuery, step, usernameFromQuery]);
 
+  // Only audited-live steps enter the split. `step > 0` would sweep in
+  // /signin?step=2 and any non-numeric step, which render a header, a progress
+  // bar and a live CTA over an empty column — dressing a broken URL as a
+  // finished screen is not this change's job.
+  const liveStep = resolveAuthStep("signin", step);
+  const stepRef = useStepFocus(liveStep);
+
   if (isLoginLoading) {
     return <Loader />;
   }
@@ -275,11 +284,52 @@ export default function SignInOverview() {
     <>
       {isRedirecting ? (
         <Loader />
+      ) : liveStep === null ? (
+        // Not a state this migration audited — keep today's presentation
+        // exactly, rather than giving an empty column a desktop media panel.
+        <PageShell
+          header={
+            <Header
+              onBack={() => router.push(`/signin`)}
+              title={<BrandLogo />}
+              progress={<StepNavigation step={step} totalSteps={2} />}
+            />
+          }
+          footerAction={<Button
+                  onClick={() => formik.handleSubmit()}
+                  loading={isLoginLoading}>
+                  Sign in
+                </Button>}>
+          <div className="flex flex-col w-full h-full pt-4" />
+        </PageShell>
       ) : (
-        <>
-          {step === 0 ? (
-            <AuthSplitShell
-              media={<AnimatedImages currentSlide={currentSlide} />}>
+        <AuthSplitShell
+          media={<AnimatedImages currentSlide={currentSlide} />}
+          // The landing shows its artwork on both widths; a form step shows it
+          // on desktop only, and does not mount it at all on mobile.
+          mediaOn={liveStep === 0 ? "always" : "desktop"}
+          actionMode={liveStep === 0 ? "landing" : "step"}
+          header={
+            liveStep > 0 ? (
+              // `md:static lg:static`, not `md:static` alone: Header is
+              // `absolute lg:sticky lg:top-0`, and responsive variants are
+              // independent — without the `lg` term it would go sticky again at
+              // 1024 and, being `w-full z-sticky`, paint over the media pane.
+              <Header
+                  className="md:static lg:static"
+                  onBack={() => router.push(`/signin`)}
+                  title={<BrandLogo />}
+                  progress={<StepNavigation step={step} totalSteps={2} />}
+                />
+            ) : undefined
+          }
+          footerAction={liveStep > 0 ? <Button
+                  onClick={() => formik.handleSubmit()}
+                  loading={isLoginLoading}>
+                  Sign in
+                </Button> : undefined}>
+          {liveStep === 0 ? (
+            <>
               <SlideContent
                 currentSlide={currentSlide}
                 onSlideChange={setCurrentSlide}
@@ -327,23 +377,9 @@ export default function SignInOverview() {
               </div>
 
               <Footer />
-            </AuthSplitShell>
+            </>
           ) : (
-            <PageShell
-              header={
-                <Header
-                  onBack={() => router.push(`/signin`)}
-                  title={<BrandLogo />}
-                  progress={<StepNavigation step={step} totalSteps={2} />}
-                />
-              }
-              footerAction={
-                <Button
-                  onClick={() => formik.handleSubmit()}
-                  loading={isLoginLoading}>
-                  Sign in
-                </Button>
-              }>
+            <div ref={stepRef} className="contents">
               <div className="flex flex-col w-full h-full pt-4">
                 <div className="flex flex-col w-full flex-1">
                   {step === 1 && (
@@ -375,9 +411,9 @@ export default function SignInOverview() {
                   </div>
                 )}
               </div>
-            </PageShell>
+            </div>
           )}
-        </>
+        </AuthSplitShell>
       )}
     </>
   );

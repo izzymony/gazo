@@ -99,7 +99,13 @@ export default function AuthSplitShell({
         // No `max-w-*`: a cap here is exactly what froze the media pane at
         // 592px from 1280 up. The content column carries the readable width
         // instead, and the media takes the surplus.
-        "md:grid md:h-dvh md:grid-cols-2 md:gap-8 md:p-6",
+        //
+        // `md:w-full` is load-bearing, not tidying. The app scroller is a
+        // `flex flex-col items-center`, so a grid that does not claim a width
+        // shrink-wraps its content: the `1fr` media track resolved to 0px and
+        // the pane rendered zero-wide. `always` never hit it because its mobile
+        // frame already carries `w-full`; `contents` has no box to carry one.
+        "md:grid md:w-full md:h-dvh md:grid-cols-2 md:gap-8 md:p-6",
         // Content clamps, media grows: 512 @1024, 768 @1280, 928 @1440.
         "lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)] lg:p-8"
       )}>
@@ -126,7 +132,14 @@ export default function AuthSplitShell({
               ? // PageShell's mobile content frame, to the pixel: its gutter,
                 // its header offset, its 24px rhythm. The offset is mobile-only
                 // because the header is only `absolute` there.
-                "space-y-6 px-4 md:px-0"
+                //
+                // `flex-1` restores the height chain these steps were written
+                // against. Inside PageShell they sat in a `flex-1` <main>, so a
+                // step body's `h-full` resolved and its `mt-auto` pushed the
+                // secondary link down to just above the action bar. Without it
+                // the wrapper is content-sized, `h-full` resolves to nothing,
+                // and the link rides up under the fields.
+                "space-y-6 px-4 flex-1 md:flex-none md:px-0"
               : "gap-4",
             isStep && header && "mt-16 md:mt-0",
             // Clear the action bar, which leaves the flow once it is pinned.

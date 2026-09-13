@@ -16,6 +16,10 @@ import Otp from "@/features/auth/signup/Otp";
 import CreateNewPassword from "./CreateNewPassword";
 import InputField from "@vibaar/ui/common/InputField";
 import H1 from "@vibaar/ui/common/Typography";
+import AuthSplitShell from "@vibaar/ui/AuthSplitShell";
+import AnimatedImages from "@vibaar/ui/animated/AnimatedImages";
+import { resolveAuthStep } from "../authSteps";
+import useStepFocus from "../useStepFocus";
 
 
 
@@ -135,6 +139,28 @@ export default function ForgotPasswordComp() {
         validateOnBlur: true,
     });
 
+    // Forgot-password has no landing state: `?step` is required, and without it
+    // the page renders a header, a progress bar and a live CTA over an empty
+    // column. That URL keeps its current presentation rather than being dressed
+    // up in a two-pane frame.
+    const liveStep = resolveAuthStep("forgot-password", step);
+    const stepRef = useStepFocus(liveStep);
+
+    const onBack = () => {
+        if (step > 1) {
+            setStep(1);
+            router.push(`?step=${1}`);
+        } else {
+            router.push(`/`);
+        }
+    };
+    const progress = <StepNavigation step={step} totalSteps={3} />;
+    const cta = (
+        <Button onClick={handleNextStep} loading={isLoading}>
+            {step === 3 ? "Reset Password" : "Continue"}
+        </Button>
+    );
+
     return (
         <>
             {
@@ -142,30 +168,40 @@ export default function ForgotPasswordComp() {
                     <Loader />
                     :
                     <>
-
-
+                        {liveStep === null ? (
+                        // `/forgot-password` with no `?step` renders a header, a
+                        // progress bar and a live CTA over an empty column. That
+                        // is a routing bug, not a layout one — it keeps exactly
+                        // the presentation it has today rather than being handed
+                        // a desktop media panel.
                         <PageShell
+                            header={<Header onBack={onBack} title={<BrandLogo />} progress={progress} />}
+                            footerAction={cta}>
+                            <div className="flex flex-col w-full flex-1 pt-4" />
+                        </PageShell>
+                        ) : (
+                        <AuthSplitShell
+                            // Every step here is a form step: artwork on desktop
+                            // only, and not mounted at all on mobile.
+                            media={<AnimatedImages currentSlide={0} />}
+                            mediaOn="desktop"
+                            actionMode="step"
                             header={
                                 <Header
-                                  onBack={() => {
-                                        if (step > 1) {
-                                            setStep(1);
-                                            router.push(`?step=${1}`);
-                                        } else {
-                                            router.push(`/`);
-                                        }
-                                    }}
+                                  // `lg:static` as well as `md:static`: Header is
+                                  // `absolute lg:sticky lg:top-0`, and responsive
+                                  // variants are independent, so the `md` term
+                                  // alone lets it go sticky again at 1024 and,
+                                  // being `w-full z-sticky`, paint over the media.
+                                  className="md:static lg:static"
+                                  onBack={onBack}
                                   title={<BrandLogo />}
-                                  progress={<StepNavigation step={step} totalSteps={3} />}
+                                  progress={progress}
                                 />
                             }
-                            footerAction={
-                                <Button onClick={handleNextStep} loading={isLoading}>
-                                    {step === 3 ? "Reset Password" : "Continue"}
-                                </Button>
-                            }
+                            footerAction={cta}
                         >
-                            <div className="flex flex-col w-full flex-1 pt-4">
+                            <div ref={stepRef} className="flex flex-col w-full flex-1 pt-4">
                                 <div className="flex flex-col w-full flex-1">
                                     {step === 1 && (
 
@@ -211,8 +247,8 @@ export default function ForgotPasswordComp() {
 
                                 </div>
                             </div>
-                        </PageShell>
-
+                        </AuthSplitShell>
+                        )}
                     </>
             }
         </>
