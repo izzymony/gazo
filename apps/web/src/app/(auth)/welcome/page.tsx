@@ -129,7 +129,6 @@ export default function Welcome() {
 
   return (
     <AuthSplitShell
-      mediaClassName="h-[38vh] sm:h-[42vh] md:h-auto"
       media={
         <>
           <Image

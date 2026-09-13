@@ -185,6 +185,18 @@ module.exports = {
         // be verified by tsc, lint or tests, only by looking. Migrate them in
         // their own pass, with a restart and a render.
         field: "52px",
+        // The hero band above the content column on /signin, /signup and
+        // /welcome, below `md` (at `md` the artwork becomes a full-height pane
+        // and this stops applying). Viewport-relative so it keeps its share of
+        // a short phone and a tall one alike, rather than a fixed pixel band
+        // that swallows a 667px screen and strands a 932px one.
+        //
+        // It is a token because all three screens must agree: they were
+        // written as `h-[38vh] sm:h-[42vh]` on welcome and `h-60 sm:h-[500px]`
+        // on the two auth screens, which is how the same band ended up 240px
+        // on one and 321px on another at the same width.
+        "auth-band": "38vh",
+        "auth-band-wide": "42vh",
         // The seller desktop rail (--rail-width). Used by the rail, by the
         // gutter the dashboard frame reserves for it, and — through
         // `shell-inset` below — by anything fixed that has to clear it.

@@ -279,7 +279,6 @@ export default function SignInOverview() {
         <>
           {step === 0 ? (
             <AuthSplitShell
-              mediaClassName="h-60 sm:h-[500px] md:h-auto"
               media={<AnimatedImages currentSlide={currentSlide} />}>
               <SlideContent
                 currentSlide={currentSlide}

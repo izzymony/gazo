@@ -81,13 +81,29 @@ describe("AuthSplitShell", () => {
       expect(pane.className).toContain("md:w-1/2");
     });
 
-    it("lets the caller size the mobile band, which the two callers disagree on", () => {
+    it("sizes the mobile band itself, so the three screens cannot disagree", () => {
       const { getByTestId } = render(
-        <AuthSplitShell media={<span data-testid="art" />} mediaClassName="h-[38vh]">
+        <AuthSplitShell media={<span data-testid="art" />}>content</AuthSplitShell>
+      );
+      const pane = getByTestId("art").parentElement as HTMLElement;
+      // Viewport-relative and shared. This was a required prop, and the callers
+      // promptly diverged: 38vh/42vh on welcome, a fixed 240px/500px on the two
+      // auth screens — the same band at two sizes on the same phone.
+      expect(pane.className).toContain("h-auth-band");
+      expect(pane.className).toContain("sm:h-auth-band-wide");
+      // The band is mobile-only; at md the artwork becomes a full-height pane.
+      expect(pane.className).toContain("md:h-auto");
+      // And no fixed-pixel band survives.
+      expect(pane.className).not.toMatch(/\bh-\[\d+px\]/);
+    });
+
+    it("still lets a caller override the band, without losing the default", () => {
+      const { getByTestId } = render(
+        <AuthSplitShell media={<span data-testid="art" />} mediaClassName="h-auto">
           content
         </AuthSplitShell>
       );
-      expect((getByTestId("art").parentElement as HTMLElement).className).toContain("h-[38vh]");
+      expect((getByTestId("art").parentElement as HTMLElement).className).toContain("h-auto");
     });
   });
 });

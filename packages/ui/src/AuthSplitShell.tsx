@@ -8,7 +8,7 @@ interface AuthSplitShellProps {
   children: ReactNode;
   /** Pinned to the viewport bottom below `md`; flows in the column at `md`. */
   footerAction?: ReactNode;
-  /** The mobile band's height — the callers differ, so it has no default. */
+  /** Escape hatch for the band. The height is the shell's own — see below. */
   mediaClassName?: string;
   /** Extra classes for the content column's inner wrapper. */
   contentClassName?: string;
@@ -54,6 +54,13 @@ export default function AuthSplitShell({
       <div
         className={cn(
           "relative w-full shrink-0 overflow-hidden",
+          // The band height is the shell's, not the caller's. It was a required
+          // prop, and the three callers promptly disagreed — 38vh/42vh on
+          // welcome against a fixed 240px/500px on the two auth screens, so the
+          // same band measured 240px on one and 321px on another at one width.
+          // Viewport-relative, so it keeps its share of a short phone and a
+          // tall one rather than a fixed band that swallows the first.
+          "h-auth-band sm:h-auth-band-wide md:h-auto",
           // Both panes are `w-1/2` with a gap between them, which over-commits
           // the row by exactly the gap — the columns then shrink to fit, and
           // that shrink is what produces their real width. Restoring
