@@ -22,13 +22,18 @@ export default function SlideContent({ currentSlide, onSlideChange }: SlideConte
 
       {/* Slide Text Content */}
       <div className="grid grid-cols-1">
-        <div className=" relative h-28 overflow-hidden">
+        {/* Fixed so the cross-fading slides, which are absolute, have a box to
+            sit in. h-28 was sized for the 40px desktop headline and left ~32px
+            of dead space under an 18px mobile one — which on a 667px phone was
+            the difference between the legal line sitting above the fold and
+            below it. */}
+        <div className="relative h-20 sm:h-28 overflow-hidden">
           {slidesData.map((slide, index) => (
             <div
               key={`text-${index}`}
               className={`absolute w-full text-center transition-opacity duration-500 ${currentSlide === index ? "opacity-100" : "opacity-0"
                 }`}>
-              <h1 className="text-foreground-primary text-lg md:text-display md:leading-[40px] font-medium tracking-wide whitespace-nowrap">
+              <h1 className="text-foreground-primary text-lg sm:text-2xl md:text-display md:leading-[40px] font-medium tracking-wide whitespace-nowrap">
                 {slide.title}
               </h1>
               <div className="mt-3 md:leading-[24px]">{slide.description}</div>

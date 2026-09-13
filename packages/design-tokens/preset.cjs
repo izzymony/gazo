@@ -187,16 +187,28 @@ module.exports = {
         field: "52px",
         // The hero band above the content column on /signin, /signup and
         // /welcome, below `md` (at `md` the artwork becomes a full-height pane
-        // and this stops applying). Viewport-relative so it keeps its share of
-        // a short phone and a tall one alike, rather than a fixed pixel band
-        // that swallows a 667px screen and strands a 932px one.
+        // and this stops applying).
         //
-        // It is a token because all three screens must agree: they were
-        // written as `h-[38vh] sm:h-[42vh]` on welcome and `h-60 sm:h-[500px]`
-        // on the two auth screens, which is how the same band ended up 240px
-        // on one and 321px on another at the same width.
-        "auth-band": "38vh",
-        "auth-band-wide": "42vh",
+        // Half the screen where there is room for it, yielding to the content
+        // where there is not. The three terms, outermost last:
+        //   50dvh          - the intent: the artwork takes half the screen
+        //   100dvh - 25rem - reserve 400px for the headline, the actions and
+        //                    the legal line, so a short phone shrinks the
+        //                    artwork rather than pushing the buttons off
+        //   max(14rem, ..) - but never collapse below 224px, or the artwork
+        //                    stops reading as artwork
+        // So it holds at 50% from ~812px tall upward and tapers below: 466px
+        // at 932, 422 at 844, 267 at 667.
+        //
+        // `dvh`, not `vh`: the frame is `min-h-dvh`, and on mobile Safari `vh`
+        // is the URL-bar-hidden viewport, which is not the space being divided.
+        //
+        // It is a token because all three screens must agree. They were written
+        // as `h-[38vh] sm:h-[42vh]` on welcome and `h-60 sm:h-[500px]` on the
+        // two auth screens, which is how the same band ended up 240px on one
+        // and 321px on another at the same width. It is height-driven, so it
+        // needs no `sm:` step — that was varying the wrong axis.
+        "auth-band": "min(50dvh, max(14rem, 100dvh - 25rem))",
         // The seller desktop rail (--rail-width). Used by the rail, by the
         // gutter the dashboard frame reserves for it, and — through
         // `shell-inset` below — by anything fixed that has to clear it.

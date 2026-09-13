@@ -90,7 +90,9 @@ describe("AuthSplitShell", () => {
       // promptly diverged: 38vh/42vh on welcome, a fixed 240px/500px on the two
       // auth screens — the same band at two sizes on the same phone.
       expect(pane.className).toContain("h-auth-band");
-      expect(pane.className).toContain("sm:h-auth-band-wide");
+      // One height, driven by viewport HEIGHT. A `sm:` step here would vary it
+      // by width, which is not the axis that decides whether the actions fit.
+      expect(pane.className).not.toMatch(/sm:h-/);
       // The band is mobile-only; at md the artwork becomes a full-height pane.
       expect(pane.className).toContain("md:h-auto");
       // And no fixed-pixel band survives.

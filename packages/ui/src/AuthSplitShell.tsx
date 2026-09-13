@@ -58,9 +58,9 @@ export default function AuthSplitShell({
           // prop, and the three callers promptly disagreed — 38vh/42vh on
           // welcome against a fixed 240px/500px on the two auth screens, so the
           // same band measured 240px on one and 321px on another at one width.
-          // Viewport-relative, so it keeps its share of a short phone and a
-          // tall one rather than a fixed band that swallows the first.
-          "h-auth-band sm:h-auth-band-wide md:h-auto",
+          // Half the screen where there is room, yielding to the content where
+          // there is not — see `auth-band` in the preset for the arithmetic.
+          "h-auth-band md:h-auto",
           // Both panes are `w-1/2` with a gap between them, which over-commits
           // the row by exactly the gap — the columns then shrink to fit, and
           // that shrink is what produces their real width. Restoring
