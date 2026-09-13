@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
 import { cn } from "@vibaar/utils";
-import IconButton from "./IconButton";
-import { BiArrowBack } from "../icons";
+import HeaderRow from "./HeaderRow";
 
 export interface HeaderProps {
   /**
@@ -56,31 +55,12 @@ export default function Header({
         "absolute lg:sticky lg:top-0 bg-surface w-full flex flex-col z-sticky",
         className
       )}>
-      {/* Desktop max-width wrapper */}
-      <div className="w-full lg:max-w-5xl lg:mx-auto pt-3 pb-0 px-4 lg:px-5 rail-safe-foreground">
-        <div className="flex flex-row items-center bg-surface h-[36px]">
-          {leading ??
-            (onBack && (
-              <IconButton
-                icon={BiArrowBack}
-                label="Go back"
-                onClick={onBack}
-                className="mr-1 -ml-2"
-              />
-            ))}
-
-          {typeof title === "string" ? (
-            <h3 className="font-medium text-body-lg text-foreground-primary leading-[18px] flex-1 min-w-0 truncate">
-              {title}
-            </h3>
-          ) : (
-            title
-          )}
-
-          {/* `ml-auto` pins actions right on screens with no title to push
-              them there; harmless when a title already fills the row. */}
-          {trailing && <div className="ml-auto flex flex-row items-center">{trailing}</div>}
-        </div>
+      {/* Desktop max-width wrapper. `lg:pt-5` is part of the desktop step-up —
+          a 48px row under 12px of padding reads cramped against a 24px title. */}
+      <div className="w-full lg:max-w-5xl lg:mx-auto pt-3 lg:pt-5 pb-0 px-4 lg:px-5 rail-safe-foreground">
+        {/* The row itself belongs to HeaderRow, so this header and the flow-page
+            band share ONE desktop contract rather than drifting into two. */}
+        <HeaderRow onBack={onBack} leading={leading} title={title} trailing={trailing} />
 
         {progress}
       </div>

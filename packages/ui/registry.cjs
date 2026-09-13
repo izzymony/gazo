@@ -65,6 +65,9 @@ const entries = [
   ["common/Header", "component", "stable"],
   ["common/header/BackButton", "component", "stable"],
   ["common/header/KebabMenu", "component", "stable"],
+  // The row's geometry and typography, shared by `Header` and (next)
+  // `PageHeaderBand`, so the app cannot end up with two desktop header systems.
+  ["common/HeaderRow", "primitive", "candidate"],
   ["common/HeaderSlides", "pattern"],
   ["common/HeroHeader", "pattern"],
   ["common/IconButton", "primitive", "stable"],

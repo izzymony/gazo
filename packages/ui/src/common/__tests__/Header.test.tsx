@@ -25,10 +25,25 @@ describe("Header", () => {
       );
     });
 
-    it("keeps the 36px bar and the desktop max-width wrapper", () => {
+    // The bar is 36px on a phone and 48px from lg. It was 36px at every width,
+    // which is why a 27" display showed a phone's header. The mobile half of
+    // this pair is the part that must not move.
+    it("keeps the 36px bar on mobile, steps to 48px at lg, and keeps the column", () => {
       const { container } = render(<Header title="Orders" />);
       expect(container.querySelector(".lg\\:max-w-5xl")).toBeInTheDocument();
-      expect(container.querySelector(".h-\\[36px\\]")).toBeInTheDocument();
+      const row = container.querySelector(".h-9");
+      expect(row).toBeInTheDocument();
+      expect(row).toHaveClass("lg:min-h-12");
+    });
+
+    // The row's geometry and typography live in HeaderRow so this header and
+    // the flow-page band cannot drift into two desktop systems.
+    it("steps the title up at lg without touching its mobile size", () => {
+      render(<Header title="Orders" />);
+      expect(screen.getByRole("heading", { level: 3 })).toHaveClass(
+        "text-body-lg",
+        "lg:text-h1"
+      );
     });
 
     it("still positions itself when a caller adds classes", () => {
