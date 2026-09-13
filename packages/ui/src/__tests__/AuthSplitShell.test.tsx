@@ -213,6 +213,27 @@ describe("AuthSplitShell", () => {
     });
   });
 
+  describe("the mobile gutter", () => {
+    // jsdom has no layout, so this is a class assertion — but it is the one
+    // that was missing when the landing lost its `px-4` and welcome and step
+    // zero rendered edge to edge on every phone. Measured 0px at 390.
+    const innerOf = (c: HTMLElement) => c.querySelector(".max-w-md") as HTMLElement;
+
+    it("keeps the landing off the screen edges", () => {
+      const { container } = render(<AuthSplitShell media={null}>content</AuthSplitShell>);
+      expect(innerOf(container).className).toContain("px-4");
+    });
+
+    it("keeps a step off them too", () => {
+      const { container } = render(
+        <AuthSplitShell media={null} actionMode="step">
+          content
+        </AuthSplitShell>
+      );
+      expect(innerOf(container).className).toContain("px-4");
+    });
+  });
+
   describe("action modes", () => {
     const bar = (c: HTMLElement) => c.querySelector(".fixed") as HTMLElement;
 

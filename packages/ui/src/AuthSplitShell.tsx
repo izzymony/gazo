@@ -165,7 +165,13 @@ export default function AuthSplitShell({
                 // the wrapper is content-sized, `h-full` resolves to nothing,
                 // and the link rides up under the fields.
                 "space-y-6 px-4 flex-1 md:flex-none"
-              : "gap-4",
+              : // The landing's gutter. The column used to carry `px-4` for
+                // both modes; when the step branch took its own, this one was
+                // left with none and welcome and step zero ran edge to edge on
+                // every phone. `md:px-0` because the column's `md:px-8` takes
+                // over there — a step keeps its `px-4` at `md` instead, to line
+                // up with its header's own gutter.
+                "gap-4 px-4 md:px-0",
             // Clears the `absolute` mobile header. Safe to cancel at `md`
             // now that the auto margins live on the group, not here — when
             // they lived here, `md:mt-0` silently killed `my-auto`'s top
