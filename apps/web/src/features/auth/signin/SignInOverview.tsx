@@ -396,12 +396,17 @@ export default function SignInOverview() {
                     />
                   )}
                 </div>
-                {/* Sits just above the action bar. `pt-6` rather than a top
-                    margin: `mt-auto` is what pushes it down on mobile, and a
-                    margin would fight it. Without the padding this line touched
-                    the one above it — measured 0px apart. */}
+                {/* Sits just above the action bar, and close to it — this line
+                    belongs to the CTA, not to the form above it.
+
+                    `pt-6` rather than a top margin: `mt-auto` is what pushes it
+                    down on mobile, and a margin would fight it. No bottom
+                    margin: the gap to the button is already the 24px the
+                    wrapper's `space-y-6` gives the bar plus the Button's own
+                    `mt-4`, and a third 24px on top of those read as a break
+                    between two unrelated things. */}
                 {step === 1 && (
-                  <div className="text-center mb-6 mt-auto pt-6">
+                  <div className="text-center mt-auto pt-6">
                     <p className="text-body-sm text-foreground-secondary">
                       Don&apos;t have an account?{" "}
                       <button type="button"
