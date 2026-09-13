@@ -59,6 +59,41 @@ module.exports = {
       addUtilities({
         ".container-size": { "container-type": "size" },
         ".container-inline": { "container-type": "inline-size" },
+
+        // A composition canvas: artwork whose parts must hold their relative
+        // geometry while the whole scales to the box it is given.
+        //
+        // The auth slideshow was the case that needed it. Its floating cards
+        // were positioned with absolute pixel offsets (±165) and sized in
+        // absolute pixels (217–249), inside a pane whose width is whatever the
+        // grid leaves it — 344px at 768, 928px at 1440. The composition spread
+        // 579px regardless, so it overflowed its own pane by 117px a side at
+        // 768 and left it half empty at 1440. A second hard-coded offset set
+        // and a `window.innerWidth` branch existed to paper over the first half
+        // of that; nothing covered the second.
+        //
+        // So: one canonical square coordinate system, scaled by its container.
+        // Children declare their geometry as FRACTIONS of the canvas
+        // (`--item-x`, `--item-y`, `--item-w`) and CSS multiplies them up, so
+        // the whole composition scales continuously with no breakpoints, no
+        // resize listener and no JS reading the viewport.
+        //
+        // Both axes: `72cqw` keeps the spread inside the pane's width,
+        // `160cqh` keeps it inside a SHORT pane's height — without the second
+        // term a 640px-tall window crops the artwork instead of shrinking it.
+        // The ceiling stops raster cards being upscaled into mush.
+        ".composition-canvas": {
+          "--composition-scale": "clamp(11rem, min(72cqw, 160cqh), 39rem)",
+          width: "var(--composition-scale)",
+          "aspect-ratio": "1 / 1",
+        },
+        ".composition-item": {
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          width: "calc(var(--item-w, 0.5) * var(--composition-scale))",
+          height: "auto",
+        },
       });
     }),
   ],

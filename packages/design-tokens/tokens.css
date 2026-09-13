@@ -95,6 +95,7 @@
   --shadow-pop: 0 4px 24px rgba(0, 0, 0, 0.12);
   --rail-width: 16rem;
   --buyer-rail-width: 5rem;
+  --composition-scale: 20rem;
   --z-dropdown: 30;
   --z-sticky: 40;
   --z-shell: 45;

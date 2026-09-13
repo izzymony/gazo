@@ -202,6 +202,17 @@ const tokens = {
     pop: "0 4px 24px rgba(0, 0, 0, 0.12)",
   },
   /**
+   * The size of a proportional composition canvas — see `.composition-canvas`
+   * in the preset, which overrides this per container.
+   *
+   * The root value is the fallback for artwork rendered outside a canvas, so a
+   * missing wrapper degrades to a fixed, sensible size rather than collapsing
+   * every child to zero width.
+   */
+  composition: {
+    scale: "20rem",
+  },
+  /**
    * Tailwind's default breakpoints, restated here so JavaScript can read them.
    *
    * These are the framework's own values, repeated rather than changed — the
@@ -323,6 +334,9 @@ const cssVariables = {
   ...Object.fromEntries(Object.entries(tokens.shadow).map(([name, value]) => [`--shadow-${name}`, value])),
   ...Object.fromEntries(
     Object.entries(tokens.chrome).map(([name, value]) => [`--${name}-width`, value])
+  ),
+  ...Object.fromEntries(
+    Object.entries(tokens.composition).map(([name, value]) => [`--composition-${name}`, value])
   ),
   ...Object.fromEntries(Object.entries(tokens.zIndex).map(([name, value]) => [`--z-${name}`, value])),
 };

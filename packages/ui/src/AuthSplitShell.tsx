@@ -101,7 +101,7 @@ export default function AuthSplitShell({
         // instead, and the media takes the surplus.
         "md:grid md:h-dvh md:grid-cols-2 md:gap-8 md:p-6",
         // Content clamps, media grows: 512 @1024, 768 @1280, 928 @1440.
-        "lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:p-8"
+        "lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)] lg:p-8"
       )}>
       <div
         className={cn(

@@ -169,7 +169,7 @@ describe("AuthSplitShell", () => {
 
     it("gives the media column the surplus while the content column clamps", () => {
       const { container } = render(<AuthSplitShell media={null}>content</AuthSplitShell>);
-      expect(root(container).className).toContain("lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]");
+      expect(root(container).className).toContain("lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]");
     });
 
     it("insets the frame equally, so the media's top, bottom and right match", () => {

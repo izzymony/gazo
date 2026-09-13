@@ -22,18 +22,22 @@ export default function SlideContent({ currentSlide, onSlideChange }: SlideConte
 
       {/* Slide Text Content */}
       <div className="grid grid-cols-1">
-        {/* Fixed so the cross-fading slides, which are absolute, have a box to
-            sit in. h-28 was sized for the 40px desktop headline and left ~32px
-            of dead space under an 18px mobile one — which on a 667px phone was
-            the difference between the legal line sitting above the fold and
-            below it. */}
-        <div className="relative h-20 sm:h-28 overflow-hidden">
+        {/* The slides cross-fade, so they must overlap — but stacking them in
+            the same GRID CELL sizes the box to the tallest of them instead of
+            to a number someone picked. It was `h-20 sm:h-28`, chosen for an
+            18px mobile headline, and once the column narrowed and the desktop
+            headline grew to 40px it clipped both the title and the second line
+            of every description. Nothing here needs a fixed height. */}
+        <div className="grid">
           {slidesData.map((slide, index) => (
             <div
               key={`text-${index}`}
-              className={`absolute w-full text-center transition-opacity duration-500 ${currentSlide === index ? "opacity-100" : "opacity-0"
+              aria-hidden={currentSlide !== index}
+              className={`col-start-1 row-start-1 w-full text-center transition-opacity duration-500 ${currentSlide === index ? "opacity-100" : "opacity-0 pointer-events-none"
                 }`}>
-              <h1 className="text-foreground-primary text-h1 md:text-display md:leading-[40px] font-medium tracking-wide whitespace-nowrap">
+              {/* No `whitespace-nowrap`: the content column is a readable
+                  measure, not whatever the longest title happens to need. */}
+              <h1 className="text-foreground-primary text-h1 md:text-display md:leading-[44px] font-medium tracking-wide text-balance">
                 {slide.title}
               </h1>
               <div className="mt-3 md:leading-[24px]">{slide.description}</div>

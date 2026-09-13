@@ -20,6 +20,8 @@ export type VibaarTokenContract = {
    * mounting. A contract test pins them to Tailwind's resolved screens.
    */
   screens: Record<"sm" | "md" | "lg" | "xl" | "2xl", string>;
+  /** Root fallback for a proportional composition canvas; see `.composition-canvas`. */
+  composition: Record<"scale", string>;
 };
 
 export const tokens: VibaarTokenContract;
