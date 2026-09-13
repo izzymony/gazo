@@ -37,8 +37,8 @@ export interface PageActionButtonProps
  * `size="md"` is 44px, which fits the 48px desktop row with 2px either side, so
  * the node is the SAME SIZE in both positions.
  *
- * The 160–200px minimum belongs to INLINE actions and is applied by
- * `InlineActionRow`, not here: header actions stay compact, dialog buttons are
+ * The 160–200px minimum belongs to INLINE actions and is applied by the shell's
+ * desktop fallback, not here: header actions stay compact, dialog buttons are
  * intrinsic, and a panel action fills its bounded panel.
  */
 export default function PageActionButton({

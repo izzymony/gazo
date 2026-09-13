@@ -71,7 +71,6 @@ const entries = [
   ["common/HeaderSlides", "pattern"],
   ["common/HeroHeader", "pattern"],
   ["common/IconButton", "primitive", "stable"],
-  ["common/InlineActionRow", "primitive", "candidate"],
   ["common/InputField", "primitive", "stable"],
   ["common/inputs", "internal"],
   ["common/List", "component", "stable"],
