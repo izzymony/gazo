@@ -4,12 +4,34 @@ import BottomNav from "@/features/seller-shell/BottomNav";
 import DesktopNav from "@/features/seller-shell/DesktopNav";
 import React from "react";
 import DetailFetcher from "./fectproducts";
-import { usePathname } from "next/navigation";
+import { useSelectedLayoutSegments } from "next/navigation";
 import { cn } from "@vibaar/utils";
 import { sellerNavMode } from "@/features/seller-shell/sellerNav";
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+  // The chrome follows the page in `children`, NOT the URL.
+  //
+  // Those were the same thing until a settings form became a route-backed
+  // dialog. An intercepted navigation changes the URL while the page underneath
+  // stays put, so a URL-driven `usePathname()` resolved the dialog route's own
+  // policy — `none` for /dashboard/settings/change-password, which is right for
+  // the full page and wrong for a dialog over the settings list. Opening it took
+  // the rail away and reflowed the page behind the panel by 256px.
+  //
+  // `useSelectedLayoutSegments()` reads the `children` slot, which interception
+  // does not touch: it still says `settings/security` while the modal slot holds
+  // the dialog. The nav policy itself is unchanged and still keyed by route —
+  // this only stops a modal's URL standing in for its page's.
+  //
+  // Route groups and parallel slots name no URL segment, so they are dropped
+  // rather than joined into a path no policy entry could match.
+  const segments = useSelectedLayoutSegments();
+  const pathname =
+    "/dashboard" +
+    segments
+      .filter((s) => !s.startsWith("(") && !s.startsWith("@"))
+      .map((s) => `/${s}`)
+      .join("");
 
   // The two navs answer different questions, so they no longer share a boolean.
   // The bar takes 60px from the page, so a focused flow drops it. The rail sits

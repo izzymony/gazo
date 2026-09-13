@@ -31,6 +31,16 @@ export function routeTemplatesIn(root: string, basePath: string): string[] {
           walk(path, segments);
           continue;
         }
+        // A parallel-route slot (`@modal`) and an intercepting route (`(.)x`,
+        // `(..)x`) are ALTERNATIVE RENDERINGS of a URL that is declared
+        // elsewhere — they name no segment and add no route. Walking into one
+        // would report `/dashboard/settings/@modal/(.)change-password` as a
+        // route needing a nav classification, which is not a URL anyone can
+        // navigate to. Note the interception prefixes are not caught by the
+        // route-group test above: `(.)change-password` opens with `(` but does
+        // not close with `)`.
+        if (entry.name.startsWith("@")) continue;
+        if (/^\(\.{1,3}\)/.test(entry.name)) continue;
         walk(path, [
           ...segments,
           entry.name.startsWith("[") ? `:${entry.name.slice(1, -1)}` : entry.name,

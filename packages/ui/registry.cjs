@@ -110,6 +110,9 @@ const entries = [
   // The desktop frame for screens that own a flow action: one action node,
   // last in the DOM, lifted into the header row at lg by grid placement.
   ["PageHeaderBand", "pattern", "candidate"],
+  // A dialog whose mobile presentation is the full-screen route it replaces.
+  ["common/ResponsiveRouteDialog", "primitive", "candidate"],
+
   ["PageShell", "pattern", "stable"],
   ["slidingcomponent", "pattern"],
   ["styles", "internal"],

@@ -330,6 +330,24 @@ module.exports = {
         // whose automatic minimum size is already zero.
         "page-band": "auto auto 1fr",
       },
+      maxWidth: {
+        // Dialog panel widths, by role rather than by pixel count.
+        //
+        // `dialog` is the 448px `lg:max-w-md` the modal primitive has always
+        // used, named so it stops being an incidental Tailwind step. `dialog-lg`
+        // is 640px for a dialog that holds a FORM: three stacked fields, their
+        // labels and their error text do not read at 448px, and a route-backed
+        // dialog is a whole screen's content, not a confirmation.
+        dialog: "448px",
+        "dialog-lg": "640px",
+      },
+      maxHeight: {
+        // A dialog may grow with its content and then stop one comfortable
+        // gutter short of the viewport — NOT at a hard 600px, which capped a
+        // 1440-tall screen and a 640-tall one identically. `dvh` so the mobile
+        // URL bar collapsing does not leave the panel overhanging.
+        dialog: "calc(100dvh - 64px)",
+      },
       minWidth: {
         // The desktop inline page-action floor. A "Save" that hugs its label is
         // 78px and reads as incidental next to the content it commits; the

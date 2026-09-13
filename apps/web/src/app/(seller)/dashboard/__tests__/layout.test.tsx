@@ -4,6 +4,11 @@ import DashboardLayout from "../layout";
 const mockPathname = jest.fn<string, []>();
 
 jest.mock("next/navigation", () => ({
+  // The layout reads the `children` slot's segments, not the URL — see the
+  // comment in layout.tsx. The mock keeps taking a path so every existing case
+  // reads unchanged, and splits it the way the real hook would.
+  useSelectedLayoutSegments: () =>
+    mockPathname().replace(/^\/dashboard\/?/, "").split("/").filter(Boolean),
   usePathname: () => mockPathname(),
 }));
 
@@ -154,5 +159,31 @@ describe("seller dashboard frame", () => {
       const without = renderAt("/dashboard/catalog/product/create");
       expect(without.container.querySelector(".h-dvh")).not.toHaveClass("shell-inset-rail");
     });
+  });
+});
+
+/**
+ * An intercepted navigation changes the URL while the page underneath stays put.
+ * The chrome must follow the page, not the URL — otherwise opening the
+ * change-password dialog over the settings list resolves that route's own `none`
+ * policy, and the rail disappears from a page the seller is still looking at.
+ *
+ * Guarded here rather than left to the browser because it is invisible until you
+ * open a dialog on the one route group that has a rail, and it will apply to all
+ * six dialog families.
+ */
+describe("chrome during an intercepted navigation", () => {
+  it("reads the children slot, so a modal's URL cannot take the rail away", () => {
+    // The real hook reports the `children` tree, which interception leaves
+    // alone: the URL says change-password, these segments still say security.
+    mockPathname.mockReturnValue("/dashboard/settings/security");
+    const { container } = render(<DashboardLayout>page</DashboardLayout>);
+    expect(container.querySelector(".h-dvh")).toHaveClass("shell-inset-rail");
+  });
+
+  it("still drops the rail on the canonical full-page route", () => {
+    mockPathname.mockReturnValue("/dashboard/settings/change-password");
+    const { container } = render(<DashboardLayout>page</DashboardLayout>);
+    expect(container.querySelector(".h-dvh")).not.toHaveClass("shell-inset-rail");
   });
 });
