@@ -276,17 +276,37 @@ describe("AuthSplitShell", () => {
       expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     });
 
-    it("offsets the content for the absolute mobile header, but only on mobile", () => {
+    it("offsets the content for the absolute mobile header, then releases it to centre", () => {
       const { container } = render(
         <AuthSplitShell media={null} actionMode="step" header={<i />}>
           content
         </AuthSplitShell>
       );
-      // The header is only `absolute` below md; carrying mt-16 into the split
-      // would push the form down a column that no longer needs clearing.
       const inner = container.querySelector(".mt-16") as HTMLElement;
       expect(inner).not.toBeNull();
       expect(inner.className).toContain("md:mt-0");
+      // The auto margins must NOT live here. When they did, this `md:mt-0`
+      // silently cancelled the top one, leaving only the bottom auto — which
+      // stacked every step against the top of an 836px column.
+      expect(inner.className).not.toContain("my-auto");
+    });
+
+    it("caps the header to the content's measure so their edges line up", () => {
+      const { getByTestId } = render(
+        <AuthSplitShell media={null} actionMode="step" header={<i data-testid="hdr" />}>
+          content
+        </AuthSplitShell>
+      );
+      // Unwrapped, the header spanned the whole column while the content sat
+      // capped and centred, so their left edges drifted apart as the column
+      // grew — 61px at 1680.
+      // Header and content sit in one group that carries both the measure and
+      // the centring, so they cannot drift apart.
+      const group = getByTestId("hdr").parentElement as HTMLElement;
+      expect(group.className).toContain("md:max-w-md");
+      expect(group.className).toContain("md:my-auto");
+      // It evaporates below md, leaving the mobile frame exactly as it was.
+      expect(group.className).toContain("contents");
     });
 
     it("adds no offset when there is no header", () => {

@@ -161,10 +161,15 @@ export default function Welcome() {
         </Button>
       }>
       <div className="text-center">
-        {/* Desktop only: on mobile the artwork carries the brand mark already,
-            and repeating it above the greeting would say the same thing twice
-            in 80px. On desktop the column opens with it, as the auth screens
-            do — the two are the same frame and should start the same way. */}
+        {/* Desktop only, so this column opens the way the auth screens do —
+            they share a frame and should start the same way.
+
+            Not on mobile: the greeting already reads "Welcome to Vibaar", so a
+            wordmark directly above it says the brand twice inside 80px, which
+            is why this screen never carried one there. (Unlike the auth
+            artwork, welcome's hero has no mark of its own — the headline is
+            what carries it.) `hidden` still costs the request, but it is one
+            small SVG against artwork already being fetched. */}
         <BrandLogo width={180} className="mx-auto mb-8 hidden md:block" />
 
         {/* Matches SlideContent's scale exactly. It was `text-h1` at every

@@ -127,16 +127,32 @@ export default function AuthSplitShell({
           mediaOn === "always" ? "order-last flex-1" : "h-full",
           // Desktop: its own scrollport, so a short window scrolls the form
           // rather than the page — and the media pane cannot be pushed taller.
-          "md:order-none md:h-full md:min-h-0 md:overflow-y-auto md:px-8"
+          // `items-center` is what lets the header and the content share one
+          // measure: without it the header spanned the whole column while the
+          // content sat capped and centred, so their edges drifted apart as the
+          // column grew — 61px at 1680.
+          "md:order-none md:h-full md:min-h-0 md:items-center md:overflow-y-auto md:px-8"
         )}>
-        {header}
+        {/* Header and content travel together at `md`, as one centred group.
+            Centring only the form left the progress bar stranded at the top of
+            a tall column with a void beneath it — two disconnected pieces
+            rather than one screen.
 
+            `contents` below `md`: the group evaporates, so the header stays
+            `absolute` against the column and the body keeps the full height,
+            exactly as it did inside PageShell. */}
         <div
           className={cn(
-            // `my-auto` rather than `justify-center`: a centred flex child is
-            // clipped at the START edge once it overflows its scrollport, which
-            // on a short desktop window would hide the top of the form.
-            "mx-auto flex w-full max-w-md flex-col md:my-auto",
+            "contents",
+            "md:my-auto md:flex md:w-full md:max-w-md md:flex-col"
+          )}>
+          {header}
+
+          <div
+          className={cn(
+            // The group above owns the vertical centring; this owns the
+            // measure. `my-auto` here would fight it.
+            "mx-auto flex w-full max-w-md flex-col",
             isStep
               ? // PageShell's mobile content frame, to the pixel: its gutter,
                 // its header offset, its 24px rhythm. The offset is mobile-only
@@ -148,8 +164,12 @@ export default function AuthSplitShell({
                 // secondary link down to just above the action bar. Without it
                 // the wrapper is content-sized, `h-full` resolves to nothing,
                 // and the link rides up under the fields.
-                "space-y-6 px-4 flex-1 md:flex-none md:px-0"
+                "space-y-6 px-4 flex-1 md:flex-none"
               : "gap-4",
+            // Clears the `absolute` mobile header. Safe to cancel at `md`
+            // now that the auto margins live on the group, not here — when
+            // they lived here, `md:mt-0` silently killed `my-auto`'s top
+            // margin and stacked every step against the top of the column.
             isStep && header && "mt-16 md:mt-0",
             // Clear the action bar, which leaves the flow once it is pinned.
             // The two bars are different heights, so the clearances differ.
@@ -173,6 +193,7 @@ export default function AuthSplitShell({
               {footerAction}
             </div>
           )}
+          </div>
         </div>
       </div>
 
