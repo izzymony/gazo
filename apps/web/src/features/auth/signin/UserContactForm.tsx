@@ -1,9 +1,9 @@
 "use client";
-import { useRouter } from "next/navigation";
 
 import InputField from "@vibaar/ui/common/InputField";
 import { PasswordInput } from "@vibaar/ui/common/inputs";
 import H1 from "@vibaar/ui/common/Typography";
+import Link from "next/link";
 
 interface UserContactFormProps {
   identifier?: string;
@@ -28,7 +28,6 @@ export default function UserContactForm({
   isDirectLogin = false,
   onSubmit,
 }: UserContactFormProps) {
-  const router = useRouter();
 
   const inputType = type === "email" ? "email" : type === "phone" ? "tel" : "text";
   const placeholder = type ? `Enter ${type}` : "Enter email or phone number";
@@ -71,11 +70,19 @@ export default function UserContactForm({
         />
       </div>
 
-      <h1
-        className="text-brandDeep text-right mt-4 cursor-pointer"
-        onClick={() => router.push("forgot-password?step=1")}>
-        Forgot password?
-      </h1>
+      {/* A real button, at the same size as the sign-up line below it.
+          This was an `<h1 onClick>` carrying no font-size class, so it took
+          16px by inheritance and weight 600 from the global heading rule —
+          next to a 12px/450 sibling it read as a heading rather than a link.
+          As an h1 it was also unfocusable and ignored Enter and Space, and it
+          announced itself as a top-level heading to a screen reader. */}
+      <div className="mt-4 flex justify-end">
+        <Link
+          href="/forgot-password?step=1"
+          className="text-body-sm font-medium text-brandDeep hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40 rounded-field">
+          Forgot password?
+        </Link>
+      </div>
     </div>
   );
 }

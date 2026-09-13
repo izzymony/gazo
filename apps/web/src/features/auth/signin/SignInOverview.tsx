@@ -396,9 +396,12 @@ export default function SignInOverview() {
                     />
                   )}
                 </div>
-                {/* Position the signup link right before the button area */}
+                {/* Sits just above the action bar. `pt-6` rather than a top
+                    margin: `mt-auto` is what pushes it down on mobile, and a
+                    margin would fight it. Without the padding this line touched
+                    the one above it — measured 0px apart. */}
                 {step === 1 && (
-                  <div className="text-center mb-6 mt-auto">
+                  <div className="text-center mb-6 mt-auto pt-6">
                     <p className="text-body-sm text-foreground-secondary">
                       Don&apos;t have an account?{" "}
                       <button type="button"
