@@ -182,7 +182,7 @@ const ImageCarousel = ({
         overlay now and reserves its own space. */}
     <div
       ref={containerRef}
-      className="w-full relative overflow-hidden lg:hidden rounded-card">
+      className="w-full relative overflow-hidden lg:hidden rounded-panel">
 
       {/* Image Container with smooth transitions */}
       <div
@@ -217,7 +217,7 @@ const ImageCarousel = ({
                 loading={index === 0 ? "eager" : "lazy"}
                 fetchPriority={index === 0 ? "high" : "auto"}
                 decoding="async"
-                className="w-full h-full object-cover select-none rounded-card"
+                className="w-full h-full object-cover select-none rounded-panel"
                 draggable={false}
                 style={{ pointerEvents: isDragging ? 'none' : 'auto' }}
               />
@@ -260,10 +260,14 @@ const ImageCarousel = ({
       {/* Desktop gallery. The thumbnail column adapts to how many images exist —
           it used to map [1,2,3,4] unconditionally, so a single-image product
           rendered four broken-image tiles beside it. */}
-      <div className="hidden lg:block w-full p-0.5 bg-surface rounded-card">
+      {/* The gallery is a card in its own right, peer to the delivery and
+          purchase panels beside it — so it takes their radius, 24, not the 16 it
+          had. The 2px frame is a hairline, not a nesting inset: an element with
+          no meaningful padding keeps its parent's radius, so both are 24. */}
+      <div className="hidden lg:block w-full p-0.5 bg-surface rounded-panel">
         <div
           className={cn(
-            "grid gap-0.5 h-[500px] rounded-card overflow-hidden",
+            "grid gap-0.5 h-[500px] rounded-panel overflow-hidden",
             thumbnails.length > 0 ? "grid-cols-2" : "grid-cols-1"
           )}>
           {/* Large Image - Left Side */}

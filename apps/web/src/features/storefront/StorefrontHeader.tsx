@@ -117,14 +117,17 @@ export default function StorefrontHeader({
   return (
     <div
       className={cn(
-        "relative flex w-full flex-col rounded-b-card transition-spacing duration-300 ease-out",
+        // 24, matching the cards that sit on and below it. All three of these —
+        // the root, the pattern and the scrim — carry the same value: change one
+        // and the pattern paints square corners outside the rounded root.
+        "relative flex w-full flex-col rounded-b-panel transition-spacing duration-300 ease-out",
         isHero ? "pt-2" : "shadow-card",
         !isHero && expanded && HEADER_OVERHANG,
         className
       )}
       style={bannerBackground(theme, store?.name)}>
-      <BannerPattern theme={theme} className="rounded-b-card" />
-      <div className={cn("absolute inset-0 z-10 rounded-b-card", scrim)} />
+      <BannerPattern theme={theme} className="rounded-b-panel" />
+      <div className={cn("absolute inset-0 z-10 rounded-b-panel", scrim)} />
 
       <div className="relative z-20 w-full max-w-full lg:mx-auto lg:max-w-5xl">
         <div

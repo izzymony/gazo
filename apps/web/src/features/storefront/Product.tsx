@@ -743,15 +743,28 @@ const Product = ({
           the gallery into the left column is what makes the panel reachable on
           arrival; keeping the gallery where it was and calling the action
           "reachable after a scroll" was answering a different question. */}
-      <div className="lg:grid lg:grid-cols-product lg:gap-8 lg:px-8">
-        {/* The gallery rides on the banner's overhang and rises with it as the
-            header collapses — same duration, so the two read as one motion.
-            Below lg this is exactly the full-bleed band it has always been; at
-            lg it is row 1 of the left column and the grid supplies the gutter. */}
-        <div
-          className={`relative z-10 px-4 md:px-6 mb-0 transition-spacing duration-300 ease-out lg:col-start-1 lg:row-start-1 lg:mb-4 lg:px-0 ${
-            !isScrolled ? HEADER_OVERHANG_PULL : ""
-          }`}>
+      {/*
+        THE BANNER PULL IS ON THE GRID, NOT ON THE GALLERY. It rides the banner's
+        overhang and rises with it as the header collapses — same duration, so the
+        two read as one motion. It used to sit on the gallery alone, which was
+        right while the gallery was a full-width band above everything and wrong
+        the moment a second column appeared beside it: the gallery lifted 128px
+        into the overhang and the aside did not, so the purchase panel started
+        128px below the image it belongs next to. Pulling the grid lifts both
+        columns together and they align at the top.
+
+        Row gap is 8, not the 32 the columns use. Between the gallery and the
+        product details 32 plus the gallery's own 16px margin left a 66px hole;
+        the gutter BETWEEN the columns still wants 32.
+      */}
+      <div
+        className={`transition-spacing duration-300 ease-out lg:grid lg:grid-cols-product lg:gap-x-8 lg:gap-y-2 lg:px-8 ${
+          !isScrolled ? HEADER_OVERHANG_PULL : ""
+        }`}>
+        {/* Below lg the gallery is exactly the full-bleed band it has always
+            been; at lg it is row 1 of the left column and the grid supplies the
+            gutter. `z-10` keeps it painting over the banner it sits on. */}
+        <div className="relative z-10 px-4 md:px-6 mb-0 lg:col-start-1 lg:row-start-1 lg:px-0">
           <ImageCarousel
             product={{ ...prod, images: currentImages.length > 0 ? currentImages : prod?.image }}
             isScrolled={isScrolled}
@@ -878,7 +891,7 @@ const Product = ({
             the options are long; the purchase action is `shrink-0`, so it stays
             in the panel and on screen instead of being pushed under the fold by
             a product with many variants. */}
-        <div className="contents lg:block lg:col-start-2 lg:row-start-1 lg:row-end-3">
+        <div className="contents lg:relative lg:z-10 lg:block lg:col-start-2 lg:row-start-1 lg:row-end-3">
           <div className="contents lg:sticky lg:top-4 lg:flex lg:max-h-aside lg:flex-col lg:gap-4">
           {/* Matches the purchase panel below it exactly — same radius, same
               border, same shadow. Two cards stacked in one column at two
