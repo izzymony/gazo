@@ -50,9 +50,17 @@ export default function ProductCTA({
   onShare: () => void;
 }) {
   return (
-    <div className="absolute bottom-0 z-sticky flex w-full items-center gap-3 border-t border-outline bg-surface px-4 py-3 md:px-6 lg:static lg:shrink-0 lg:rounded-panel lg:border lg:p-5 lg:shadow-card">
+    // At lg this becomes a two-row grid rather than one long row: quantity and
+    // add-to-cart share the top row, Buy now takes the bottom one at full width.
+    // A 380px panel is not a 1024px bar — four controls abreast in it squeezes
+    // the commit down to the width of the stepper beside it, and the thing a
+    // buyer is looking for ends up the smallest target in the panel.
+    //
+    // Placed by grid rather than reordered, so the DOM stays stepper → Buy now →
+    // cart and the tab order is unchanged at both breakpoints.
+    <div className="absolute bottom-0 z-sticky flex w-full items-center gap-3 border-t border-outline bg-surface px-4 py-3 md:px-6 lg:static lg:grid lg:grid-cols-2 lg:shrink-0 lg:rounded-panel lg:border lg:p-5 lg:shadow-card">
       {isSeller ? (
-        <div className="flex justify-center gap-4 w-full">
+        <div className="flex justify-center gap-4 w-full lg:col-span-2">
           <Button onClick={onEdit} variant="bordered">
             Edit product
           </Button>
@@ -64,7 +72,7 @@ export default function ProductCTA({
         </div>
       ) : (
         <>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 lg:col-start-1 lg:row-start-1">
             <IconButton
               icon={Minus}
               label="Decrease quantity"
@@ -87,7 +95,7 @@ export default function ProductCTA({
           <Button
             onClick={onBuyNow}
             disabled={isOutOfStock}
-            className="m-0 mx-auto">
+            className="m-0 mx-auto lg:col-span-2 lg:row-start-2 lg:mx-0 lg:w-full">
             {isOutOfStock ? "Out of stock" : "Buy now"}
           </Button>
 
@@ -96,7 +104,7 @@ export default function ProductCTA({
             label="Add to cart"
             onClick={onAddToCart}
             size="lg"
-            className="bg-surface-subtle"
+            className="bg-surface-subtle lg:col-start-2 lg:row-start-1 lg:justify-self-end"
             disabled={isOutOfStock}
           />
         </>

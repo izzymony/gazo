@@ -67,10 +67,26 @@ export default function DeliveryCard({
         Delivery &amp; Returns
       </p>
 
-      {/* Route rail. Radii are tokens (field/card) rather than the mixed
-          rounded-lg / rounded-xl / rounded-2xl this carried, padding is on the
-          4px scale, and every size is a step on the type scale. */}
-      <div className="rounded-card bg-surface-subtle p-3">
+      {/*
+        Route rail. Radii are tokens (field/card) rather than the mixed
+        rounded-lg / rounded-xl / rounded-2xl this carried, and every size is a
+        step on the type scale.
+
+        THE INSET IS 4px, AND THAT IS THE RADIUS RULE, NOT A TASTE CALL. Radii
+        nest as `outer = inner + the padding between them`. This rail is 16 and
+        the delivery card inside it is 12, so the only inset that draws
+        concentric corners is 4 — at the 12 it used to carry, 16 should have been
+        24, and the corner gap thickened around each diagonal. Change either
+        radius and this padding has to move with it.
+      */}
+      <div className="rounded-card bg-surface-subtle p-1">
+        {/*
+          The From→To block keeps the 12px inset it has always had: 4 from the
+          rail plus 8 here. Only the delivery card below tightens to the rail —
+          the route reads as text on the rail's surface, not as a nested card, so
+          it has nothing to be concentric with and no reason to move.
+        */}
+        <div className="px-2 pt-2">
         {/* From row (origin marker + dashed connector on the route rail) */}
         <div className="flex w-full items-start justify-between gap-3">
           <div className="flex gap-3">
@@ -105,9 +121,11 @@ export default function DeliveryCard({
             <span className="line-clamp-1 text-left">{toLocation}</span>
           </button>
         </div>
+        </div>
 
-        {/* Selected-delivery summary */}
-        <div className="space-y-2 rounded-field border border-outline bg-surface p-4">
+        {/* Selected-delivery summary. 12px inside: 16 read as a room of its own
+            in a 380px panel, and the rail around it is only 4. */}
+        <div className="space-y-2 rounded-field border border-outline bg-surface p-3">
           <div className="flex items-center justify-between text-body-sm font-normal">
             <p className="text-foreground-secondary">
               {selectedDelivery?.delivery_type || "Delivery"}

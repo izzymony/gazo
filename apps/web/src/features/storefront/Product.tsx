@@ -880,7 +880,12 @@ const Product = ({
             a product with many variants. */}
         <div className="contents lg:block lg:col-start-2 lg:row-start-1 lg:row-end-3">
           <div className="contents lg:sticky lg:top-4 lg:flex lg:max-h-aside lg:flex-col lg:gap-4">
-          <div className="hidden lg:block lg:min-h-0 lg:overflow-y-auto bg-surface rounded-2xl shadow-lg p-6 border border-gray-100">
+          {/* Matches the purchase panel below it exactly — same radius, same
+              border, same shadow. Two cards stacked in one column at two
+              different roundnesses read as a mistake, and this one was the odd
+              pair: `rounded-2xl` (16) against the action's 24, plus a raw
+              `gray-100` border and a heavier shadow. */}
+          <div className="hidden lg:block lg:min-h-0 lg:overflow-y-auto bg-surface rounded-panel shadow-card p-6 border border-outline">
             {/* Variants Section - Only show if product has combinations enabled and actual variant data exists */}
             {reconstructedVariations && (
               <ProductVariants
