@@ -225,7 +225,12 @@ export const SURFACE_OWNERS: readonly SurfaceOwner[] = [
   { file: "features/payouts/withdrawalInitiated.tsx", routes: ["/dashboard/payouts/withdraw"], markers: ["footerAction"] },
 
   // ── aside placement ───────────────────────────────────────────────────────
-  { file: "app/(buyer)/cart/complete-order/review/page.tsx", routes: ["/cart/complete-order/review"], markers: ["footerAction"] },
+  {
+    file: "app/(buyer)/cart/complete-order/review/page.tsx",
+    routes: ["/cart/complete-order/review"],
+    markers: ["ownBar"],
+    note: "Two columns at lg — the order on the left, the money on the right — so Pay Now lives inside the summary panel, which no shell slot can place. Below lg it is the same fixed bar.",
+  },
   {
     file: "features/storefront/product/ProductCTA.tsx",
     routes: ["/:handle/p/:slugAndId"],

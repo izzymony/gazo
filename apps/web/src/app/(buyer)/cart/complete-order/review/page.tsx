@@ -368,18 +368,17 @@ const ReviewOrder = () => {
     }
   };
 
-  return (
-    <PageShell
-      header={
-        <Header
-          onBack={() => router.back()}
-          title="Complete order"
-          progress={<StepNavigation step={1} totalSteps={2} />}
-        />
-      }
-      footerAction={
+  // The Pay Now control, lifted out of `footerAction` UNCHANGED so that the
+  // submit handler — double-submission guard, validation, order creation and
+  // Paystack hand-off — is moved rather than rewritten. Not one line of it is
+  // edited by this layout change.
+  const payNowRow = (
         <div className="flex items-center gap-4">
-          <div className="shrink-0">
+          {/* The mobile bar has to restate the total, because the summary card
+              is far up the page behind the thumb. At lg the same figure is two
+              rows above this button inside the same panel, so restating it is
+              noise — hidden there, which also lets the action fill the panel. */}
+          <div className="shrink-0 lg:hidden">
             <p className="text-foreground-muted text-body-sm">Total ({quantity}):</p>
             <p className="font-medium">{formatCurrency(totals)}</p>
           </div>
@@ -533,13 +532,59 @@ const ReviewOrder = () => {
             Pay Now
           </Button>
         </div>
-      }>
-      <div className="pt-4">
-        <div className="">
-          <div>
-            <h1 className="mb-3 font-medium text-h1">Review Order</h1>
+  );
+
+  return (
+    <PageShell
+      header={
+        <Header
+          onBack={() => router.back()}
+          title="Complete order"
+          progress={<StepNavigation step={1} totalSteps={2} />}
+        />
+      }
+      // Pay Now is no longer a `footerAction` — at lg it belongs inside the
+      // summary panel, which the shell cannot place. Below lg it is still the
+      // fixed bar, and still needs the clearance the shell used to add for it.
+      contentClassName="pb-24 lg:pb-0">
+      {/*
+        TWO COLUMNS AT lg: the order on the left, the money on the right.
+
+        Both columns start at the top of the content area, directly beneath the
+        header and its progress row — the summary is not pushed down past the
+        item list, which is the whole point of moving it out of the footer.
+
+        HOW ONE DOM SERVES BOTH SHAPES. The two wrappers are `contents` below lg,
+        so they generate no boxes there and their children become items of a
+        single-column grid; each carries an explicit `row-start` that reproduces
+        today's mobile order exactly, including the totals card sitting between
+        the item list and the rewards toggle. At lg the wrappers become real
+        blocks and the row classes on their children go inert, so each column
+        lays out independently — which is what stops a 400px summary card from
+        inflating the row that holds a 30px heading.
+
+        Pay Now is LAST IN THE DOM. It could have been written between the items
+        and the rewards card, which would have preserved the mobile reading
+        position of the totals card too — but it would have made the checkout
+        button a tab stop before the rewards toggle and the shipping controls.
+        An interactive control's position in the tab order matters more than a
+        static summary's position in the reading order, so the totals card is the
+        one that moves.
+      */}
+      <div className="pt-4 grid lg:grid-cols-content-aside lg:gap-6 lg:items-start">
+        {/* LEFT — what is being bought and where it is going */}
+        <div className="contents lg:block lg:min-w-0">
+          <div className="row-start-1">
+            {/* `lg:mb-3`, not `mb-3`. As a plain block this heading's bottom
+                margin COLLAPSED into the first cart item's top margin and
+                contributed nothing; as a grid item below lg it cannot collapse
+                out of its own box, so the same class started adding 12px and
+                pushed everything below it down. Measured: item 1 at y=138
+                before, y=150 after, 138 again with this. At lg the wrapper is a
+                block again and the margin behaves as it always did. */}
+            <h1 className="font-medium text-h1 lg:mb-3">Review Order</h1>
           </div>
-          <div>
+          <div className="row-start-2">
             {cart.map((item) => (
               <CartItem
                 key={item.product_id}
@@ -567,45 +612,9 @@ const ReviewOrder = () => {
                 decrement={decrement}
               />
             ))}
+          </div>
 
-
-            <div className="space-y-3 mt-2 text-body font-normal border rounded-field p-3">
-              <div className=" flex justify-between items-center">
-                <div className="">Subtotal</div>
-                <div>{formatCurrency(subTotal)}</div>
-              </div>
-
-              <div className=" flex justify-between items-center">
-                <div className="">Shipping</div>
-                <div className="text-body-sm">
-                  {formatCurrency(shippingCost)}
-                </div>
-              </div>
-
-              <div className=" flex justify-between items-center">
-                <div className="">Service fee</div>
-                <div className="text-body-sm">{formatCurrency(serviceFee)}</div>
-              </div>
-
-              {creditApplied > 0 && (
-                <div className="flex justify-between items-center text-success-foreground">
-                  <div>Rewards credit</div>
-                  <div className="text-body-sm">
-                    -{formatCurrency(creditApplied)}
-                  </div>
-                </div>
-              )}
-
-              <div className=" flex justify-between items-center">
-                <div className="text-body-lg font-medium">
-                  {creditApplied > 0 ? "You pay" : "Total"}
-                </div>
-                <div className="text-body-lg font-medium">
-                  {formatCurrency(totals)}
-                </div>
-              </div>
-            </div>
-
+          <div className="row-start-4">
             {/* Rewards Credit Toggle (RW1): the backend now atomically RESERVES the
                 credit at checkout and charges gross - reserved, so this applies a real
                 discount. Order-on-success only (the legacy order-first path has no
@@ -642,6 +651,9 @@ const ReviewOrder = () => {
               </div>
             )}
 
+          </div>
+
+          <div className="row-start-5">
             {/* F5: "Add Coupon" affordance removed — there is no coupon feature
                 yet and the button had no behaviour attached (misleading). Restore
                 a real control when server-side coupons/discounts land (see R1/R2). */}
@@ -686,6 +698,8 @@ const ReviewOrder = () => {
                 onChange={() => { }}
               />
             </div> */}
+          </div>
+
             <BottomModal
               isOpen={isDeliveryModalOpen}
               onClose={closeDeliveryModal}>
@@ -705,6 +719,52 @@ const ReviewOrder = () => {
                 </div>
               </div>
             </BottomModal>
+        </div>
+
+        {/* RIGHT — the money, and the one control that commits it */}
+        <div className="contents lg:block">
+          <div className="row-start-3 space-y-3 mt-2 text-body font-normal border rounded-field p-3 lg:mt-0">
+            <div className=" flex justify-between items-center">
+              <div className="">Subtotal</div>
+              <div>{formatCurrency(subTotal)}</div>
+            </div>
+
+            <div className=" flex justify-between items-center">
+              <div className="">Shipping</div>
+              <div className="text-body-sm">
+                {formatCurrency(shippingCost)}
+              </div>
+            </div>
+
+            <div className=" flex justify-between items-center">
+              <div className="">Service fee</div>
+              <div className="text-body-sm">{formatCurrency(serviceFee)}</div>
+            </div>
+
+            {creditApplied > 0 && (
+              <div className="flex justify-between items-center text-success-foreground">
+                <div>Rewards credit</div>
+                <div className="text-body-sm">
+                  -{formatCurrency(creditApplied)}
+                </div>
+              </div>
+            )}
+
+            <div className=" flex justify-between items-center">
+              <div className="text-body-lg font-medium">
+                {creditApplied > 0 ? "You pay" : "Total"}
+              </div>
+              <div className="text-body-lg font-medium">
+                {formatCurrency(totals)}
+              </div>
+            </div>
+          </div>
+
+          {/* `lg:w-full` because a panel action may fill its bounded panel —
+              the 176px inline floor and the intrinsic dialog width both belong
+              to other placements. Below lg this is the fixed bar, unchanged. */}
+          <div className="fixed left-shell-inset right-0 bottom-0 z-sticky w-full max-w-full border-t border-outline-subtle bg-surface px-3 pb-5 lg:static lg:z-auto lg:mt-4 lg:w-full lg:border-t-0 lg:px-0 lg:pb-0 lg:[&_button]:flex-1">
+            {payNowRow}
           </div>
         </div>
       </div>

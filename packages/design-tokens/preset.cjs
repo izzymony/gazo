@@ -315,6 +315,13 @@ module.exports = {
         // column — it is load-bearing here, not defensive.
         "page-band": "1fr auto",
         "page-band-status": "1fr auto auto",
+        // Content beside a bounded summary panel. 360px holds a money column —
+        // a label and a right-aligned figure — without the figures wrapping, and
+        // leaves the review list the majority of a 1024px column.
+        //
+        // `1fr`, not `minmax(0,1fr)`, for the reason recorded above; the content
+        // column carries `min-w-0` so the zero minimum comes from the item.
+        "content-aside": "1fr 360px",
       },
       gridTemplateRows: {
         // title/action row · progress · content. Progress gets its OWN row so
