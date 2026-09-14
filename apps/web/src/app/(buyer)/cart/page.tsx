@@ -432,11 +432,17 @@ const Page = () => {
       // Carry only the selected items to checkout WITHOUT overwriting the cart,
       // so unchecked items are preserved (W1.8).
       setCheckoutCart(totals);
-      setLoading(true);
 
       const destination = shippingDetails.length > 0
         ? "/cart/complete-order/review"
         : "/cart/shipping-profile/new";
+
+      // The page loader is for LEAVING this page. The add-address route is
+      // intercepted into a dialog over the cart, so the cart is never unmounted
+      // — a page loader there becomes the backdrop of the panel and is never
+      // cleared. Review is a real navigation and still gets one. The button's
+      // own spinner covers both cases either way.
+      if (shippingDetails.length > 0) setLoading(true);
 
       await router.push(destination);
     } finally {

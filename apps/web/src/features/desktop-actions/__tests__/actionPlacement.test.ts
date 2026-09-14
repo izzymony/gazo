@@ -153,6 +153,88 @@ describe("action surfaces", () => {
 });
 
 /**
+ * A page that OPENS a dialog must stay visible behind it.
+ *
+ * This is the one failure the placement registry could not see, and it shipped
+ * twice. Both the cart and the order-review page replace themselves with a
+ * full-screen `<Loader />` on a local flag, and both set that flag just before
+ * navigating to what is now an intercepted route. That was correct while the
+ * navigation REPLACED the page — the loader covered the gap and the page
+ * unmounted. Under interception the page is never unmounted, so the flag turns
+ * the thing behind the panel into a full-screen spinner, and nothing ever
+ * clears it: closing the dialog returns to a spinner instead of the order.
+ *
+ * A dialog exists to keep its opener on screen. A trigger that blanks the
+ * opener has undone the only thing the dialog was for.
+ */
+describe("a dialog's opener stays on screen", () => {
+  /**
+   * Where each modal slot lives, read from disk rather than listed — a trigger
+   * is only intercepted when the page it sits on is INSIDE the slot's segment.
+   * That distinction is the whole precision of this test: the product page also
+   * pushes to an address route, and from there it is a real navigation, so its
+   * page loader is correct and must not be flagged.
+   */
+  const slotSegments = (): string[] => {
+    const found: string[] = [];
+    const walk = (dir: string, route: string) => {
+      for (const e of readdirSync(dir, { withFileTypes: true })) {
+        if (!e.isDirectory()) continue;
+        if (e.name === "@modal") { found.push(route || "/"); continue; }
+        if (e.name.startsWith("_") || e.name === "__tests__" || e.name === "(dev)") continue;
+        if (/^\(\.{1,3}\)/.test(e.name) || e.name.startsWith("@")) continue;
+        const next = e.name.startsWith("(") && e.name.endsWith(")") ? route : `${route}/${e.name}`;
+        walk(join(dir, e.name), next);
+      }
+    };
+    walk(APP, "");
+    return found;
+  };
+
+  /** The URL a page file serves, or null if it is not an app-router page. */
+  const routeOf = (file: string): string | null => {
+    const rel = file.slice(SRC.length + 1);
+    if (!rel.startsWith("app/") || !rel.endsWith("/page.tsx")) return null;
+    return (
+      "/" +
+      rel
+        .slice("app/".length, -"/page.tsx".length)
+        .split("/")
+        .filter((seg) => !(seg.startsWith("(") && seg.endsWith(")")))
+        .join("/")
+    );
+  };
+
+  it("never sets a page-level loading flag on the way into a dialog", () => {
+    const segments = slotSegments();
+    expect(segments.length).toBeGreaterThan(0); // the walk must not find nothing
+    const dialogRoutes = ACTION_PLACEMENT.filter(([, e]) => e.placement === "dialog")
+      .map(([t]) => t)
+      .filter((t) => !t.includes(":"));
+
+    const offenders: string[] = [];
+    for (const f of tsxFiles(SRC)) {
+      const src = readFileSync(f, "utf8");
+      if (!/return\s*<Loader/.test(src)) continue; // only pages that can blank themselves
+      const here = routeOf(f);
+      if (!here) continue;
+      const flat = src.replace(/\s+/g, " ");
+      for (const route of dialogRoutes) {
+        const seg = segments.find((sgm) => route.startsWith(sgm + "/"));
+        if (!seg) continue;
+        // intercepted only if THIS page sits inside the slot's own segment
+        if (here !== seg && !here.startsWith(seg + "/")) continue;
+        const re = new RegExp(
+          'setLoading\\(true\\)[^}]{0,200}?router\\.(push|replace)\\("' + route + '"'
+        );
+        if (re.test(flat)) offenders.push(`${f.slice(SRC.length + 1)} -> ${route}`);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+});
+
+/**
  * The rule itself, enforced mechanically rather than trusted.
  *
  * HONEST ABOUT WHAT THIS CAN SEE. It is a text scan, so it proves a file does not

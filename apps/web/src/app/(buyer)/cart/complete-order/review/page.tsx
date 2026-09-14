@@ -674,10 +674,13 @@ const ReviewOrder = () => {
                 <Button
                   variant="bordered"
                   type="button"
-                  onClick={() => {
-                    setLoading(true);
-                    router.push("/cart/shipping-profile");
-                  }}
+                  // NO PAGE LOADER HERE. This route is intercepted into a dialog
+                  // over THIS page, so the page is never unmounted — a page-level
+                  // loading flag turns the thing behind the panel into a full
+                  // screen spinner, and nothing ever clears it, so closing the
+                  // dialog returns to a spinner instead of the order. The loader
+                  // was correct when this navigation replaced the page.
+                  onClick={() => router.push("/cart/shipping-profile")}
                   className="text-body-sm px-5 py-1 w-full mt-3">
                   Change Shipping Details
                 </Button>
