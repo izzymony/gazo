@@ -734,22 +734,32 @@ const Product = ({
         />
       </div>
 
-      {/* The gallery rides on the banner's overhang and rises with it as the
-          header collapses — same duration, so the two read as one motion. */}
-      <div
-        className={`relative z-10 px-4 md:px-6 lg:px-8 mb-0 lg:mb-4 transition-spacing duration-300 ease-out ${
-          !isScrolled ? HEADER_OVERHANG_PULL : ""
-        }`}>
-        <ImageCarousel
-          product={{ ...prod, images: currentImages.length > 0 ? currentImages : prod?.image }}
-          isScrolled={isScrolled}
-        />
-      </div>
+      {/* 2-Column Layout for Desktop.
+          THE GALLERY IS INSIDE IT. It used to be a full-width band ABOVE this
+          grid, which pushed the aside — and therefore the purchase action — a
+          clear 900px down the page: measured at 1024x640, Buy now sat at y=936
+          against a 640px viewport, so a buyer had to scroll past the whole
+          gallery before they could see the control that buys the thing. Moving
+          the gallery into the left column is what makes the panel reachable on
+          arrival; keeping the gallery where it was and calling the action
+          "reachable after a scroll" was answering a different question. */}
+      <div className="lg:grid lg:grid-cols-product lg:gap-8 lg:px-8">
+        {/* The gallery rides on the banner's overhang and rises with it as the
+            header collapses — same duration, so the two read as one motion.
+            Below lg this is exactly the full-bleed band it has always been; at
+            lg it is row 1 of the left column and the grid supplies the gutter. */}
+        <div
+          className={`relative z-10 px-4 md:px-6 mb-0 transition-spacing duration-300 ease-out lg:col-start-1 lg:row-start-1 lg:mb-4 lg:px-0 ${
+            !isScrolled ? HEADER_OVERHANG_PULL : ""
+          }`}>
+          <ImageCarousel
+            product={{ ...prod, images: currentImages.length > 0 ? currentImages : prod?.image }}
+            isScrolled={isScrolled}
+          />
+        </div>
 
-      {/* 2-Column Layout for Desktop */}
-      <div className="lg:grid lg:grid-cols-[1fr,380px] lg:gap-8 lg:px-8">
         {/* Left Column - Main Content */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-start-1 lg:row-start-2">
           {/* Product Info */}
           <ProductInfo
             title={prod?.title}
@@ -857,12 +867,20 @@ const Product = ({
         {/* Right Column - the desktop aside.
             `contents` below lg so this column has no box there: the reference
             panel inside it is `hidden`, and ProductCTA falls through as the
-            `absolute` bottom bar it has always been. At lg it is a real column
-            and both are stacked in it, sticky together so the purchase action
-            stays reachable at short viewport heights. */}
-        <div className="contents lg:block lg:col-span-1">
-          <div className="contents lg:sticky lg:top-24 lg:block lg:space-y-4">
-          <div className="hidden lg:block bg-surface rounded-2xl shadow-lg p-6 border border-gray-100">
+            `absolute` bottom bar it has always been.
+
+            At lg it spans BOTH rows of the left column — the gallery's and the
+            details' — so the sticky box inside it can travel the full height of
+            the page rather than only the part beside the details.
+
+            The sticky box is a flex column capped at the viewport height. Its
+            reference half (variants, delivery, returns) scrolls INTERNALLY when
+            the options are long; the purchase action is `shrink-0`, so it stays
+            in the panel and on screen instead of being pushed under the fold by
+            a product with many variants. */}
+        <div className="contents lg:block lg:col-start-2 lg:row-start-1 lg:row-end-3">
+          <div className="contents lg:sticky lg:top-4 lg:flex lg:max-h-aside lg:flex-col lg:gap-4">
+          <div className="hidden lg:block lg:min-h-0 lg:overflow-y-auto bg-surface rounded-2xl shadow-lg p-6 border border-gray-100">
             {/* Variants Section - Only show if product has combinations enabled and actual variant data exists */}
             {reconstructedVariations && (
               <ProductVariants

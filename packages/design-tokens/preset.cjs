@@ -322,6 +322,10 @@ module.exports = {
         // `1fr`, not `minmax(0,1fr)`, for the reason recorded above; the content
         // column carries `min-w-0` so the zero minimum comes from the item.
         "content-aside": "1fr 360px",
+        // The product page: gallery and details left, purchase panel right. 380
+        // rather than 360 because this panel holds variant swatches and a
+        // delivery card, not a column of figures.
+        product: "1fr 380px",
       },
       gridTemplateRows: {
         // title/action row · progress · content. Progress gets its OWN row so
@@ -354,6 +358,10 @@ module.exports = {
         // 1440-tall screen and a 640-tall one identically. `dvh` so the mobile
         // URL bar collapsing does not leave the panel overhanging.
         dialog: "calc(100dvh - 64px)",
+        // A sticky aside panel: as tall as the viewport leaves it, so its body
+        // can scroll internally and the action it holds stays on screen instead
+        // of being pushed below the fold by a long options list.
+        aside: "calc(100dvh - 2rem)",
       },
       minWidth: {
         // The desktop inline page-action floor. A "Save" that hugs its label is

@@ -50,7 +50,7 @@ export default function ProductCTA({
   onShare: () => void;
 }) {
   return (
-    <div className="absolute bottom-0 z-sticky flex w-full items-center gap-3 border-t border-outline bg-surface px-4 py-3 md:px-6 lg:static lg:rounded-panel lg:border lg:p-5 lg:shadow-card">
+    <div className="absolute bottom-0 z-sticky flex w-full items-center gap-3 border-t border-outline bg-surface px-4 py-3 md:px-6 lg:static lg:shrink-0 lg:rounded-panel lg:border lg:p-5 lg:shadow-card">
       {isSeller ? (
         <div className="flex justify-center gap-4 w-full">
           <Button onClick={onEdit} variant="bordered">
