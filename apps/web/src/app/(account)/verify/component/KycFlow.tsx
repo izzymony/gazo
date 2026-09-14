@@ -427,10 +427,21 @@ function CaptureStep({
         className="hidden"
         onChange={onPick}
       />
+      {/* The document target is 4:3 ON A PHONE, where the column is ~358px and
+          that reads as a card-shaped frame. At lg the same ratio takes its height
+          from a 984px column and the drop zone becomes 738px tall — most of the
+          screen, to upload one ID. The ratio is dropped at lg for a fixed 256px
+          band: still the full width, so a wide document lands in a wide target,
+          and short enough that the step's action stays in view.
+
+          The selfie target is unaffected — it is a 224px circle at every width,
+          and a circle has to keep its ratio. */}
       <button
         onClick={() => inputRef.current?.click()}
         className={`flex flex-col items-center justify-center gap-2 border border-dashed border-outline-strong bg-surface-subtle ${
-          round ? "mx-auto aspect-square w-56 rounded-full" : "aspect-[4/3] w-full rounded-card"
+          round
+            ? "mx-auto aspect-square w-56 rounded-full"
+            : "aspect-[4/3] w-full rounded-card lg:aspect-auto lg:h-64"
         } overflow-hidden`}>
         {slot ? (
           <img src={slot.preview} alt="" className="h-full w-full object-cover" />
