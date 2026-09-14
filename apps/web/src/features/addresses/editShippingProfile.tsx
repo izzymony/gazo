@@ -27,7 +27,15 @@ import {
  * shareable with the four-field create form — the two ask different things and
  * are allowed to.
  */
-export function useEditShippingProfile() {
+export function useEditShippingProfile(
+  /**
+   * Where a successful update goes. The canonical page returns to the list; the
+   * dialog unwinds its own interception instead, because replacing the route
+   * underneath leaves the panel mounted on top of it — the modal slot only
+   * clears on `router.back()`, which here lands on the same list anyway.
+   */
+  onDone?: () => void
+) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const profileId = searchParams.get("id");
@@ -87,7 +95,8 @@ export function useEditShippingProfile() {
     try {
       await updateShippingAddress(profileId ?? "", payload);
       toast.success("Shipping profile updated successfully!");
-      router.replace("/profile/shipping-address");
+      if (onDone) onDone();
+      else router.replace("/profile/shipping-address");
     } catch (error) {
       toast.error("Failed to update shipping profile");
       console.error("Update error:", error);

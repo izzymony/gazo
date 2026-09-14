@@ -24,7 +24,7 @@ import { AddPayoutAccountFields, useAddPayoutAccount } from "./addPayoutAccount"
  */
 export default function AddPayoutAccountDialog() {
   const router = useRouter();
-  const m = useAddPayoutAccount();
+  const m = useAddPayoutAccount(() => router.back());
   const [otpValue, setOtpValue] = useState("");
 
   return (

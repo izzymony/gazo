@@ -86,7 +86,17 @@ const ShippingProfileScreen = ({ dialog = false }: { dialog?: boolean }) => {
       dialog={dialog}
       title="Shipping profile"
       action={
-        <Button onClick={() => router.push("/cart/complete-order/review")}>
+        <Button
+          onClick={() =>
+            // A DIALOG FINISHES BY UNWINDING ITS OWN INTERCEPTION. Pushing —
+            // or replacing — to the route underneath does not clear the modal
+            // slot when the destination is inside the slot's own segment: the
+            // page behind changes and the panel stays open on top of it.
+            // Measured both ways. `router.back()` is the only thing that
+            // removes the intercepted entry, and here it lands exactly where
+            // the push was aiming, because this dialog is opened FROM review.
+            dialog ? router.back() : router.push("/cart/complete-order/review")
+          }>
           Continue
         </Button>
       }>

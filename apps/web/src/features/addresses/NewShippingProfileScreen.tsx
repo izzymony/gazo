@@ -27,6 +27,26 @@ import { splitFullName } from "@/lib/nameUtils";
  */
 const NewShippingProfileScreen = ({ dialog = false }: { dialog?: boolean }) => {
   const router = useRouter();
+
+  /**
+   * Finish, whichever presentation this is.
+   *
+   * A dialog cannot leave by navigating to a route inside its OWN slot's
+   * segment: the page behind changes and the panel stays mounted on top of it.
+   * `push` and `replace` both behave that way — only `router.back()` removes an
+   * intercepted entry. So a checkout destination, which lives under /cart with
+   * this dialog's slot, unwinds instead; the profile destination is in another
+   * segment, where a normal navigation clears the slot on its own.
+   *
+   * Unwinding returns the buyer to whatever opened this — the cart, or the
+   * address-selection dialog — with the new address saved and listed, rather
+   * than to review. One step longer, and the alternative is a panel that will
+   * not close.
+   */
+  const finish = (target: string) => {
+    if (dialog && target.startsWith("/cart")) router.back();
+    else router.replace(target);
+  };
   const searchParams = useSearchParams();
 
   // The explicit parameter is the ONLY signal. This used to OR in a referrer
@@ -100,11 +120,11 @@ const NewShippingProfileScreen = ({ dialog = false }: { dialog?: boolean }) => {
           },
           (created?: any) => {
             if (fromProfile) {
-              router.replace("/profile/shipping-address");
+              finish("/profile/shipping-address");
             } else {
               // Reconcile: ship to the address just confirmed here (P2).
               if (created) setSingleShippingDetails(created);
-              router.replace("/cart/complete-order/review");
+              finish("/cart/complete-order/review");
             }
           }
         );
@@ -117,11 +137,11 @@ const NewShippingProfileScreen = ({ dialog = false }: { dialog?: boolean }) => {
           ensureGuestId(),
           (created?: any) => {
             if (fromProfile) {
-              router.replace("/profile/shipping-address");
+              finish("/profile/shipping-address");
             } else {
               // Reconcile: ship to the address just confirmed here (P2).
               if (created) setSingleShippingDetails(created);
-              router.replace("/cart/complete-order/review");
+              finish("/cart/complete-order/review");
             }
           }
         );
@@ -201,7 +221,7 @@ const NewShippingProfileScreen = ({ dialog = false }: { dialog?: boolean }) => {
     // the buyer confirmed here), not shippingDetails[0] (P2 reconciliation).
     const goToReview = (created?: any) => {
       if (created) setSingleShippingDetails(created);
-      router.replace("/cart/complete-order/review");
+      finish("/cart/complete-order/review");
     };
     if (user) {
       //("using user shipping");

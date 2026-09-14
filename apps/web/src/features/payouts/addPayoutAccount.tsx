@@ -15,7 +15,15 @@ import useBusinessStore, { BankData } from "@/store/businessStore";
  * a Back, and the only way two surfaces can promise that identically is for
  * there to be one place where the values are held.
  */
-export function useAddPayoutAccount() {
+export function useAddPayoutAccount(
+  /**
+   * Where a successful create goes. The canonical page navigates to the payouts
+   * list; the dialog unwinds its own interception instead, because pushing to
+   * the route underneath leaves the panel mounted on top of it — the modal slot
+   * only clears on `router.back()`.
+   */
+  onDone?: () => void
+) {
   const router = useRouter();
   const { selectedBank, createBank, singleStore } = useBusinessStore();
   const [otp, setOtp] = useState(false);
@@ -53,7 +61,8 @@ export function useAddPayoutAccount() {
       // createBank toasts the reason; stay on the form so it can be corrected.
       return;
     }
-    router.push("/dashboard/payouts");
+    if (onDone) onDone();
+    else router.push("/dashboard/payouts");
   };
 
   const handleInputChange = (e: { target: { name: string; value: string } }) => {

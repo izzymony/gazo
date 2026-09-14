@@ -22,7 +22,7 @@ import {
  */
 export default function EditShippingProfileDialog() {
   const router = useRouter();
-  const m = useEditShippingProfile();
+  const m = useEditShippingProfile(() => router.back());
 
   if (!m.profileToEdit) return null;
 
