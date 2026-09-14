@@ -4,8 +4,7 @@
 import useBusinessStore from "@/store/businessStore";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import { useRouter } from "next/navigation";
-import PageShell from "@vibaar/ui/PageShell";
-import Header from "@vibaar/ui/common/Header";
+import ResponsiveRouteDialog from "@vibaar/ui/common/ResponsiveRouteDialog";
 import Section from "@vibaar/ui/common/Section";
 import Button from "@vibaar/ui/common/Button";
 import { Bank, ChevronRight } from "@vibaar/ui/icons";
@@ -63,6 +62,22 @@ export const BankCard = ({
   </button>
 );
 
+/**
+ * Dialog family 1 — choosing which account a withdrawal lands in.
+ *
+ * The one family with NO route of its own: it is a state inside
+ * /dashboard/payouts/withdraw, so there is nothing to intercept and nothing to
+ * paste into a URL bar. It reuses `ResponsiveRouteDialog` anyway, because the
+ * presentation requirement is identical — a full screen on a phone, a bounded
+ * panel over the page at lg — and `onClose` is the only thing that differs: a
+ * state change here, `router.back()` on the five route-backed families.
+ *
+ * It used to REPLACE the withdraw screen entirely, as a sibling `PageShell` in
+ * the same state machine. On a phone that reads the same; on a desktop it meant
+ * the amount you had just typed vanished behind a second full page to answer one
+ * question. The withdraw screen now stays mounted underneath, which also means
+ * the entered amount is visibly preserved rather than merely retained in state.
+ */
 export default function SelectAccount({
   action,
   goBack,
@@ -80,13 +95,7 @@ export default function SelectAccount({
   const router = useRouter();
 
   return (
-    <PageShell
-      header={
-        <Header
-          onBack={goBack}
-          title="Select account"
-        />
-      }>
+    <ResponsiveRouteDialog title="Select account" onClose={goBack} size="md">
       <Section>
         <p className="text-foreground-primary font-medium text-h1">
           Which account would you like to withdraw to?
@@ -123,6 +132,6 @@ export default function SelectAccount({
           </div>
         )}
       </Section>
-    </PageShell>
+    </ResponsiveRouteDialog>
   );
 }

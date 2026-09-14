@@ -7,6 +7,25 @@ import OtpInput from "./otp";
 import IconButton from "@vibaar/ui/common/IconButton";
 import { BiArrowBack } from "@vibaar/ui/icons";
 
+/**
+ * The heading and the "we sent a code to…" line, shared by this full-page step
+ * and by the add-account dialog's second step. Extracted rather than copied so
+ * the two cannot drift into telling a seller different things about the same OTP.
+ */
+export function OtpPrompt({ title, phone }: { title: string; phone?: string }) {
+  return (
+    <>
+      <p className="text-foreground-primary font-medium text-h1">{title}</p>
+      <p className="text-body-sm mt-2 font-normal text-foreground-secondary">
+        We sent a 6 digit OTP code to the provided phone number:{" "}
+        <span className="inline-flex font-medium text-foreground-primary">
+          {phone || "Not set"}
+        </span>
+      </p>
+    </>
+  );
+}
+
 export default function Authenthecate({
   action,
   base = true,
@@ -43,7 +62,12 @@ export default function Authenthecate({
   }, [otpAction]);
 
   return (
-    <div className="flex-1 h-screen w-screen py-3 px-4 flex flex-col justify-between">
+    // `h-full w-full`, not `h-screen w-screen`. Both existing callers render this
+    // as the whole page inside a frame that is already full height, so the two
+    // measure identically there — but `w-screen` is 100vw, which overflows any
+    // container narrower than the viewport, and that is every container this now
+    // has to work in. Same pixels where it is used today, usable in a panel.
+    <div className="flex-1 h-full w-full py-3 px-4 flex flex-col justify-between">
       <div className="gap-2 flex flex-col mb-4">
         <IconButton
           icon={BiArrowBack}
@@ -51,13 +75,10 @@ export default function Authenthecate({
           className="-ml-2"
           onClick={base ? () => action("confirm") : backAction}
         />
-        <p className="text-foreground-primary font-medium text-h1">
-          Authenticate {base ? "Withdrawal" : "Account"}!
-        </p>
-        <p className="text-body-sm mt-2 font-normal text-foreground-secondary">
-          We sent a 6 digit OTP code to the provided phone number:{" "}
-          <span className="inline-flex font-medium text-foreground-primary">{phone || "Not set"}</span>
-        </p>
+        <OtpPrompt
+          title={`Authenticate ${base ? "Withdrawal" : "Account"}!`}
+          phone={phone}
+        />
       </div>
       <div className="flex-1 my-4 w-full flex flex-col gap-2 items-center">
         <OtpInput onComplete={handleComplete} />

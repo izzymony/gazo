@@ -21,6 +21,7 @@ export default function LocationModal({
   callback,
   location,
   setAddress,
+  inline = false,
 }: {
   isLocationModalOpen: boolean;
   closeLocationModal: () => void;
@@ -29,6 +30,9 @@ export default function LocationModal({
   callback?: (val: any) => Promise<void>;
   location: any;
   setAddress?: (val: string) => void;
+  /** Render the picker body in place instead of in a bottom sheet — for a
+   *  caller that is already inside a dialog and must not nest one. */
+  inline?: boolean;
 }) {
   const [search, setSeacrh] = useState("");
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -170,8 +174,7 @@ export default function LocationModal({
     }
   }, [search, upDateSuggestions]);
 
-  return (
-    <BottomModal isOpen={isLocationModalOpen} onClose={closeLocationModal}>
+  const body = (
       <div>
         <h2 className="text-base font-medium text-center mb-4">
           Choose a location
@@ -309,6 +312,20 @@ export default function LocationModal({
           )}
         </div>
       </div>
+  );
+
+  // INLINE, for a picker that is already inside a dialog.
+  //
+  // Stacking this sheet on top of a dialog panel is a nested dialog: two focus
+  // traps, two Escape handlers, and a backdrop over a backdrop. The address
+  // dialogs therefore render the picker as a STEP in their own panel instead,
+  // and this is the same body without the sheet around it — not a second
+  // implementation of location search.
+  if (inline) return isLocationModalOpen ? body : null;
+
+  return (
+    <BottomModal isOpen={isLocationModalOpen} onClose={closeLocationModal}>
+      {body}
     </BottomModal>
   );
 }

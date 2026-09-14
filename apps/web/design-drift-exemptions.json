@@ -25,5 +25,11 @@
     "#3771C8": "Telegram brand blue"
   },
 
-  "files": []
+  "files": [
+    {
+      "path": "apps/web/src/features/addresses/ShippingProfileScreen.tsx",
+      "categories": ["native-button"],
+      "reason": "The shipping-profile row is a selectable card that ALSO carries a dropdown menu. `SelectableCard` renders the whole card as a button, so using it here would nest the menu's button inside it, which is invalid HTML. The row's selectable region is therefore a bare `<button>`: it is a real button with `aria-pressed`, replacing a `div onClick` that was not focusable and ignored Enter and Space. Reverting to a primitive means restructuring the row so the menu sits outside the card, which is a visual change to a checkout surface and belongs in its own reviewed pass."
+    }
+  ]
 }

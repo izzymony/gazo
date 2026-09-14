@@ -5,6 +5,11 @@ const mockPathname = jest.fn<string, []>();
 const mockSearchParams = jest.fn<URLSearchParams, []>();
 
 jest.mock("next/navigation", () => ({
+  // The shell reads the `children` slot's segments, not the URL — see the
+  // comment in BuyerShell. The mock keeps taking a path so every existing case
+  // reads unchanged, and splits it the way the real hook would.
+  useSelectedLayoutSegments: () =>
+    (mockPathname() as string).split("/").filter(Boolean),
   usePathname: () => mockPathname(),
   useSearchParams: () => mockSearchParams(),
 }));

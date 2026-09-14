@@ -179,7 +179,13 @@ export const ACTION_PLACEMENT: ReadonlyArray<readonly [string, PlacementEntry]> 
 export interface SurfaceOwner {
   file: string;
   routes: readonly string[];
-  markers: readonly ("pageHeader" | "footerAction" | "ResponsiveRouteDialog" | "ownBar")[];
+  markers: readonly (
+    | "pageHeader"
+    | "footerAction"
+    | "ResponsiveRouteDialog"
+    | "ownBar"
+    | "AddressFlowFrame"
+  )[];
   note?: string;
 }
 
@@ -258,11 +264,55 @@ export const SURFACE_OWNERS: readonly SurfaceOwner[] = [
     markers: ["footerAction"],
     note: "Canonical page / dialog fallback.",
   },
-  { file: "app/(buyer)/cart/shipping-profile/page.tsx", routes: ["/cart/shipping-profile"], markers: ["footerAction"], note: "Family 5 — not yet converted; the canonical page meets the rule through the shell fallback." },
-  { file: "app/(buyer)/cart/shipping-profile/new/page.tsx", routes: ["/cart/shipping-profile/new"], markers: ["footerAction"], note: "Family 5 — not yet converted." },
-  { file: "app/(buyer)/profile/new-address/page.tsx", routes: ["/profile/new-address"], markers: ["footerAction"], note: "Family 6 — no trigger exists, so nothing to intercept." },
-  { file: "app/(buyer)/profile/shipping-address/edit/page.tsx", routes: ["/profile/shipping-address/edit"], markers: ["footerAction"], note: "Family 6 — not yet converted." },
-  { file: "app/(seller)/dashboard/payouts/addaccount/page.tsx", routes: ["/dashboard/payouts/addaccount"], markers: ["footerAction"], note: "Family 2 — not yet converted." },
+  {
+    file: "features/addresses/AddressFlowFrame.tsx",
+    routes: ["/cart/shipping-profile", "/cart/shipping-profile/new"],
+    markers: ["footerAction", "ResponsiveRouteDialog"],
+    note: "Family 5's shared chrome: one screen, either a PageShell page or a route dialog. It supplies BOTH, which is why it carries both markers.",
+  },
+  {
+    file: "features/addresses/ShippingProfileScreen.tsx",
+    routes: ["/cart/shipping-profile"],
+    markers: ["AddressFlowFrame"],
+    note: "Family 5 — the selection list, written once for page and dialog.",
+  },
+  {
+    file: "features/addresses/NewShippingProfileScreen.tsx",
+    routes: ["/cart/shipping-profile/new"],
+    markers: ["AddressFlowFrame"],
+    note: "Family 5 — the add form. Also the profile's add-address path, with ?from=profile deciding where a save returns to.",
+  },
+  { file: "app/(buyer)/profile/new-address/page.tsx", routes: ["/profile/new-address"], markers: ["footerAction"], note: "Family 6 — no screen links here, so there is no navigation to intercept. Meets the rule through the shell fallback." },
+  {
+    file: "app/(buyer)/profile/shipping-address/edit/page.tsx",
+    routes: ["/profile/shipping-address/edit"],
+    markers: ["footerAction"],
+    note: "Family 6 — the canonical page and the dialog's direct-URL fallback.",
+  },
+  {
+    file: "features/addresses/EditShippingProfileDialog.tsx",
+    routes: ["/profile/shipping-address/edit"],
+    markers: ["ResponsiveRouteDialog"],
+    note: "Family 6 — the intercepted dialog. Its location picker is a step in the same panel, never a nested sheet.",
+  },
+  {
+    file: "app/(seller)/dashboard/payouts/addaccount/page.tsx",
+    routes: ["/dashboard/payouts/addaccount"],
+    markers: ["footerAction"],
+    note: "Family 2 — the canonical page and the dialog's direct-URL fallback.",
+  },
+  {
+    file: "features/payouts/AddPayoutAccountDialog.tsx",
+    routes: ["/dashboard/payouts/addaccount"],
+    markers: ["ResponsiveRouteDialog"],
+    note: "Family 2 — creation and OTP as two steps in ONE dialog, so Back returns to a form that still holds what was typed (Q11).",
+  },
+  {
+    file: "features/payouts/selectaccount.tsx",
+    routes: ["/dashboard/payouts/withdraw"],
+    markers: ["ResponsiveRouteDialog"],
+    note: "Family 1 — the only family with no route of its own: a state inside Withdraw. It reuses the dialog component and closes by state rather than by router.back().",
+  },
 
   // ── anchored input — not a CTA ─────────────────────────────────────────────
   {

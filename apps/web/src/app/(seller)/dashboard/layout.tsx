@@ -23,13 +23,16 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   // the dialog. The nav policy itself is unchanged and still keyed by route —
   // this only stops a modal's URL standing in for its page's.
   //
-  // Route groups and parallel slots name no URL segment, so they are dropped
-  // rather than joined into a path no policy entry could match.
+  // Route groups name no URL segment and are dropped. `@` is deliberately NOT
+  // filtered: a parallel slot's own segments never reach the `children` key, and
+  // a segment starting with `@` is a real one elsewhere in the app (every
+  // storefront handle). Filtering it here would be harmless today and wrong the
+  // moment this pattern is copied, which is how it broke the buyer shell.
   const segments = useSelectedLayoutSegments();
   const pathname =
     "/dashboard" +
     segments
-      .filter((s) => !s.startsWith("(") && !s.startsWith("@"))
+      .filter((s) => !s.startsWith("("))
       .map((s) => `/${s}`)
       .join("");
 

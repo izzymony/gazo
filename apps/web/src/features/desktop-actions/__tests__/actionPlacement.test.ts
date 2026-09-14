@@ -114,6 +114,8 @@ describe("action surfaces", () => {
             ? src.includes(`${m}={`)
             : m === "ownBar"
             ? /\bfixed\b[\s\S]{0,400}?\bbottom-0\b/.test(src) && /\blg:static\b/.test(src)
+            : m === "AddressFlowFrame"
+            ? src.includes("<AddressFlowFrame")
             : src.includes(m);
         expect({ file: s.file, marker: m, present }).toEqual({ file: s.file, marker: m, present: true });
       }
