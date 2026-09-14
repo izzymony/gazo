@@ -100,7 +100,13 @@ export default function PageShell({
     // because a fixed bar is positioned against the viewport and does not care
     // what its container's height is. The moment the bar joins the flow, the
     // last 68px of it is clipped.
-    <div className="flex flex-col h-full">
+    // `w-full` is load-bearing, not tidying. The root shell is a flex column
+    // with `items-center`, so a child with no width shrink-wraps to its content
+    // — and this wrapper is new, added to fix the sticky-header height. Route
+    // groups with their own full-width frame hid it; `(account)` has no layout,
+    // so /verify rendered its steps at 445, 289 and 271px on consecutive screens,
+    // each one sized to whatever happened to be inside it.
+    <div className="flex flex-col h-full w-full max-w-full">
       {!hero && header}
       <div className={cn("flex flex-col flex-1 min-h-0", container)}>
         {/*
