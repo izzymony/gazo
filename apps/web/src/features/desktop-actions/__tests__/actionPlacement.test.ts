@@ -99,10 +99,24 @@ describe("action surfaces", () => {
         });
   });
 
+  /**
+   * The marker must be a USED PROP, not the word appearing anywhere in the file.
+   * A bare `includes` passed on a comment that said "no longer a `footerAction`"
+   * — the registry claimed a marker the code had just stopped having, and the
+   * test agreed. Prop markers are matched as `name={`.
+   */
   it("finds each declared marker in the file that declares it", () => {
     for (const s of SURFACE_OWNERS) {
       const src = readFileSync(join(SRC, s.file), "utf8");
-      for (const m of s.markers) expect({ file: s.file, marker: m, present: src.includes(m) }).toEqual({ file: s.file, marker: m, present: true });
+      for (const m of s.markers) {
+        const present =
+          m === "footerAction" || m === "pageHeader"
+            ? src.includes(`${m}={`)
+            : m === "ownBar"
+            ? /\bfixed\b[\s\S]{0,400}?\bbottom-0\b/.test(src) && /\blg:static\b/.test(src)
+            : src.includes(m);
+        expect({ file: s.file, marker: m, present }).toEqual({ file: s.file, marker: m, present: true });
+      }
     }
   });
 
@@ -160,8 +174,6 @@ describe("no page CTA at the viewport floor", () => {
     "features/chat/ChatComposer.tsx": "The anchored-input exception. A message composer, not a CTA.",
     "features/buyer-shell/BuyerBottomNav.tsx": "Navigation, not a page action.",
     "features/seller-shell/BottomNav.tsx": "Navigation, not a page action.",
-    "features/storefront/product/ProductCTA.tsx":
-      "An absolute bottom bar below lg; a bounded aside panel at lg. Asserted positively below.",
   };
 
   // The gap between the two tokens may contain quotes. That is the whole reason
@@ -199,13 +211,27 @@ describe("no page CTA at the viewport floor", () => {
     return out;
   };
 
-  it("declares a bottom-anchored action bar only where it is allowed", () => {
-    const offenders = tsxFiles(SRC)
-      .filter((f) => barSegments(readFileSync(f, "utf8")).length > 0)
-      .map((f) => f.slice(SRC.length + 1))
-      .filter((rel) => !(rel in ALLOWED))
-      .sort();
-    expect(offenders).toEqual([]);
+  /**
+   * A bar is judged on whether it ESCAPES at lg, not on whether its file is on a
+   * list. That is the actual rule, and it is what lets a screen own a mobile bar
+   * — the cart summary is a fixed footer below lg and a bounded row above it —
+   * without anyone having to be granted an exemption first.
+   *
+   * The allowlist is therefore only for bars that are not page CTAs at all and
+   * so have no lg form to escape into: the chat composer and the two navs.
+   */
+  const ESCAPES = /\blg:(static|contents|hidden)\b/;
+
+  it("gives every bottom-anchored action bar an lg escape", () => {
+    const offenders: string[] = [];
+    for (const f of tsxFiles(SRC)) {
+      const rel = f.slice(SRC.length + 1);
+      if (rel in ALLOWED) continue;
+      for (const seg of barSegments(readFileSync(f, "utf8"))) {
+        if (!ESCAPES.test(seg)) offenders.push(rel);
+      }
+    }
+    expect([...new Set(offenders)].sort()).toEqual([]);
   });
 
   it("keeps no stale allowlist entries", () => {

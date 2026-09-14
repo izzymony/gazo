@@ -444,6 +444,8 @@ const Page = () => {
     }
   };
 
+  const hasSummary = carts?.length > 0 && totals?.length > 0;
+
   return (
     <PageShell
       header={
@@ -452,31 +454,61 @@ const Page = () => {
           title="Cart and Orders"
         />
       }
-      footerAction={
-        carts?.length > 0 && totals?.length > 0 ? (
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col w-24 shrink-0">
-              <p className="text-foreground-muted line-clamp-1 text-body-sm">
-                Total ({totals.length}):
-              </p>
-              <p className="font-medium">
-                {formatCurrency(
-                  +totals.reduce((a, b) => a + +b.price * +b.quantity, 0)
-                )}
-              </p>
-            </div>
-            <Button
-              onClick={handleCheckout}
-              loading={isProcessingCheckout}
-              className="flex-1">
-              Proceed to checkout
-            </Button>
-          </div>
-        ) : undefined
-      }>
-      <div className="w-full">
+      // The summary is no longer a `footerAction`, so the shell no longer
+      // reserves room for one. Below lg the row is still the fixed bar and
+      // still needs the clearance; at lg it is in the flow and does not.
+      contentClassName={hasSummary ? "pb-24 lg:pb-0" : undefined}>
+      {/*
+        THE SUMMARY MOVES UP AT lg, AND STAYS ONE NODE.
+
+        At lg it belongs directly under the tabs and above the list — a bounded
+        row at the right edge, not a slab across the column and not a bar welded
+        to the bottom of the page. Below lg it is the fixed footer it has always
+        been, unchanged.
+
+        It is LAST IN THE DOM and placed into row 2 by the grid, rather than
+        written between the tabs and the list. Written there it would become a
+        tab stop before the cart itself, so a keyboard or screen-reader user
+        would meet "Proceed to checkout" before reading what they are buying.
+        Grid placement moves the pixels and leaves the reading order alone —
+        the same reason PageHeaderBand keeps its action after `<main>`.
+
+        Rows are implicit: two children carry an explicit `lg:row-start`, the
+        tabs take row 1 by auto-placement, and `grid-auto-rows` sizes all three
+        to content. No template needed, so no arbitrary track value.
+      */}
+      <div className="w-full lg:grid">
         <NavigationTabs tabs={tabs} />
-        <Cart key="cart" />
+
+        <div className="lg:row-start-3">
+          <Cart key="cart" />
+        </div>
+
+        {hasSummary ? (
+          <div
+            // Below lg: byte-for-byte the bar PageShell used to render for this
+            // page. At lg: static, content-width, pushed to the right edge.
+            className="fixed left-shell-inset right-0 bottom-0 z-sticky w-full max-w-full border-t border-outline-subtle bg-surface px-3 pb-5 lg:static lg:z-auto lg:row-start-2 lg:mb-4 lg:ml-auto lg:w-fit lg:max-w-none lg:border-t-0 lg:px-0 lg:pb-0">
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col w-24 shrink-0 lg:w-auto">
+                <p className="text-foreground-muted line-clamp-1 text-body-sm">
+                  Total ({totals.length}):
+                </p>
+                <p className="font-medium">
+                  {formatCurrency(
+                    +totals.reduce((a, b) => a + +b.price * +b.quantity, 0)
+                  )}
+                </p>
+              </div>
+              <Button
+                onClick={handleCheckout}
+                loading={isProcessingCheckout}
+                className="flex-1 lg:flex-none lg:w-auto lg:mt-0">
+                Proceed to checkout
+              </Button>
+            </div>
+          </div>
+        ) : null}
       </div>
     </PageShell>
   );

@@ -54,6 +54,12 @@ export default function Withdraw({
       }
       footerAction={
         <Button
+          // The button's only content is a chevron, so it had no accessible
+          // name at all — a screen reader announced "button" for the control
+          // that commits a withdrawal (WCAG 4.1.2). The label is added rather
+          // than the glyph replaced, so the visual geometry is untouched at
+          // every width.
+          aria-label="Continue"
           onClick={
             gated
               ? () => setShowGate(true)
@@ -62,7 +68,7 @@ export default function Withdraw({
               : () => {}
           }
           className={gated || buttonActivator ? "" : "opacity-50"}>
-          <ChevronRight size={20} className="text-white" />
+          <ChevronRight size={20} className="text-white" aria-hidden="true" />
         </Button>
       }>
       <Section>

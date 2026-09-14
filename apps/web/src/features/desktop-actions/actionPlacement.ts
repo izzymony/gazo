@@ -169,15 +169,17 @@ export const ACTION_PLACEMENT: ReadonlyArray<readonly [string, PlacementEntry]> 
  * of exactly the kind this work exists to undo — here it fails the suite instead.
  *
  * `markers` are the mechanical evidence: `pageHeader` for a header placement,
- * `footerAction` for the shell bar that the desktop fallback constrains, and
- * `ResponsiveRouteDialog` for a route-backed dialog. A file may carry more than
- * one, and store-setup legitimately does — its wizard steps are `header` and its
- * success screen keeps a bar.
+ * `footerAction` for the shell bar that the desktop fallback constrains,
+ * `ResponsiveRouteDialog` for a route-backed dialog, and `ownBar` for a screen
+ * that declares its own responsive action row because the shell cannot place it
+ * — today only the cart, whose summary belongs between the tabs and the list.
+ * A file may carry more than one, and store-setup legitimately does: its wizard
+ * steps are `header` and its success screen keeps a bar.
  */
 export interface SurfaceOwner {
   file: string;
   routes: readonly string[];
-  markers: readonly ("pageHeader" | "footerAction" | "ResponsiveRouteDialog")[];
+  markers: readonly ("pageHeader" | "footerAction" | "ResponsiveRouteDialog" | "ownBar")[];
   note?: string;
 }
 
@@ -209,7 +211,12 @@ export const SURFACE_OWNERS: readonly SurfaceOwner[] = [
 
   // ── inline placement, served by the shell's desktop fallback ───────────────
   { file: "app/(account)/verify/component/KycFlow.tsx", routes: ["/verify"], markers: ["footerAction"], note: "Seven surfaces on one route." },
-  { file: "app/(buyer)/cart/page.tsx", routes: ["/cart"], markers: ["footerAction"] },
+  {
+    file: "app/(buyer)/cart/page.tsx",
+    routes: ["/cart"],
+    markers: ["ownBar"],
+    note: "Owns its own responsive row rather than a shell `footerAction`: at lg the summary sits under the tabs and above the list, which the shell cannot place. Last in the DOM, lifted into row 2 by the grid so the checkout button is not announced before the cart.",
+  },
   { file: "app/(buyer)/profile/referrals/page.tsx", routes: ["/profile/referrals"], markers: ["footerAction"] },
   { file: "features/auth/signup/SocialAuth.tsx", routes: ["/signup/social-auth"], markers: ["footerAction"] },
   { file: "features/payouts/withdraw.tsx", routes: ["/dashboard/payouts/withdraw"], markers: ["footerAction"] },
