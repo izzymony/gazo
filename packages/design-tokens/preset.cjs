@@ -340,6 +340,16 @@ module.exports = {
         // harmless here because the only item in the row is a scroll container,
         // whose automatic minimum size is already zero.
         "page-band": "auto auto 1fr",
+        // Content, then the action directly beneath it.
+        //
+        // `minmax(0, max-content)` is the whole trick and `1fr` is the trap.
+        // With `1fr` the content row takes every pixel available, so on a short
+        // page the action is pushed to the bottom of the viewport — a fixed bar
+        // in all but the CSS. Here row 2 is sized to the action first and row 1
+        // gets what is left UP TO its content height, so a short page puts the
+        // action right under the last field and a long one scrolls the content
+        // with the action still parked below it.
+        "page-action": "minmax(0,max-content) auto",
       },
       maxWidth: {
         // Dialog panel widths, by role rather than by pixel count.

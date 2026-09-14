@@ -31,20 +31,19 @@ const NewShippingProfileScreen = ({ dialog = false }: { dialog?: boolean }) => {
   /**
    * Finish, whichever presentation this is.
    *
-   * A dialog cannot leave by navigating to a route inside its OWN slot's
-   * segment: the page behind changes and the panel stays mounted on top of it.
-   * `push` and `replace` both behave that way — only `router.back()` removes an
-   * intercepted entry. So a checkout destination, which lives under /cart with
-   * this dialog's slot, unwinds instead; the profile destination is in another
-   * segment, where a normal navigation clears the slot on its own.
+   * A dialog cannot leave by navigating: `push` and `replace` both change the
+   * page behind it and leave the panel mounted, and only `router.back()` removes
+   * an intercepted entry. So as a dialog this always unwinds, and as a page it
+   * navigates exactly as it always did.
    *
-   * Unwinding returns the buyer to whatever opened this — the cart, or the
-   * address-selection dialog — with the new address saved and listed, rather
-   * than to review. One step longer, and the alternative is a panel that will
-   * not close.
+   * Unwinding returns the buyer to whatever opened this — the cart, the
+   * address-selection dialog, or the profile's address list — with the new
+   * address saved and listed. For the profile origin that IS the destination.
+   * For checkout it is one step short of review, and the alternative is a panel
+   * that will not close.
    */
   const finish = (target: string) => {
-    if (dialog && target.startsWith("/cart")) router.back();
+    if (dialog) router.back();
     else router.replace(target);
   };
   const searchParams = useSearchParams();

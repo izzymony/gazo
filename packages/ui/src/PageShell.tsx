@@ -103,11 +103,29 @@ export default function PageShell({
     <div className="flex flex-col h-full">
       {!hero && header}
       <div className={cn("flex flex-col flex-1 min-h-0", container)}>
-        <div className="flex flex-col h-full">
+        {/*
+          AT lg THE ACTION FOLLOWS THE CONTENT, NOT THE VIEWPORT.
+
+          As a flex column with a `flex-1` content region, the content takes
+          every pixel available and the action is pushed to the bottom of the
+          window — which on a short form is a fixed bar with the fixed taken off,
+          and is exactly what taking it out of `position: fixed` was supposed to
+          stop. Two rows instead: the action is sized first and the content gets
+          what is left up to its own height, so a short page puts the action
+          under the last field and a long one scrolls the content with the action
+          parked below it. Below lg this is the flex column it has always been.
+
+          `content-start` is not decoration. The default `align-content` stretch
+          hands leftover space to the auto rows, which put the action row back at
+          320px for an 84px bar and parked it on the floor again — the same trap
+          the page-band tracks hit. Measured: rows 332/320 before, and the action
+          16px under the last field after.
+        */}
+        <div className="flex flex-col h-full lg:grid lg:grid-rows-page-action lg:content-start">
           <main
             ref={scrollRef}
             className={cn(
-              "flex-1 overflow-y-auto scrollbar-hide",
+              "flex-1 min-h-0 overflow-y-auto scrollbar-hide",
               // Standard (non-hero) pages own their padding, header-offset, and
               // 24px block rhythm directly on the scroll region. Hero pages move
               // those onto the padded content wrapper below the full-bleed hero.
@@ -119,7 +137,10 @@ export default function PageShell({
               // Consistent 24px vertical rhythm between top-level blocks.
               !hero && "space-y-6",
               // Keep content clear of the fixed action bar.
-              !hero && footerAction && "pb-24",
+              // Clearance for the FIXED bar, which only exists below lg. At lg
+              // the action is a row in the flow directly beneath this one, so
+              // 96px of it is just a hole between the last field and the button.
+              !hero && footerAction && "pb-24 lg:pb-0",
               align === "center" &&
                 "flex flex-col items-center justify-center",
               contentClassName

@@ -94,7 +94,13 @@ export const ACTION_PLACEMENT: ReadonlyArray<readonly [string, PlacementEntry]> 
       note: "Family 6. NOT converted: no screen links here, so there is no navigation to intercept. Its canonical page meets the rule through the shell fallback.",
     },
   ],
-  ["/profile/referrals", { placement: "inline" }],
+  [
+    "/profile/referrals",
+    {
+      placement: "header",
+      note: "Sharing a referral ID is a page-level action on a page you read, so it sits beside the title rather than trailing a column of cards.",
+    },
+  ],
   ["/profile/settings", { placement: "none" }],
   ["/profile/settings/change-password", { placement: "dialog", note: "Family 4, second route of one component." }],
   ["/profile/shipping-address", { placement: "header", note: "Add Address in the page header." }],
@@ -223,7 +229,7 @@ export const SURFACE_OWNERS: readonly SurfaceOwner[] = [
     markers: ["ownBar"],
     note: "Owns its own responsive row rather than a shell `footerAction`: at lg the summary sits under the tabs and above the list, which the shell cannot place. Last in the DOM, lifted into row 2 by the grid so the checkout button is not announced before the cart.",
   },
-  { file: "app/(buyer)/profile/referrals/page.tsx", routes: ["/profile/referrals"], markers: ["footerAction"] },
+  { file: "app/(buyer)/profile/referrals/page.tsx", routes: ["/profile/referrals"], markers: ["pageHeader"] },
   { file: "features/auth/signup/SocialAuth.tsx", routes: ["/signup/social-auth"], markers: ["footerAction"] },
   { file: "features/payouts/withdraw.tsx", routes: ["/dashboard/payouts/withdraw"], markers: ["footerAction"] },
   { file: "features/payouts/confirm.tsx", routes: ["/dashboard/payouts/withdraw"], markers: ["footerAction"] },

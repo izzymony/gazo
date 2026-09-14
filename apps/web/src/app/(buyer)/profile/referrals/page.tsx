@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import Header from "@vibaar/ui/common/Header";
 import Button from "@vibaar/ui/common/Button";
 import EmptyState from "@vibaar/ui/common/EmptyState";
@@ -137,10 +138,19 @@ Enter "${username}" in the Referral ID field when signing up.`;
 
   return (
     <PageShell
-      header={referralHeader}
-      footerAction={
-        <Button onClick={handleShare}>Share your referral ID</Button>
-      }>
+      // Header placement, not the shell's action bar. Sharing a referral ID is a
+      // page-level action on a page you READ — it belongs beside the title, not
+      // trailing a scrolling column of cards. One node either way: the band puts
+      // it in the title row at lg and in the mobile bar below.
+      pageHeader={{
+        onBack: () => router.back(),
+        title: "Rewards & Referrals",
+        actions: (
+          <PageActionButton onClick={handleShare}>
+            Share your referral ID
+          </PageActionButton>
+        ),
+      }}>
       <div className="space-y-4">
         {/* ===== HERO CARD - Available Earnings ===== */}
         <div className="bg-brand rounded-card p-5 text-brandInk relative overflow-hidden">
