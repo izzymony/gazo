@@ -2,7 +2,10 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # staging is the integration branch and main is production-only, so CI has
+    # to gate staging too — otherwise every commit between cutover and release
+    # reaches the staging deploy unverified.
+    branches: [main, staging]
   pull_request:
 
 # Cancel superseded runs on the same ref.
