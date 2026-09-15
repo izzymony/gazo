@@ -12,9 +12,15 @@
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
     "test": "turbo run test",
-    "ui:adoption": "node scripts/check-ui-adoption.cjs"
+    "ui:adoption": "node scripts/check-ui-adoption.cjs",
+    "qa": "playwright test --config=tests/qa/playwright.config.mjs",
+    "qa:staging": "playwright test --config=tests/qa/playwright.config.mjs",
+    "qa:smoke": "playwright test --config=tests/qa/playwright.config.mjs --project=smoke --project=smoke-mobile",
+    "qa:core": "playwright test --config=tests/qa/playwright.config.mjs --project=core",
+    "qa:seed": "node scripts/qa/seed-staging.mjs"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "turbo": "^2.3.3"
   },
   "pnpm": {

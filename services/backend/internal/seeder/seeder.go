@@ -16,6 +16,55 @@ import (
 
 func SeedData() {
 	db := database.ConnectDB()
+
+	// The demo catalog and its sam.show test login are LOCAL-ONLY (see
+	// seedDemoData). Everything below it is infrastructure that staging and
+	// production legitimately need, so it still runs in every environment.
+	seedDemoData(db)
+
+	// Use comprehensive category seeding instead of the old method
+	err := SeedComprehensiveCategories(db)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to seed comprehensive categories: %v", err))
+	} else {
+		logger.Info("Comprehensive category seeding completed successfully")
+	}
+
+	// Keep the old seeding for external categories
+	seedCategories(db)
+
+	// Seed admin users
+	seedAdminUsers(db)
+
+	// Seed notification templates
+	err = SeedNotificationTemplates(db)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to seed notification templates: %v", err))
+	} else {
+		logger.Info("Notification template seeding completed successfully")
+	}
+
+	logger.Info("Data seeding completed")
+}
+
+// seedDemoData creates the demo seller, store and product used for local
+// testing — including a login whose password is committed in this file.
+//
+// LOCAL-ONLY. This used to run unconditionally, so `./backend seed` planted
+// sam.show@example.com / password123 into whatever database it was pointed at
+// — and docs/ENV-PREFLIGHT.md documents `./backend seed` as the PRODUCTION
+// step for bootstrapping the first admin, so following that runbook created a
+// known-credential account in production.
+//
+// The guard is the same one SeedRealisticData uses: a seeder that creates a
+// login never runs outside local/dev. Category, notification-template and
+// admin-bootstrap seeding are deliberately NOT behind it — those are exactly
+// what a fresh staging or production database needs.
+func seedDemoData(db *gorm.DB) {
+	if !isLocalSeedEnv() {
+		logger.Info("Skipping demo seed data: local/dev only (categories, notification templates and admin bootstrap still run)")
+		return
+	}
 	var user domain.User
 	p, _ := bcrypt.GenerateFromPassword([]byte("password123"), 14)
 	userData := domain.User{
@@ -158,29 +207,6 @@ func SeedData() {
 			db.Model(&product).Updates(productData)
 		}
 	}
-	// Use comprehensive category seeding instead of the old method
-	err := SeedComprehensiveCategories(db)
-	if err != nil {
-		logger.Error(fmt.Sprintf("Failed to seed comprehensive categories: %v", err))
-	} else {
-		logger.Info("Comprehensive category seeding completed successfully")
-	}
-
-	// Keep the old seeding for external categories
-	seedCategories(db)
-
-	// Seed admin users
-	seedAdminUsers(db)
-
-	// Seed notification templates
-	err = SeedNotificationTemplates(db)
-	if err != nil {
-		logger.Error(fmt.Sprintf("Failed to seed notification templates: %v", err))
-	} else {
-		logger.Info("Notification template seeding completed successfully")
-	}
-
-	logger.Info("Data seeding completed")
 }
 
 func seedCategories(db *gorm.DB) {

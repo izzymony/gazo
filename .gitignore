@@ -67,3 +67,9 @@ apps/web/.drift/
 
 # isolated verification build output (see NEXT_DIST_DIR in apps/web/next.config.mjs)
 apps/web/.next-verify/
+
+# Playwright QA artefacts — traces and screenshots of failed runs, regenerated
+# every run and often large.
+/test-results/
+/playwright-report/
+/blob-report/

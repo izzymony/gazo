@@ -141,6 +141,23 @@ Most launch-day failures are here, not in the code.
 
 ## 8. Cutover
 
+### Branch model (since 2026-09-15)
+
+`main` is **production-only**; `staging` is the integration branch. Nothing is
+pushed straight to `main` — it moves only by merging `staging` after a QA pass.
+
+- Render staging backend and the Cloudflare staging Workers build from **`staging`**.
+- Production builds from **`main`**.
+- **Rollback point:** tag `pre-staging-cutover-2026-09-15` marks `2ecdb6d`, the
+  commit every environment was serving immediately before the cutover.
+
+Release order, in full, is in **[QA-PLAYBOOK.md](./QA-PLAYBOOK.md)**. The short
+version: CI green on `staging` → staging deploys → verify `schema_migrations` →
+seed → `pnpm qa:staging` → manual pass → go/no-go → merge to `main` → production
+deploy → `QA_ALLOW_PRODUCTION=1 pnpm qa:smoke`.
+
+### Checks
+
 - End-to-end smoke against production keys: signup → store → product → order → payment → payout.
 - Walk **[KYC-PRODUCTION-RUNBOOK.md](./KYC-PRODUCTION-RUNBOOK.md)**.
 - Device QA on real Nigerian mobile + 3G: W3.7 type-scale, W4.6 reorg, `@vibaar/ui` visual pass.

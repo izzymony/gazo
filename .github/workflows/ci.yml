@@ -15,7 +15,6 @@ concurrency:
 
 env:
   HUSKY: "0"
-  CYPRESS_INSTALL_BINARY: "0"
 
 jobs:
   js:

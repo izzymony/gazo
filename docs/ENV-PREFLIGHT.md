@@ -115,6 +115,10 @@ one can register in production.
 | `SEED_TEST_PASSWORD` | — | — | local-only seeder | local | — |
 
 ² Bootstrap runs once to create the first admin (an existing admin is never modified).
+`./backend seed` is **safe to run in staging and production**: it seeds categories,
+notification templates and the admin bootstrap. The demo catalog and its committed-password
+test login (`sam.show@example.com`) are guarded to local/dev — they used to be created in
+whatever database this command was pointed at.
 
 ---
 
@@ -154,6 +158,31 @@ Fix or ignore knowingly — these are why you must use this doc over the templat
 - **`apps/web` has no `.env.example`.** §8 above is its de-facto template.
 - **Admin's dual API-URL vars** (§9) and **Paystack's dual secret vars** (§4) are latent footguns until unified.
 - **Multiple SMS providers wired** (§6) — pick one for production.
+
+---
+
+## 11. Go/no-go gate
+
+The env tables above say whether the configuration is right. This says whether
+to **launch**. Run it after the staging QA pass
+([QA-PLAYBOOK.md](./QA-PLAYBOOK.md)); every line must be false.
+
+**Do not launch if any of these is true:**
+
+- [ ] A buyer cannot complete checkout
+- [ ] The payment webhook does not move the order status
+- [ ] Shipping rates cannot load
+- [ ] A seller cannot create or edit a product — **or an edit does not survive a reload**
+- [ ] An admin cannot reach the screens they must review
+- [ ] KYC documents are reachable while signed out, or the flow fails
+- [ ] The staging or production frontend calls `localhost` *(covered by `pnpm qa:smoke`)*
+- [ ] A provider secret appears in any log, server or browser
+- [ ] Mobile checkout is broken on a real phone
+- [ ] `schema_migrations` is missing a migration that exists in the repo
+
+The first eight have automated coverage in `pnpm qa:staging`; the mobile and
+secret checks are manual — see
+[STAGING-QA-CHECKLIST.md](./STAGING-QA-CHECKLIST.md).
 
 ---
 
