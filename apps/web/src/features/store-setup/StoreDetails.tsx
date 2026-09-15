@@ -83,7 +83,7 @@ const StoreDetails = ({
       {/* Logo Upload Section */}
       <div className="flex flex-col items-center gap-3 mt-0">
         {/* Upload Container */}
-        <div className="bg-surface-subtle border border-dashed border-outline-strong rounded-card p-4 w-full max-w-sm">
+        <div className="bg-surface-subtle border border-dashed border-outline-strong rounded-card p-4 w-full">
           <label className="block cursor-pointer">
             <div className="flex flex-col items-center">
               {/* Logo Circle with Shadow */}

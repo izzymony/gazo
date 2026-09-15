@@ -196,9 +196,9 @@ const Page: React.FC = () => {
   if (shopVendorsError && shopVendors.length === 0) {
     return (
       <div ref={scrollRef} className="w-full h-full overflow-y-scroll scrollbar-hide">
-        <div className="w-full flex flex-col mb-0">
+        <div className="w-full flex flex-col mb-0 min-h-full">
           <HeaderSlides />
-          <div className="rounded-t-panel -mt-12 md:-mt-16 lg:-mt-20 pb-10 z-20 bg-surface shadow-lg px-4 pt-8 min-h-[50vh] flex flex-col items-center justify-center gap-4 max-w-full lg:max-w-5xl lg:mx-auto text-center rail-safe-foreground">
+          <div className="rounded-t-panel -mt-12 md:-mt-16 lg:-mt-20 pb-10 z-20 bg-surface shadow-lg px-4 pt-8 min-h-[50vh] flex flex-col items-center justify-center gap-4 w-full grow max-w-full lg:max-w-5xl lg:mx-auto text-center rail-safe-foreground">
             <EmptyState
               image="/images/emptystate/products_empty_state.svg"
               title="Couldn't load vendors"
@@ -229,14 +229,14 @@ const Page: React.FC = () => {
     // whose scrollHeight equals its clientHeight, so it rooted on the viewport
     // and its sentinel, being clipped, never came into view either.
     <div ref={scrollRef} className="w-full h-full overflow-y-scroll scrollbar-hide">
-      <div className="w-full flex flex-col mb-0">
+      <div className="w-full flex flex-col mb-0 min-h-full">
         <HeaderSlides />
         {/* The sheet that rides up over the hero. It takes the panel radius
             like every other large surface: at 16 it was LESS rounded than the
             vendor cards sitting inside it at 24, which is the one direction
             nesting never goes — a container cannot be tighter than its contents.
             Both sheets on this page carry the same value. */}
-        <div className="rounded-t-panel -mt-12 md:-mt-16 lg:-mt-20 pb-10 z-20 bg-surface shadow-lg px-2 md:px-4 lg:px-6 pt-2 md:pt-4 lg:pt-6 max-w-full lg:max-w-5xl lg:mx-auto rail-safe-foreground">
+        <div className="rounded-t-panel -mt-12 md:-mt-16 lg:-mt-20 pb-10 z-20 bg-surface shadow-lg px-2 md:px-4 lg:px-6 pt-2 md:pt-4 lg:pt-6 w-full grow max-w-full lg:max-w-5xl lg:mx-auto rail-safe-foreground">
           {!isScrolled && (
             <SearchInput
               showSearch={true}

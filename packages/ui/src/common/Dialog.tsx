@@ -93,23 +93,31 @@ const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, children, className = 
         aria-label={title ? undefined : ariaLabel}
         tabIndex={-1}
         className={cn(
-          "w-full lg:max-w-md lg:rounded-2xl bg-white rounded-t-xl p-4 lg:p-6 shadow-lg transition-transform duration-300 motion-reduce:transition-none outline-none",
+          "flex flex-col w-full lg:max-w-md lg:rounded-2xl bg-white rounded-t-xl p-4 lg:p-6 shadow-lg transition-transform duration-300 motion-reduce:transition-none outline-none",
           className
         )}
-        style={{ transform: `translateY(${translateY}px)`, maxHeight: `${maxHeight}px`, overflowY: "auto" }}
+        // The panel is NOT the scroll container. It was, and the scrollbar then
+        // rendered inside the rounded, padded card — over the corner radius, so
+        // a long dialog grew a grey squared-off edge the card did not have. The
+        // title scrolled away with the content for the same reason. The body
+        // below is the only scroll region, which is what ResponsiveRouteDialog
+        // already does.
+        style={{ transform: `translateY(${translateY}px)`, maxHeight: `${maxHeight}px` }}
         onClick={(e) => e.stopPropagation()}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
         {/* Drag indicator — mobile only */}
-        <div className="w-12 h-1 bg-surface-strong rounded-full mx-auto mb-4 lg:hidden" />
+        <div className="shrink-0 w-12 h-1 bg-surface-strong rounded-full mx-auto mb-4 lg:hidden" />
         {title && (
-          <h2 id={titleId} className="mb-3 text-h2 font-semibold text-foreground-primary">
+          <h2 id={titleId} className="shrink-0 mb-3 text-h2 font-semibold text-foreground-primary">
             {title}
           </h2>
         )}
-        <div>{children}</div>
+        {/* `min-h-0` is what lets a flex child actually scroll rather than grow
+            past its parent. `scrollbar-hide` matches PageShell's scroll region. */}
+        <div className="min-h-0 flex-1 overflow-y-auto scrollbar-hide">{children}</div>
       </div>
     </div>,
     document.body
