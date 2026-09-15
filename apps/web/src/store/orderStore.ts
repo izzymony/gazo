@@ -387,7 +387,6 @@ const useOrderStore = create<OrderState>()(
           
           // SECURITY CHECK: Ensure response is for this specific guest
           const guestOrders = response.data?.data?.data || [];
-          console.log(`✅ Fetched ${guestOrders.length} orders for guest: ${guestId}`);
           
           set({
             orders: guestOrders,
@@ -403,18 +402,12 @@ const useOrderStore = create<OrderState>()(
       },
       // Fetch all orders
       fetchAllOrders: async () => {
-        console.log("🔍 fetchAllOrders called - fetching authenticated user's purchase history");
         set({ isLoading: true, error: null });
         try {
           const response = (await Client({
             path: `/orders/get-user-orders?limit=200&page=1`,
             method: "GET",
           })) as AxiosResponse;
-          console.log("📦 fetchAllOrders response:", {
-            endpoint: '/orders/get-user-orders',
-            ordersCount: response.data?.data?.data?.length || 0,
-            firstOrderId: response.data?.data?.data?.[0]?.id || 'none'
-          });
           set({
             orders: response.data.data.data,
             newOrders: response.data.data.data,
@@ -428,18 +421,12 @@ const useOrderStore = create<OrderState>()(
         }
       },
       fetchAllSellerOrders: async () => {
-        console.log("🔍 fetchAllSellerOrders called - fetching business orders (orders TO this business)");
         set({ isLoading: true, error: null });
         try {
           const response = (await Client({
             path: "/business/get-orders",
             method: "GET",
           })) as AxiosResponse;
-          console.log("🏪 fetchAllSellerOrders response:", {
-            endpoint: '/business/get-orders',
-            ordersCount: response.data?.data?.data?.length || 0,
-            firstOrderId: response.data?.data?.data?.[0]?.id || 'none'
-          });
           set({
             orders: response.data.data.data,
             newOrders: response.data.data.data,
@@ -517,7 +504,6 @@ const useOrderStore = create<OrderState>()(
             path: `/orders/public/get-order/${id}`,
             method: "GET",
           })) as AxiosResponse;
-          console.log("Public order fetch response:", response.data.data);
           set({ order: response.data.data });
         } catch (error) {
           const err = error as AxiosError<{ error: string }>;

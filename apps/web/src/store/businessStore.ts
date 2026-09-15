@@ -856,7 +856,6 @@ const useBusinessStore = create<BusinessState>()(
           })) as AxiosResponse;
 
           const products = response.data.data.data || [];
-          console.log(`📦 fetchBusinessProduct: Fetched ${products.length} products from page ${pageNumber}`);
 
           // For pagination, we need to work with the paginatedFetcher pattern
           // Just return the data - paginatedFetcher will call setBusinessProducts
@@ -1418,7 +1417,6 @@ const useBusinessStore = create<BusinessState>()(
 
             // CRITICAL FIX: Update user business data directly from creation response
             // This avoids timing issues with the separate /business API endpoint for fresh accounts
-            console.log("🔄 Updating user business data directly from creation response...");
 
             // Use dynamic import to avoid circular dependencies
             const authStore = (await import("@/store/authStore")).default;
@@ -1426,11 +1424,6 @@ const useBusinessStore = create<BusinessState>()(
 
             if (currentUser && data) {
               // Update user state with the newly created business data directly
-              console.log("✅ Updating user business state directly:", {
-                businessId: data.id,
-                businessName: data.name,
-                businessTag: data.tag
-              });
 
               // Use the setUser method to update the user with business data
               const updatedUser = {
@@ -1453,11 +1446,9 @@ const useBusinessStore = create<BusinessState>()(
               // Update the auth store with the new business data using set method
               authStore.setState({ user: updatedUser });
 
-              console.log("✅ User business data updated successfully from creation response");
 
               // Call success callback immediately since we have the data
               if (callback) {
-                console.log("✅ Store creation complete, triggering navigation...");
                 callback();
               }
 
@@ -1806,14 +1797,12 @@ const useBusinessStore = create<BusinessState>()(
 
         set({ isLoading: true, error: null });
         try {
-          console.log("🔍 getStoreById: Looking for business ID:", id);
           
           // First try to find the business in the existing stores list
           const currentStores = get().stores;
           let targetBusiness = currentStores.find((business: any) => business.id === id);
           
           if (!targetBusiness) {
-            console.log("🔍 Business not found in current stores, fetching fresh data...");
             // If not found, fetch fresh business data
             const response = (await Client({
               path: `/businesses`,
@@ -1830,13 +1819,6 @@ const useBusinessStore = create<BusinessState>()(
             }
           }
 
-          console.log("✅ Found business:", {
-            id: targetBusiness.id,
-            name: targetBusiness.name,
-            hasLogo: !!targetBusiness.logo,
-            hasAddress: !!targetBusiness.address,
-            addressLine: targetBusiness.address?.address_line
-          });
 
           set({ store: targetBusiness });
           set({
@@ -1949,7 +1931,6 @@ const useBusinessStore = create<BusinessState>()(
 
           toast.success("Store updated successfully");
           if (response.data.data?.logo) {
-            console.log("✅ Logo updated:", response.data.data.logo);
           }
           set({ store: response.data.data });
           set({

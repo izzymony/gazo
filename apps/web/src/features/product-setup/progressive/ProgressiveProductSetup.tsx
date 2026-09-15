@@ -123,10 +123,6 @@ export default function ProgressiveProductSetup() {
     async function handleNextStep() {
         // Log form values without images to avoid quota issues
         const { images, ...valuesWithoutImages } = formik.values;
-        console.log("Form submitted with values:", {
-            ...valuesWithoutImages,
-            imageCount: images?.length || 0
-        });
         const errors = await formik.validateForm();
         if (Object.keys(errors).length === 0) {
             // Track step completion
@@ -143,7 +139,6 @@ export default function ProgressiveProductSetup() {
                 handlePreview();
             }
         } else {
-            console.log("Validation errors:", errors);
 
             // Mark all fields as touched to show validation errors
             const touchedFields: Record<string, boolean> = {};
@@ -208,19 +203,10 @@ export default function ProgressiveProductSetup() {
     // }, [formik.values]);
 
     const handlePublish = () => {
-        console.log('🔍 Publishing with selectedCategory:', selectedCategory);
-        console.log('🔍 Publishing with formik.values:', { 
-            categoryId: formik.values.categoryId, 
-            subCategoryId: formik.values.subCategoryId 
-        });
         
         const categoryId = selectedCategory?.categoryId || formik.values.categoryId || "";
         const subCategoryId = selectedCategory?.subCategoryId || formik.values.subCategoryId || "";
         
-        console.log('🔍 Final category values for API:', { 
-          categoryId, 
-          subCategoryId
-        });
         
         // Use fallback values only if no category is selected
         const fallbackCategoryId = "9aebee99-0435-4ca1-bf82-7657bd35691a"; // Fashion category UUID
@@ -231,10 +217,6 @@ export default function ProgressiveProductSetup() {
         
         if (!categoryId && !subCategoryId) {
             console.warn('⚠️ No category selected, using fallback values');
-            console.log('🔍 Using fallback category values:', { 
-              finalCategoryId, 
-              finalSubCategoryId 
-            });
         }
         
         const payload = {
@@ -275,10 +257,6 @@ export default function ProgressiveProductSetup() {
 
         // Log payload without image data to avoid quota issues
         const { image, ...payloadWithoutImages } = payload;
-        console.log('🔍 Complete payload being sent to API:', {
-            ...payloadWithoutImages,
-            imageCount: image?.length || 0
-        });
 
         addProduct(payload as unknown as Parameters<typeof addProduct>[0], async () => {
             try {
@@ -293,7 +271,6 @@ export default function ProgressiveProductSetup() {
                     finalCategoryId
                 );
                 if (creationDuration) {
-                    console.log(`Product creation completed in ${creationDuration}s`);
                 }
 
                 // Clear draft on successful creation

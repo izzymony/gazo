@@ -52,15 +52,10 @@ const Step2MakeItShine = ({
                             }
                             onCategorySelect={(category) => {
                                 if (typeof category === 'object') {
-                                    console.log('🔍 Step2 - Category selected:', category);
                                     setSelectedCategory(category);
                                     // Also set in formik for validation and submission
                                     formik.setFieldValue('categoryId', category.categoryId);
                                     formik.setFieldValue('subCategoryId', category.subCategoryId);
-                                    console.log('🔍 Step2 - Formik values after category set:', {
-                                        categoryId: category.categoryId,
-                                        subCategoryId: category.subCategoryId
-                                    });
                                 }
                             }}
                             error={formik.errors.categoryId as string || formik.errors.subCategoryId as string}

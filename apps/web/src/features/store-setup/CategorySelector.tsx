@@ -68,8 +68,6 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
   };
 
 
-  console.log('🔍 CategorySelector - selectedCategory prop:', selectedCategory);
-  console.log('🔍 CategorySelector - mode:', mode);
   
   // Get display text for product mode
   const getDisplayText = () => {
@@ -216,10 +214,7 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
                         if (mode === 'store') {
                           // For store mode: select and close after a brief delay to show selection
                           setSelectedOriginalCategory(category);
-                          console.log('🔍 CategorySelector - Selecting store category:', category.name);
-                          console.log('🔍 CategorySelector - onCategorySelect callback:', onCategorySelect);
                           setTimeout(() => {
-                            console.log('🔍 CategorySelector - Calling onCategorySelect with:', category.name);
                             onCategorySelect(category.name);
                             setShowModal(false);
                           }, 200); // Brief delay to show selection
@@ -269,7 +264,6 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
                               setTimeout(() => {
                                 const categoryId = category.id;
                                 const subCategoryId = sub.id || sub.name; // Use name as ID if no ID exists
-                                console.log('🔍 CategorySelector - Selecting subcategory:', { categoryId, subCategoryId, subcategoryName: sub.name });
                                 onCategorySelect({ categoryId, subCategoryId });
                                 setShowModal(false);
                               }, 200);

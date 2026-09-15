@@ -300,7 +300,6 @@ export default function Shop({
   const [liked, setLiked] = useState(false);
   const categories: any = [];
   const pathName = usePathname();
-  console.log(pathName);
 
   useEffect(() => {
     const handleScroll = () => {

@@ -140,7 +140,6 @@ const Page = () => {
       router.push("/signin");
     }, 100);
   };
-  console.log(newOrders);
   // Order-status colour lives in ONE place: features/orders/orderStatus.
   // This screen used to carry its own 20-entry map of raw hex primary/secondary
   // pairs, applied through an inline style — 33 of this file's drift findings.
@@ -148,21 +147,13 @@ const Page = () => {
   // can no longer disagree.
 
   useEffect(() => {
-    console.log("🔍 Orders page authentication debug:", {
-      user: user ? { id: user.id, email: user.email, isAuthenticated: !!user } : null,
-      guestId,
-      hasToken: document.cookie.includes('accessToken'),
-      userExists: !!user
-    });
     
     fetchStores();
 
     if (user) {
-      console.log("✅ User authenticated - fetching user's purchase history (Order History)");
       fetchAllOrders(); // FIXED: Use fetchAllOrders for user's purchase history, not fetchAllSellerOrders
       fetchOrderItems();
     } else {
-      console.log("⚠️ User not authenticated - fetching guest orders with guestId:", guestId);
       fetchGuestOrders(guestId as string);
     }
   }, []);

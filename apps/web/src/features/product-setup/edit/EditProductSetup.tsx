@@ -62,11 +62,9 @@ interface EditProductSetupProps {
 const reconstructVariationsFromCombinations = (combinations: any[]): Variation[] => {
     const variationMap = new Map<string, Set<string>>();
 
-    console.log('🔧 Input combinations for reconstruction:', combinations);
 
     combinations.forEach((combo) => {
         if (combo.combination_key) {
-            console.log('🔧 Processing combination_key:', combo.combination_key);
 
             // Handle both formats: "White-Small" (hyphen) and "Black / L / Cotton" (slash with spaces)
             let parts: string[] = [];
@@ -81,7 +79,6 @@ const reconstructVariationsFromCombinations = (combinations: any[]): Variation[]
                 parts = [combo.combination_key];
             }
 
-            console.log('🔧 Split parts:', parts);
 
             parts.forEach((value, index) => {
                 const trimmedValue = value.trim();
@@ -108,7 +105,6 @@ const reconstructVariationsFromCombinations = (combinations: any[]): Variation[]
         values: Array.from(valuesSet).sort()
     }));
 
-    console.log('🔧 Final reconstructed variations:', reconstructedVariations);
     return reconstructedVariations;
 };
 
@@ -271,8 +267,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
         },
         validationSchema,
         onSubmit: async (values) => {
-            console.log('Form submitted with values:', values);
-            console.log('Images to update:', images);
 
             if (!productId) {
                 console.error("No product ID provided");
@@ -324,25 +318,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     // variant_combinations removed - backend calculates combinations on-demand from variants
                 };
 
-                console.log('💰 Price debugging:', {
-                    'values.price': values.price,
-                    'values.comparePrice': values.comparePrice,
-                    'payload.price.price': productPayload.price.price,
-                    'payload.price.old_price': productPayload.price.old_price
-                });
-                console.log('📦 Sending update payload:', JSON.stringify(productPayload, null, 2));
-                console.log('💰 Variant pricing debug:', {
-                    'variantDetails.length': variantDetails.length,
-                    'customPricingExamples': variantDetails.filter(v => v.price).slice(0, 3),
-                });
-                console.log('📊 Variant details for debugging:', {
-                    'isVariable': isVariable,
-                    'values.variants': values.variants,
-                    'local.variations': variations,
-                    'variantDetails': variantDetails,
-                    'payload.variants': productPayload.variants,
-                });
-                console.log('Product ID:', productId);
 
                 // The updateProduct now automatically handles state synchronization
                 let updatedProduct;
@@ -355,7 +330,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                 try {
                     updatedProduct = await updateProduct(productId, productPayload as unknown as Parameters<typeof updateProduct>[1]);
                     updateSucceeded = true;
-                    console.log('✅ Product updated successfully via store! Staying on edit page.');
                 } catch (updateError) {
                     console.warn('⚠️ Store update failed, trying fallback refresh...', updateError);
 
@@ -365,7 +339,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                         updatedProduct = await getProductByIds(productId);
                         if (updatedProduct) {
                             setProduct(updatedProduct); // Manual store sync
-                            console.log('✅ Fallback refresh successful');
                         }
                     } catch (fallbackError) {
                         console.error('❌ Both update and fallback failed:', fallbackError);
@@ -375,14 +348,7 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
 
                 // Update local component state with the returned data
                 if (updatedProduct) {
-                    console.log('✅ Updating local state with product data:', {
-                        'variant_combinations.length': updatedProduct.variant_combinations?.length,
-                        'firstCombosWithPricing': updatedProduct.variant_combinations?.filter((c: any) => c.price).slice(0, 3),
-                        'variations': updatedProduct.variations,
-                        'is_combination': updatedProduct.is_combination
-                    });
                     setProductData(updatedProduct);
-                    console.log('✅ Local component state updated with synchronized data');
                 } else {
                     console.error('❌ No product data received after update');
                 }
@@ -406,15 +372,11 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
         const fetchProduct = async () => {
             try {
                 setIsLoadingProduct(true);
-                console.log('🔍 Fetching product with ID:', productId);
 
                 // Try to fetch real product data first
                 let product;
                 try {
                     product = await getProductByIds(productId);
-                    console.log('🔍 Fetched real product data:', product);
-                    console.log('🏷️ Product tags field:', product?.tag);
-                    console.log('🏷️ Product tags field (alternative):', product?.tags);
                 } catch (error) {
                     console.error('🔍 Failed to fetch product data:', error);
                     console.error('🔍 Attempting to use mock/fallback data');
@@ -441,7 +403,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     };
                 }
 
-                console.log('🔍 Using test product data:', product);
                 setProductData(product);
 
                 // Convert product images to expected format
@@ -451,7 +412,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     toggle: true,
                 })) || [];
 
-                console.log('🔍 Product images converted:', productImages);
                 setImages(productImages);
 
                 // Determine if product is variable based on is_combination flag from backend
@@ -463,8 +423,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                 let finalVariations = [];
 
                 if (product.variants && product.variants.length > 0) {
-                    console.log('✅ Loading variations with custom properties from variants');
-                    console.log('🔍 Raw variants from backend:', product.variants);
                     finalVariations = product.variants.map((variant: any) => ({
                         option: variant.name?.toLowerCase() || 'variant',
                         name: variant.name || 'Variant',
@@ -475,12 +433,9 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                         stockValues: variant.stock_values || {},
                         imageValues: variant.image_values || {}
                     }));
-                    console.log('📦 Processed variations with custom properties:', finalVariations);
                 } else if (product.variations && product.variations.length > 0) {
-                    console.log('📋 Loading basic variations from variations field');
                     finalVariations = product.variations;
                 } else if (product.variant_combinations && product.variant_combinations.length > 0) {
-                    console.log('🔧 Reconstructing variations from variant_combinations');
                     finalVariations = reconstructVariationsFromCombinations(product.variant_combinations);
                 }
 
@@ -488,31 +443,22 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
 
                 // Load existing variant combinations with stock data
                 if (product.variant_combinations && product.variant_combinations.length > 0) {
-                    console.log('🔍 Loading variant combinations data:', product.variant_combinations.slice(0, 3));
                     const existingVariantDetails = product.variant_combinations.map((combo: any) => ({
                         combination: combo.combination_key,
                         price: combo.price,
                         stock: combo.stock || 0
                     }));
-                    console.log('✅ Reconstructed variantDetails:', existingVariantDetails.slice(0, 3));
                     setVariantDetails(existingVariantDetails);
                 } else {
-                    console.log('⚠️ No variant_combinations found, falling back to variants:', product.variants);
                     setVariantDetails(product.variants || []);
                 }
 
                 // Set category if available
-                console.log('🔍 Product category data:', {
-                    category_id: product.category_id,
-                    sub_category_id: product.sub_category_id,
-                    category: product.category
-                });
                 if (product.category_id && product.sub_category_id) {
                     const categoryData = {
                         categoryId: product.category_id,
                         subCategoryId: product.sub_category_id
                     };
-                    console.log('🔍 Setting selected category:', categoryData);
                     setSelectedCategory(categoryData);
 
                     // Also update formik immediately 
@@ -522,7 +468,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                         formik.setFieldValue('subCategoryId', product.sub_category_id);
                     }, 100);
                 } else {
-                    console.log('🔍 Category data incomplete, not setting selectedCategory');
                 }
 
                 // Update formik values - ensure category is a string
@@ -531,13 +476,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     : (product.category || "Electronics");
 
                 // Debug price structure
-                console.log('🏷️ Product price data:', {
-                    price: product.price,
-                    compare_price: product.compare_price,
-                    original_price: product.original_price,
-                    old_price: product.old_price,
-                    fullProduct: product
-                });
 
                 // Handle price structure - backend might return nested price object
                 let currentPrice = 0;
@@ -563,15 +501,10 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     imageValues: v.imageValues || {}
                 }));
 
-                console.log('📝 Setting formik values with tags:', {
-                    'product.tag': product.tag,
-                    'Array.isArray(product.tag)': Array.isArray(product.tag)
-                });
 
                 // Backend returns 'tag' field (not 'tags')
                 const productTags = Array.isArray(product.tag) ? product.tag : [];
 
-                console.log('📝 Final tags to set in formik:', productTags);
 
                 formik.setValues({
                     title: product.title || "",
@@ -627,10 +560,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                 const hasChanged = JSON.stringify(currentVariants) !== JSON.stringify(formikVariants);
 
                 if (hasChanged) {
-                    console.log('🔄 Syncing variations to formik.values.variants:', {
-                        variations: variations,
-                        formikVariants: formikVariants
-                    });
                     formik.setFieldValue('variants', formikVariants);
                 }
             }
@@ -890,7 +819,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                         selectedCategory={selectedCategory ?? undefined}
                                         onCategorySelect={(category) => {
                                             if (typeof category === 'object') {
-                                                console.log('🔍 Edit - Category selected:', category);
                                                 setSelectedCategory(category);
                                                 // Also set in formik for validation and submission
                                                 formik.setFieldValue('categoryId', category.categoryId);
@@ -953,7 +881,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                         setIsVariable(value);
                                         if (!value) {
                                             // Clear all variant state when disabling - including formik values
-                                            console.log('🧹 Clearing all variant state when disabling');
                                             setVariations([{ option: "size", name: "Size", values: [] }]);
                                             setVariantDetails([]);
                                             // ARCHITECTURAL FIX: Clear single source of truth (variants only)
@@ -967,12 +894,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                     existingVariations={variations}
                                     existingVariantDetails={variantDetails}
                                     onVariationsUpdate={(updatedVariations, updatedVariantDetails) => {
-                                        console.log('📝 Updating parent state with:', {
-                                            updatedVariations,
-                                            'updatedVariantDetails.length': updatedVariantDetails.length,
-                                            'customPricingCount': updatedVariantDetails.filter(v => v.price).length,
-                                            'examplePricing': updatedVariantDetails.filter(v => v.price).slice(0, 2)
-                                        });
                                         setVariations(updatedVariations);
                                         setVariantDetails(updatedVariantDetails);
 
@@ -981,7 +902,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                         const hasVariants = updatedVariations.length > 0 &&
                                                           updatedVariations.some(v => v.values && v.values.length > 0);
                                         if (hasVariants && !isVariable) {
-                                            console.log('🔄 Template applied: Auto-enabling variable product mode');
                                             setIsVariable(true);
                                         }
                                     }}

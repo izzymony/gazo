@@ -31,18 +31,6 @@ const OrderConfirmed = () => {
   }, [getOrderById, getGuestOrdersById, getOrderByIdPublic, id, user, guestId]);
 
   // Debug logging
-  console.log("Order Debug:", {
-    order,
-    orderOrder: order?.order,
-    buyerActivity: order?.order?.buyer_activity,
-    buyerActivityLength: order?.order?.buyer_activity?.length,
-    firstBuyerItem: order?.order?.buyer_activity?.[0],
-    orderCart: order?.cart,
-    orderOrderCart: order?.order?.cart,
-    orderItems: order?.order?.items,
-    orderOrderItems: order?.order?.order_items,
-    hasItems: order?.cart?.length || order?.order?.cart?.length || order?.order?.items?.length
-  });
   const truncateTextByLength = (
     text: string | undefined,
     charLimit: number
@@ -148,13 +136,6 @@ const OrderConfirmed = () => {
             
             const itemCount = cartItems.length;
             
-            console.log("Cart Items Debug:", { 
-              cartItems, 
-              itemCount, 
-              orderExists: !!order,
-              buyerActivityExists: !!order?.order?.buyer_activity,
-              buyerActivityLength: order?.order?.buyer_activity?.length
-            });
             
             if (itemCount > 0) {
               return (
@@ -164,7 +145,6 @@ const OrderConfirmed = () => {
                   </p>
                   <div className="space-y-3">
                     {cartItems.map((item, index) => {
-                      console.log("Individual item:", item);
                       const productDetails = products.find(
                         (prod) => prod?.id === (item?.product_id || item?.id)
                       );

@@ -176,7 +176,6 @@ const useAuthStore = create<AuthState>()(
         signupPayload: SignupData,
         callback?: (data: unknown) => void
       ) => {
-        console.log(signupPayload);
         set({ isLoading: true, error: null });
         try {
           const response = (await Client({
@@ -195,17 +194,8 @@ const useAuthStore = create<AuthState>()(
           if (response.status === 200) {
             const { token, access_token, data, refresh_token } = response.data.data;
             const authToken = access_token || token; // Handle both response formats
-            console.log("👤 User data structure:", {
-              fullUserData: data,
-              hasId: !!data?.id,
-              hasUserId: !!data?.user_id,
-              hasID: !!(data as Record<string, unknown>)?.ID,
-              allKeys: Object.keys(data || {}),
-              firstFiveValues: Object.entries(data || {}).slice(0, 5).map(([k, v]) => `${k}: ${v}`)
-            });
             
             // Set cookies with explicit options for immediate server availability
-            console.log("🍪 Setting cookies...");
             Cookies.set("accessToken", authToken, { 
               expires: 3, 
               sameSite: 'lax', 
@@ -226,12 +216,6 @@ const useAuthStore = create<AuthState>()(
             // Verify cookies were set immediately
             const verifyAccessToken = Cookies.get("accessToken");
             const verifyRefreshToken = Cookies.get("refreshToken");
-            console.log("🔍 Cookie verification immediately after setting:", {
-              accessTokenSet: !!verifyAccessToken,
-              refreshTokenSet: !!verifyRefreshToken,
-              accessTokenMatches: verifyAccessToken === authToken,
-              refreshTokenMatches: verifyRefreshToken === refresh_token
-            });
             set({ user: data, isAuthenticated: true, token: authToken });
 
             // W2.7: one deterministic /me call fills user + business (replaces

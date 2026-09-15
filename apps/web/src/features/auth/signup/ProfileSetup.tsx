@@ -88,7 +88,6 @@ const ProfileSetup = ({
           name="fullName"
           value={profileData?.fullName}
           onChange={(e) => {
-            console.log("🔄 fullName onChange triggered:", e.target.value);
             handleInputChange(e);
           }}
           placeholder="Full name"
@@ -112,7 +111,6 @@ const ProfileSetup = ({
             name="user_name"
             value={profileData?.user_name}
             onChange={(e) => {
-              console.log("🔄 user_name onChange triggered:", e.target.value);
               handleInputChange(e);
             }}
             placeholder="Username"

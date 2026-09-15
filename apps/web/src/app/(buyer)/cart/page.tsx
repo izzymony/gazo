@@ -179,12 +179,6 @@ const Page = () => {
     const businame = business?.name || "Vendor name";
     const busiimg = (business?.logo as string | undefined) || "";
 
-    console.log("🛒 Cart grouping debug:", {
-      cartItemId: it.id,
-      businessId: businameid,
-      businessName: businame,
-      storesCount: stores.length
-    });
 
     const finder = acc.findIndex((group) => group.id === businameid);
 

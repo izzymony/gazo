@@ -484,18 +484,12 @@ const VariationsModal = ({
     const formikVars = smartToFormik(newVariations);
     if (formik) {
       formik.setFieldValue('variants', formikVars);
-      console.log('🎯 Template applied: Immediately synced to formik', {
-        templateName: template.name,
-        variationsCount: newVariations.length,
-        formikVarsLength: formikVars.length
-      });
     }
 
     // Also immediately notify parent component of the change
     if (onVariationsUpdate) {
       const variantDetailsForParent: any[] = []; // Empty initially, combinations will be generated later
       onVariationsUpdate(formikVars, variantDetailsForParent);
-      console.log('🔄 Template applied: Immediately notified parent component');
     }
   };
 
@@ -1029,13 +1023,6 @@ export default function EnhancedProductOptions({
 
   // Initialize with existing variations and variant details from props (for edit flow)
   useEffect(() => {
-    console.log('🎯 MODAL PROPS DEBUG - EnhancedProductOptions received:', {
-      'existingVariations?.length': existingVariations?.length || 0,
-      'existingVariantDetails?.length': existingVariantDetails?.length || 0,
-      'existingVariations': existingVariations,
-      'existingVariantDetails': existingVariantDetails?.slice(0, 3),
-      'customPricingCount': existingVariantDetails?.filter(v => v.price)?.length || 0
-    });
 
     if (existingVariations.length > 0) {
       // Convert existing variations to SmartVariation format
@@ -1056,10 +1043,6 @@ export default function EnhancedProductOptions({
       const formikVars = smartToFormik(smartVars);
       formik.setFieldValue('variants', formikVars);
 
-      console.log('✅ Set existing variations in both state and formik:', {
-        smartVars,
-        formikVars
-      });
     }
 
     if (existingVariantDetails.length > 0) {
@@ -1074,14 +1057,6 @@ export default function EnhancedProductOptions({
       }));
 
       setVariantCombinations(existingCombinations);
-      console.log('✅ Set existing variant combinations with pricing:', {
-        'combinations.length': existingCombinations.length,
-        'withCustomPricing': existingCombinations.filter(c => c.price && c.price > 0).length,
-        'examplePrices': existingCombinations.slice(0, 3).map(c => ({
-          combo: c.combination,
-          price: c.price
-        }))
-      });
     }
   }, [existingVariations, existingVariantDetails]);
 
@@ -1090,14 +1065,12 @@ export default function EnhancedProductOptions({
     // CRITICAL: Skip formik initialization if we have props data
     // Props data from parent component takes precedence over formik
     if (existingVariantDetails && existingVariantDetails.length > 0) {
-      console.log('📌 Skipping formik initialization - using props data instead');
       return; // Exit early - props-based useEffect will handle initialization
     }
 
     // Only use formik as fallback when no props data is available
     // Handle case where variant_combinations table doesn't exist or is empty
     if (formik.values.variant_combinations && formik.values.variant_combinations.length > 0) {
-      console.log('📋 Initializing from formik.values.variant_combinations');
       const existingCombinations: VariationCombination[] = formik.values.variant_combinations.map((combo: any, index: number) => ({
         id: `existing-${index}`,
         combination: combo.combination_key || combo.combination || '',

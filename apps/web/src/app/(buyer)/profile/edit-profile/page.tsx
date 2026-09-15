@@ -24,7 +24,6 @@ const Page = () => {
 
   useEffect(() => {
     if (user) {
-      console.log("user", user);
       setImage(user.profile_image || null);
       setUsers(user);
     }
@@ -104,7 +103,6 @@ const Page = () => {
       dob?: string;
       image?: string;
     }) => {
-      console.log("Submitting values:", values);
       setIsUploading(true);
       
       try {

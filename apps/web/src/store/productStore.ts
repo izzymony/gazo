@@ -268,7 +268,6 @@ const useProductStore = create<ProductState>()(
         productPayload: ProductPayloadData,
         callback?: () => void
       ) => {
-        console.log(productPayload);
         set({ isLoading: true, error: null });
         try {
           const response = await Client({
@@ -287,7 +286,6 @@ const useProductStore = create<ProductState>()(
 
             // CRITICAL: Refresh products from backend to ensure complete sync
             // This prevents the "products not showing immediately after creation" issue
-            console.log("🔄 Refreshing products list after creation...");
 
             try {
               // Get the current business ID to fetch products
@@ -302,7 +300,6 @@ const useProductStore = create<ProductState>()(
                 }) as AxiosResponse;
 
                 const freshProducts = freshProductsResponse.data?.data?.data || [];
-                console.log(`✅ Fetched ${freshProducts.length} products for business ${businessId}`);
 
                 // Update state with fresh products list
                 set({
@@ -324,7 +321,6 @@ const useProductStore = create<ProductState>()(
                   }, false);
                 }
 
-                console.log("✅ Products list refreshed successfully");
               } else {
                 console.warn("⚠️ No business ID found, skipping product refresh");
               }
@@ -349,7 +345,6 @@ const useProductStore = create<ProductState>()(
       },
 
       fetchRegisterOtp: async (val) => {
-        console.log(val);
         set({ isLoading: true, error: null });
         try {
           await Client({
@@ -422,7 +417,6 @@ const useProductStore = create<ProductState>()(
           set({
             isLoading: false,
           });
-          console.log('fetching data => ',response.data.data)
           return response.data.data.data;
         } catch (error) {
           set({ error: (error as Error).message });
@@ -701,10 +695,6 @@ const useProductStore = create<ProductState>()(
             method: "GET",
           })) as AxiosResponse;
 
-          console.log('🌐 API Response for product:', {
-            status: response.status,
-            data: response.data.data
-          });
 
           const data = response.data.data;
           return data.product || data;
@@ -729,18 +719,10 @@ const useProductStore = create<ProductState>()(
           });
 
           // 🔍 DEBUG: Log the complete response structure
-          console.log("🔍 RAW RESPONSE STRUCTURE:", {
-            'response': response,
-            'response.status': response.status,
-            'response.data': response.data,
-            'response.data.data': response.data?.data,
-            'response.data.message': response.data?.message
-          });
 
           // Fix: Access the nested data structure correctly
           const updatedProductData: Partial<ProductData> = response.data?.data ?? {};
 
-          console.log("🔍 EXTRACTED PRODUCT DATA:", updatedProductData);
 
           set((state) => ({
             products: state.products.map((product) =>
@@ -755,7 +737,6 @@ const useProductStore = create<ProductState>()(
           }));
 
           // Removed auto-redirect toast - let the component handle success messages
-          console.log("✅ Product updated successfully in store");
 
           // Return the updated product data for the caller
           return updatedProductData;

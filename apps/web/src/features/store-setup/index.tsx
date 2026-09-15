@@ -150,7 +150,6 @@ const CreateStore = () => {
           };
         }
 
-        console.log("🔍 Sending business payload:", logoFile ? "FormData with logo" : "JSON without logo");
 
         // Track final step completion
         trackSellerStoreStep(2, 'store_address', {
@@ -166,7 +165,6 @@ const CreateStore = () => {
             const onboardingDuration = endTiming('seller_onboarding');
             trackSellerSignup(store?.id || formik.values.tag, formik.values.name);
             if (onboardingDuration) {
-              console.log(`Seller onboarding completed in ${onboardingDuration}s`);
             }
 
             // Store creation success flags

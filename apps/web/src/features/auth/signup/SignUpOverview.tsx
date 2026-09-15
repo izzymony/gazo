@@ -176,7 +176,6 @@ export default function SignUpOverview() {
   // Fetch guest data for prefilling
   useEffect(() => {
     if (prefill === 'true' && guestId && orderId) {
-      console.log("🔄 Fetching guest data for prefill:", { guestId, orderId });
       // Fetch guest shipping details
       if (guestId) {
         fetchGuestShippings(guestId);
@@ -202,7 +201,6 @@ export default function SignUpOverview() {
     if (prefill === 'true' && (singleShippingDetails?.shipping_user || order)) {
       const prefillData = getGuestDataForPrefill();
       if (Object.keys(prefillData).length > 0) {
-        console.log("✅ Setting prefill data to formik:", prefillData);
         Object.entries(prefillData).forEach(([key, value]) => {
           if (value) {
             formik.setFieldValue(key, value);
@@ -274,23 +272,16 @@ export default function SignUpOverview() {
   };
 
   const handleNextStep = async () => {
-    console.log("Form submitted with values:", formik.values);
-    console.log("Current step:", step);
-    console.log("OTP enabled:", isOtpEnabled);
 
     // Debug: Check if formik is properly updating
-    console.log("Formik touched fields:", formik.touched);
-    console.log("Formik errors:", formik.errors);
 
     const errors = await formik.validateForm();
-    console.log("Validation errors:", errors);
     if (Object.keys(errors).length === 0) {
       const maxSteps = isOtpEnabled ? 4 : 3;
       if (step < maxSteps) {
         if (step === 1) {
           const identifier = formik.values.emailPhone;
           try {
-            console.log("🔍 Mobile API call initiated to", `${process.env.NEXT_PUBLIC_API_BASE_URL}/validate-email-or-phone`);
 
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
@@ -307,17 +298,14 @@ export default function SignUpOverview() {
 
             clearTimeout(timeoutId);
 
-            console.log("📱 Mobile API response status:", response.status);
 
             if (!response.ok) {
               throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
 
             const data = await response.json();
-            console.log("📱 Mobile API response data:", data);
 
             if (data.data.exists) {
-              console.log("✅ Redirecting to sign-in with existing account");
               const signinParams = new URLSearchParams({
                 step: '1',  // Route directly to signin form, not landing page
                 identifier: identifier,
@@ -333,15 +321,12 @@ export default function SignUpOverview() {
 
               // SKIP OTP STEP IF DISABLED VIA FEATURE FLAG
               if (!isOtpEnabled) {
-                console.log("🔐 OTP Disabled: Skipping OTP step, using dummy OTP '123456'");
                 setOtps("123456"); // Set dummy OTP
                 formik.setFieldValue("otp", "123456");
                 // Skip directly to password step (which becomes step 2 when OTP is disabled)
                 await router.push(`?step=${isOtpEnabled ? 3 : 2}`);
               } else {
-                console.log("📱 Calling fetchRegisterOtp...");
                 await fetchRegisterOtp({ identifier });
-                console.log("✅ Proceeding to OTP step");
                 await router.push(`?step=2`);
               }
             }
@@ -359,11 +344,6 @@ export default function SignUpOverview() {
         }
       } else if ((!isOtpEnabled && step === 3) || (isOtpEnabled && step === 4)) {
         // Final step - submit signup
-        console.log("📝 Final step validation - checking form values:");
-        console.log("fullName:", formik.values.fullName);
-        console.log("user_name:", formik.values.user_name);
-        console.log("phoneNumber:", formik.values.phoneNumber);
-        console.log("email:", formik.values.email);
 
         try {
           await signup(
@@ -396,7 +376,6 @@ export default function SignUpOverview() {
 
               // If this is a guest conversion, redirect to order tracking
               if (prefill === 'true' && orderId) {
-                console.log("✅ Guest signup completed, redirecting to order tracking:", orderId);
                 router.replace(`/cart/order-confirmed/${orderId}`);
               } else {
                 router.replace("/welcome?type=manual");
@@ -408,7 +387,6 @@ export default function SignUpOverview() {
         }
       }
     } else {
-      console.log("Validation errors:", errors);
     }
   };
 
@@ -449,7 +427,6 @@ export default function SignUpOverview() {
       // Could extract name/phone from address string if needed
     }
 
-    console.log("🔄 Guest prefill data extracted:", prefillData);
     return prefillData;
   };
 

@@ -211,7 +211,6 @@ export default function SignInOverview() {
     const errors = await formik.validateField("identifier");
     if (errors) return;
     try {
-      console.log("🔍 Mobile SignIn API call initiated to", `${process.env.NEXT_PUBLIC_API_BASE_URL}/validate-email-or-phone`);
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
@@ -227,23 +226,18 @@ export default function SignInOverview() {
       });
 
       clearTimeout(timeoutId);
-      console.log("📱 Mobile SignIn API response status:", response.status);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log("📱 Mobile SignIn API response data:", data);
 
       if (data.data.exists) {
-        console.log("✅ Redirecting to sign-in with existing account");
         await router.push(`/signin?identifier=${encodeURIComponent(identifier)}&type=${data.data.type}&username=${encodeURIComponent(data.data.username)}`);
       } else {
         const type = identifier.includes("@") ? "email" : "phone";
-        console.log("📱 Calling fetchRegisterOtp...");
         await fetchRegisterOtp({ identifier });
-        console.log("✅ Redirecting to signup");
         await router.push(`/signup?step=2&identifier=${encodeURIComponent(identifier)}&type=${type}`);
       }
     } catch (error) {

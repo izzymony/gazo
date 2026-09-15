@@ -45,16 +45,13 @@ export default function LocationModal({
       script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`;
       script.async = true;
       script.onload = () => {
-        console.log('✅ Google Maps API loaded successfully');
         setIsGoogleLoaded(true);
       };
       script.onerror = (error) => {
         console.error('❌ Failed to load Google Maps:', error);
-        console.log('📍 Google Maps API key:', process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ? 'Present' : 'Missing');
       };
       document.head.appendChild(script);
     } else if (window.google) {
-      console.log('✅ Google Maps already loaded');
       setIsGoogleLoaded(true);
     }
   }, []);
@@ -67,7 +64,6 @@ export default function LocationModal({
       }
 
       try {
-        console.log('🔍 Getting suggestions for:', search);
         const autocompleteService = new window.google.maps.places.AutocompleteService();
 
         autocompleteService.getPlacePredictions(
@@ -77,7 +73,6 @@ export default function LocationModal({
             types: ['establishment', 'geocode']
           },
           (predictions: any[], status: any) => {
-            console.log('📍 Google Maps status:', status, 'Predictions:', predictions?.length || 0);
             if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
               // Map to format similar to original structure
               const mappedSuggestions = predictions.map((prediction) => ({
@@ -85,10 +80,8 @@ export default function LocationModal({
                 name: prediction.description,
                 structured_formatting: prediction.structured_formatting
               }));
-              console.log('✅ Mapped suggestions:', mappedSuggestions.length);
               setSuggestions(mappedSuggestions);
             } else {
-              console.log('⚠️ No suggestions or API error:', status);
               setSuggestions([]);
             }
           }
@@ -103,7 +96,6 @@ export default function LocationModal({
 
   const retrieveLocation = useCallback(
     async function getLocation(placeId: string) {
-      console.log("🗺️ retrieveLocation called with placeId:", placeId);
       closeLocationModal();
       setSeacrh("");
 
@@ -142,12 +134,9 @@ export default function LocationModal({
                 address_components: place.address_components
               };
 
-              console.log("🔥 About to call callback with locationData:", locationData);
               if (callback) {
-                console.log("🔥 Calling callback function");
                 callback(locationData);
               } else {
-                console.log("🔥 No callback provided");
               }
               setLocation(locationData);
               if (setAddress) {
@@ -192,9 +181,7 @@ export default function LocationModal({
             onKeyDown={(e) => {
               if (e.key === 'Enter' && search.trim()) {
                 e.preventDefault();
-                console.log('⌨️ Enter pressed with search:', search.trim());
                 if (setAddress) {
-                  console.log('📝 Setting address from Enter key:', search.trim());
                   setAddress(search.trim());
                 }
                 if (callback) {
@@ -263,14 +250,11 @@ export default function LocationModal({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('🔧 Manual entry clicked:', search.trim());
                   if (search.trim()) {
                     if (setAddress) {
-                      console.log('📝 Setting address:', search.trim());
                       setAddress(search.trim());
                     }
                     if (callback) {
-                      console.log('🔥 Calling callback with manual entry');
                       const manualLocationData = {
                         properties: {
                           full_address: search.trim(),

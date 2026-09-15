@@ -91,14 +91,6 @@ const PaymentSucceful = () => {
     // Use order_id if available, otherwise try to get order by reference
     const orderIdToUse = orderId || reference;
     
-    console.log("Payment Success Page Debug:", {
-      orderId,
-      reference,
-      orderIdToUse,
-      user: !!user,
-      guestId,
-      order: order
-    });
     
     if (orderIdToUse) {
       // Check if orderIdToUse looks like an invoice (short alphanumeric) vs UUID (long with dashes)
@@ -106,17 +98,13 @@ const PaymentSucceful = () => {
       
       if (isInvoiceFormat) {
         // If it's an invoice format (from payment redirect), always use public endpoint
-        console.log("Using public endpoint for invoice format:", orderIdToUse);
         getOrderByIdPublic(orderIdToUse);
       } else if (user) {
-        console.log("Fetching order for user:", orderIdToUse);
         getOrderById(orderIdToUse);
       } else if (guestId) {
-        console.log("Fetching order for guest:", guestId, orderIdToUse);
         getGuestOrdersById(guestId as string, orderIdToUse);
       } else {
         // Fallback to public endpoint
-        console.log("No user/guest context, using public order fetch:", orderIdToUse);
         getOrderByIdPublic(orderIdToUse);
       }
     }
