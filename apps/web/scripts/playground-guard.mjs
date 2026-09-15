@@ -224,7 +224,16 @@ async function assertUntracked() {
 
   // The ignore rule itself must exist, or the files are merely un-added today
   // and one `git add -A` away from being committed tomorrow.
-  const { code } = await git(["check-ignore", "-q", "src/app/(dev)"]);
+  //
+  // The TRAILING SLASH on the query is load-bearing. The rule in .gitignore is
+  // `apps/web/src/app/(dev)/`, and a trailing slash there means "directories
+  // only" — so git must know the path IS a directory for the rule to match.
+  // Given a bare `src/app/(dev)` it decides that by looking at the filesystem,
+  // which means the check passed on a developer machine (playground present)
+  // and could only ever fail on CI, where the directory is ignored and so never
+  // exists. Asking about `src/app/(dev)/` states the path is a directory and
+  // makes the answer independent of whether it happens to be there.
+  const { code } = await git(["check-ignore", "-q", "src/app/(dev)/"]);
   if (code !== 0) {
     die(
       `src/app/(dev)/ is not covered by a .gitignore rule.\n` +
