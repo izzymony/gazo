@@ -58,8 +58,9 @@ func (s *WebhookController) PaystackWebhook(c *gin.Context) {
 	hasher.Write(body)
 	expectedSignature := hex.EncodeToString(hasher.Sum(nil))
 
-	// Compare signatures
-	if receivedSignature != expectedSignature {
+	// hmac.Equal, not `!=`: a plain string compare returns as soon as two bytes
+	// differ, so how long it takes leaks how much of the signature was right.
+	if !hmac.Equal([]byte(receivedSignature), []byte(expectedSignature)) {
 		logger.Error("Invalid Paystack signature: Possible security breach")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid signature"})
 		return
@@ -117,7 +118,8 @@ func (s *WebhookController) ShipbubbleWebhook(c *gin.Context) {
 	hasher.Write(body)
 	expectedSignature := hex.EncodeToString(hasher.Sum(nil))
 
-	if receivedSignature != expectedSignature {
+	// Constant-time, as above.
+	if !hmac.Equal([]byte(receivedSignature), []byte(expectedSignature)) {
 		logger.Error("Invalid signature: Possible replay attack")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid signature"})
 		return

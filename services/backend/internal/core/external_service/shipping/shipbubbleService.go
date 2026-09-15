@@ -42,8 +42,11 @@ func NewShipbubbleService() *ShipbubbleService {
 		}
 	}
 
-	fmt.Printf("🔥 SHIPBUBBLE DEBUG: API Key: %s, ENV: %s, BaseURL: %s, ENABLE_MOCK: %s\n",
-		apiKey, os.Getenv("ENV"), baseURL, os.Getenv("ENABLE_MOCK_SERVICES"))
+	// Never print the key itself. This logged it in full on every boot, which
+	// with a real Shipbubble key would put the live credential into Render's
+	// retained logs. Whether one is CONFIGURED is the useful signal.
+	fmt.Printf("SHIPBUBBLE: key configured: %t, ENV: %s, BaseURL: %s, ENABLE_MOCK: %s\n",
+		apiKey != "", os.Getenv("ENV"), baseURL, os.Getenv("ENABLE_MOCK_SERVICES"))
 
 	return &ShipbubbleService{
 		apiKey:  apiKey,
@@ -110,11 +113,6 @@ func (s *ShipbubbleService) FetchShippingRates(data FetchRatesRequest) (*FetchRa
 
 	fmt.Printf("🔥 SHIPBUBBLE DEBUG: FetchShippingRates URL: %s\n", url)
 	fmt.Printf("🔥 SHIPBUBBLE DEBUG: Request data: %s\n", string(jsonData))
-	if len(s.apiKey) >= 10 {
-		fmt.Printf("🔥 SHIPBUBBLE DEBUG: API Key (first 10 chars): %s...\n", s.apiKey[:10])
-	} else {
-		fmt.Printf("🔥 SHIPBUBBLE DEBUG: API Key: %s\n", s.apiKey)
-	}
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
