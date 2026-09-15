@@ -50,9 +50,25 @@ export const parseStoreHandle = (param?: string | null): string | null => {
 /** In-app path to a vendor storefront: /@{handle}. */
 export const storePath = (store?: StoreLike | null): string => `/@${store?.tag || ''}`;
 
-/** In-app path to a product: /@{handle}/p/{slug}-{publicId} (Rev 2). */
+/**
+ * In-app path to a product: /@{handle}/p/{slug}-{publicId} (Rev 2).
+ *
+ * The empty-string fallbacks are kept so this never throws mid-render, but they
+ * produce a URL that LOOKS valid and 404s — `/@handle/p/slug-`. That shipped
+ * across every product link on /shop, because the callers were mapping
+ * preview products field-by-field and had dropped `public_id`; the slug looked
+ * right only because productSlug regenerates it from the title. So in
+ * development, say so loudly rather than emitting a dead link in silence.
+ */
 export const productPath = (
   store: StoreLike | null | undefined,
   product: ProductLike
-): string =>
-  `/@${store?.tag || ''}/p/${productSlug(product)}-${product?.public_id || ''}`;
+): string => {
+  if (process.env.NODE_ENV !== 'production' && !product?.public_id) {
+    console.error(
+      `[productPath] product "${product?.title ?? product?.id ?? 'unknown'}" has no public_id — ` +
+        `the link will 404. Whatever built this object dropped the field.`
+    );
+  }
+  return `/@${store?.tag || ''}/p/${productSlug(product)}-${product?.public_id || ''}`;
+};

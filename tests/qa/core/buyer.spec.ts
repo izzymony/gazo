@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { resolveTargets, resolveSellerCredentials } from "../env.cjs";
-import { signIn } from "../login";
+import { signIn, clickUntil } from "../login";
 
 const targets = resolveTargets();
 
@@ -58,7 +58,20 @@ test.describe("Buyer core", () => {
 
     await signIn(page, creds!.email, creds!.password);
     await page.goto(path!);
-    await page.getByRole("button", { name: /add to (cart|bag)/i }).first().click();
+
+    // Retry until the store actually records it — see clickUntil.
+    await clickUntil(
+      page.getByRole("button", { name: /add to (cart|bag)/i }).first(),
+      () =>
+        page.evaluate(() => {
+          try {
+            const raw = localStorage.getItem("order-store");
+            return !!raw && (JSON.parse(raw).state?.cart?.length ?? 0) > 0;
+          } catch {
+            return false;
+          }
+        })
+    );
 
     await page.goto("/cart");
     await expect(page.getByText("Page not found", { exact: false })).toHaveCount(0);
@@ -82,8 +95,11 @@ test.describe("Buyer core", () => {
    * on the page was dead.
    */
   test("product links on /shop carry a public id", async ({ page }) => {
+    // Not networkidle: a Next dev server holds an HMR websocket open, so it
+    // never settles and the wait burns the whole timeout. Wait for the thing
+    // being asserted on instead.
     await page.goto("/shop");
-    await page.waitForLoadState("networkidle");
+    await page.locator("a[href*='/p/']").first().waitFor({ timeout: 45_000 }).catch(() => {});
 
     const hrefs = await page
       .locator("a[href*='/p/']")

@@ -613,16 +613,25 @@ const Product = ({
     title: product?.title as string,
     image: currentImages[0] || product?.image?.[0] || "", // USE CURRENT IMAGE
     color: getVariantString(), // STORE VARIANT SELECTION
-    shippingPrice: selectedDelivery?.price + "",
-    shippingEstimate: selectedDelivery?.delivery_days + "",
-    shippingName: selectedDelivery?.delivery_type + "",
-    shippingId: selectedDelivery?.id + "",
+    // Empty string, never the STRING "undefined". `selectedDelivery?.id + ""`
+    // produces "undefined" when nothing is selected, which is truthy — so
+    // checkout's `cart.filter(item => !item.shippingId)` guard would wave the
+    // row through and post shipping_option_id="undefined" to the backend.
+    // Reachable now that add-to-cart no longer forces a delivery choice.
+    shippingPrice: selectedDelivery ? String(selectedDelivery.price) : "",
+    shippingEstimate: selectedDelivery ? String(selectedDelivery.delivery_days) : "",
+    shippingName: selectedDelivery ? String(selectedDelivery.delivery_type) : "",
+    shippingId: selectedDelivery?.id ?? "",
     id: generateRandomHexId(16),
   };
 
-  // Checkout guards shared by Buy-now + add-to-cart: variant selection ->
-  // delivery location -> shipping option. Returns false (and opens the relevant
-  // step) when a guard blocks; extracted so the two buttons can't drift.
+  /**
+   * Buy-now guards: variant selection -> delivery location -> shipping option.
+   * Buy-now jumps straight to checkout, so collecting all three up front is
+   * what keeps that path in one motion.
+   *
+   * Add-to-cart deliberately does NOT share these — see passesAddToCartGuards.
+   */
   const passesCheckoutGuards = (): boolean => {
     if (!validateVariantSelection()) return false;
     if (!location?.properties?.full_address && !selectedDeliveryLocation?.full_address) {
@@ -658,9 +667,24 @@ const Product = ({
       : router.push("/cart/shipping-profile/new");
   };
 
+  /**
+   * Add-to-cart needs the VARIANT only.
+   *
+   * It used to run the full checkout guards, so adding an item required a
+   * delivery location AND a shipping option first — with neither chosen the
+   * click opened a modal and added nothing, which made "Add to cart" look
+   * broken on a first visit. Delivery belongs to checkout: the review page
+   * already refuses to pay while any item lacks a shippingId, and it CLEARS
+   * stale quotes after an address switch, so a shipping option captured this
+   * early is discarded anyway.
+   *
+   * The variant check stays — it decides the price and the row identity.
+   */
+  const passesAddToCartGuards = (): boolean => validateVariantSelection();
+
   const handleAddToCart = () => {
     if (isOutOfStock) return;
-    if (!passesCheckoutGuards()) return;
+    if (!passesAddToCartGuards()) return;
     addToCarts([cartState, ...cart]);
     trackAddToCart({
       id: product?.id || (productId as string),

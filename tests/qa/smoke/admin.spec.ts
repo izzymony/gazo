@@ -13,7 +13,9 @@ test.describe("Admin smoke", () => {
 
   test("an unauthenticated visit to the dashboard does not expose it", async ({ page }) => {
     await page.goto("/dashboard");
-    await page.waitForLoadState("networkidle");
+    // Not networkidle — a dev server's HMR websocket never lets it settle. The
+    // gate is client-side, so give hydration a moment and then read the page.
+    await page.waitForTimeout(3000);
 
     // The gate is client-side, so this asserts on what a signed-out person can
     // actually SEE — either bounced to a login screen, or shown a login form.

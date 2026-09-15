@@ -20,8 +20,11 @@ export default defineConfig({
     baseURL: targets.web,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
-    // Staging sits behind Cloudflare; a cold worker can be slow on first hit.
-    navigationTimeout: 30_000,
+    // Generous on purpose. Staging sits behind Cloudflare and a cold worker is
+    // slow on first hit; pointed at a local dev server, the first request to a
+    // route also pays for its compile, which 30s did not cover under parallel
+    // load.
+    navigationTimeout: 60_000,
   },
   projects: [
     {

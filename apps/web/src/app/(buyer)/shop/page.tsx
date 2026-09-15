@@ -343,6 +343,11 @@ const Page: React.FC = () => {
                                 image: item.image,
                                 price: item.price,
                                 old_price: item.old_price,
+                                // Same as the vendor strip below: without these
+                                // the product link renders as /@handle/p/slug-
+                                // and 404s.
+                                public_id: item.public_id,
+                                slug: item.slug,
                                 rating: item.product_rating?.length
                                   ? Math.round(
                                       item.product_rating.reduce(
@@ -485,6 +490,16 @@ const Page: React.FC = () => {
                             image: item.image,
                             price: item.price,
                             old_price: item.old_price,
+                            // REQUIRED for the product link. Omitting these made
+                            // productPath fall back to `public_id || ''` and emit
+                            // /@handle/p/slug- — a URL that looks valid and 404s,
+                            // on every product link this page rendered. The slug
+                            // looked right only because productSlug regenerates
+                            // it from the title when absent, which hid the fault.
+                            // Both fields are short strings; the trimming below
+                            // is about `variants`, not these.
+                            public_id: item.public_id,
+                            slug: item.slug,
                             // `rates` is just the scores. The feed used to send
                             // each preview product's whole record — associations
                             // and all — and `variants` alone was 7.9MB of a
