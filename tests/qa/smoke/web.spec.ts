@@ -27,7 +27,12 @@ test.describe("Web smoke", () => {
   for (const { path, marker } of pages) {
     test(`${path} renders its own content`, async ({ page }) => {
       await page.goto(path);
-      await expect(page.getByText(marker, { exact: false }).first()).toBeVisible();
+      // filter({ visible: true }) matters: the shell renders both a desktop and
+      // a mobile nav, and at a phone viewport the FIRST DOM match can be the
+      // hidden desktop one — .first() alone then fails a page that is fine.
+      await expect(
+        page.getByText(marker, { exact: false }).filter({ visible: true }).first()
+      ).toBeVisible();
       // Proves the marker above is route-specific rather than chrome that the
       // 404 page also renders.
       await expect(page.getByText(NOT_FOUND, { exact: false })).toHaveCount(0);
@@ -52,17 +57,20 @@ test.describe("Web smoke", () => {
    * a literal in the source and is always present. The real signal is that the
    * CONFIGURED api host is present.
    */
-  test("the built bundle points at the configured API host", async ({ page, request }) => {
+  test("the built bundle points at the configured API host", async ({ request }) => {
     const apiHost = new URL(targets.api).host;
 
-    await page.goto("/");
-    const scripts = await page.locator("script[src^='/_next/static']").evaluateAll(
-      (els) => els.map((e) => (e as HTMLScriptElement).getAttribute("src")!)
-    );
-    expect(scripts.length).toBeGreaterThan(0);
+    // Scan every chunk the document REFERENCES, not just <script src>: the
+    // chunk carrying the API host may arrive via modulepreload or a dynamic
+    // import, and a script-only scan reports a false failure.
+    const html = await (await request.get(targets.web)).text();
+    const chunks = [...new Set(
+      [...html.matchAll(/\/_next\/static\/[^"'\s]+?\.js/g)].map((m) => m[0])
+    )];
+    expect(chunks.length, "no /_next/static chunks referenced by the page").toBeGreaterThan(0);
 
     let found = false;
-    for (const src of scripts) {
+    for (const src of chunks) {
       const res = await request.get(`${targets.web}${src}`);
       if (!res.ok()) continue;
       if ((await res.text()).includes(apiHost)) {
