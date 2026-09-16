@@ -21,6 +21,7 @@ import useOrderStore from "@/store/orderStore";
 import DeliverySheet from "./product/DeliverySheet";
 import DeliveryCard from "./product/DeliveryCard";
 import ProductCTA from "./product/ProductCTA";
+import ProductComposition from "./product/ProductComposition";
 import { FaStar } from "@vibaar/ui/icons";
 import ShareModal from "@vibaar/ui/common/ShareModal";
 import Loader from "@vibaar/ui/common/Loader";
@@ -781,23 +782,15 @@ const Product = ({
         product details 32 plus the gallery's own 16px margin left a 66px hole;
         the gutter BETWEEN the columns still wants 32.
       */}
-      <div
-        className={`transition-spacing duration-300 ease-out lg:grid lg:grid-cols-product lg:gap-x-8 lg:gap-y-2 lg:px-8 ${
-          !isScrolled ? HEADER_OVERHANG_PULL : ""
-        }`}>
-        {/* Below lg the gallery is exactly the full-bleed band it has always
-            been; at lg it is row 1 of the left column and the grid supplies the
-            gutter. `z-10` keeps it painting over the banner it sits on. */}
-        <div className="relative z-10 px-4 md:px-6 mb-0 lg:col-start-1 lg:row-start-1 lg:px-0">
+      <ProductComposition
+        overhang={!isScrolled ? HEADER_OVERHANG_PULL : ""}
+        gallery={
           <ImageCarousel
             product={{ ...prod, images: currentImages.length > 0 ? currentImages : prod?.image }}
             isScrolled={isScrolled}
           />
-        </div>
-
-        {/* Left Column - Main Content */}
-        <div className="lg:col-start-1 lg:row-start-2">
-          {/* Product Info */}
+        }
+        info={
           <ProductInfo
             title={prod?.title}
             price={calculateVariantPrice()}
@@ -808,40 +801,39 @@ const Product = ({
             onShare={handleShareClick}
             onLike={handleLikeClick}
           />
-
-          <hr className="lg:hidden" />
-
-          {/* Variants Section - Mobile Only */}
-          {reconstructedVariations && (
-            <ProductVariants
-              variations={reconstructedVariations}
-              selected={selectedVariant}
-              onSelect={handleVariantClick}
-              className="w-full px-5 py-5 lg:hidden"
-            />
-          )}
-
-          {/* Delivery Section - Mobile Only */}
-          {!isOwnerView && (
-            <>
-              <hr className="lg:hidden" />
-              <DeliveryCard
-                className="py-5 px-5 lg:hidden"
-                returnRowClassName="px-5 py-5"
-                store={store}
-                singleShippingDetails={singleShippingDetails}
-                selectedDeliveryLocation={selectedDeliveryLocation}
-                location={location}
-                selectedDelivery={selectedDelivery}
-                shippingOptions={shippingOptions}
-                openLocationModal={openLocationModal}
-                openDeliveryModal={openDeliveryModal}
-              />
-            </>
-          )}
-
-          <hr className="lg:hidden" />
-
+        }
+        renderVariants={
+          reconstructedVariations
+            ? (className) => (
+                <ProductVariants
+                  variations={reconstructedVariations}
+                  selected={selectedVariant}
+                  onSelect={handleVariantClick}
+                  className={className}
+                />
+              )
+            : undefined
+        }
+        renderDelivery={
+          !isOwnerView
+            ? ({ className, returnRowClassName }) => (
+                <DeliveryCard
+                  className={className}
+                  returnRowClassName={returnRowClassName}
+                  store={store}
+                  singleShippingDetails={singleShippingDetails}
+                  selectedDeliveryLocation={selectedDeliveryLocation}
+                  location={location}
+                  selectedDelivery={selectedDelivery}
+                  shippingOptions={shippingOptions}
+                  openLocationModal={openLocationModal}
+                  openDeliveryModal={openDeliveryModal}
+                />
+              )
+            : undefined
+        }
+        sections={
+          <>
           {/* Product Description */}
           <ProductDescription
             description={prod?.description}
@@ -898,66 +890,9 @@ const Product = ({
               </div>
             )}
           </Accordion>
-          {/* End Left Column */}
-        </div>
-
-        {/* Right Column - the desktop aside.
-            `contents` below lg so this column has no box there: the reference
-            panel inside it is `hidden`, and ProductCTA falls through as the
-            `absolute` bottom bar it has always been.
-
-            At lg it spans BOTH rows of the left column — the gallery's and the
-            details' — so the sticky box inside it can travel the full height of
-            the page rather than only the part beside the details.
-
-            The sticky box is a flex column capped at the viewport height. Its
-            reference half (variants, delivery, returns) scrolls INTERNALLY when
-            the options are long; the purchase action is `shrink-0`, so it stays
-            in the panel and on screen instead of being pushed under the fold by
-            a product with many variants. */}
-        <div className="contents lg:relative lg:z-10 lg:block lg:col-start-2 lg:row-start-1 lg:row-end-3">
-          <div className="contents lg:sticky lg:top-4 lg:flex lg:max-h-aside lg:flex-col lg:gap-4">
-          {/* Matches the purchase panel below it exactly — same radius, same
-              border, same shadow. Two cards stacked in one column at two
-              different roundnesses read as a mistake, and this one was the odd
-              pair: `rounded-2xl` (16) against the action's 24, plus a raw
-              `gray-100` border and a heavier shadow. */}
-          <div className="hidden lg:block lg:min-h-0 lg:overflow-y-auto bg-surface rounded-panel shadow-card p-6 border border-outline">
-            {/* Variants Section - Only show if product has combinations enabled and actual variant data exists */}
-            {reconstructedVariations && (
-              <ProductVariants
-              variations={reconstructedVariations}
-              selected={selectedVariant}
-              onSelect={handleVariantClick}
-              className="w-full"
-            />
-            )}
-
-            {/* Delivery Section - Desktop (in right sidebar) */}
-            {!isOwnerView && (
-              <>
-                {/* Only show divider if variants exist */}
-                {reconstructedVariations && <hr className="my-4" />}
-                <DeliveryCard
-                  returnRowClassName="px-2 mt-4"
-                  store={store}
-                    singleShippingDetails={singleShippingDetails}
-                  selectedDeliveryLocation={selectedDeliveryLocation}
-                  location={location}
-                  selectedDelivery={selectedDelivery}
-                  shippingOptions={shippingOptions}
-                  openLocationModal={openLocationModal}
-                  openDeliveryModal={openDeliveryModal}
-                />
-              </>
-            )}
-          </div>
-
-          {/* ONE action node. Rendered here rather than as a sibling of the
-              grid, because at lg it has to be a cell of the aside column and
-              CSS cannot move a node between subtrees. Its mobile presentation
-              is unaffected: `absolute` resolves against the shell frame, not
-              against this parent. */}
+          </>
+        }
+        action={
           <ProductCTA
             isSeller={isOwnerView}
             count={count}
@@ -969,11 +904,8 @@ const Product = ({
             onEdit={() => router.push(`/dashboard/catalog/product/create/manual/edit/${productId}`)}
             onShare={handleShareClick}
           />
-          </div>
-          {/* End Right Column - the desktop aside */}
-        </div>
-        {/* End 2-Column Layout */}
-      </div>
+        }
+      />
 
       {/* Share Modal for Desktop */}
       <ShareModal
