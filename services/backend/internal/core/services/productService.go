@@ -75,6 +75,15 @@ func (s *ProductService) CreateProduct(input requests.Product, userId string) (*
 		return nil, fmt.Errorf("invalid sub-category")
 	}
 
+	// Both ids resolve, but that does not make them a pair. Nothing stopped a
+	// client sending a valid category with a sub-category belonging to a
+	// different one, and the product would then be filed under a taxonomy path
+	// that does not exist — invisible to category browsing and wrong for the
+	// shipping defaults read from the sub-category just below.
+	if subCategory.CategoryId != category.ID {
+		return nil, fmt.Errorf("sub-category does not belong to the selected category")
+	}
+
 	if input.Weight == 0 {
 		input.Weight = subCategory.DefaultWeight
 	}
@@ -233,6 +242,15 @@ func (s *ProductService) UpdateProduct(productId, userId string, input requests.
 
 	if subCategory == nil {
 		return nil, fmt.Errorf("invalid sub-category")
+	}
+
+	// Both ids resolve, but that does not make them a pair. Nothing stopped a
+	// client sending a valid category with a sub-category belonging to a
+	// different one, and the product would then be filed under a taxonomy path
+	// that does not exist — invisible to category browsing and wrong for the
+	// shipping defaults read from the sub-category just below.
+	if subCategory.CategoryId != category.ID {
+		return nil, fmt.Errorf("sub-category does not belong to the selected category")
 	}
 
 	if input.Weight == 0 {

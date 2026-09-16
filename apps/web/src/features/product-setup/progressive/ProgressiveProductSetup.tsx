@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "sonner";
+import { isTaxonomyId } from "@/hooks/useCategories";
 
 import PageShell from "@vibaar/ui/PageShell";
 import PageActionButton from "@vibaar/ui/common/PageActionButton";
@@ -203,22 +204,22 @@ export default function ProgressiveProductSetup() {
     // }, [formik.values]);
 
     const handlePublish = () => {
-        
-        const categoryId = selectedCategory?.categoryId || formik.values.categoryId || "";
-        const subCategoryId = selectedCategory?.subCategoryId || formik.values.subCategoryId || "";
-        
-        
-        // Use fallback values only if no category is selected
-        const fallbackCategoryId = "9aebee99-0435-4ca1-bf82-7657bd35691a"; // Fashion category UUID
-        const fallbackSubCategoryId = "f6e81ad4-d74f-45e0-a4f4-ba6ad0c91ce8"; // Men's Clothing subcategory UUID
-        
-        const finalCategoryId = categoryId || fallbackCategoryId;
-        const finalSubCategoryId = subCategoryId || fallbackSubCategoryId;
-        
-        if (!categoryId && !subCategoryId) {
-            console.warn('⚠️ No category selected, using fallback values');
+        const finalCategoryId = selectedCategory?.categoryId || formik.values.categoryId || "";
+        const finalSubCategoryId = selectedCategory?.subCategoryId || formik.values.subCategoryId || "";
+
+        // No category means no publish. Two hardcoded fallback uuids used to stand
+        // in here — "Fashion" and "Men's Clothing" — and both had been migrated out
+        // of the database by 003_emergency_category_fix.sql, so substituting them
+        // guaranteed the "category not found" the seller then had to decode. A
+        // missing category is the seller's to fix, and it is fixable; a silently
+        // swapped one is neither.
+        if (!isTaxonomyId(finalCategoryId) || !isTaxonomyId(finalSubCategoryId)) {
+            toast.error("Choose a product category before publishing.");
+            setStep(2);
+            setIsPreviewOpen(false);
+            return;
         }
-        
+
         const payload = {
             sku: formik.values.id,
             barcode: "1234567",

@@ -22,8 +22,14 @@ type Product struct {
 	} `json:"variants,omitempty"`
 	IsCombination bool   `json:"is_combination"`
 	Status        string `json:"status"`
-	CategoryID    string `json:"category_id" validate:"required"`
-	SubCategoryID string `json:"sub_category_id" validate:"required"`
+	// `uuid4`, not just `required`. The web picker was submitting `category_id:"9"`
+	// and `sub_category_id:"Auto Accessories"` — ids fabricated from a hardcoded
+	// taxonomy and from a display name — and `required` waved both through to the
+	// DB lookup, which failed with a bare "category not found" that told the seller
+	// nothing. Rejecting the shape at the edge names the real problem instead.
+	// Every category and sub-category row is a v4 uuid, so this excludes only garbage.
+	CategoryID    string `json:"category_id" validate:"required,uuid4"`
+	SubCategoryID string `json:"sub_category_id" validate:"required,uuid4"`
 	Price         struct {
 		OldPrice float64 `json:"old_price"`
 		Price    float64 `json:"price" validate:"gt=0"`

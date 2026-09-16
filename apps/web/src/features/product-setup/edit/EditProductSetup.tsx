@@ -10,6 +10,7 @@ import * as Yup from "yup";
 import { BiChevronDown, BiChevronUp, BsThreeDots, X, Plus, CircleCheck } from "@vibaar/ui/icons";
 import Image from "next/image";
 import { toast } from "sonner";
+import { isTaxonomyId } from "@/hooks/useCategories";
 
 import PageShell from "@vibaar/ui/PageShell";
 import PageActionButton from "@vibaar/ui/common/PageActionButton";
@@ -281,13 +282,21 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     categoryName = cat.name || cat.description || 'Electronics';
                 }
 
+                // Same contract as create: a real taxonomy id or no request at all.
+                const categoryIdForUpdate = selectedCategory?.categoryId || values.categoryId || "";
+                const subCategoryIdForUpdate = selectedCategory?.subCategoryId || values.subCategoryId || "";
+                if (!isTaxonomyId(categoryIdForUpdate) || !isTaxonomyId(subCategoryIdForUpdate)) {
+                    toast.error("Choose a product category before updating.");
+                    return;
+                }
+
                 // Convert to backend expected format - ensure all required fields are present and valid
                 const productPayload = {
                     title: values.title || "Untitled Product",
                     description: values.description || "",
                     slug: (values.title || "untitled").toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
-                    category_id: selectedCategory?.categoryId || values.categoryId || "",
-                    sub_category_id: selectedCategory?.subCategoryId || values.subCategoryId || "",
+                    category_id: categoryIdForUpdate,
+                    sub_category_id: subCategoryIdForUpdate,
                     // Simplify image handling - only include valid base64 strings
                     image: (() => {
                         const imageArray = values.images && values.images.length > 0
@@ -373,35 +382,13 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
             try {
                 setIsLoadingProduct(true);
 
-                // Try to fetch real product data first
-                let product;
-                try {
-                    product = await getProductByIds(productId);
-                } catch (error) {
-                    console.error('🔍 Failed to fetch product data:', error);
-                    console.error('🔍 Attempting to use mock/fallback data');
-                    // Fallback to test data if API fails - Use data that matches what user sees
-                    product = {
-                        id: productId,
-                        title: "Local Image",
-                        description: "Hello",
-                        category: "Fashion",
-                        category_id: "9aebee99-0435-4ca1-bf82-7657bd35691a",
-                        sub_category_id: "f6e81ad4-d74f-45e0-a4f4-ba6ad0c91ce8",
-                        collection: "",
-                        price: 1333,
-                        stock: 1, // Match product list display
-                        compare_price: 0,
-                        weight: 0,
-                        brand: "",
-                        tag: [], // Backend uses 'tag' not 'tags'
-                        image: ["https://picsum.photos/400/400"], // Use 'image' field like backend
-                        images: ["https://picsum.photos/400/400"],
-                        variations: [],
-                        variants: [],
-                        is_variable: false,
-                    };
-                }
+                // A failed fetch used to be answered with a hardcoded mock product
+                // — title "Local Image", price 1333, a picsum photo, and two
+                // category uuids that no longer exist in the database. The seller
+                // was then editing a fabrication of someone else's test data over
+                // the top of their real product, and Update would have written it
+                // back. Fail loudly and leave the product alone.
+                const product = await getProductByIds(productId);
 
                 setProductData(product);
 
@@ -525,7 +512,13 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     isVariable: isProductVariable,
                 });
             } catch (error) {
-                console.error("🔍 Error fetching product:", error);
+                // Previously this only logged, and the mock fallback above meant the
+                // form still rendered — seeded with fabricated data. With the mock
+                // gone, an unhandled failure would render an EMPTY form that Update
+                // would happily write over the real product. Leave instead.
+                console.error("Error fetching product:", error);
+                toast.error("Couldn't load that product. Try again.");
+                router.back();
             } finally {
                 setIsLoadingProduct(false);
             }

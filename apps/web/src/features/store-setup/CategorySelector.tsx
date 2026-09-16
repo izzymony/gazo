@@ -4,7 +4,7 @@ import Button from "@vibaar/ui/common/Button";
 import InputField from "@vibaar/ui/common/InputField";
 import Dialog from "@vibaar/ui/common/Dialog";
 import { BiChevronDown, X } from "@vibaar/ui/icons";
-import { categories as productCategories, storeCategories, getCategoryEmoji } from "@/lib/category";
+import { storeCategories, getCategoryEmoji } from "@/lib/category";
 import { useCategories } from "@/hooks/useCategories";
 import Loader from "@vibaar/ui/common/Loader";
 
@@ -26,8 +26,20 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
   // Fetch real categories from backend for product mode
   const { categories: backendCategories, loading: categoriesLoading, error: categoriesError } = useCategories();
 
-  // Use appropriate categories based on mode
-  const categoriesToUse = mode === 'store' ? storeCategories : (backendCategories.length > 0 ? backendCategories : productCategories);
+  // Product mode uses the BACKEND taxonomy only. It used to fall back to the
+  // hardcoded product taxonomy whenever the backend list came back empty —
+  // and that list carries ids "1".."13" with no ids on its subcategories at all,
+  // so the picker happily submitted `category_id:"9"` and the API answered
+  // "category not found". An empty taxonomy is a failure to surface, not a list
+  // to shop from. `storeCategories` is a different, name-keyed contract and is
+  // unaffected.
+  const categoriesToUse = mode === 'store' ? storeCategories : backendCategories;
+
+  // Product mode with nothing to choose from. Distinguished from loading and
+  // from an outright fetch error because it looks like neither: the request
+  // succeeds and returns nothing.
+  const taxonomyUnavailable =
+    mode === 'product' && !categoriesLoading && !categoriesError && backendCategories.length === 0;
   
   // Filter categories based on search term
   const filteredCategories = categoriesToUse.filter((item: any) =>
@@ -48,11 +60,14 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
         setShowModal(false);
       }
     } else {
-      // Product mode: return category and subcategory IDs
-      if (selectedOriginalCategory?.id) {
-        const categoryId = selectedOriginalCategory.id;
-        const subCategoryId = selectedSubcategory?.id || "";
-        onCategorySelect({ categoryId, subCategoryId });
+      // Product mode: BOTH ids, or nothing. Confirming with an empty
+      // sub-category id used to be allowed, and the publish handler then
+      // substituted a hardcoded fallback uuid that no longer exists.
+      if (selectedOriginalCategory?.id && selectedSubcategory?.id) {
+        onCategorySelect({
+          categoryId: selectedOriginalCategory.id,
+          subCategoryId: selectedSubcategory.id,
+        });
         setShowModal(false);
       }
     }
@@ -75,38 +90,20 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
       return (typeof selectedCategory === "string" ? selectedCategory : "") || "Select store category";
     } else {
       // Product mode - show "Parent Category > Sub Category" format
-      if (typeof selectedCategory === 'object' && selectedCategory?.subCategoryId) {
-        // First try backend categories, then fallback to hardcoded ones
-        let category = backendCategories.find(cat => cat.id === selectedCategory.categoryId);
-        if (!category) {
-          category = productCategories.find(
-            cat => cat.id === selectedCategory.categoryId
-          ) as unknown as (typeof backendCategories)[number];
-        }
-        
-        if (category) {
-          // Find subcategory by ID or name
-          let subcategory;
-          if (selectedSubcategory && selectedSubcategory.name) {
-            subcategory = selectedSubcategory;
-          } else {
-            // Try backend subcategories first
-            if (category.sub_categories) {
-              subcategory = category.sub_categories.find(sub => 
-                sub.name === selectedCategory.subCategoryId || sub.id === selectedCategory.subCategoryId
-              );
-            }
-            // Fallback to hardcoded subcategories
-            if (!subcategory && (category as any).subcategories) {
-              subcategory = (category as any).subcategories.find((sub: any) => 
-                sub.name === selectedCategory.subCategoryId || sub.id === selectedCategory.subCategoryId
-              );
-            }
-          }
-          
-          if (subcategory) {
-            return `${category.name} > ${subcategory.name}`;
-          }
+      // Resolve BY ID, against the backend taxonomy, or not at all. This
+      // resolver used to accept `sub.name === subCategoryId` and to fall back to
+      // the hardcoded list, so a selection holding `{categoryId:"9",
+      // subCategoryId:"Auto Accessories"}` rendered as a perfectly ordinary
+      // "Auto & Accessories > Auto Accessories". The label vouched for ids the
+      // API would reject, which is why this shipped unnoticed: the only visible
+      // symptom was the failure at the very end.
+      if (typeof selectedCategory === 'object' && selectedCategory?.categoryId && selectedCategory?.subCategoryId) {
+        const category = backendCategories.find(cat => cat.id === selectedCategory.categoryId);
+        const subcategory = category?.sub_categories?.find(
+          sub => sub.id === selectedCategory.subCategoryId
+        );
+        if (category && subcategory) {
+          return `${category.name} > ${subcategory.name}`;
         }
       }
       return "Select product category";
@@ -202,10 +199,24 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
               </div>
             )}
             
+            {/* Loaded, no error, and nothing came back. The API answers 200 with
+                the `data` key omitted when the table is empty, so this is
+                indistinguishable from success to the fetch layer — it has to be
+                caught here, or the seller picks from a list that cannot be saved. */}
+            {taxonomyUnavailable && (
+              <div className="p-4 text-center">
+                <p className="text-body text-foreground-primary">Categories aren&apos;t available right now</p>
+                <p className="text-body-sm text-foreground-secondary mt-1">
+                  You can&apos;t publish a product without one. Try again in a moment.
+                </p>
+                <Button onClick={() => window.location.reload()} className="mt-3">Retry</Button>
+              </div>
+            )}
+
             {/* Category List */}
             <div className="max-h-[438px] overflow-y-scroll scrollbar-hide">
               {/* Render categories based on mode */}
-              {!categoriesLoading && !categoriesError && filteredCategories && filteredCategories.length > 0 ? (
+              {!categoriesLoading && !categoriesError && !taxonomyUnavailable && filteredCategories && filteredCategories.length > 0 ? (
                 filteredCategories.map((category: any) => (
                   <div key={category.id} className="w-full p-2 bg-surface">
                     {/* Main Category */}
@@ -262,9 +273,12 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
                               setSelectedOriginalCategory(category);
                               // Auto-close modal after selecting subcategory
                               setTimeout(() => {
-                                const categoryId = category.id;
-                                const subCategoryId = sub.id || sub.name; // Use name as ID if no ID exists
-                                onCategorySelect({ categoryId, subCategoryId });
+                                // `sub.id || sub.name` used to live here, which is
+                                // how the display name "Auto Accessories" ended up
+                                // on the wire as an id. A row with no id is not
+                                // selectable; the guard above makes it inert.
+                                if (!category.id || !sub.id) return;
+                                onCategorySelect({ categoryId: category.id, subCategoryId: sub.id });
                                 setShowModal(false);
                               }, 200);
                             }}
@@ -289,7 +303,10 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
                     )}
                   </div>
                 ))
-              ) : (
+              ) : taxonomyUnavailable ? null : (
+                // Reachable now that product mode no longer falls back to a
+                // hardcoded list: this is the "your search matched nothing" case.
+                // The unavailable-taxonomy case has its own message above.
                 <div className="p-4 text-center text-foreground-muted">
                   No categories available
                 </div>
