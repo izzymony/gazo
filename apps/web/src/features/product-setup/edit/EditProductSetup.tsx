@@ -11,6 +11,11 @@ import { BiChevronDown, BiChevronUp, BsThreeDots, X, Plus, CircleCheck } from "@
 import Image from "next/image";
 import { toast } from "sonner";
 import { isTaxonomyId } from "@/hooks/useCategories";
+import { useProductImagePreparation } from "@/features/product-setup/lib/useProductImagePreparation";
+import {
+    ProductImagePreparationProvider,
+    useIsPreparingProductImages,
+} from "@/features/product-setup/lib/ProductImagePreparation";
 
 import PageShell from "@vibaar/ui/PageShell";
 import PageActionButton from "@vibaar/ui/common/PageActionButton";
@@ -144,12 +149,26 @@ const validationSchema = Yup.object({
 });
 
 export default function EditProductSetup({ productId }: EditProductSetupProps) {
+    // Every product image picker below reports here, so Update can wait for
+    // preparation happening in the variants editor as well as in this gallery.
+    return (
+        <ProductImagePreparationProvider>
+            <EditProductSetupInner productId={productId} />
+        </ProductImagePreparationProvider>
+    );
+}
+
+function EditProductSetupInner({ productId }: EditProductSetupProps) {
     const router = useRouter();
     const { user } = useAuthStore();
     const { store } = useBusinessStore();
     const { getProductByIds, updateProduct, setProduct, isLoading } = useProductStore();
 
     const [isLoadingProduct, setIsLoadingProduct] = useState(true);
+    const { prepare } = useProductImagePreparation();
+    // Includes variant-image pickers deep in the variants editor, not just this
+    // screen's own gallery.
+    const preparingImages = useIsPreparingProductImages();
     const [productData, setProductData] = useState<any>(null);
     const [images, setImages] = useState<ImageProps[]>([]);
     const [variations, setVariations] = useState<Variation[]>([{ option: "size", name: "Size", values: [] }]);
@@ -174,28 +193,27 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
         }));
     };
 
-    // Horizontal scroll image handlers
-    const handleAddImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // NEWLY PICKED photos only. Images already on the product arrive as
+    // Cloudinary URLs in the same `{base64}` slot and are never touched here —
+    // this handler only ever sees a `File`, so a stored URL cannot be decoded,
+    // re-encoded, or inflated into a data URL on the next save.
+    const handleAddImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
-        if (files && formik?.values) {
-            const currentImages = formik.values.images || [];
-            const newImages = Array.from(files).map((file, index) => {
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        resolve({
-                            base64: reader.result as string,
-                            name: `image${currentImages.length + index + 1}`,
-                            toggle: true
-                        });
-                    };
-                    reader.readAsDataURL(file);
-                });
-            });
-            Promise.all(newImages).then((images) => {
-                formik.setFieldValue("images", [...currentImages, ...images]);
-            });
-        }
+        if (!files || !formik?.values) return;
+
+        const currentImages = formik.values.images || [];
+        const prepared = await prepare(files);
+        event.target.value = "";
+        if (!prepared || prepared.length === 0) return;
+
+        formik.setFieldValue("images", [
+            ...currentImages,
+            ...prepared.map((image, index) => ({
+                base64: image.dataUrl,
+                name: `image${currentImages.length + index + 1}`,
+                toggle: true,
+            })),
+        ]);
     };
 
     const handleDeleteImage = (index: number) => {
@@ -596,9 +614,14 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                 formik.handleSubmit();
                             }}
                             loading={isLoading}
+                            disabled={preparingImages}
                             className="flex-1 mt-0 lg:flex-none"
                             type="button">
-                            {isLoading ? "Updating..." : "Update Product"}
+                            {preparingImages
+                                ? "Preparing image…"
+                                : isLoading
+                                    ? "Updating..."
+                                    : "Update Product"}
                         </PageActionButton>
                     </div>
                 ),
@@ -680,17 +703,33 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
 
                                     {/* Add Image Button */}
                                     <div className="w-full">
-                                        <label className="block w-full bg-surface-subtle px-4 py-4 font-medium rounded-card text-body text-brandDeep border-2 border-dashed border-outline hover:border-brandDeep transition-colors cursor-pointer group">
+                                        <label
+                                            aria-busy={preparingImages}
+                                            className={`block w-full bg-surface-subtle px-4 py-4 font-medium rounded-card text-body text-brandDeep border-2 border-dashed border-outline transition-colors group ${
+                                                preparingImages
+                                                    ? "cursor-wait opacity-70"
+                                                    : "hover:border-brandDeep cursor-pointer"
+                                            }`}>
                                             <div className="flex items-center justify-center gap-2">
                                                 <input
                                                     type="file"
                                                     accept="image/*"
                                                     multiple
+                                                    disabled={preparingImages}
                                                     className="hidden"
                                                     onChange={handleAddImage}
                                                 />
-                                                <Plus className="h-5 w-5 text-brandDeep group-hover:scale-110 transition-transform" />
-                                                <span>Add image</span>
+                                                {preparingImages ? (
+                                                    <>
+                                                        <Loader variant="inline" />
+                                                        <span>Preparing image…</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Plus className="h-5 w-5 text-brandDeep group-hover:scale-110 transition-transform" />
+                                                        <span>Add image</span>
+                                                    </>
+                                                )}
                                             </div>
                                         </label>
                                     </div>

@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Button from "@vibaar/ui/common/Button";
+import { useProductImagePreparation } from "./lib/useProductImagePreparation";
 import Checkbox from "@vibaar/ui/common/Checkbox";
+import Loader from "@vibaar/ui/common/Loader";
 import DisclosureButton from "@vibaar/ui/common/DisclosureButton";
 import {
   ChevronDown,
@@ -177,14 +179,6 @@ const getAvailableProperties = (
   return allProperties.filter(property => {
     const owner = getPropertyOwner(variations, property);
     return owner === null || owner === variantId;
-  });
-};
-
-const handleImageUpload = (file: File): Promise<string> => {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.readAsDataURL(file);
   });
 };
 
@@ -650,6 +644,26 @@ const VariationFieldWithProperties = ({
   baseStock: number;
 }) => {
   const [newValue, setNewValue] = useState('');
+  const { preparing: preparingImage, prepare } = useProductImagePreparation();
+
+  // Variant images ride to the backend in `image_values`, inside the same JSON
+  // body as the product's own photos, so they carry exactly the same cost and
+  // get exactly the same treatment. A failure adds nothing.
+  const pickVariantImage = (value: string) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      const prepared = await prepare([file]);
+      if (!prepared || prepared.length === 0) return;
+      onUpdate(variation.id, {
+        imageValues: { ...variation.imageValues, [value]: prepared[0].dataUrl },
+      });
+    };
+    input.click();
+  };
   const [isCustomSectionExpanded, setIsCustomSectionExpanded] = useState(false);
 
   const addValue = () => {
@@ -845,58 +859,31 @@ const VariationFieldWithProperties = ({
                             <img
                               src={variation.imageValues[value]}
                               alt={value}
-                              className="w-full h-full object-cover cursor-pointer"
+                              className={`w-full h-full object-cover ${preparingImage ? "cursor-wait opacity-70" : "cursor-pointer"}`}
                               onClick={() => {
-                                const input = document.createElement('input');
-                                input.type = 'file';
-                                input.accept = 'image/*';
-                                input.onchange = (e) => {
-                                  const file = (e.target as HTMLInputElement).files?.[0];
-                                  if (file) {
-                                    const reader = new FileReader();
-                                    reader.onload = () => {
-                                      onUpdate(variation.id, {
-                                        imageValues: {
-                                          ...variation.imageValues,
-                                          [value]: reader.result as string
-                                        }
-                                      });
-                                    };
-                                    reader.readAsDataURL(file);
-                                  }
-                                };
-                                input.click();
+                                if (preparingImage) return;
+                                pickVariantImage(value);
                               }}
                             />
                           ) : (
                             // Show upload placeholder
                             <button
+                              type="button"
                               onClick={() => {
-                                const input = document.createElement('input');
-                                input.type = 'file';
-                                input.accept = 'image/*';
-                                input.onchange = (e) => {
-                                  const file = (e.target as HTMLInputElement).files?.[0];
-                                  if (file) {
-                                    const reader = new FileReader();
-                                    reader.onload = () => {
-                                      onUpdate(variation.id, {
-                                        imageValues: {
-                                          ...variation.imageValues,
-                                          [value]: reader.result as string
-                                        }
-                                      });
-                                    };
-                                    reader.readAsDataURL(file);
-                                  }
-                                };
-                                input.click();
+                                pickVariantImage(value);
                               }}
-                              className="w-full h-full flex items-center justify-center hover:bg-surface-muted transition-colors border border-dashed border-outline-strong hover:border-outline-emphasis rounded-card cursor-pointer group"
+                              disabled={preparingImage}
+                              aria-busy={preparingImage}
+                              aria-label={preparingImage ? "Preparing image" : `Add an image for ${value}`}
+                              className="w-full h-full flex items-center justify-center hover:bg-surface-muted transition-colors border border-dashed border-outline-strong hover:border-outline-emphasis rounded-card cursor-pointer group disabled:cursor-wait disabled:opacity-70"
                             >
-                              <div className="w-6 h-6 rounded-full bg-surface-strong group-hover:bg-surface-strong flex items-center justify-center transition-colors">
-                                <Plus size={12} className="text-foreground-muted group-hover:text-foreground-secondary" />
-                              </div>
+                              {preparingImage ? (
+                                <Loader variant="inline" />
+                              ) : (
+                                <div className="w-6 h-6 rounded-full bg-surface-strong group-hover:bg-surface-strong flex items-center justify-center transition-colors">
+                                  <Plus size={12} className="text-foreground-muted group-hover:text-foreground-secondary" />
+                                </div>
+                              )}
                             </button>
                           )}
                         </div>

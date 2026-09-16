@@ -6,6 +6,8 @@ import { X, Plus, CircleCheck } from "@vibaar/ui/icons";
 import H1 from "@vibaar/ui/common/Typography";
 import InputField from "@vibaar/ui/common/InputField";
 import Switch from "@vibaar/ui/common/Switch";
+import Loader from "@vibaar/ui/common/Loader";
+import { useProductImagePreparation } from "../../lib/useProductImagePreparation";
 
 interface ImageProps {
     base64: string;
@@ -18,33 +20,33 @@ interface Step1Props {
 }
 
 const Step1StartStrong = ({ formik }: Step1Props) => {
+    const { preparing, prepare } = useProductImagePreparation();
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
     const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
-    // Reuse existing image upload logic from ManualProductSetup
-    const handleAddImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Photos are resized and re-encoded before they enter the form. They used to
+    // go in raw via readAsDataURL, and since they travel as base64 inside the
+    // publish JSON, a few phone photos exceeded the 30s request timeout on their
+    // own. A failure adds nothing — it must never fall back to the raw file.
+    const handleAddImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
-        if (files && formik?.values) {
-            const currentImages = formik.values.images || [];
-            const newImages = Array.from(files).map((file, index) => {
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        resolve({
-                            base64: reader.result as string,
-                            name: `image${currentImages.length + index + 1}`,
-                            toggle: true,
-                        });
-                    };
-                    reader.readAsDataURL(file);
-                });
-            });
+        if (!files || !formik?.values) return;
 
-            Promise.all(newImages).then((images) => {
-                formik.setFieldValue("images", [...currentImages, ...images]);
-            });
-        }
+        const currentImages = formik.values.images || [];
+        const prepared = await prepare(files);
+        // Let the same file be chosen again after a failure.
+        event.target.value = "";
+        if (!prepared || prepared.length === 0) return;
+
+        formik.setFieldValue("images", [
+            ...currentImages,
+            ...prepared.map((image, index) => ({
+                base64: image.dataUrl,
+                name: `image${currentImages.length + index + 1}`,
+                toggle: true,
+            })),
+        ]);
     };
 
     const handleImageToggleChange = (
@@ -178,17 +180,33 @@ const Step1StartStrong = ({ formik }: Step1Props) => {
 
                     {/* Add Image Button */}
                     <div className="w-full">
-                        <label className="block w-full bg-surface-subtle px-4 py-4 font-medium rounded-card text-body text-brandDeep border-2 border-dashed border-outline hover:border-brandDeep transition-colors cursor-pointer group">
+                        <label
+                            aria-busy={preparing}
+                            className={`block w-full bg-surface-subtle px-4 py-4 font-medium rounded-card text-body text-brandDeep border-2 border-dashed border-outline transition-colors group ${
+                                preparing
+                                    ? "cursor-wait opacity-70"
+                                    : "hover:border-brandDeep cursor-pointer"
+                            }`}>
                             <div className="flex items-center justify-center gap-2">
                                 <input
                                     type="file"
                                     accept="image/*"
                                     multiple
+                                    disabled={preparing}
                                     className="hidden"
                                     onChange={handleAddImage}
                                 />
-                                <Plus className="h-5 w-5 text-brandDeep group-hover:scale-110 transition-transform" />
-                                <span>Add image</span>
+                                {preparing ? (
+                                    <>
+                                        <Loader variant="inline" />
+                                        <span>Preparing image…</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Plus className="h-5 w-5 text-brandDeep group-hover:scale-110 transition-transform" />
+                                        <span>Add image</span>
+                                    </>
+                                )}
                             </div>
                         </label>
                     </div>

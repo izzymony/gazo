@@ -10,6 +10,10 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "sonner";
 import { isTaxonomyId } from "@/hooks/useCategories";
+import {
+    ProductImagePreparationProvider,
+    useIsPreparingProductImages,
+} from "@/features/product-setup/lib/ProductImagePreparation";
 
 import PageShell from "@vibaar/ui/PageShell";
 import PageActionButton from "@vibaar/ui/common/PageActionButton";
@@ -94,6 +98,17 @@ const validationSchemas = [
 ];
 
 export default function ProgressiveProductSetup() {
+    // Every product image picker below reports here, so the commit action can
+    // wait for preparation it does not own.
+    return (
+        <ProductImagePreparationProvider>
+            <ProgressiveProductSetupInner />
+        </ProductImagePreparationProvider>
+    );
+}
+
+function ProgressiveProductSetupInner() {
+    const preparingImages = useIsPreparingProductImages();
     const router = useRouter();
     const searchParams = useSearchParams();
     const queryStep = searchParams.get("step");
@@ -332,8 +347,11 @@ export default function ProgressiveProductSetup() {
                 title: "Add Product",
                 progress: <StepNavigation step={step} totalSteps={3} />,
                 actions: (
-                    <PageActionButton onClick={() => formik.handleSubmit()} loading={isLoading}>
-                        {getButtonText()}
+                    <PageActionButton
+                        onClick={() => formik.handleSubmit()}
+                        loading={isLoading}
+                        disabled={preparingImages}>
+                        {preparingImages ? "Preparing image…" : getButtonText()}
                     </PageActionButton>
                 ),
             }}>
