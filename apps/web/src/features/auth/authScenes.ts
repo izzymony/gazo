@@ -64,6 +64,45 @@ const SOURCE_HEIGHT = 1086;
  * The one chip is on `discover`, where "Saved" is the only buyer-side signal in
  * the whole set; the other two scenes are complete with two.
  */
+
+/**
+ * The two derivatives, and the layout width that chooses between them.
+ *
+ * ## Why `sizes` is expressed in numbers above 100vw
+ *
+ * That looks wrong and is not. The artwork is `object-fit: cover` in a pane
+ * narrower than 4:3, so it scales to fill the pane's HEIGHT and is cropped
+ * horizontally — which means the RENDERED width is `paneHeight x 4/3`, not the
+ * pane's width. Measured:
+ *
+ *   pane            rendered width   as vw of the viewport
+ *   390x422           563px            144vw
+ *   344x976  @768    1301px            169vw
+ *   557x576  @1024    768px             75vw
+ *   806x836  @1440   1115px             77vw
+ *
+ * Declaring the pane's own width instead would under-state the need by up to
+ * 2.4x and the browser would pick a derivative too small to be crisp.
+ *
+ * ## Why only two widths, and none above 1448
+ *
+ * The source master is 1448x1086. A larger derivative would be an upscale —
+ * more bytes, no more detail — so 1448 is the ceiling until a larger master
+ * exists. 1152 is the one that earns its place: the mobile band at DPR2 needs
+ * ~1125px, so the phone gets 47KB instead of 65KB.
+ */
+const SCENE_IMAGE_WIDTHS = [1152, 1448] as const;
+
+export const SCENE_IMAGE_SIZES =
+  "(min-width: 1024px) 80vw, (min-width: 768px) 170vw, 145vw";
+
+/** One derivation, used by the image AND by the layout's preload hint. */
+export const sceneSrcSet = (slot: string) =>
+  SCENE_IMAGE_WIDTHS.map((w) => `/auth/${slot}-${w}.webp ${w}w`).join(", ");
+
+/** The widest derivative: the `src` fallback, and what the preload names. */
+export const sceneSrc = (slot: string) => `/auth/${slot}-1448.webp`;
+
 export const AUTH_SCENES: readonly AuthScene[] = [
   {
     id: "discover",
@@ -72,7 +111,9 @@ export const AUTH_SCENES: readonly AuthScene[] = [
     description: "Shop independent stores or create a storefront you can share anywhere.",
     image: {
       slot: "auth-discover",
-      src: "/auth/auth-discover.webp",
+      src: sceneSrc("auth-discover"),
+      srcSet: sceneSrcSet("auth-discover"),
+      sizes: SCENE_IMAGE_SIZES,
       width: SOURCE_WIDTH,
       height: SOURCE_HEIGHT,
       alt: "A sunlit showroom of pale stone podiums holding a lilac trainer, a yellow leather handbag, a perfume bottle and a potted plant, with a yellow ribbon winding between them.",
@@ -129,7 +170,9 @@ export const AUTH_SCENES: readonly AuthScene[] = [
     description: "Give buyers a simple path from product discovery to secure checkout.",
     image: {
       slot: "auth-order",
-      src: "/auth/auth-order.webp",
+      src: sceneSrc("auth-order"),
+      srcSet: sceneSrcSet("auth-order"),
+      sizes: SCENE_IMAGE_SIZES,
       width: SOURCE_WIDTH,
       height: SOURCE_HEIGHT,
       alt: "The same showroom with a lilac trainer on a stone podium beside an open kraft shipping box lined with tissue paper, a yellow gift bag behind them and a ribbon threaded through the scene.",
@@ -174,7 +217,9 @@ export const AUTH_SCENES: readonly AuthScene[] = [
       "Track delivery, protect the payment, and release earnings when the order is complete.",
     image: {
       slot: "auth-deliver",
-      src: "/auth/auth-deliver.webp",
+      src: sceneSrc("auth-deliver"),
+      srcSet: sceneSrcSet("auth-deliver"),
+      sizes: SCENE_IMAGE_SIZES,
       width: SOURCE_WIDTH,
       height: SOURCE_HEIGHT,
       alt: "A sealed kraft parcel with a blank address label resting on a stone podium in the same sunlit room, a yellow ribbon curling around it and a leafy plant in the foreground.",

@@ -111,12 +111,10 @@ module.exports = {
           inset: "0",
           width: "100%",
           height: "100%",
-          // The mean of the three masters (#E1C29E), measured rather than
-          // picked: all three are the same room, same light, same camera, so
-          // one colour serves all and no per-scene placeholder data is needed.
-          // It is the lightweight placeholder — the pane shows the artwork's
-          // own ground instantly instead of a white hole, with no base64 in
-          // the bundle and no new field on the scene type.
+          // Must match `.scene-ground` below. See that rule for the whole story;
+          // this copy covers the window between the element mounting and the
+          // bitmap decoding, where the pane's own ground is already painted but
+          // the image box would otherwise be transparent.
           "background-color": "#E1C29E",
           "object-fit": "cover",
           // Fallback chain, so a scene may omit a breakpoint and inherit the
@@ -221,6 +219,24 @@ module.exports = {
         ".scene-settled": { translate: "0 0" },
         ".scene-media-offset": { scale: "1.01" },
         ".scene-media-settled": { scale: "1" },
+        // The panel's placeholder: the artwork's own average colour, painted
+        // the instant the pane mounts so it is never a white hole.
+        //
+        // #E1C29E is the MEAN of the three masters, measured rather than
+        // picked. All three are the same room, same light and same camera, so
+        // one colour serves all of them — which is why there is no per-scene
+        // placeholder field, no base64 LQIP in the client bundle, and nothing
+        // added to `AuthSceneImage`. (A `lqip` field would also have to travel
+        // through `scenePlacement`'s helpers, whose tested guarantee is that
+        // they emit only enumerated `--scene-*` properties and never a colour.)
+        //
+        // Be precise about what this does and does not fix. These routes render
+        // nothing until hydration — the prerendered document is a ~20KB shell
+        // with zero `<img>` — so nothing can paint the pane before then. What
+        // this removes is the white box between the pane mounting and the
+        // photograph arriving, which on a slow link is the longer of the two
+        // gaps. Keep it in step with `.scene-image`'s copy above.
+        ".scene-ground": { "background-color": "#E1C29E" },
         // ── Frosted glass ─────────────────────────────────────────────────
         // A MATERIAL, not a colour — which is why it is here and not a
         // `/opacity` class at five call sites. The `overlay` note in the

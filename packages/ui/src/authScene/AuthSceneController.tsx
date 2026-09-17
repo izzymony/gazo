@@ -122,7 +122,10 @@ export default function AuthSceneController({
       // photographs, `aria-hidden` on the overlay layer.
       mediaLive
       media={
-        <div className="relative h-full w-full">
+        // `scene-ground` so the pane is the artwork's own average colour from
+        // its first painted frame, rather than a white hole until the
+        // photograph arrives.
+        <div className="scene-ground relative h-full w-full">
           <AuthSceneMedia scenes={scenes} index={index} outgoing={outgoing} />
 
           {/* Inset from the pane's own edges, matching the shell's padding

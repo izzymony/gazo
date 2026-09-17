@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { cn } from "@vibaar/utils";
 import useIsHydrated from "../common/useIsHydrated";
@@ -61,32 +60,47 @@ function AuthSceneLayer({ scene, active }: AuthSceneLayerProps) {
         "transition-scene duration-500 ease-out motion-reduce:transition-none",
         shown ? "opacity-100" : "opacity-0"
       )}>
-      {/* `alt=""`, not a copy of `image.alt`. The pane is no longer
-          `aria-hidden` as a whole — the caption inside it is real content — so
-          each decorative part now has to declare itself, and the photograph is
-          decorative: the caption states the same thing in words that are
-          already in the accessibility tree. `image.alt` is still required by
-          the type and asserted by a test; it is review material, describing
-          what shipped, not a second announcement. */}
-      <Image
+      {/* A plain `<img>`, not `next/image`, and the reason is measured rather
+          than stylistic. The deployed Cloudflare build sets
+          `images.unoptimized` (CF_BUILD=1), so next/image does no resizing at
+          all there and its `sizes` attribute is inert — a 390px phone
+          downloads the full file. On an optimizing build it is wasteful the
+          other way: `/_next/image?w=1920` returns 117,911 bytes against an
+          83,796-byte source, because it upscales a 1448px original. So it
+          either does nothing or makes it worse.
+
+          It also costs URL determinism, which the parse-time preload in
+          `(auth)/layout.tsx` depends on: next/image requests
+          `/auth/auth-discover.webp` on one build and
+          `/_next/image?url=…&w=…&q=75` on another, and a preload that does not
+          match the request downloads the file twice. A plain `src` is the same
+          string in both.
+
+          `alt=""`, not `image.alt`: the pane is no longer `aria-hidden` as a
+          whole — the caption inside it is real content — so each decorative
+          part now declares itself, and the photograph is decorative because the
+          caption already states its meaning in words. `image.alt` stays
+          required by the type as review material, describing what shipped.
+
+          No `fetchpriority`: React 18 needs it lowercase (next/image itself
+          branches on this) while `@types/react@18` types only the camelCase
+          form, so neither spelling both compiles and works. It is not needed —
+          the preload link carries the priority, and this is in the initial
+          viewport. */}
+      <img
         src={image.src}
+        srcSet={image.srcSet}
+        sizes={image.sizes}
         alt=""
-        fill
-        // Only the scene on screen is worth a high fetch priority. The old
-        // panel gave all three `priority`, so every signed-out visit fetched
-        // two backgrounds nobody was looking at ahead of the one they were.
-        priority={active}
-        loading={active ? undefined : "lazy"}
-        // The pane is a full-bleed band below `md` and ~60% of the frame from
-        // `lg`; without this Next emits a 100vw srcset for a box that is never
-        // 100vw on a desktop.
-        sizes="(min-width: 1024px) 60vw, (min-width: 768px) 50vw, 100vw"
+        width={image.width}
+        height={image.height}
+        loading={active ? "eager" : "lazy"}
+        decoding="async"
         className={cn(
           "scene-image",
           "transition-scene duration-700 ease-out motion-reduce:transition-none",
-          // A settle, not a zoom: 1.01 → 1. `scale` as the independent
-          // property, so it composes with anything `transform` carries rather
-          // than replacing it.
+          // A settle, not a zoom: 1.01 -> 1. `scale` as the independent
+          // property, so it composes with anything `transform` carries.
           shown ? "scene-media-settled" : "scene-media-offset"
         )}
         style={sceneFocalStyle({
@@ -101,13 +115,12 @@ function AuthSceneLayer({ scene, active }: AuthSceneLayerProps) {
 
       {/* Mobile only, and preserved exactly as the band carries it today:
           the white wordmark over the artwork, at the same offset. */}
-      <Image
+      <img
         src="/brand/logo-white.svg"
         alt=""
         aria-hidden="true"
         width={150}
         height={43}
-        priority={active}
         className="absolute left-1/2 top-16 z-20 mx-auto -translate-x-1/2 -translate-y-1/3 transform md:hidden"
       />
 

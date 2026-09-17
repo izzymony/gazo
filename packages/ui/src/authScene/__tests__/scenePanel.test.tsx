@@ -1,24 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/**
- * A narrower `next/image` than the shared setup's, which spreads every prop
- * onto the element: `fill`/`priority` are booleans that are not DOM attributes,
- * and React's warning about them would trip this package's console.error trap.
- * Stripping them here keeps the assertions about `src` and `alt`, which is what
- * these tests are actually about.
- */
-jest.mock(
-  "next/image",
-  () => ({
-    __esModule: true,
-    default: ({ fill, priority, quality, placeholder, blurDataURL, unoptimized, ...rest }: any) => {
-      const React = require("react");
-      // eslint-disable-next-line jsx-a11y/alt-text
-      return React.createElement("img", rest);
-    },
-  }),
-  { virtual: true }
-);
-
 import { render, screen, within } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import AuthSceneCaption from "../AuthSceneCaption";
@@ -32,7 +11,9 @@ const scene = (id: AuthScene["id"], headline: string): AuthScene => ({
   description: `${headline} description`,
   image: {
     slot: `auth-${id}`,
-    src: `/auth/auth-${id}.webp`,
+    src: `/auth/auth-${id}-1448.webp`,
+    srcSet: `/auth/auth-${id}-1152.webp 1152w, /auth/auth-${id}-1448.webp 1448w`,
+    sizes: "(min-width: 1024px) 80vw, 145vw",
     width: 1448,
     height: 1086,
     alt: `${id} artwork`,
@@ -99,6 +80,20 @@ describe("AuthSceneMedia keeps the artwork out of the server HTML", () => {
  * elements exist, which is what decides how many requests happen.
  */
 describe("AuthSceneMedia mounts at most two layers", () => {
+  it("renders plain <img>, so the URL it requests is the one the preload names", () => {
+    // `next/image` requests `/auth/auth-discover.webp` on the Cloudflare build
+    // (`unoptimized`) and `/_next/image?url=…&w=…&q=75` on an optimizing one.
+    // The parse-time preload in `(auth)/layout.tsx` can only match one of
+    // those, and a mismatch downloads the file twice.
+    const { container } = render(
+      <AuthSceneMedia scenes={SCENES} index={0} outgoing={null} />
+    );
+    const scene = Array.from(container.querySelectorAll("img"))
+      .map((img) => img.getAttribute("src") ?? "")
+      .filter((src) => src.includes("auth-"));
+    expect(scene).toEqual(["/auth/auth-discover-1448.webp"]);
+  });
+
   it("mounts only the active scene when nothing is leaving", () => {
     const { container } = render(
       <AuthSceneMedia scenes={SCENES} index={0} outgoing={null} />

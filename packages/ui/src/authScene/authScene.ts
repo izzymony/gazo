@@ -33,7 +33,20 @@ export interface AuthSceneFocalPoints {
 export interface AuthSceneImage {
   /** The asset slot this scene draws from. Mirrors the scene id by design. */
   slot: `auth-${AuthSceneId}`;
+  /** The fallback, and the widest derivative. */
   src: string;
+  /**
+   * Candidate widths, and the layout width to choose between them.
+   *
+   * Carried by the DATA rather than built in the renderer, because the app owns
+   * how its assets are named and `@vibaar/ui` should not. More importantly they
+   * are one value with two consumers: this image, and the parse-time
+   * `<link rel="preload">` in the `(auth)` layout, whose `imagesrcset` and
+   * `imagesizes` must resolve to the SAME candidate or the file downloads
+   * twice. One source of truth is what stops that drifting.
+   */
+  srcSet: string;
+  sizes: string;
   /** Intrinsic dimensions. Required so the pane can reserve its box. */
   width: number;
   height: number;
