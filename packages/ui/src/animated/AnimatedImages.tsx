@@ -82,13 +82,26 @@ export default function AnimatedImages({ currentSlide }: AnimatedImagesProps) {
 
       stop();
       gather();
+
+      // BOTH handles are captured. The inner one used to be discarded, and that
+      // was a leak with teeth: a slide change landing between t+800 and t+2600
+      // ran this cleanup — which cancelled the animations — and then the
+      // orphaned timeout fired `startFloating` anyway, on the OUTGOING slide's
+      // cards. Those cards are still in the DOM (every slide is mounted, just
+      // `opacity-0`), so they kept an infinite animation that nothing would
+      // ever cancel, because `stop()` only iterates the container of the slide
+      // being entered. On unmount it called `el.animate()` against detached
+      // nodes. The 8s auto-advance mostly hid the window; a manual indicator
+      // click lands in it squarely.
+      let floatTimeout: ReturnType<typeof setTimeout> | undefined;
       const spreadTimeout = setTimeout(() => {
         spread();
-        setTimeout(startFloating, 1800);
+        floatTimeout = setTimeout(startFloating, 1800);
       }, 800);
 
       return () => {
         clearTimeout(spreadTimeout);
+        clearTimeout(floatTimeout);
         stop();
       };
     },
