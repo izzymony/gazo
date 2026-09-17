@@ -87,6 +87,67 @@ module.exports = {
           width: "var(--composition-scale)",
           "aspect-ratio": "1 / 1",
         },
+        // ── The auth scene panel ──────────────────────────────────────────
+        // Overlay coordinates and image focal points are open per-instance
+        // numbers, so they arrive as custom properties (see
+        // `authScene/scenePlacement.ts`) and the arithmetic happens here.
+        // `anchor` and `priority` are closed sets, so those ARE classes.
+        //
+        // Everything resolves against the media pane, which is the size
+        // container (`AuthSplitShell`'s `container-size`). The panel adds no
+        // `container-type` of its own — doing so would silently re-anchor both
+        // these queries and the existing `.composition-canvas` scale.
+        ".scene-layer": {
+          position: "absolute",
+          inset: "0",
+          "--scene-stagger": "110ms",
+        },
+        ".scene-image": {
+          "object-fit": "cover",
+          // Fallback chain, so a scene may omit a breakpoint and inherit the
+          // one below it rather than needing a branch in TSX.
+          "object-position":
+            "calc(var(--scene-focal-x, .5) * 100%) calc(var(--scene-focal-y, .5) * 100%)",
+        },
+        "@container (min-width: 22rem)": {
+          ".scene-image": {
+            "object-position":
+              "calc(var(--scene-focal-x-compact, var(--scene-focal-x, .5)) * 100%) " +
+              "calc(var(--scene-focal-y-compact, var(--scene-focal-y, .5)) * 100%)",
+          },
+        },
+        "@container (min-width: 34rem)": {
+          ".scene-image": {
+            "object-position":
+              "calc(var(--scene-focal-x-desktop, var(--scene-focal-x, .5)) * 100%) " +
+              "calc(var(--scene-focal-y-desktop, var(--scene-focal-y, .5)) * 100%)",
+          },
+        },
+        ".scene-overlay": {
+          position: "absolute",
+          left: "calc(var(--overlay-x, .5) * 100%)",
+          top: "calc(var(--overlay-y, .5) * 100%)",
+          // The stagger is a delay, not a timer. One transition per overlay,
+          // ordered by index — no per-overlay JS and nothing to cancel.
+          "transition-delay": "calc(var(--overlay-index, 0) * var(--scene-stagger, 110ms))",
+        },
+        // Which corner of the card sits on the coordinate. `transform` carries
+        // the anchor and `translate` carries the motion, as independent
+        // properties, so the entrance cannot clobber the positioning.
+        ".scene-anchor-center": { transform: "translate(-50%, -50%)" },
+        ".scene-anchor-top-left": { transform: "translate(0, 0)" },
+        ".scene-anchor-top-right": { transform: "translate(-100%, 0)" },
+        ".scene-anchor-bottom-left": { transform: "translate(0, -100%)" },
+        ".scene-anchor-bottom-right": { transform: "translate(-100%, -100%)" },
+        // Dropped entirely where the pane cannot hold a third card without it
+        // colliding with the subject. Container queries, so this is about the
+        // PANE's size, not the viewport's.
+        "@container (max-width: 26rem)": {
+          ".scene-overlay-optional": { display: "none" },
+        },
+        "@container (max-height: 22rem)": {
+          ".scene-overlay-optional": { display: "none" },
+        },
         ".composition-item": {
           position: "absolute",
           left: "50%",

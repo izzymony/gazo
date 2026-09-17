@@ -37,6 +37,11 @@ const entries = [
   ["animated/SlideContent", "pattern"],
   ["animated/slidesData", "internal"],
   ["AuthSplitShell", "pattern", "stable"],
+  // The auth scene panel, being built asset-independently. Everything but
+  // the panel itself is `internal`: one slideshow does not justify an
+  // application-wide public component API.
+  ["authScene/authScene", "internal"],
+  ["authScene/scenePlacement", "internal"],
   ["common/Accordion", "component", "candidate"],
   ["common/ActivityItem", "component", "candidate"],
   // Added 2026-09-11 with the seller-side pass. `candidate`, not `stable`:
