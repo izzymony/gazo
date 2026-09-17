@@ -42,6 +42,9 @@ const entries = [
   // application-wide public component API.
   ["authScene/authScene", "internal"],
   ["authScene/AuthEventCard", "internal"],
+  ["authScene/AuthSceneCaption", "internal"],
+  ["authScene/AuthSceneController", "internal"],
+  ["authScene/AuthSceneMedia", "internal"],
   ["authScene/AuthSceneOverlay", "internal"],
   ["authScene/AuthStatusCard", "internal"],
   ["authScene/sceneIcons", "internal"],
@@ -110,6 +113,7 @@ const entries = [
   ["common/TrendIndicator", "component", "candidate"],
   ["common/Typography", "primitive", "stable"],
   ["common/UserProfileImage", "component", "candidate"],
+  ["common/useIsHydrated", "internal"],
   ["common/useMediaActive", "internal"],
   ["common/useMediaQuery", "internal"],
   ["common/usePageVisible", "internal"],

@@ -109,7 +109,18 @@ module.exports = {
           "object-position":
             "calc(var(--scene-focal-x, .5) * 100%) calc(var(--scene-focal-y, .5) * 100%)",
         },
-        "@container (min-width: 22rem)": {
+        // ASPECT, not width — and that correction matters, because the two
+        // narrow panes are nearly the same WIDTH and crop completely
+        // differently. Measured: the mobile band is 390x422 and the pane at
+        // 768 is 344x976. A `min-width: 22rem` (352px) rule therefore gave the
+        // PHONE the compact focal and the 768 desktop pane the mobile one,
+        // exactly backwards.
+        //
+        // What separates them is shape. Both fill their height from a 4:3
+        // source, so the band shows 69% of the image's width while the 768
+        // pane shows 26% — a slice narrow enough that it needs its own subject.
+        // 3/5 sits well clear of both (0.92 against 0.35).
+        "@container (max-aspect-ratio: 3/5)": {
           ".scene-image": {
             "object-position":
               "calc(var(--scene-focal-x-compact, var(--scene-focal-x, .5)) * 100%) " +
@@ -127,6 +138,18 @@ module.exports = {
           position: "absolute",
           left: "calc(var(--overlay-x, .5) * 100%)",
           top: "calc(var(--overlay-y, .5) * 100%)",
+          // `max-content`, and this is not cosmetic. An absolutely positioned
+          // box with `left` but no `right` shrink-to-fits against the space
+          // LEFT OVER — at `left: 94%` in an 806px pane that is 48px — so the
+          // card collapsed to its longest word and wrapped, then the anchor
+          // translated the pinched box back into view. Measured on the deliver
+          // scene: "Buyer confirmed" broke across two lines while the same
+          // card at a left-hand coordinate did not. The anchor decides where
+          // the card sits; it must not also decide how wide it is.
+          width: "max-content",
+          // A ceiling, because `max-content` has none: a longer string would
+          // otherwise run past the pane instead of wrapping.
+          "max-width": "60cqw",
           // The stagger is a delay, not a timer. One transition per overlay,
           // ordered by index — no per-overlay JS and nothing to cancel.
           "transition-delay": "calc(var(--overlay-index, 0) * var(--scene-stagger, 110ms))",
@@ -145,7 +168,12 @@ module.exports = {
         "@container (max-width: 26rem)": {
           ".scene-overlay-optional": { display: "none" },
         },
-        "@container (max-height: 22rem)": {
+        // 38rem, not 22rem. The constraint on a wide-but-short pane is not the
+        // pane's height — it is that the caption card is anchored to the
+        // bottom and takes ~250px of it, so a 576px pane has only the top half
+        // free. Measured at 1024x640 and 1440x640: the third card landed on
+        // the caption. 38rem drops it there and keeps it at 656px and above.
+        "@container (max-height: 38rem)": {
           ".scene-overlay-optional": { display: "none" },
         },
         // The entrance, as INDEPENDENT transform properties.
@@ -476,12 +504,18 @@ module.exports = {
         // no business touching), so the two call sites were reaching for
         // `transition-[padding]` / `transition-[margin]` arbitrary values.
         spacing: "margin, padding",
-        // The scene entrance moves `opacity` and `translate` only — and
-        // `translate` as an INDEPENDENT property, not through `transform`, so
-        // the overlay's anchor (`transform: translate(-50%,-50%)`) is not
-        // clobbered by its own entrance. `transition-transform` would miss it
-        // and `transition-all` would sweep in colour and shadow.
-        scene: "opacity, translate",
+        // The scene entrance moves `opacity`, `translate` and `scale` only —
+        // and the latter two as INDEPENDENT properties, not through
+        // `transform`, so the overlay's anchor (`transform:
+        // translate(-50%,-50%)`) is not clobbered by its own entrance.
+        // `transition-transform` would miss all three and `transition-all`
+        // would sweep in colour and shadow.
+        //
+        // All three in one token, used by both the overlay cards (opacity +
+        // translate) and the artwork layer (opacity + scale): a property a
+        // given element never sets costs nothing to list, and two tokens that
+        // must stay in step is how the durations would drift apart.
+        scene: "opacity, translate, scale",
       },
       letterSpacing: {
         // Add only what Tailwind does not already provide. Declaring the full

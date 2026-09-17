@@ -75,6 +75,8 @@ import {
   Settings01Icon,
   Clock01Icon,
   Wallet01Icon,
+  PauseIcon,
+  PlayIcon,
   PackageIcon,
   Home01Icon,
   Analytics01Icon,
@@ -264,6 +266,11 @@ export const Tag = make(Tag01Icon);
 export const Settings = make(Settings01Icon);
 export const Clock = make(Clock01Icon);
 export const Wallet = make(Wallet01Icon);
+/* Media transport. Added for the auth scene panel's pause/resume control:
+   an indefinitely looping slideshow needs a real, visible stop, and
+   hover/focus/reduced-motion pausing does not cover autoplay (WCAG 2.2.2). */
+export const Pause = make(PauseIcon);
+export const Play = make(PlayIcon);
 export const Package = make(PackageIcon);
 /** The box body closed against the underside of its lid, plus the lid itself. */
 export const PackageSolid = solidGlyph([

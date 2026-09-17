@@ -19,7 +19,7 @@ export type AuthSplitAction =
   | "step";
 
 interface AuthSplitShellProps {
-  /** Artwork. Decorative — the pane is `aria-hidden`. */
+  /** Artwork. Decorative by default — the pane is `aria-hidden` unless `mediaLive`. */
   media: ReactNode;
   /** The content column: form, actions, copy. */
   children: ReactNode;
@@ -29,6 +29,22 @@ interface AuthSplitShellProps {
   footerAction?: ReactNode;
   mediaOn?: AuthSplitMedia;
   actionMode?: AuthSplitAction;
+  /**
+   * Whether the media pane contains real content as well as artwork.
+   *
+   * Default `false`: the pane is `aria-hidden`, which is right for artwork on
+   * its own and is what `/welcome` wants. The auth scene panel sets it,
+   * because its caption — the label, headline and description of whichever
+   * scene is showing — is genuinely the page's copy at `md+`, and
+   * `aria-hidden` cannot be undone by a descendant, so a single attribute up
+   * here would put that copy permanently out of reach.
+   *
+   * With it set, the decorative parts inside must declare themselves
+   * individually: `alt=""` on the photographs, `aria-hidden` on the overlay
+   * layer. Below `md` the caption is `display: none`, so a live pane there
+   * still contributes nothing to the accessibility tree.
+   */
+  mediaLive?: boolean;
   /** Extra classes for the content column's inner wrapper. */
   contentClassName?: string;
 }
@@ -77,6 +93,7 @@ export default function AuthSplitShell({
   footerAction,
   mediaOn = "always",
   actionMode = "landing",
+  mediaLive = false,
   contentClassName,
 }: AuthSplitShellProps) {
   // Resource lifecycle, NOT layout: in `desktop` mode the artwork is three slide
@@ -205,7 +222,7 @@ export default function AuthSplitShell({
 
       {showMedia && (
         <div
-          aria-hidden="true"
+          aria-hidden={mediaLive ? undefined : "true"}
           className={cn(
             "relative w-full overflow-hidden",
             // A size container, so the artwork scales against the box it is

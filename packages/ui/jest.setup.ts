@@ -1,4 +1,11 @@
 import "@testing-library/jest-dom";
+import { TextDecoder, TextEncoder } from "node:util";
+
+// jsdom ships neither, and `react-dom/server` reaches for `TextEncoder` at
+// module load. Server rendering is how the auth scene panel proves it emits
+// nothing into the prerendered HTML — an assertion that cannot be made from the
+// DOM, because by then the artwork has already been requested.
+Object.assign(globalThis, { TextEncoder, TextDecoder });
 
 // Primitives that reach for next/image or next/navigation get those mocked here
 // (mirrors apps/web/jest.setup.js) so a component under test doesn't drag the

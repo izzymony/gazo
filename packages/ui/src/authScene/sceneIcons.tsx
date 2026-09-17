@@ -3,7 +3,7 @@ import {
   Bank,
   CircleCheck,
   HeartFilled,
-  PackageSolid,
+  Package,
   ShoppingBag,
   Store,
   Wallet,
@@ -25,9 +25,9 @@ import type { AuthSceneIconKey } from "./authScene";
  */
 /**
  * Deliberately permissive. Most glyphs come from the `make()` factory and take
- * the full `IconProps`, but a few — `HeartFilled`, `PackageSolid` — are
- * hand-authored SVGs with a narrower signature. Typing the map to one of them
- * excludes the other, and the map only ever calls `size` and `className`.
+ * the full `IconProps`, but `HeartFilled` is a hand-authored SVG with a
+ * narrower signature. Typing the map to either one excludes the other, and the
+ * map only ever calls `size` and `className`.
  */
 type SceneIcon = ComponentType<{ size?: number; className?: string }>;
 
@@ -36,9 +36,12 @@ export const SCENE_ICONS: Record<AuthSceneIconKey, SceneIcon> = {
   saved: HeartFilled,
   order: ShoppingBag,
   payment: Wallet,
-  // Filled, because it reads as a completed thing rather than an outline of
-  // one — the same reason the nav uses a solid glyph for the active tab.
-  delivered: PackageSolid,
+  // Outline, not `PackageSolid`. The filled glyph was chosen to read as a
+  // completed thing, the way the nav's active tab does — but at the 16px these
+  // cards use it collapses into a dark blob, and it was the only solid glyph
+  // among six outlines, so it read as a rendering fault rather than emphasis.
+  // "Delivered" is carried by the word and the success tint.
+  delivered: Package,
   confirmed: CircleCheck,
   payout: Bank,
 };
