@@ -16,8 +16,8 @@ import Otp from "@/features/auth/signup/Otp";
 import CreateNewPassword from "./CreateNewPassword";
 import InputField from "@vibaar/ui/common/InputField";
 import H1 from "@vibaar/ui/common/Typography";
-import AuthSplitShell from "@vibaar/ui/AuthSplitShell";
-import AnimatedImages from "@vibaar/ui/animated/AnimatedImages";
+import AuthSceneController from "@vibaar/ui/authScene/AuthSceneController";
+import { AUTH_SCENES } from "../authScenes";
 import { resolveAuthStep } from "../authSteps";
 import useStepFocus from "../useStepFocus";
 
@@ -66,10 +66,15 @@ const validationSchema = [
 export default function ForgotPasswordComp() {
     const router = useRouter();
     const { isLoading, sendOtp, forgotPassword } = useAuthStore();
-    const [step, setStep] = useState<number>(0);
     const [isRedirecting] = useState(false);
     const searchParams = useSearchParams();
     const queryStep = searchParams.get('step');
+
+    // The URL's step from the first render, not applied by an effect —
+    // see SignInOverview for the request that behaviour caused. This screen
+    // mounts no artwork on mobile either way, but the step also drives the
+    // progress indicator and the focus target.
+    const [step, setStep] = useState<number>(() => (queryStep ? Number(queryStep) : 0));
 
     useEffect(() => {
         if (queryStep) {
@@ -180,10 +185,12 @@ export default function ForgotPasswordComp() {
                             <div className="flex flex-col w-full flex-1 pt-4" />
                         </PageShell>
                         ) : (
-                        <AuthSplitShell
+                        <AuthSceneController
                             // Every step here is a form step: artwork on desktop
-                            // only, and not mounted at all on mobile.
-                            media={<AnimatedImages currentSlide={0} />}
+                            // only, and not mounted at all on mobile. `rotate`
+                            // is left off, so the panel holds one static scene
+                            // with no dots, no pause control and no timer.
+                            scenes={AUTH_SCENES}
                             mediaOn="desktop"
                             actionMode="step"
                             header={
@@ -247,7 +254,7 @@ export default function ForgotPasswordComp() {
 
                                 </div>
                             </div>
-                        </AuthSplitShell>
+                        </AuthSceneController>
                         )}
                     </>
             }

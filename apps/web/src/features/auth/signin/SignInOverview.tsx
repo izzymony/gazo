@@ -20,14 +20,12 @@ import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import useOrderStore from "@/store/orderStore";
 import Footer from "@vibaar/ui/common/Footer";
-import AnimatedImages from "@vibaar/ui/animated/AnimatedImages";
-import AuthSplitShell from "@vibaar/ui/AuthSplitShell";
-import SlideContent from "@vibaar/ui/animated/SlideContent";
-import { slidesData } from "@vibaar/ui/animated/slidesData";
+import AuthSceneController from "@vibaar/ui/authScene/AuthSceneController";
+import { AUTH_SCENES } from "../authScenes";
+import AuthLandingLead from "../AuthLandingLead";
 import { trackLogin, setUserProperties } from "@/lib/analytics";
 import { resolveAuthStep } from "../authSteps";
 import useStepFocus from "../useStepFocus";
-import usePrefersReducedMotion from "@vibaar/ui/common/usePrefersReducedMotion";
 
 const validationSchema = Yup.object({
   identifier: Yup.string().required("Email is required"),
@@ -44,9 +42,7 @@ export default function SignInOverview() {
   const { clearProductState, fetchRecentlyViewedBusiness, fetchWishlist, fetchRegisterOtp } =
     useProductStore();
   const { clearOrderState } = useOrderStore();
-  const [step, setStep] = useState<number>(0);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
   const [buttonLoading, setButtonLoading] = useState({
     createAccount: false,
     loginAccount: false,
@@ -57,6 +53,22 @@ export default function SignInOverview() {
   const identifierFromQuery = searchParams.get("identifier");
   const typeFromQuery = searchParams.get("type") as "email" | "phone" | null;
   const usernameFromQuery = searchParams.get("username");
+
+  /**
+   * The URL's step, from the FIRST render — not applied by an effect.
+   *
+   * It used to be `useState(0)` with the query copied in afterwards, so the
+   * opening render of every URL was step zero: the landing, with its artwork.
+   * Measured at 390 on `/signin?step=1`, the final DOM had no media pane and
+   * yet `auth-discover.webp` had still been requested — mounted, fetched and
+   * unmounted before the effect ran. A DOM assertion cannot see that; only the
+   * network can, which is why this is pinned by a request count.
+   *
+   * A lazy initialiser rather than a plain expression, so `Number()` runs once
+   * instead of on every render. The effect below stays: it is what keeps this
+   * in step with `router.push("?step=N")` while the component is mounted.
+   */
+  const [step, setStep] = useState<number>(() => (queryStep ? Number(queryStep) : 0));
 
   // Check if user came directly from "Login to my account" button
   const isDirectLogin = queryStep === "1" && !identifierFromQuery && !typeFromQuery && !usernameFromQuery;
@@ -83,35 +95,15 @@ export default function SignInOverview() {
   // the render. It is a pure function of `step`, so the position is free.
   const liveStep = resolveAuthStep("signin", step);
 
-  // Auto-advance slides, but only while slides are actually on screen.
+  // The slide index, its timer and the pause state used to be declared here,
+  // above every early return, with `[]` deps and no guard — so the interval
+  // ticked in 11 of the 14 states this file can render, each tick a `setState`
+  // that re-rendered four Zustand stores, Formik and the whole form subtree.
   //
-  // This effect used to have `[]` deps and no guard, and it is declared above
-  // every early return — so it ticked in 11 of the 14 auth states this file can
-  // render: behind the `isLoginLoading` spinner, behind `isRedirecting`, on
-  // `/signin?step=2` (which renders no media at all), and on `?step=1` on a
-  // phone, where `mediaOn="desktop"` means the pane is never mounted. Each tick
-  // is a `setState` on this component, so it re-rendered four Zustand stores,
-  // Formik and the whole form subtree every 8 seconds with nothing observing
-  // the value.
-  //
-  // `slideshowVisible` is the one state that shows slides: the landing, not
-  // redirecting, not loading. `SlideContent` is rendered only under
-  // `liveStep === 0` too, so this now matches what is on screen.
-  // Reduced motion also stops the ADVANCE, which no CSS rule can do: a
-  // slideshow that keeps changing content on its own is motion, whatever
-  // the transition duration is. The dots stay live, so the narrative is
-  // still reachable — it just waits to be asked for.
-  const reducedMotion = usePrefersReducedMotion();
-  const slideshowVisible =
-    liveStep === 0 && !isRedirecting && !isLoginLoading && !reducedMotion;
-
-  useEffect(() => {
-    if (!slideshowVisible) return;
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slidesData.length);
-    }, 8000);
-    return () => clearInterval(interval);
-  }, [slideshowVisible]);
+  // All of it now belongs to `AuthSceneController`, which owns one index and
+  // one timer and is only mounted by the branch that shows scenes. Nothing
+  // about the slideshow is a concern of this controller any more, which is why
+  // there is no state left here to gate.
 
   const handleNextStep = async () => {
     const errors = await formik.validateForm();
@@ -324,8 +316,13 @@ export default function SignInOverview() {
           <div className="flex flex-col w-full h-full pt-4" />
         </PageShell>
       ) : (
-        <AuthSplitShell
-          media={<AnimatedImages currentSlide={currentSlide} />}
+        <AuthSceneController
+          scenes={AUTH_SCENES}
+          // Only the landing rotates. A form step shows one static scene with
+          // no dots and no pause control, and schedules no timer — the same
+          // code path, not a special case.
+          rotate={liveStep === 0}
+          lead={liveStep === 0 ? <AuthLandingLead /> : undefined}
           // The landing shows its artwork on both widths; a form step shows it
           // on desktop only, and does not mount it at all on mobile.
           mediaOn={liveStep === 0 ? "always" : "desktop"}
@@ -351,11 +348,9 @@ export default function SignInOverview() {
                 </Button> : undefined}>
           {liveStep === 0 ? (
             <>
-              <SlideContent
-                currentSlide={currentSlide}
-                onSlideChange={setCurrentSlide}
-              />
-
+              {/* The rotating caption is no longer a child here: the controller
+                  places it between `lead` and these actions on mobile, and
+                  inside the visual panel at `md+`. */}
               <div className="flex flex-col gap-2.5 md:gap-5">
                 <ul className="flex flex-col gap-2.5 md:gap-5">
                   {signupOptions.map((option) => {
@@ -442,7 +437,7 @@ export default function SignInOverview() {
               </div>
             </div>
           )}
-        </AuthSplitShell>
+        </AuthSceneController>
       )}
     </>
   );

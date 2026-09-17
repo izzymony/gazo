@@ -28,10 +28,9 @@ import useOrderStore from "@/store/orderStore";
 import InputField from "@vibaar/ui/common/InputField";
 import PasswordCriteria from "@vibaar/ui/common/PasswordCriteria";
 import { formatPhoneNumber } from "@/lib/generator";
-import AnimatedImages from "@vibaar/ui/animated/AnimatedImages";
-import AuthSplitShell from "@vibaar/ui/AuthSplitShell";
-import SlideContent from "@vibaar/ui/animated/SlideContent";
-import { slidesData } from "@vibaar/ui/animated/slidesData";
+import AuthSceneController from "@vibaar/ui/authScene/AuthSceneController";
+import { AUTH_SCENES } from "../authScenes";
+import AuthLandingLead from "../AuthLandingLead";
 import Footer from "@vibaar/ui/common/Footer";
 import FEATURES from "@/config/features";
 import { splitFullName, isValidFullName } from "@/lib/nameUtils";
@@ -39,7 +38,6 @@ import { validateFullName, validatePhoneNumber, validateEmail, validateUsername 
 import { trackSignUp, setUserProperties, trackFormError } from "@/lib/analytics";
 import { resolveAuthStep } from "../authSteps";
 import useStepFocus from "../useStepFocus";
-import usePrefersReducedMotion from "@vibaar/ui/common/usePrefersReducedMotion";
 
 // Check if OTP is enabled via feature flag
 const isOtpEnabled = FEATURES.OTP_VERIFICATION_ENABLED;
@@ -134,7 +132,6 @@ export default function SignUpOverview() {
   const { clearProductState, fetchRegisterOtp } = useProductStore();
   const { singleShippingDetails, fetchGuestShippings } = useShippingStore();
   const { order, getGuestOrdersById, getOrderByIdPublic } = useOrderStore();
-  const [step, setStep] = useState<number>(0);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [buttonLoading, setButtonLoading] = useState({
     createAccount: false,
@@ -149,8 +146,25 @@ export default function SignUpOverview() {
   const guestId = searchParams.get("guest_id") || searchParams.get("guestId");
   const orderId = searchParams.get("guest_order_id") || searchParams.get("orderId");
   const prefill = searchParams.get("prefill");
+
+  /**
+   * The URL's step, from the FIRST render — not applied by an effect.
+   *
+   * It used to be `useState(0)` with the query copied in afterwards, so the
+   * opening render of every URL was step zero: the landing, with its artwork.
+   * Measured at 390 on `/signin?step=1`, the final DOM had no media pane and
+   * yet `auth-discover.webp` had still been requested — mounted, fetched and
+   * unmounted before the effect ran. A DOM assertion cannot see that; only the
+   * network can, which is why this is pinned by a request count.
+   *
+   * A lazy initialiser rather than a plain expression, so `Number()` runs once
+   * instead of on every render. The effect below stays: it is what keeps this
+   * in step with `router.push("?step=N")` while the component is mounted.
+   */
+  const [step, setStep] = useState<number>(() =>
+    queryStep ? Number(queryStep) : prefill === "true" ? 1 : 0
+  );
   const [otps, setOtps] = useState("");
-  const [currentSlide, setCurrentSlide] = useState(0);
 
   // Referral validation state
   const [referralValid, setReferralValid] = useState<boolean | null>(null);
@@ -162,32 +176,14 @@ export default function SignUpOverview() {
   // of `step` and the OTP flag, so the position is free.
   const liveStep = resolveAuthStep("signup", step, { isOtpEnabled });
 
-  // Auto-advance slides, but only while slides are actually on screen.
+  // The slide index and its timer used to be declared here, above the
+  // `isRedirecting` branch, with `[]` deps and no guard — so the interval
+  // ticked behind the redirect spinner, on `/signup?step=4` (which renders no
+  // media at all) and on every form step on a phone, where the pane is never
+  // mounted. Each tick re-rendered Formik and the whole form subtree.
   //
-  // This effect used to have `[]` deps and no guard, and it is declared above
-  // the `isRedirecting` branch — so it ticked behind the redirect spinner, on
-  // `/signup?step=4` (which renders no media at all), and on every form step on
-  // a phone, where `mediaOn="desktop"` means the pane is never mounted. Each
-  // tick is a `setState` on this component, so it re-rendered Formik and the
-  // whole form subtree every 8 seconds with nothing observing the value.
-  //
-  // `slideshowVisible` is the one state that shows slides — the landing, not
-  // redirecting. `SlideContent` is rendered only under `liveStep === 0` too.
-  // Reduced motion also stops the ADVANCE, which no CSS rule can do: a
-  // slideshow that keeps changing content on its own is motion, whatever
-  // the transition duration is. The dots stay live, so the narrative is
-  // still reachable — it just waits to be asked for.
-  const reducedMotion = usePrefersReducedMotion();
-  const slideshowVisible =
-    liveStep === 0 && !isRedirecting && !reducedMotion;
-
-  useEffect(() => {
-    if (!slideshowVisible) return;
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slidesData.length);
-    }, 8000);
-    return () => clearInterval(interval);
-  }, [slideshowVisible]);
+  // `AuthSceneController` owns one index and one timer now, and is only
+  // mounted by the branch that shows scenes.
 
   useEffect(() => {
     if (queryStep) {
@@ -581,8 +577,12 @@ export default function SignUpOverview() {
           <div className="flex flex-col w-full h-full pt-4" />
         </PageShell>
       ) : (
-        <AuthSplitShell
-          media={<AnimatedImages currentSlide={currentSlide} />}
+        <AuthSceneController
+          scenes={AUTH_SCENES}
+          // Only the landing rotates; a form step shows one static scene and
+          // schedules no timer.
+          rotate={liveStep === 0}
+          lead={liveStep === 0 ? <AuthLandingLead /> : undefined}
           mediaOn={liveStep === 0 ? "always" : "desktop"}
           actionMode={liveStep === 0 ? "landing" : "step"}
           header={
@@ -609,11 +609,9 @@ export default function SignUpOverview() {
               </Button> : undefined}>
           {liveStep === 0 ? (
             <>
-              <SlideContent
-                currentSlide={currentSlide}
-                onSlideChange={setCurrentSlide}
-              />
-
+              {/* The rotating caption is placed by the controller — between
+                  `lead` and these actions on mobile, inside the visual panel
+                  at `md+`. */}
               <div className="flex flex-col gap-2.5 md:gap-5">
                 <ul className="flex flex-col gap-2.5 md:gap-5">
                   {signupOptions.map((option) => {
@@ -740,7 +738,7 @@ export default function SignUpOverview() {
               </div>
             </div>
           )}
-        </AuthSplitShell>
+        </AuthSceneController>
       )}
     </>
   );

@@ -26,15 +26,43 @@ describe("auth step zero renders one tree", () => {
   describe.each(OVERVIEWS)("%s", (_name, path) => {
     const source = read(path);
 
-    it("frames itself with the shared shell", () => {
-      expect(source).toContain('from "@vibaar/ui/AuthSplitShell"');
-      expect(countOf(source, /<AuthSplitShell/g)).toBe(1);
+    it("frames itself with the shared shell, through one controller", () => {
+      // The shell is now reached THROUGH `AuthSceneController`, which renders
+      // it. A second `AuthSplitShell` here would mean a second frame; a direct
+      // one would mean this file had taken the scene state back.
+      expect(source).toContain('from "@vibaar/ui/authScene/AuthSceneController"');
+      expect(countOf(source, /<AuthSceneController/g)).toBe(1);
+      expect(source).not.toContain("@vibaar/ui/AuthSplitShell");
     });
 
-    it("mounts the slideshow once", () => {
-      // Two meant two independent engines, free to desync from each other.
-      expect(countOf(source, /<AnimatedImages/g)).toBe(1);
-      expect(countOf(source, /<SlideContent/g)).toBe(1);
+    it("holds no slideshow state of its own", () => {
+      // Every one of these was declared above the early returns with no guard,
+      // so the timer ticked in states that render no media at all. The
+      // controller owns the index, the timer and the pause state now; a
+      // reappearance here is the defect coming back.
+      expect(source).not.toContain("currentSlide");
+      expect(source).not.toContain("setInterval");
+      expect(source).not.toContain("slidesData");
+    });
+
+    it("has retired the previous slideshow components", () => {
+      expect(source).not.toContain("AnimatedImages");
+      expect(source).not.toContain("SlideContent");
+    });
+
+    it("rotates on the landing only", () => {
+      // A form step shows a static scene: no timer, and on mobile no pane at
+      // all. `rotate` unguarded would restart the 11-state ticking.
+      expect(source).toContain("rotate={liveStep === 0}");
+      expect(source).toContain('mediaOn={liveStep === 0 ? "always" : "desktop"}');
+    });
+
+    it("states the page heading once, outside the rotation", () => {
+      // The rotating caption is a `<p>` inside the panel. The heading is fixed
+      // copy in the content column, so the form never moves when the artwork
+      // changes — and there is exactly one `h1` on the page.
+      expect(countOf(source, /<AuthLandingLead\s*\/>/g)).toBe(1);
+      expect(source).not.toMatch(/<h1/);
     });
 
     it("carries one consent block and one marketplace action", () => {
@@ -52,9 +80,12 @@ describe("auth step zero renders one tree", () => {
     });
 
     it("derives the slide count from the data, not a literal", () => {
-      // `% 3` silently stopped matching the moment a fourth slide was added.
-      expect(source).toContain("% slidesData.length");
+      // `% 3` silently stopped matching the moment the scene list changed
+      // length. The wrap now happens once, inside `useSceneRotation`, against
+      // the count it was given — so neither the literal nor the modulo should
+      // appear in an app file again.
       expect(source).not.toContain("% 3");
+      expect(source).not.toMatch(/%\s*slidesData\.length/);
     });
   });
 
