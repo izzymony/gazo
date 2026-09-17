@@ -121,7 +121,12 @@ export type AuthSceneIconKey =
   | "payment"
   | "delivered"
   | "confirmed"
-  | "payout";
+  | "payout"
+  // Added for the chips. They shipped icon-less first — the retired
+  // "Checkout Safely" pill had no glyph either — and a bare pill read as
+  // unfinished next to two cards that both carry one.
+  | "secure"
+  | "tracking";
 
 /**
  * The overhanging corner mark, or nothing.
@@ -166,13 +171,14 @@ export interface AuthStatusOverlay extends AuthOverlayBase {
 }
 
 /**
- * One phrase, no icon, no badge — the composition's smallest object.
+ * One phrase and a glyph, no badge — the composition's smallest object.
  *
- * `icon` moved off the base so this can exist without one: required where it is
- * used, absent where it is not, rather than optional everywhere.
+ * `icon` still lives on each member rather than the base, because the badge
+ * does not: a chip never takes one.
  */
 export interface AuthChipOverlay extends AuthOverlayBase {
   kind: "chip";
+  icon: AuthSceneIconKey;
   label: string;
 }
 

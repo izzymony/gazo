@@ -26,6 +26,7 @@ const statusOverlay: AuthOverlay = {
 
 const chipOverlay: AuthOverlay = {
   kind: "chip",
+  icon: "saved",
   placement: { x: 0.9, y: 0.6, anchor: "bottom-right", priority: "optional", mobile: { x: 0.35, y: 0.4 } },
   label: "Saved",
 };
@@ -93,15 +94,25 @@ describe("AuthOverlayCard", () => {
 });
 
 describe("AuthSceneChip", () => {
-  it("is a glass pill with one phrase and no icon", () => {
-    const { container } = render(<AuthSceneChip label="Saved" />);
+  it("is a glass pill with one phrase and a glyph", () => {
+    // It shipped icon-less first, matching the retired "Checkout Safely" pill.
+    // Beside two cards that each carry a glyph, the bare pill read as
+    // unfinished rather than as the lightest object.
+    const { container } = render(<AuthSceneChip icon="saved" label="Saved" />);
     expect(screen.getByText("Saved")).toBeInTheDocument();
     expect(container.firstElementChild).toHaveClass("glass", "rounded-pill");
-    expect(container.querySelector("svg")).toBeNull();
+    expect(container.querySelector("svg")).not.toBeNull();
+  });
+
+  it("takes a glyph but never a badge", () => {
+    // A corner mark on a 38px pill is larger than the pill's own text, which
+    // would make the smallest object the loudest.
+    const { container } = render(<AuthSceneChip icon="saved" label="Saved" />);
+    expect(container.querySelector(".-left-2")).toBeNull();
   });
 
   it("is inert", () => {
-    const { container } = render(<AuthSceneChip label="Saved" />);
+    const { container } = render(<AuthSceneChip icon="saved" label="Saved" />);
     expect(container.querySelector("button")).toBeNull();
     expect(container.firstElementChild).toHaveClass("pointer-events-none");
   });
@@ -213,8 +224,9 @@ describe("AuthSceneOverlay", () => {
 
     const chip = render(<AuthSceneOverlay overlay={chipOverlay} index={0} active />);
     expect(chip.getByText("Saved")).toBeInTheDocument();
-    // A chip has no icon slot at all, so a stray tile would be a dispatch bug.
-    expect(chip.container.querySelector("svg")).toBeNull();
+    // A chip has a glyph but no icon TILE and no badge — a tile would mean the
+    // dispatch fell through to the card arm.
+    expect(chip.container.querySelector(".rounded-field")).toBeNull();
   });
 });
 

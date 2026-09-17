@@ -1,7 +1,10 @@
 import { cn } from "@vibaar/utils";
+import { SCENE_ICONS } from "./sceneIcons";
+import type { AuthSceneIconKey } from "./authScene";
 
 export interface AuthSceneChipProps {
-  /** One phrase. "Saved", "Checkout safely". Never a sentence. */
+  icon: AuthSceneIconKey;
+  /** One phrase. "Saved", "Checkout securely". Never a sentence. */
   label: string;
   /** Merged last, so the overlay layer can hand down the entrance opacity. */
   className?: string;
@@ -25,16 +28,26 @@ export interface AuthSceneChipProps {
  * docblock actually warns about.
  *
  * So the justification is the material, not the shape. It is also why there is
- * still no fourth variant: anything needing an icon, a figure or a second line
- * is an `AuthOverlayCard`.
+ * still no fourth variant: anything needing a figure or a second line is an
+ * `AuthOverlayCard`.
+ *
+ * It carries a glyph but never a badge. The glyph is what stops it reading as
+ * an unfinished card beside two that have one; the badge is reserved for the
+ * cards, because a corner mark on a 38px pill is larger than the pill's own
+ * text and turns the smallest object into the loudest.
  */
-export default function AuthSceneChip({ label, className }: AuthSceneChipProps) {
+export default function AuthSceneChip({ icon, label, className }: AuthSceneChipProps) {
+  const Icon = SCENE_ICONS[icon];
+
   return (
     <span
       className={cn(
-        "glass pointer-events-none block w-fit rounded-pill px-3 py-1.5 text-body-sm font-medium text-foreground-primary shadow-card",
+        "glass pointer-events-none flex w-fit items-center gap-1.5 rounded-pill px-3 py-1.5 text-body-sm font-medium text-foreground-primary shadow-card",
         className
       )}>
+      <span aria-hidden="true" className="shrink-0 text-foreground-secondary">
+        <Icon size={14} />
+      </span>
       {label}
     </span>
   );

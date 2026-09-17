@@ -126,7 +126,7 @@ export default function AuthSceneOverlay({ overlay, index, active }: AuthSceneOv
           in the preset for the travel and duration figures. */}
       <div className={cn("scene-float", FLOAT_CHARACTER[index % FLOAT_CHARACTER.length])}>
         {overlay.kind === "chip" ? (
-          <AuthSceneChip label={overlay.label} className={entrance} />
+          <AuthSceneChip icon={overlay.icon} label={overlay.label} className={entrance} />
         ) : (
           <AuthOverlayCard
             icon={overlay.icon}

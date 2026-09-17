@@ -56,6 +56,28 @@ const SOURCE_HEIGHT = 1086;
  * the badge overhangs its card by 8px and the pane is `overflow-hidden`, so at
  * the narrowest 344px pane a smaller x would clip the mark.
  *
+ * ## Every scene has its OWN arrangement, on both breakpoints
+ *
+ * The first version used one layout for all three — primary top-right,
+ * secondary top-left, chip in the same corner — and across a crossfade that
+ * reads as one template swapping its text rather than as three scenes. Each
+ * scene now mirrors or rotates it:
+ *
+ *   discover  card right-high · card left-mid   · chip right-low
+ *   order     card left-high  · card right-mid  · chip right-low
+ *   deliver   card left-mid   · card right-low  · chip right-high
+ *
+ * Deliberate, not random. A shuffled offset would be irreproducible in a
+ * capture and could not respect the constraints these have to satisfy — the
+ * wordmark, the seam gradient, the caption and each other.
+ *
+ * Two of those constraints are worth knowing before moving anything. On the
+ * split pane both CARDS stay above y≈0.44, because the caption is
+ * bottom-anchored at a fixed pixel height so its fractional top runs from 0.52
+ * on a 576px-tall pane to 0.67 on an 836px one, and 0.44 clears the shallowest
+ * case. Chips sit at x≥0.93 for the same reason: the caption is `max-w-md`, so
+ * on a 710px pane it reaches x 0.68.
+ *
  * ## The band's coordinates are per scene, not one layout
  *
  * The three photographs put their subject in different places, and a card that
@@ -164,8 +186,8 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         tone: "brand",
         badge: "tag",
         placement: {
-          x: 0.92,
-          y: 0.32,
+          x: 0.94,
+          y: 0.18,
           anchor: "top-right",
           priority: "primary",
           mobile: { x: 0.96, y: 0.27 },
@@ -183,7 +205,7 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         badge: "check",
         placement: {
           x: 0.06,
-          y: 0.38,
+          y: 0.36,
           anchor: "top-left",
           priority: "secondary",
           mobile: { x: 0.04, y: 0.57 },
@@ -195,10 +217,11 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         // under 26rem wide or 38rem tall — the mobile band, the 344px pane at
         // 768, and every short desktop window all show two elements.
         kind: "chip",
+        icon: "saved",
         label: "Saved",
         placement: {
           x: 0.95,
-          y: 0.64,
+          y: 0.6,
           anchor: "bottom-right",
           priority: "optional",
           mobile: { x: 0.34, y: 0.37 },
@@ -240,11 +263,11 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         tone: "brand",
         badge: "tag",
         placement: {
-          x: 0.92,
-          y: 0.32,
-          anchor: "top-right",
+          x: 0.06,
+          y: 0.16,
+          anchor: "top-left",
           priority: "primary",
-          mobile: { x: 0.96, y: 0.27 },
+          mobile: { x: 0.04, y: 0.28 },
         },
       },
       {
@@ -255,11 +278,11 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         tone: "success",
         badge: "check",
         placement: {
-          x: 0.06,
-          y: 0.38,
-          anchor: "top-left",
+          x: 0.94,
+          y: 0.36,
+          anchor: "top-right",
           priority: "secondary",
-          mobile: { x: 0.04, y: 0.6 },
+          mobile: { x: 0.96, y: 0.54 },
         },
       },
       {
@@ -268,13 +291,14 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         // as a broken composition rather than a restrained one. It also states
         // one factual state neither card states.
         kind: "chip",
+        icon: "secure",
         label: "Checkout securely",
         placement: {
-          x: 0.95,
-          y: 0.64,
+          x: 0.93,
+          y: 0.62,
           anchor: "bottom-right",
           priority: "optional",
-          mobile: { x: 0.34, y: 0.37 },
+          mobile: { x: 0.98, y: 0.34 },
         },
       },
     ],
@@ -310,11 +334,11 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         tone: "success",
         badge: "check",
         placement: {
-          x: 0.92,
+          x: 0.07,
           y: 0.3,
-          anchor: "top-right",
+          anchor: "top-left",
           priority: "primary",
-          mobile: { x: 0.96, y: 0.27 },
+          mobile: { x: 0.04, y: 0.3 },
         },
       },
       {
@@ -325,11 +349,11 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         tone: "brand",
         badge: "check",
         placement: {
-          x: 0.06,
-          y: 0.38,
-          anchor: "top-left",
+          x: 0.94,
+          y: 0.52,
+          anchor: "top-right",
           priority: "secondary",
-          mobile: { x: 0.04, y: 0.6 },
+          mobile: { x: 0.96, y: 0.52 },
         },
       },
       {
@@ -337,13 +361,14 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         // a plain statement of what the product does rather than a guarantee
         // about what happens to the money.
         kind: "chip",
+        icon: "tracking",
         label: "Track the order",
         placement: {
-          x: 0.95,
-          y: 0.64,
+          x: 0.97,
+          y: 0.2,
           anchor: "bottom-right",
           priority: "optional",
-          mobile: { x: 0.34, y: 0.37 },
+          mobile: { x: 0.34, y: 0.62 },
         },
       },
     ],

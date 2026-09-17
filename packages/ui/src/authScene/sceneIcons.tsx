@@ -5,6 +5,8 @@ import {
   Check,
   HeartFilled,
   Package,
+  DeliveryTruck,
+  Shield,
   ShoppingBag,
   Tag,
   Store,
@@ -46,6 +48,11 @@ export const SCENE_ICONS: Record<AuthSceneIconKey, SceneIcon> = {
   delivered: Package,
   confirmed: CircleCheck,
   payout: Bank,
+  // The chips. A shield for "checkout securely" rather than a padlock: the
+  // padlock glyphs in this set (`PrivacyLock`, `LockPassword`) read as
+  // "locked out", which is the wrong feeling on a sign-in screen.
+  secure: Shield,
+  tracking: DeliveryTruck,
 };
 
 /**
