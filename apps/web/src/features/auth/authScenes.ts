@@ -138,7 +138,7 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         value: "12 products",
         tone: "brand",
         badge: "tag",
-        placement: { x: 0.94, y: 0.32, anchor: "top-right", priority: "primary" },
+        placement: { x: 0.92, y: 0.32, anchor: "top-right", priority: "primary" },
       },
       {
         // The tile names the SUBJECT and the badge names the state. `confirmed`
@@ -196,7 +196,7 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         metadata: "2 items",
         tone: "brand",
         badge: "tag",
-        placement: { x: 0.94, y: 0.32, anchor: "top-right", priority: "primary" },
+        placement: { x: 0.92, y: 0.32, anchor: "top-right", priority: "primary" },
       },
       {
         kind: "status",
@@ -206,6 +206,15 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         tone: "success",
         badge: "check",
         placement: { x: 0.06, y: 0.38, anchor: "top-left", priority: "secondary" },
+      },
+      {
+        // The chip is what gives the mobile band a second element: below 30rem
+        // of pane width the secondary card is dropped, and one lone card read
+        // as a broken composition rather than a restrained one. It also states
+        // the escrow promise, which neither card does.
+        kind: "chip",
+        label: "Checkout safely",
+        placement: { x: 0.95, y: 0.64, anchor: "bottom-right", priority: "optional" },
       },
     ],
   },
@@ -239,7 +248,7 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         description: "Buyer confirmed",
         tone: "success",
         badge: "check",
-        placement: { x: 0.94, y: 0.3, anchor: "top-right", priority: "primary" },
+        placement: { x: 0.92, y: 0.3, anchor: "top-right", priority: "primary" },
       },
       {
         kind: "event",
@@ -249,6 +258,14 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         tone: "brand",
         badge: "check",
         placement: { x: 0.06, y: 0.38, anchor: "top-left", priority: "secondary" },
+      },
+      {
+        // Same job as the other two chips: the band's second element, and the
+        // one fact the cards leave out — that the buyer's money was held, not
+        // just that it moved.
+        kind: "chip",
+        label: "Buyer protected",
+        placement: { x: 0.95, y: 0.64, anchor: "bottom-right", priority: "optional" },
       },
     ],
   },

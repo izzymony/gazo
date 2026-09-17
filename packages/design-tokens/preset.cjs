@@ -55,7 +55,18 @@ module.exports = {
     // or a short desktop window crops the artwork instead of shrinking it.
     // Note the containment contract — a size container cannot be sized BY its
     // contents, so the element needs its dimensions from its own layout.
-    plugin(({ addUtilities }) => {
+    plugin(({ addUtilities, addBase }) => {
+      // In `addBase`, not `theme.keyframes`. Tailwind only emits a themed
+      // keyframe when an `animate-*` utility that references it is generated,
+      // and that shorthand would also set `animation-duration`, racing the
+      // per-overlay longhand in `.scene-float` — the same source-order coin
+      // flip the `@supports` block already lost once.
+      addBase({
+        "@keyframes scene-float": {
+          "0%": { translate: "0 0" },
+          "100%": { translate: "0 calc(-1 * var(--scene-float-rise, 8px))" },
+        },
+      });
       addUtilities({
         ".container-size": { "container-type": "size" },
         ".container-inline": { "container-type": "inline-size" },
@@ -179,18 +190,32 @@ module.exports = {
         ".scene-anchor-top-right": { transform: "translate(-100%, 0)" },
         ".scene-anchor-bottom-left": { transform: "translate(0, -100%)" },
         ".scene-anchor-bottom-right": { transform: "translate(-100%, -100%)" },
-        // Dropped entirely where the pane cannot hold a third card without it
-        // colliding with the subject. Container queries, so this is about the
-        // PANE's size, not the viewport's.
-        "@container (max-width: 26rem)": {
+        // 20rem, not 26rem. The earlier threshold dropped the chip on the
+        // 390x422 mobile band, which left the whole band showing ONE element —
+        // and with the secondary card also dropped there, the composition read
+        // as broken rather than restrained. A chip is ~80px wide; a pane has to
+        // be genuinely tiny before it cannot hold one.
+        "@container (max-width: 20rem)": {
           ".scene-overlay-optional": { display: "none" },
         },
-        // 38rem, not 22rem. The constraint on a wide-but-short pane is not the
-        // pane's height — it is that the caption card is anchored to the
-        // bottom and takes ~250px of it, so a 576px pane has only the top half
-        // free. Measured at 1024x640 and 1440x640: the third card landed on
-        // the caption. 38rem drops it there and keeps it at 656px and above.
-        "@container (max-height: 38rem)": {
+        // THREE terms, and every one of them is load-bearing. The constraint is
+        // a caption that is `max-w-md` (448px) and bottom-anchored: it reaches
+        // the chip's corner only on a pane short enough that the caption rides
+        // up, AND wide enough to have a caption at all, AND narrow enough that
+        // 448px of it spans most of the width. Measured, chip against caption:
+        //
+        //   557x576 @1024x640   caption x 32-480, chip x 445-526   COLLIDES
+        //   806x576 @1440x640   caption x 32-480, chip x 685-766   clear
+        //   344x976 @768        caption top 703,  chip ends 626    clear
+        //   390x422 mobile      no caption in the pane at all      clear
+        //
+        // Height alone dropped it on three panes that had room. Adding
+        // `max-width` alone still caught the 390x422 band, which is BOTH narrow
+        // and short — and is the one pane with no caption in it, so it was the
+        // last thing that should have been trimmed. `min-width: 28rem` is what
+        // tells the band apart from the 557px pane; their aspect ratios (0.92
+        // against 0.97) are too close to use.
+        "@container (min-width: 28rem) and (max-width: 36rem) and (max-height: 38rem)": {
           ".scene-overlay-optional": { display: "none" },
         },
         // A SECOND card needs room for two, which is a different threshold from
@@ -219,6 +244,42 @@ module.exports = {
         ".scene-settled": { translate: "0 0" },
         ".scene-media-offset": { scale: "1.01" },
         ".scene-media-settled": { scale: "1" },
+        // The perpetual bob, restored from `AnimatedImages` and rebuilt as CSS.
+        //
+        // The old one was WAAPI (`el.animate`, `iterations: Infinity`) and that
+        // is exactly why it was a defect: a Web Animations animation is
+        // unreachable from CSS, so the app's blanket
+        // `prefers-reduced-motion` rule could not stop it, and an orphaned
+        // `setTimeout` could start one on an outgoing slide that nothing would
+        // ever cancel. A CSS animation has neither problem — the media query
+        // below genuinely stops it, and it ends when the element unmounts.
+        //
+        // Matched to the old feel deliberately: `cubic-bezier(.5,0,.5,1)` with
+        // `alternate`, and 3800-4500ms, which is the range `slidesData` used
+        // (3800 / 4000 / 4200 / 4500). Amplitude scales with the pane for the
+        // same reason it did there — a card on a small pane should not bob the
+        // same absolute distance as one on a large pane. 1.4cqmin gives ~5px on
+        // the 390 band and ~11px on an 806px desktop pane, against the old
+        // system's ~4px and ~14px.
+        //
+        // It lives on its OWN element between the anchor wrapper and the card.
+        // `translate` is already taken twice: the wrapper uses it for the
+        // entrance offset and `transform` for the anchor. An animation on the
+        // wrapper's `translate` would overwrite the entrance mid-flight.
+        ".scene-float": {
+          "--scene-float-rise": "clamp(4px, 1.4cqmin, 12px)",
+          "animation-name": "scene-float",
+          // Staggered durations, so three cards never bob in lockstep.
+          "animation-duration": "calc(3800ms + var(--overlay-index, 0) * 350ms)",
+          // NEGATIVE, so each starts mid-cycle instead of waiting its turn.
+          "animation-delay": "calc(var(--overlay-index, 0) * -900ms)",
+          "animation-timing-function": "cubic-bezier(0.5, 0, 0.5, 1)",
+          "animation-iteration-count": "infinite",
+          "animation-direction": "alternate",
+        },
+        "@media (prefers-reduced-motion: reduce)": {
+          ".scene-float": { "animation-name": "none" },
+        },
         // The panel's placeholder: the artwork's own average colour, painted
         // the instant the pane mounts so it is never a white hole.
         //

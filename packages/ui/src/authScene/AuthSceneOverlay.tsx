@@ -101,19 +101,25 @@ export default function AuthSceneOverlay({ overlay, index, active }: AuthSceneOv
         "transition-scene duration-500 ease-out motion-reduce:transition-none",
         active ? "scene-settled" : "scene-offset"
       )}>
-      {overlay.kind === "chip" ? (
-        <AuthSceneChip label={overlay.label} className={entrance} />
-      ) : (
-        <AuthOverlayCard
-          icon={overlay.icon}
-          title={overlay.title}
-          value={overlay.kind === "event" ? overlay.value : undefined}
-          detail={overlay.kind === "event" ? overlay.metadata : overlay.description}
-          tone={overlay.tone}
-          badge={overlay.badge}
-          className={entrance}
-        />
-      )}
+      {/* The perpetual bob gets its own element, because `translate` is
+          already spoken for twice on the wrapper above — the entrance offset
+          uses it and the anchor uses `transform`. An animation there would
+          overwrite the entrance halfway through. See `.scene-float`. */}
+      <div className="scene-float">
+        {overlay.kind === "chip" ? (
+          <AuthSceneChip label={overlay.label} className={entrance} />
+        ) : (
+          <AuthOverlayCard
+            icon={overlay.icon}
+            title={overlay.title}
+            value={overlay.kind === "event" ? overlay.value : undefined}
+            detail={overlay.kind === "event" ? overlay.metadata : overlay.description}
+            tone={overlay.tone}
+            badge={overlay.badge}
+            className={entrance}
+          />
+        )}
+      </div>
     </div>
   );
 }

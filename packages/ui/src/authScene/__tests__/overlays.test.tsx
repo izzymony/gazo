@@ -153,9 +153,15 @@ describe("AuthSceneOverlay", () => {
     // wrapper takes the translate; the CARD takes the opacity.
     const idle = render(<AuthSceneOverlay overlay={eventOverlay} index={0} active={false} />);
     const wrapper = idle.container.firstElementChild as HTMLElement;
+    const float = wrapper.firstElementChild as HTMLElement;
     expect(wrapper).toHaveClass("scene-offset");
     expect(wrapper).not.toHaveClass("opacity-0");
-    expect(wrapper.firstElementChild).toHaveClass("glass", "opacity-0");
+    // Three elements, each owning one property that the others must not touch:
+    // wrapper = anchor `transform` + entrance `translate`, float = the
+    // perpetual `translate` animation, card = `opacity` + `backdrop-filter`.
+    expect(float).toHaveClass("scene-float");
+    expect(float).not.toHaveClass("opacity-0");
+    expect(float.firstElementChild).toHaveClass("glass", "opacity-0");
 
     // `scene-offset`, NOT `translate-y-2`: Tailwind's translate utilities
     // compile to `transform`, which would overwrite the anchor's
@@ -166,10 +172,26 @@ describe("AuthSceneOverlay", () => {
     const live = render(<AuthSceneOverlay overlay={eventOverlay} index={0} active />);
     const liveWrapper = live.container.firstElementChild as HTMLElement;
     expect(liveWrapper).toHaveClass("scene-settled");
-    expect(liveWrapper.firstElementChild).toHaveClass("opacity-100");
+    expect(liveWrapper.firstElementChild!.firstElementChild).toHaveClass("opacity-100");
     // A CSS transition, so `motion-reduce` can switch it off — unlike the WAAPI
     // float, which no CSS rule could reach.
     expect(liveWrapper).toHaveClass("motion-reduce:transition-none");
+  });
+
+  it("gives the perpetual bob its own element", () => {
+    // `AnimatedImages` did this with `el.animate()` and `iterations:
+    // Infinity`, which is unreachable from CSS — so the app's blanket
+    // `prefers-reduced-motion` rule could not stop it, and an orphaned
+    // `setTimeout` could start one that nothing would ever cancel. A CSS
+    // animation on its own element has neither problem, and cannot fight the
+    // wrapper's entrance `translate` or the anchor's `transform`.
+    const { container } = render(
+      <AuthSceneOverlay overlay={eventOverlay} index={0} active />
+    );
+    const float = container.querySelector(".scene-float");
+    expect(float).not.toBeNull();
+    expect(float!.parentElement).toHaveClass("scene-overlay");
+    expect(float!.firstElementChild).toHaveClass("glass");
   });
 
   it("dispatches on kind, including the chip", () => {
