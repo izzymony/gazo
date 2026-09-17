@@ -102,6 +102,7 @@ const entries = [
   ["common/UserProfileImage", "component", "candidate"],
   ["common/useMediaActive", "internal"],
   ["common/useMediaQuery", "internal"],
+  ["common/usePageVisible", "internal"],
   ["common/usePrefersReducedMotion", "internal"],
   ["common/useModalBehaviour", "internal"],
   ["common/VerifiedCheck", "component", "candidate"],
