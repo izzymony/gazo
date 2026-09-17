@@ -148,6 +148,22 @@ module.exports = {
         "@container (max-height: 22rem)": {
           ".scene-overlay-optional": { display: "none" },
         },
+        // The entrance, as INDEPENDENT transform properties.
+        //
+        // This matters and is easy to get wrong: Tailwind's `translate-y-2` and
+        // `scale-105` compile to the `transform` property, so using them here
+        // would OVERWRITE `.scene-anchor-*`'s `transform: translate(-50%,-50%)`
+        // and the card would jump to the raw coordinate. The independent
+        // `translate`/`scale` properties are applied before `transform` and
+        // compose with it, so the anchor survives the animation.
+        //
+        // 8px is inside the 6-12px band the motion spec allows; 1.01 is a
+        // settle, not a zoom. Neither value has a Tailwind step, and the
+        // arbitrary equivalents would be drift findings.
+        ".scene-offset": { translate: "0 0.5rem" },
+        ".scene-settled": { translate: "0 0" },
+        ".scene-media-offset": { scale: "1.01" },
+        ".scene-media-settled": { scale: "1" },
         ".composition-item": {
           position: "absolute",
           left: "50%",
@@ -460,6 +476,12 @@ module.exports = {
         // no business touching), so the two call sites were reaching for
         // `transition-[padding]` / `transition-[margin]` arbitrary values.
         spacing: "margin, padding",
+        // The scene entrance moves `opacity` and `translate` only — and
+        // `translate` as an INDEPENDENT property, not through `transform`, so
+        // the overlay's anchor (`transform: translate(-50%,-50%)`) is not
+        // clobbered by its own entrance. `transition-transform` would miss it
+        // and `transition-all` would sweep in colour and shadow.
+        scene: "opacity, translate",
       },
       letterSpacing: {
         // Add only what Tailwind does not already provide. Declaring the full
