@@ -1,9 +1,7 @@
 "use client";
 
 import { cn } from "@vibaar/utils";
-import IconButton from "../common/IconButton";
 import Surface from "../common/Surface";
-import { Pause, Play } from "../icons";
 import { AUTH_SCENE_STRAPLINE, type AuthScene } from "./authScene";
 
 /**
@@ -22,14 +20,10 @@ export interface AuthSceneCaptionProps {
   variant: AuthCaptionVariant;
   /**
    * Omitted for a static scene, which is what a progressive form step shows.
-   * Its absence is what removes the dots and the pause control: a set of one
-   * has nothing to select and nothing to pause, and a counter over it would be
-   * a lie.
+   * Its absence is what removes the dots: a set of one has nothing to select,
+   * and a counter over it would be a lie.
    */
   onSelect?: (index: number) => void;
-  /** Whether auto-advance is currently suspended by intent. */
-  paused?: boolean;
-  onTogglePause?: () => void;
   className?: string;
 }
 
@@ -62,8 +56,23 @@ export interface AuthSceneCaptionProps {
  * changes. It is not an announcing region: a marketing headline that
  * interrupts a screen-reader user every few seconds while they are filling in a
  * sign-in form is a defect, not an accommodation. The text is reachable by
- * normal reading at all times, the dots move focusably between scenes, and the
- * pause control stops the change entirely.
+ * normal reading at all times, and the dots move focusably between scenes.
+ *
+ * ## There is no pause control, and SC 2.2.2 is knowingly unmet
+ *
+ * The dwell is 6500ms (`SCENE_DWELL_MS`) and the rotation loops indefinitely,
+ * so this panel meets every trigger of WCAG 2.2.2 Pause, Stop, Hide (Level A)
+ * and ships no mechanism. Two things mitigate and neither satisfies it:
+ * `prefers-reduced-motion` stops the auto-advance outright, so anyone who has
+ * set the OS preference never sees a change; and `usePageVisible` suspends the
+ * timer on a hidden tab. Hover- and focus-pausing were considered and are not
+ * mechanisms — hover does not exist on a phone, and neither is discoverable.
+ * The dots are selection, not a stop.
+ *
+ * A visible pause/resume button was built and then removed by product
+ * decision. This note exists so the next reader does not have to rediscover
+ * the trade, and so re-adding one is a deliberate change rather than a
+ * "missing control" bug report.
  *
  * ## The headline is not a heading
  *
@@ -78,8 +87,6 @@ export default function AuthSceneCaption({
   index,
   variant,
   onSelect,
-  paused = false,
-  onTogglePause,
   className,
 }: AuthSceneCaptionProps) {
   const isPanel = variant === "panel";
@@ -142,16 +149,19 @@ export default function AuthSceneCaption({
         <div
           className={cn(
             "flex items-center",
-            isPanel ? "mt-4 justify-between" : "justify-center gap-3 py-3"
+            // `justify-between` used to push a pause button to the far edge.
+            // With the dots as the only child it would just make them hug the
+            // left, so it is gone rather than left behind as dead intent.
+            isPanel ? "mt-4" : "justify-center py-5"
           )}>
-          {/* A group, named, so the dots are not five unexplained buttons in a
+          {/* A group, named, so the dots are not three unexplained buttons in a
               row. `aria-current` marks which one is showing — the active dot is
               distinguished by width alone visually, which is not available to
               anyone not looking at it. */}
           <div
             role="group"
             aria-label="Choose a scene"
-            className={cn("flex items-center", isPanel ? "gap-1.5" : undefined)}>
+            className={cn("flex items-center", isPanel ? "gap-1.5" : "gap-1")}>
             {scenes.map((scene, position) => (
               <button
                 key={scene.id}
@@ -168,27 +178,6 @@ export default function AuthSceneCaption({
               />
             ))}
           </div>
-
-          {/* A real, visible pause control.
-              Required because the rotation loops indefinitely. Pausing on
-              hover, on focus, or under `prefers-reduced-motion` does not
-              satisfy that: none of them is a control a keyboard or touch user
-              can find and operate, and hover does not exist on a phone.
-              `aria-pressed` carries the state, so the label does not have to
-              change to stay truthful. */}
-          <IconButton
-            icon={paused ? Play : Pause}
-            label={paused ? "Resume the scene rotation" : "Pause the scene rotation"}
-            aria-pressed={paused}
-            onClick={onTogglePause}
-            variant="muted"
-            // 36px in the column, which is this project's minimum touch target;
-            // 32px only in the panel, which exists at `md+` where there is a
-            // pointer. A control that is required for accessibility cannot
-            // itself be too small to hit.
-            size={isPanel ? "sm" : "md"}
-            iconSize={16}
-          />
         </div>
       )}
     </>

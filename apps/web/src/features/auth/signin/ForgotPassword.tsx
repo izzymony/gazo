@@ -189,7 +189,7 @@ export default function ForgotPasswordComp() {
                             // Every step here is a form step: artwork on desktop
                             // only, and not mounted at all on mobile. `rotate`
                             // is left off, so the panel holds one static scene
-                            // with no dots, no pause control and no timer.
+                            // with no dots and no timer.
                             scenes={AUTH_SCENES}
                             mediaOn="desktop"
                             actionMode="step"

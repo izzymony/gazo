@@ -163,38 +163,17 @@ describe("AuthSceneCaption", () => {
     expect(hidden).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("offers a visible pause control while it rotates", () => {
-    // Required because the rotation loops indefinitely. Pausing on hover, on
-    // focus, or under `prefers-reduced-motion` is not a control a keyboard or
-    // touch user can find and operate — and hover does not exist on a phone.
-    render(
-      <AuthSceneCaption
-        scenes={SCENES}
-        index={0}
-        variant="panel"
-        onSelect={() => {}}
-        paused={false}
-        onTogglePause={() => {}}
-      />
+  it("offers scene selection and nothing else — no stop mechanism exists", () => {
+    // SC 2.2.2 is knowingly unmet; see the component docblock. What this pins
+    // is that the absence is the DECISION and not a regression: the only
+    // controls are the scene dots, and nothing carries a toggle state. A
+    // re-added pause button has to change this test to land.
+    const { container } = render(
+      <AuthSceneCaption scenes={SCENES} index={0} variant="panel" onSelect={() => {}} />
     );
-    const pause = screen.getByRole("button", { name: "Pause the scene rotation" });
-    expect(pause).toBeVisible();
-    expect(pause).toHaveAttribute("aria-pressed", "false");
-  });
-
-  it("reports the paused state on the same control", () => {
-    render(
-      <AuthSceneCaption
-        scenes={SCENES}
-        index={0}
-        variant="panel"
-        onSelect={() => {}}
-        paused
-        onTogglePause={() => {}}
-      />
-    );
-    const resume = screen.getByRole("button", { name: "Resume the scene rotation" });
-    expect(resume).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getAllByRole("button")).toHaveLength(SCENES.length);
+    expect(container.querySelector("[aria-pressed]")).toBeNull();
+    expect(screen.queryByRole("button", { name: /rotation/i })).toBeNull();
   });
 
   it("names each dot by its scene and marks the current one", () => {
@@ -206,9 +185,9 @@ describe("AuthSceneCaption", () => {
     expect(dots[0]).toHaveAttribute("aria-label", "Discover Products.");
   });
 
-  it("drops the dots and the pause control for a static scene", () => {
-    // A progressive form step shows one scene. A counter over a set of one is a
-    // lie, and there is nothing to pause.
+  it("drops the dots entirely for a static scene", () => {
+    // A progressive form step shows one scene, and a counter over a set of one
+    // is a lie.
     render(<AuthSceneCaption scenes={SCENES} index={0} variant="panel" />);
     expect(screen.queryByRole("group", { name: "Choose a scene" })).toBeNull();
     expect(screen.queryByRole("button")).toBeNull();

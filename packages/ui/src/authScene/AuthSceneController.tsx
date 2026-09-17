@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useCallback, useState } from "react";
+import { ReactNode } from "react";
 import AuthSplitShell, { type AuthSplitAction, type AuthSplitMedia } from "../AuthSplitShell";
 import usePageVisible from "../common/usePageVisible";
 import usePrefersReducedMotion from "../common/usePrefersReducedMotion";
@@ -56,8 +56,8 @@ export interface AuthSceneControllerProps {
  * clips overflow, so the mobile caption could not be placed from there.
  *
  * What is shared and what is duplicated is the point. Shared: the index, the
- * timer, the pause state, and the image renderer. Duplicated: a small block of
- * text and its controls, at two positions, only one of which is displayed.
+ * timer and the image renderer. Duplicated: a small block of text and its dots,
+ * at two positions, only one of which is displayed.
  * The system this replaces had it the other way round — two complete slideshow
  * subtrees under `md:hidden` / `hidden md:flex`, both mounted, two controllers
  * running, all three backgrounds fetched twice with `priority`.
@@ -90,40 +90,24 @@ export default function AuthSceneController({
   const reducedMotion = usePrefersReducedMotion();
   const pageVisible = usePageVisible();
 
-  /**
-   * `null` means "the viewer has not said", so the preference decides.
-   *
-   * Reduced motion therefore stops the auto-advance by default — no CSS rule
-   * can do that, because content changing on its own is motion whatever the
-   * transition duration is — while leaving the control able to start it. The
-   * alternative, disabling rotation outright under the preference, makes the
-   * pause button a lie: it would offer to resume something it cannot.
-   */
-  const [viewerPaused, setViewerPaused] = useState<boolean | null>(null);
-  const intentPaused = viewerPaused ?? reducedMotion;
-
   const { index, outgoing, goTo } = useSceneRotation({
     count: scenes.length,
     enabled: rotate,
-    // Page visibility suspends without changing intent, so the button keeps
-    // showing what the viewer chose rather than flipping when they switch tabs.
-    paused: intentPaused || !pageVisible,
+    // Reduced motion stops the auto-advance, and no CSS rule can do that:
+    // content changing on its own is motion whatever the transition duration
+    // is. It is now the ONLY thing that stops it — the visible pause control
+    // was removed by product decision, and `AuthSceneCaption`'s docblock
+    // records the SC 2.2.2 consequence. Page visibility suspends separately,
+    // without being a mechanism a viewer can reach.
+    paused: reducedMotion || !pageVisible,
   });
 
-  const togglePause = useCallback(() => setViewerPaused(!intentPaused), [intentPaused]);
-
-  // Absent for a static scene. Its absence is what removes the dots and the
-  // pause control from both captions — one flag, not a `showControls` prop
-  // that could disagree with whether anything is actually rotating.
+  // Absent for a static scene. Its absence is what removes the dots from both
+  // captions — one flag, not a `showControls` prop that could disagree with
+  // whether anything is actually rotating.
   const onSelect = rotate && scenes.length > 1 ? goTo : undefined;
 
-  const captionProps = {
-    scenes,
-    index,
-    onSelect,
-    paused: intentPaused,
-    onTogglePause: togglePause,
-  };
+  const captionProps = { scenes, index, onSelect };
 
   return (
     <AuthSplitShell

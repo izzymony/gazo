@@ -95,7 +95,7 @@ export default function SignInOverview() {
   // the render. It is a pure function of `step`, so the position is free.
   const liveStep = resolveAuthStep("signin", step);
 
-  // The slide index, its timer and the pause state used to be declared here,
+  // The slide index and its timer used to be declared here,
   // above every early return, with `[]` deps and no guard — so the interval
   // ticked in 11 of the 14 states this file can render, each tick a `setState`
   // that re-rendered four Zustand stores, Formik and the whole form subtree.
@@ -319,8 +319,8 @@ export default function SignInOverview() {
         <AuthSceneController
           scenes={AUTH_SCENES}
           // Only the landing rotates. A form step shows one static scene with
-          // no dots and no pause control, and schedules no timer — the same
-          // code path, not a special case.
+          // no dots and no timer — the same code path, not a special
+          // case.
           rotate={liveStep === 0}
           lead={liveStep === 0 ? <AuthLandingLead /> : undefined}
           // The landing shows its artwork on both widths; a form step shows it

@@ -38,7 +38,7 @@ describe("auth step zero renders one tree", () => {
     it("holds no slideshow state of its own", () => {
       // Every one of these was declared above the early returns with no guard,
       // so the timer ticked in states that render no media at all. The
-      // controller owns the index, the timer and the pause state now; a
+      // controller owns the index and the timer now; a
       // reappearance here is the defect coming back.
       expect(source).not.toContain("currentSlide");
       expect(source).not.toContain("setInterval");
