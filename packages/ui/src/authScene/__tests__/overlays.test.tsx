@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import AuthEventCard from "../AuthEventCard";
-import AuthStatusCard from "../AuthStatusCard";
+import AuthOverlayCard from "../AuthOverlayCard";
+import AuthSceneChip from "../AuthSceneChip";
 import AuthSceneOverlay from "../AuthSceneOverlay";
 import { overlayPlacementStyle, sceneFocalStyle } from "../scenePlacement";
 import type { AuthOverlay } from "../authScene";
@@ -21,58 +21,87 @@ const statusOverlay: AuthOverlay = {
   title: "Payment secured",
   description: "Held until delivery",
   tone: "success",
+  badge: "check",
 };
 
-describe("AuthEventCard", () => {
+const chipOverlay: AuthOverlay = {
+  kind: "chip",
+  placement: { x: 0.9, y: 0.6, anchor: "bottom-right", priority: "optional" },
+  label: "Saved",
+};
+
+describe("AuthOverlayCard", () => {
   it("renders its copy as real text", () => {
-    render(<AuthEventCard icon="order" title="New order" value="₦24,500" metadata="2 items" />);
+    render(<AuthOverlayCard icon="order" title="New order" value="₦24,500" detail="2 items" />);
     expect(screen.getByText("New order")).toBeInTheDocument();
     expect(screen.getByText("₦24,500")).toBeInTheDocument();
     expect(screen.getByText("2 items")).toBeInTheDocument();
   });
 
   it("is inert — no button, no handler, no pointer events", () => {
-    const { container } = render(<AuthEventCard icon="order" title="New order" />);
-    // Surface turns into a real <button> when given onClick. There is no such
-    // prop, so a decorative card can never become a control by accident.
+    const { container } = render(<AuthOverlayCard icon="order" title="New order" />);
     expect(container.querySelector("button")).toBeNull();
     expect(container.firstElementChild).toHaveClass("pointer-events-none");
   });
 
-  it("takes its tone chrome from complete token classes", () => {
-    const { container } = render(<AuthEventCard icon="payment" title="Paid" tone="success" />);
-    // Literal strings, not `border-${tone}-border`: a composed class is
-    // invisible to the JIT and the card would render untinted.
-    expect(container.firstElementChild).toHaveClass("border-success-border");
+  it("is neutral glass, with the tone confined to the icon tile", () => {
+    // This is the correction that shaped the redesign: the previous cards
+    // tinted their whole body, which on three already-colourful editorial
+    // renders read as a scatter of coloured stickers. The body is now one
+    // material; semantic colour is a 40px tile and a 20px badge.
+    const { container } = render(
+      <AuthOverlayCard icon="payment" title="Paid" tone="success" />
+    );
+    const card = container.firstElementChild as HTMLElement;
+    expect(card).toHaveClass("glass", "rounded-card");
+    expect(card.className).not.toMatch(/bg-(success|brand|info)-/);
+    // The tile, not the card, carries the tone — as a complete literal class,
+    // because a composed `bg-${tone}-surface` is invisible to the JIT.
+    expect(card.querySelector(".bg-success-surface")).not.toBeNull();
   });
 
-  it("uses Surface's radius and border rather than re-deriving them", () => {
-    const { container } = render(<AuthEventCard icon="order" title="New order" />);
-    expect(container.firstElementChild).toHaveClass("rounded-card", "border", "bg-surface");
+  it("does not build on Surface, whose background would race the glass fill", () => {
+    // `cn` is tailwind-merge and it does not know a plugin utility conflicts
+    // with `bg-surface`, so both declarations would survive and Tailwind's
+    // sort order would pick a winner silently.
+    const { container } = render(<AuthOverlayCard icon="order" title="New order" />);
+    expect(container.firstElementChild).not.toHaveClass("bg-surface");
   });
 
-  it("omits the value row entirely when there is no number", () => {
-    render(<AuthEventCard icon="store" title="Store is live" />);
+  it("omits the value and detail rows entirely when there is nothing for them", () => {
+    render(<AuthOverlayCard icon="store" title="Store is live" />);
     expect(screen.getByText("Store is live")).toBeInTheDocument();
     expect(screen.queryByText("₦24,500")).not.toBeInTheDocument();
   });
-});
 
-describe("AuthStatusCard", () => {
-  it("renders title and description", () => {
-    render(<AuthStatusCard icon="payment" title="Payment secured" description="Held" tone="success" />);
-    expect(screen.getByText("Payment secured")).toBeInTheDocument();
-    expect(screen.getByText("Held")).toBeInTheDocument();
+  it("overhangs its badge without clipping it", () => {
+    const { container } = render(
+      <AuthOverlayCard icon="order" title="New order" badge="tag" />
+    );
+    const card = container.firstElementChild as HTMLElement;
+    // `relative` for the badge to hang off, and never `overflow-hidden` — that
+    // would cut the 8px overhang off.
+    expect(card).toHaveClass("relative");
+    expect(card).not.toHaveClass("overflow-hidden");
+    expect(card.querySelector(".-left-2.-top-2")).not.toBeNull();
   });
 
-  it("is tinted, which is what separates it from an event card", () => {
-    const { container } = render(<AuthStatusCard icon="store" title="Live" tone="brand" />);
-    // brand has no tone-role surface, so it uses Badge's sanctioned recipe.
-    expect(container.firstElementChild).toHaveClass("bg-brand-50", "border-brand-200");
+  it("carries no badge when the data names none", () => {
+    const { container } = render(<AuthOverlayCard icon="order" title="New order" />);
+    expect(container.querySelector(".-left-2")).toBeNull();
+  });
+});
+
+describe("AuthSceneChip", () => {
+  it("is a glass pill with one phrase and no icon", () => {
+    const { container } = render(<AuthSceneChip label="Saved" />);
+    expect(screen.getByText("Saved")).toBeInTheDocument();
+    expect(container.firstElementChild).toHaveClass("glass", "rounded-pill");
+    expect(container.querySelector("svg")).toBeNull();
   });
 
   it("is inert", () => {
-    const { container } = render(<AuthStatusCard icon="store" title="Live" tone="brand" />);
+    const { container } = render(<AuthSceneChip label="Saved" />);
     expect(container.querySelector("button")).toBeNull();
     expect(container.firstElementChild).toHaveClass("pointer-events-none");
   });
@@ -116,26 +145,41 @@ describe("AuthSceneOverlay", () => {
     expect(container.firstElementChild).toHaveAttribute("data-overlay", "optional");
   });
 
-  it("enters when its scene becomes active, and respects reduced motion", () => {
+  it("fades the element that carries the blur, never an ancestor of it", () => {
+    // The load-bearing half of the entrance. An element whose ANCESTOR sits at
+    // `opacity < 1` is a backdrop root, and `backdrop-filter` inside a backdrop
+    // root samples nothing — so a glass card in a fading wrapper would have no
+    // blur for the whole entrance and then snap to blurred at the end. The
+    // wrapper takes the translate; the CARD takes the opacity.
     const idle = render(<AuthSceneOverlay overlay={eventOverlay} index={0} active={false} />);
+    const wrapper = idle.container.firstElementChild as HTMLElement;
+    expect(wrapper).toHaveClass("scene-offset");
+    expect(wrapper).not.toHaveClass("opacity-0");
+    expect(wrapper.firstElementChild).toHaveClass("glass", "opacity-0");
+
     // `scene-offset`, NOT `translate-y-2`: Tailwind's translate utilities
     // compile to `transform`, which would overwrite the anchor's
     // `transform: translate(-50%,-50%)` and drop the card at its raw
-    // coordinate. These use the independent `translate` property, which
-    // composes with `transform` instead of replacing it.
-    expect(idle.container.firstElementChild).toHaveClass("opacity-0", "scene-offset");
-    expect(idle.container.firstElementChild).not.toHaveClass("translate-y-2");
+    // coordinate. These use the independent `translate` property.
+    expect(wrapper).not.toHaveClass("translate-y-2");
 
     const live = render(<AuthSceneOverlay overlay={eventOverlay} index={0} active />);
-    expect(live.container.firstElementChild).toHaveClass("opacity-100", "scene-settled");
+    const liveWrapper = live.container.firstElementChild as HTMLElement;
+    expect(liveWrapper).toHaveClass("scene-settled");
+    expect(liveWrapper.firstElementChild).toHaveClass("opacity-100");
     // A CSS transition, so `motion-reduce` can switch it off — unlike the WAAPI
     // float, which no CSS rule could reach.
-    expect(live.container.firstElementChild).toHaveClass("motion-reduce:transition-none");
+    expect(liveWrapper).toHaveClass("motion-reduce:transition-none");
   });
 
-  it("dispatches on kind", () => {
+  it("dispatches on kind, including the chip", () => {
     render(<AuthSceneOverlay overlay={statusOverlay} index={0} active />);
     expect(screen.getByText("Payment secured")).toBeInTheDocument();
+
+    const chip = render(<AuthSceneOverlay overlay={chipOverlay} index={0} active />);
+    expect(chip.getByText("Saved")).toBeInTheDocument();
+    // A chip has no icon slot at all, so a stray tile would be a dispatch bug.
+    expect(chip.container.querySelector("svg")).toBeNull();
   });
 });
 

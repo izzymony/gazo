@@ -1,6 +1,6 @@
 import { cn } from "@vibaar/utils";
-import AuthEventCard from "./AuthEventCard";
-import AuthStatusCard from "./AuthStatusCard";
+import AuthOverlayCard from "./AuthOverlayCard";
+import AuthSceneChip from "./AuthSceneChip";
 import { overlayPlacementStyle } from "./scenePlacement";
 import type { AuthOverlay, AuthOverlayAnchor, AuthOverlayPriority } from "./authScene";
 
@@ -14,14 +14,19 @@ const ANCHOR: Record<AuthOverlayAnchor, string> = {
 };
 
 /**
- * `optional` is dropped by a container query on a constrained pane — see
- * `.scene-overlay-optional` in the preset. `primary` and `secondary` carry no
- * class because they are always rendered; the difference between them is the
- * entrance order, which comes from `index`.
+ * Both `secondary` and `optional` are dropped by container queries on a
+ * constrained pane, at different thresholds and for different reasons — see the
+ * preset. `primary` carries no class because it is the one element that is
+ * always rendered; if it does not fit, nothing about the panel works.
+ *
+ * The thresholds are not a tidy ladder. `secondary` goes at 30rem of pane
+ * WIDTH, because that is the width below which two cards cannot sit at opposite
+ * corners without overlapping. `optional` goes at 26rem wide or 38rem tall,
+ * because a third element also has to clear the bottom-anchored caption.
  */
 const PRIORITY: Record<AuthOverlayPriority, string | undefined> = {
   primary: undefined,
-  secondary: undefined,
+  secondary: "scene-overlay-secondary",
   optional: "scene-overlay-optional",
 };
 
@@ -52,14 +57,37 @@ export interface AuthSceneOverlayProps {
  * from `--overlay-index` × `--scene-stagger` in the preset. No `el.animate()`,
  * no per-overlay timer: the previous system's WAAPI choreography is precisely
  * what stranded uncancellable animations, and a settle does not need it.
- * `translate` carries the motion while `transform` carries the anchor, as
- * independent CSS properties, so neither clobbers the other. Note this is why
- * the entrance uses `.scene-offset`/`.scene-settled` and NOT Tailwind's
- * `translate-y-*`: those compile to `transform`, which would overwrite the
- * anchor and drop the card at its raw coordinate.
+ *
+ * It is split across two elements, and neither half is arbitrary. `translate`
+ * stays on this wrapper alongside the anchor's `transform`, as independent CSS
+ * properties so neither clobbers the other — which is also why it uses
+ * `.scene-offset`/`.scene-settled` rather than Tailwind's `translate-y-*`,
+ * since those compile to `transform` and would drop the card at its raw
+ * coordinate. The `opacity` half goes to the card; see below for why.
  */
 export default function AuthSceneOverlay({ overlay, index, active }: AuthSceneOverlayProps) {
   const { placement } = overlay;
+
+  /**
+   * The entrance opacity travels DOWN to the card, and that is load-bearing.
+   *
+   * An element whose ancestor sits at `opacity < 1` becomes a backdrop root, and
+   * `backdrop-filter` inside a backdrop root samples nothing — it renders as a
+   * flat transparent pane. The preset records this trap for masks; opacity is
+   * the same mechanism. So a glass card nested inside a fading wrapper would
+   * have no blur at all for the whole 500ms entrance plus its stagger, then
+   * snap to blurred the instant the wrapper reached 1: a visible pop on every
+   * scene change.
+   *
+   * On the SAME element as the `backdrop-filter` there is no ancestor root to
+   * defeat it — the filter samples the backdrop first, then group opacity
+   * composites the result. The wrapper keeps position, anchor and `translate`,
+   * which have no bearing on backdrop roots.
+   */
+  const entrance = cn(
+    "transition-scene duration-500 ease-out motion-reduce:transition-none",
+    active ? "opacity-100" : "opacity-0"
+  );
 
   return (
     <div
@@ -71,22 +99,19 @@ export default function AuthSceneOverlay({ overlay, index, active }: AuthSceneOv
         ANCHOR[placement.anchor],
         PRIORITY[placement.priority],
         "transition-scene duration-500 ease-out motion-reduce:transition-none",
-        active ? "scene-settled opacity-100" : "scene-offset opacity-0"
+        active ? "scene-settled" : "scene-offset"
       )}>
-      {overlay.kind === "event" ? (
-        <AuthEventCard
-          icon={overlay.icon}
-          title={overlay.title}
-          value={overlay.value}
-          metadata={overlay.metadata}
-          tone={overlay.tone}
-        />
+      {overlay.kind === "chip" ? (
+        <AuthSceneChip label={overlay.label} className={entrance} />
       ) : (
-        <AuthStatusCard
+        <AuthOverlayCard
           icon={overlay.icon}
           title={overlay.title}
-          description={overlay.description}
+          value={overlay.kind === "event" ? overlay.value : undefined}
+          detail={overlay.kind === "event" ? overlay.metadata : overlay.description}
           tone={overlay.tone}
+          badge={overlay.badge}
+          className={entrance}
         />
       )}
     </div>

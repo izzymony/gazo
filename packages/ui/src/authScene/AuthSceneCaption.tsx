@@ -1,8 +1,7 @@
 "use client";
 
 import { cn } from "@vibaar/utils";
-import Surface from "../common/Surface";
-import { AUTH_SCENE_STRAPLINE, type AuthScene } from "./authScene";
+import type { AuthScene } from "./authScene";
 
 /**
  * Which of the two presentation sites this is.
@@ -28,7 +27,17 @@ export interface AuthSceneCaptionProps {
 }
 
 /**
- * The rotating scene copy: eyebrow, label, headline, description, controls.
+ * The rotating scene copy.
+ *
+ * The two sites carry deliberately DIFFERENT amounts of it:
+ *
+ *   panel   label · one headline · dots
+ *   column  headline · description · dots
+ *
+ * The panel is the shorter one, and that is the point rather than an
+ * inconsistency. It sits inside the artwork, beside a fixed left-column `h1`
+ * that already states what the product is, so a description there is the third
+ * sentence saying the same thing. The column has no such heading beside it.
  *
  * ## Why this renders twice
  *
@@ -94,20 +103,11 @@ export default function AuthSceneCaption({
 
   const body = (
     <>
-      {/* The one line that holds across all three scenes, so it does not join
-          the crossfade. Panel only: adding a line above the mobile headline
-          would push the caption down the column, and that geometry is fixed. */}
-      {isPanel && (
-        <p className="text-caption font-medium uppercase tracking-widest text-foreground-secondary">
-          {AUTH_SCENE_STRAPLINE}
-        </p>
-      )}
-
       {/* Every scene in ONE grid cell, so the box is as tall as the tallest
           copy and the crossfade cannot change the layout. The predecessor used
           `h-20 sm:h-28` — a height picked for an 18px headline, which clipped
           both the title and the second description line once the type grew. */}
-      <div className={cn("grid", isPanel ? "mt-3" : undefined)}>
+      <div className="grid">
         {scenes.map((scene, position) => (
           <div
             key={scene.id}
@@ -134,13 +134,17 @@ export default function AuthSceneCaption({
               {scene.headline}
             </p>
 
-            <p
-              className={cn(
-                "mt-3 text-body font-normal text-foreground-secondary",
-                isPanel && "mt-2"
-              )}>
-              {scene.description}
-            </p>
+            {/* Mobile only. The desktop panel carries a label and ONE
+                headline and stops there — a strapline, a label, a headline, a
+                description and dots is five messaging layers on one panel, and
+                the fixed left-column `h1` already explains the product. The
+                mobile column keeps its description because that arrangement is
+                pinned by the parity requirement. */}
+            {!isPanel && (
+              <p className="mt-3 text-body font-normal text-foreground-secondary">
+                {scene.description}
+              </p>
+            )}
           </div>
         ))}
       </div>
@@ -196,16 +200,18 @@ export default function AuthSceneCaption({
     );
   }
 
-  // Placement on the outer node, chrome on the `Surface`. Two elements because
-  // `Surface` takes a `className` and nothing else — it is the app's bordered
-  // box, not a prop passthrough, and widening it for one attribute here would
-  // change a primitive that ~40 call sites depend on.
+  // Placement on the outer node, chrome on the inner one. Two elements because
+  // the glass fill and `bg-surface` cannot share an element: `cn` is
+  // tailwind-merge, which does not know a plugin utility conflicts with a
+  // `bg-*` class, so both would survive and Tailwind's sort order would decide
+  // silently. That is also why this is a plain `div` and not `Surface`.
+  //
+  // `rounded-card` (16px), one step tighter than the pane's own
+  // `rounded-panel` (24px), so it reads as a plate ON the panel rather than a
+  // smaller copy of it.
   return (
     <div data-scene-caption="panel" className={className}>
-      {/* `rounded-panel` rather than Surface's `rounded-card`: this sits inside
-          the panel's own `rounded-panel` frame, and the smaller radius read as
-          a different family of object. */}
-      <Surface className="rounded-panel p-5 shadow-pop">{body}</Surface>
+      <div className="glass-panel rounded-card p-5 shadow-card">{body}</div>
     </div>
   );
 }

@@ -2,13 +2,15 @@ import type { ComponentType } from "react";
 import {
   Bank,
   CircleCheck,
+  Check,
   HeartFilled,
   Package,
   ShoppingBag,
+  Tag,
   Store,
   Wallet,
 } from "../icons";
-import type { AuthSceneIconKey } from "./authScene";
+import type { AuthOverlayBadge, AuthSceneIconKey } from "./authScene";
 
 /**
  * Icon key → glyph.
@@ -44,4 +46,24 @@ export const SCENE_ICONS: Record<AuthSceneIconKey, SceneIcon> = {
   delivered: Package,
   confirmed: CircleCheck,
   payout: Bank,
+};
+
+/**
+ * Badge key → glyph and chrome.
+ *
+ * Here rather than in a new module because this file's whole job is to put
+ * every icon choice on one screen, and a two-entry map does not justify a
+ * registry entry of its own.
+ *
+ * Solid, not glass — it is the one element that has to read instantly, and it
+ * carries the panel's entire semantic palette. `brand` takes `brandInk`
+ * (near-black) and never white: white on the brand yellow is 1.28:1.
+ */
+export const SCENE_BADGES: Record<AuthOverlayBadge, { Icon: SceneIcon; chrome: string }> = {
+  check: { Icon: Check, chrome: "bg-success-foreground text-white" },
+  // Blue, not brand yellow. The artwork is warm and yellow-dominant — the three
+  // scenes mean rgb(228,195,155) — so a yellow badge on it vanished, which the
+  // first capture showed plainly. Blue is the only mark that separates from
+  // this set, and it is what the reference used for its own money badge.
+  tag: { Icon: Tag, chrome: "bg-info-foreground text-white" },
 };

@@ -94,10 +94,25 @@ export type AuthSceneIconKey =
   | "confirmed"
   | "payout";
 
+/**
+ * The overhanging corner mark, or nothing.
+ *
+ * A closed key for the same reason the icon is one. NOT derived from `kind` and
+ * `tone`: "New order · ₦24,500" and "Funds released · ₦22,800" are both
+ * `event` + `brand` + carrying a value, and they deliberately want different
+ * marks — one is a thing arriving, the other is a thing completing. A rule that
+ * is wrong for two of the six overlays is not a rule.
+ *
+ * Exactly two ship, and they are the whole of the panel's semantic colour:
+ * `tag` is brand yellow for a new commercial event, `check` is success green
+ * for a completion. The card bodies stay neutral glass.
+ */
+export type AuthOverlayBadge = "check" | "tag";
+
 interface AuthOverlayBase {
   placement: AuthOverlayPlacement;
-  icon: AuthSceneIconKey;
   tone?: AuthOverlayTone;
+  badge?: AuthOverlayBadge;
 }
 
 /**
@@ -106,6 +121,7 @@ interface AuthOverlayBase {
  */
 export interface AuthEventOverlay extends AuthOverlayBase {
   kind: "event";
+  icon: AuthSceneIconKey;
   title: string;
   value?: string;
   metadata?: string;
@@ -114,12 +130,24 @@ export interface AuthEventOverlay extends AuthOverlayBase {
 /** A state the seller is now in — "Payment secured", "Store is live". */
 export interface AuthStatusOverlay extends AuthOverlayBase {
   kind: "status";
+  icon: AuthSceneIconKey;
   title: string;
   description?: string;
   tone: Extract<AuthOverlayTone, "brand" | "success">;
 }
 
-export type AuthOverlay = AuthEventOverlay | AuthStatusOverlay;
+/**
+ * One phrase, no icon, no badge — the composition's smallest object.
+ *
+ * `icon` moved off the base so this can exist without one: required where it is
+ * used, absent where it is not, rather than optional everywhere.
+ */
+export interface AuthChipOverlay extends AuthOverlayBase {
+  kind: "chip";
+  label: string;
+}
+
+export type AuthOverlay = AuthEventOverlay | AuthStatusOverlay | AuthChipOverlay;
 
 export interface AuthScene {
   id: AuthSceneId;
@@ -128,9 +156,13 @@ export interface AuthScene {
   headline: string;
   description: string;
   image: AuthSceneImage;
-  /** At most three. Two reads better; the third is `optional` for a reason. */
+  /**
+   * Two cards, and at most one chip where it adds meaning.
+   *
+   * Not a ceiling picked for tidiness. The artwork is editorial and already
+   * detailed, so each element added is competing with it rather than with
+   * empty space — the retired design's density belonged to flatter
+   * photography. The chip is `optional`, so constrained panes show two.
+   */
   overlays: readonly AuthOverlay[];
 }
-
-/** The line that holds across all three scenes. */
-export const AUTH_SCENE_STRAPLINE = "From attention to income";

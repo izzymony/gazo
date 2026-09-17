@@ -40,23 +40,35 @@ const SOURCE_HEIGHT = 1086;
  *
  * ## Overlay placement
  *
- * Coordinates are fractions of the PANE, so two regions are out of bounds:
+ * Coordinates are fractions of the PANE, and three regions are out of bounds —
+ * all three measured, not assumed:
  *
  *  - `y < 0.28` across the middle — the mobile band carries the white wordmark
  *    there, at the same offset it has today.
- *  - `x < 0.6` with `y > 0.52` — the desktop caption card is anchored to the
- *    pane's bottom, and on a short window (1024x640, 1440x640) a 576px pane
- *    leaves it starting at y = 0.52. Every secondary therefore sits at 0.38,
- *    which clears it with room for the copy to wrap one more line.
+ *  - `x < 0.6` with `y > 0.52` — the desktop caption is anchored to the pane's
+ *    bottom, and on a short window (1024x640, 1440x640) a 576px pane leaves it
+ *    starting at y = 0.52. Every secondary sits at 0.38, which clears it.
+ *  - `y > 0.74` on mobile — the seam gradient is `h-24` at `z-20`, so it paints
+ *    OVER a card rather than behind it.
  *
- * Which is why nothing here is placed at the top-centre or the bottom-left,
- * even where the artwork would allow it.
+ * Which is why nothing is placed at the top-centre or the bottom-left, even
+ * where the artwork would allow it. Also `x >= 0.05` on any `top-left` anchor:
+ * the badge overhangs its card by 8px and the pane is `overflow-hidden`, so at
+ * the narrowest 344px pane a smaller x would clip the mark.
+ *
+ * ## Two cards, and one chip only where it means something
+ *
+ * Not a ceiling picked for tidiness. This artwork is editorial and already
+ * detailed, so a fourth element competes with the scene rather than filling
+ * empty space — the retired design's density belonged to flatter photography.
+ * The one chip is on `discover`, where "Saved" is the only buyer-side signal in
+ * the whole set; the other two scenes are complete with two.
  */
 export const AUTH_SCENES: readonly AuthScene[] = [
   {
     id: "discover",
     label: "01 · Discover",
-    headline: "Discover Products. Share What You Sell.",
+    headline: "Discover products. Share what you sell.",
     description: "Shop independent stores or create a storefront you can share anywhere.",
     image: {
       slot: "auth-discover",
@@ -76,38 +88,44 @@ export const AUTH_SCENES: readonly AuthScene[] = [
     },
     overlays: [
       {
+        // `order` (a bag of goods), not `store` — the card below it is the
+        // storefront, and two Store glyphs side by side on one scene read as a
+        // duplicated element rather than two facts.
         kind: "event",
-        icon: "store",
+        icon: "order",
         title: "New collection",
         value: "12 products",
         tone: "brand",
+        badge: "tag",
         placement: { x: 0.94, y: 0.32, anchor: "top-right", priority: "primary" },
       },
       {
+        // The tile names the SUBJECT and the badge names the state. `confirmed`
+        // here put a tick in the tile under a tick in the badge — the same mark
+        // twice on one card.
         kind: "status",
-        icon: "confirmed",
+        icon: "store",
         title: "Store is live",
         description: "Ready to share",
         tone: "success",
+        badge: "check",
         placement: { x: 0.06, y: 0.38, anchor: "top-left", priority: "secondary" },
       },
       {
-        // One word, so it is the smallest thing on the panel and the first to
-        // go: `optional` is dropped by a container query wherever the pane is
-        // under 26rem wide or 38rem tall — which is the mobile band, the 344px
-        // pane at 768, and every short desktop window.
-        kind: "status",
-        icon: "saved",
-        title: "Saved",
-        tone: "brand",
-        placement: { x: 0.95, y: 0.66, anchor: "bottom-right", priority: "optional" },
+        // A chip, not a card: one word in a card shape was a card carrying a
+        // chip's content. `optional`, so it is dropped wherever the pane is
+        // under 26rem wide or 38rem tall — the mobile band, the 344px pane at
+        // 768, and every short desktop window all show two elements.
+        kind: "chip",
+        label: "Saved",
+        placement: { x: 0.95, y: 0.64, anchor: "bottom-right", priority: "optional" },
       },
     ],
   },
   {
     id: "order",
     label: "02 · Order",
-    headline: "Turn Interest Into an Order.",
+    headline: "Turn interest into an order.",
     description: "Give buyers a simple path from product discovery to secure checkout.",
     image: {
       slot: "auth-order",
@@ -134,6 +152,7 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         value: "₦24,500",
         metadata: "2 items",
         tone: "brand",
+        badge: "tag",
         placement: { x: 0.94, y: 0.32, anchor: "top-right", priority: "primary" },
       },
       {
@@ -142,6 +161,7 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         title: "Payment secured",
         description: "Order confirmed",
         tone: "success",
+        badge: "check",
         placement: { x: 0.06, y: 0.38, anchor: "top-left", priority: "secondary" },
       },
     ],
@@ -149,7 +169,7 @@ export const AUTH_SCENES: readonly AuthScene[] = [
   {
     id: "deliver",
     label: "03 · Deliver",
-    headline: "Complete Every Sale With Confidence.",
+    headline: "Deliver confidently. Get paid.",
     description:
       "Track delivery, protect the payment, and release earnings when the order is complete.",
     image: {
@@ -173,6 +193,7 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         title: "Delivered",
         description: "Buyer confirmed",
         tone: "success",
+        badge: "check",
         placement: { x: 0.94, y: 0.3, anchor: "top-right", priority: "primary" },
       },
       {
@@ -181,6 +202,7 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         title: "Funds released",
         value: "₦22,800",
         tone: "brand",
+        badge: "check",
         placement: { x: 0.06, y: 0.38, anchor: "top-left", priority: "secondary" },
       },
     ],

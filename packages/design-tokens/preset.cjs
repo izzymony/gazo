@@ -103,6 +103,21 @@ module.exports = {
           "--scene-stagger": "110ms",
         },
         ".scene-image": {
+          // What `next/image fill` used to supply as an inline style. The
+          // panel serves a plain `<img>` now — see `AuthSceneMedia` for why
+          // the optimiser was buying nothing — so the box belongs here, beside
+          // the `object-position` it already owned.
+          position: "absolute",
+          inset: "0",
+          width: "100%",
+          height: "100%",
+          // The mean of the three masters (#E1C29E), measured rather than
+          // picked: all three are the same room, same light, same camera, so
+          // one colour serves all and no per-scene placeholder data is needed.
+          // It is the lightweight placeholder — the pane shows the artwork's
+          // own ground instantly instead of a white hole, with no base64 in
+          // the bundle and no new field on the scene type.
+          "background-color": "#E1C29E",
           "object-fit": "cover",
           // Fallback chain, so a scene may omit a breakpoint and inherit the
           // one below it rather than needing a branch in TSX.
@@ -148,8 +163,12 @@ module.exports = {
           // the card sits; it must not also decide how wide it is.
           width: "max-content",
           // A ceiling, because `max-content` has none: a longer string would
-          // otherwise run past the pane instead of wrapping.
-          "max-width": "60cqw",
+          // otherwise run past the pane instead of wrapping. Two terms because
+          // one cannot do it — 60cqw alone truncated "New collection" to "New
+          // collec..." in the 390px mobile band and wrapped its value onto two
+          // lines, while a fixed rem cap would let the card swallow a narrow
+          // pane. 78cqw keeps it proportional; 19rem stops it dominating.
+          "max-width": "min(78cqw, 19rem)",
           // The stagger is a delay, not a timer. One transition per overlay,
           // ordered by index — no per-overlay JS and nothing to cancel.
           "transition-delay": "calc(var(--overlay-index, 0) * var(--scene-stagger, 110ms))",
@@ -176,6 +195,16 @@ module.exports = {
         "@container (max-height: 38rem)": {
           ".scene-overlay-optional": { display: "none" },
         },
+        // A SECOND card needs room for two, which is a different threshold from
+        // the one above. Measured in the 390x422 mobile band: the cards are
+        // ~200px wide, so a primary at top-right and a secondary at top-left
+        // overlapped each other outright — the status card sat on top of the
+        // event card and both were unreadable. 30rem (480px) is the width below
+        // which two of these cannot coexist, so the band and the 344px pane at
+        // 768 show one card, and 1024 upward shows two.
+        "@container (max-width: 30rem)": {
+          ".scene-overlay-secondary": { display: "none" },
+        },
         // The entrance, as INDEPENDENT transform properties.
         //
         // This matters and is easy to get wrong: Tailwind's `translate-y-2` and
@@ -192,6 +221,72 @@ module.exports = {
         ".scene-settled": { translate: "0 0" },
         ".scene-media-offset": { scale: "1.01" },
         ".scene-media-settled": { scale: "1" },
+        // ── Frosted glass ─────────────────────────────────────────────────
+        // A MATERIAL, not a colour — which is why it is here and not a
+        // `/opacity` class at five call sites. The `overlay` note in the
+        // colours block ("Scrim only; /opacity composes, so a lighter backdrop
+        // is bg-overlay/40 rather than another token") is about a colour with
+        // ONE channel and still holds. This is a fill, a blur, a hairline and
+        // a no-support branch that have to move together — the same shape as
+        // `.scene-overlay` above, declared here for the same reason.
+        //
+        // NUMBERS ARE FOR THIS ARTWORK, and were measured, not chosen. The
+        // three scenes are sunlit cream renders (mean rgb 228,195,155), but
+        // the worst pixel a card can land on is near-black shadow detail. A
+        // white fill is what lifts that floor:
+        //
+        //   ink on glass over the WORST pixel     0.55   0.62   0.78
+        //   foreground-primary  #171717            7.6    8.3   12.3
+        //   foreground-secondary #404040           4.4    4.8    7.1
+        //   foreground-muted    #737373            2.0✗   2.2✗   3.3✗
+        //
+        // Two consequences that are easy to get wrong. White text is
+        // IMPOSSIBLE here — 1.5-2.1:1 directly on the photo — which is why the
+        // retired baked cards cannot be copied: they were exported over dark
+        // photography and used white text. And `text-foreground-muted` is
+        // BANNED on glass at any of these alphas.
+        //
+        // The border is white, not tone-tinted: a tone-200 step measures
+        // ~1.05:1 against the fill, i.e. invisible, and a tone-foreground step
+        // reads as another colour on the scene. White is a highlight on the
+        // glass edge, which is what the material actually wants.
+        ".glass": {
+          "background-color": "rgb(var(--surface-default-rgb) / 0.62)",
+          "border-width": "1px",
+          "border-style": "solid",
+          "border-color": "rgb(var(--surface-default-rgb) / 0.55)",
+          // A little saturation, or a white-leaning glass reads as tracing
+          // paper: the blur averages the hue out of its sample and this puts
+          // some back.
+          "-webkit-backdrop-filter": "blur(12px) saturate(1.15)",
+          "backdrop-filter": "blur(12px) saturate(1.15)",
+        },
+        // The caption, which carries a 24px headline and so cannot be as thin.
+        ".glass-panel": {
+          "background-color": "rgb(var(--surface-default-rgb) / 0.78)",
+          "border-width": "1px",
+          "border-style": "solid",
+          "border-color": "rgb(var(--surface-default-rgb) / 0.5)",
+          "-webkit-backdrop-filter": "blur(16px) saturate(1.1)",
+          "backdrop-filter": "blur(16px) saturate(1.1)",
+        },
+        // `not`, so a browser that supports the filter never matches this at
+        // all. It sits AFTER the two base rules deliberately: `addUtilities`
+        // preserves source order, both rules apply in a non-supporting browser,
+        // and the later `background-color` wins. Declared first — as it was —
+        // the base 0.62 overrode the 0.82 fallback and the branch did nothing.
+        //
+        // Contrast is not what this protects: a blur averages its backdrop, it
+        // does not lighten it, so the alphas above already carry AA on their
+        // own. The higher fill is an aesthetic floor, because an unblurred 0.62
+        // pane over busy detail reads muddy.
+        //
+        // iOS Safari before 18 ships only the `-webkit-` property, which is why
+        // both are in the test.
+        "@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)))": {
+          ".glass": { "background-color": "rgb(var(--surface-default-rgb) / 0.82)" },
+          ".glass-panel": { "background-color": "rgb(var(--surface-default-rgb) / 0.92)" },
+        },
         ".composition-item": {
           position: "absolute",
           left: "50%",

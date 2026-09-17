@@ -41,12 +41,12 @@ const entries = [
   // the panel itself is `internal`: one slideshow does not justify an
   // application-wide public component API.
   ["authScene/authScene", "internal"],
-  ["authScene/AuthEventCard", "internal"],
+  ["authScene/AuthOverlayCard", "internal"],
   ["authScene/AuthSceneCaption", "internal"],
+  ["authScene/AuthSceneChip", "internal"],
   ["authScene/AuthSceneController", "internal"],
   ["authScene/AuthSceneMedia", "internal"],
   ["authScene/AuthSceneOverlay", "internal"],
-  ["authScene/AuthStatusCard", "internal"],
   ["authScene/sceneIcons", "internal"],
   ["authScene/scenePlacement", "internal"],
   ["authScene/useSceneRotation", "internal"],
