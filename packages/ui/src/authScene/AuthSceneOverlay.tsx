@@ -14,21 +14,29 @@ const ANCHOR: Record<AuthOverlayAnchor, string> = {
 };
 
 /**
- * Both `secondary` and `optional` are dropped by container queries on a
- * constrained pane, at different thresholds and for different reasons — see the
- * preset. `primary` carries no class because it is the one element that is
- * always rendered; if it does not fit, nothing about the panel works.
+ * Only `optional` can be dropped, and only on the one pane geometry where a
+ * bottom-anchored caption would sit under it — see the preset.
  *
- * The thresholds are not a tidy ladder. `secondary` goes at 30rem of pane
- * WIDTH, because that is the width below which two cards cannot sit at opposite
- * corners without overlapping. `optional` goes at 26rem wide or 38rem tall,
- * because a third element also has to clear the bottom-anchored caption.
+ * `secondary` used to be dropped too, below 30rem of pane width, and that was
+ * the wrong tool: it meant a phone showed one card out of three, which is a
+ * different composition rather than a responsive one. Per-breakpoint
+ * coordinates replaced it. `primary` has never carried a class, because if the
+ * primary does not fit then nothing about the panel works.
  */
 const PRIORITY: Record<AuthOverlayPriority, string | undefined> = {
   primary: undefined,
-  secondary: "scene-overlay-secondary",
+  secondary: undefined,
   optional: "scene-overlay-optional",
 };
+
+/**
+ * Three float characters, cycled by overlay index.
+ *
+ * A closed set rather than a formula: three values someone can picture beat an
+ * expression in `--overlay-index` that nobody can. Each differs in direction,
+ * horizontal drift, duration and phase — see the preset.
+ */
+const FLOAT_CHARACTER = ["scene-float-a", "scene-float-b", "scene-float-c"] as const;
 
 export interface AuthSceneOverlayProps {
   overlay: AuthOverlay;
@@ -93,7 +101,13 @@ export default function AuthSceneOverlay({ overlay, index, active }: AuthSceneOv
     <div
       aria-hidden="true"
       data-overlay={placement.priority}
-      style={overlayPlacementStyle({ x: placement.x, y: placement.y, index })}
+      style={overlayPlacementStyle({
+        x: placement.x,
+        y: placement.y,
+        mobileX: placement.mobile.x,
+        mobileY: placement.mobile.y,
+        index,
+      })}
       className={cn(
         "scene-overlay",
         ANCHOR[placement.anchor],
@@ -104,8 +118,13 @@ export default function AuthSceneOverlay({ overlay, index, active }: AuthSceneOv
       {/* The perpetual bob gets its own element, because `translate` is
           already spoken for twice on the wrapper above — the entrance offset
           uses it and the anchor uses `transform`. An animation there would
-          overwrite the entrance halfway through. See `.scene-float`. */}
-      <div className="scene-float">
+          overwrite the entrance halfway through.
+
+          One of three characters, by index. With a single direction and
+          duration the three cards rose and fell together and the layer read as
+          one sheet sliding — worse than no motion at all. See `.scene-float`
+          in the preset for the travel and duration figures. */}
+      <div className={cn("scene-float", FLOAT_CHARACTER[index % FLOAT_CHARACTER.length])}>
         {overlay.kind === "chip" ? (
           <AuthSceneChip label={overlay.label} className={entrance} />
         ) : (

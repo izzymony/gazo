@@ -43,10 +43,10 @@ export interface AuthSceneControllerProps {
  * └── AuthSplitShell
  *     ├── media slot
  *     │   ├── AuthSceneMedia   active + outgoing layers only
- *     │   └── AuthSceneCaption variant="panel"  — hidden below md
+ *     │   └── AuthSceneCaption variant="panel"  — hidden below lg
  *     └── content column
  *         ├── lead            wordmark + fixed heading
- *         ├── AuthSceneCaption variant="column" — hidden at md+
+ *         ├── AuthSceneCaption variant="column" — hidden at lg+
  *         └── children        form, actions, copy
  * ```
  *
@@ -59,7 +59,7 @@ export interface AuthSceneControllerProps {
  * timer and the image renderer. Duplicated: a small block of text and its dots,
  * at two positions, only one of which is displayed.
  * The system this replaces had it the other way round — two complete slideshow
- * subtrees under `md:hidden` / `hidden md:flex`, both mounted, two controllers
+ * subtrees under `lg:hidden` / `hidden lg:flex`, both mounted, two controllers
  * running, all three backgrounds fetched twice with `priority`.
  *
  * ## The four guarantees, and where each one is
@@ -129,11 +129,11 @@ export default function AuthSceneController({
           <AuthSceneMedia scenes={scenes} index={index} outgoing={outgoing} />
 
           {/* Inset from the pane's own edges, matching the shell's padding
-              step. `hidden` below `md`, where this copy lives in the content
+              step. `hidden` below `lg`, where this copy lives in the content
               column instead — so exactly one of the two is ever displayed, and
               `display: none` keeps the other out of the accessibility tree
               too. */}
-          <div className="pointer-events-none absolute inset-x-6 bottom-6 hidden md:block lg:inset-x-8 lg:bottom-8">
+          <div className="pointer-events-none absolute inset-x-6 bottom-6 hidden lg:block lg:inset-x-8 lg:bottom-8">
             <AuthSceneCaption
               {...captionProps}
               variant="panel"
@@ -145,7 +145,7 @@ export default function AuthSceneController({
           </div>
         </div>
       }>
-      {/* One flex item below `md`, `contents` at `md+` — and that is load-bearing,
+      {/* One flex item below `lg`, `contents` at `lg+` — and that is load-bearing,
           not tidying.
 
           The content column is `flex flex-col gap-4`. `lead` and the caption as
@@ -156,16 +156,16 @@ export default function AuthSceneController({
           the caption moved 422 → 438 and the first action 556 → 638.
 
           Grouping them costs one wrapper and restores the child count exactly.
-          At `md` the wrapper dissolves, so `lead` is a direct column child
-          again and the caption — `md:hidden` there — is not in the way. */}
-      <div className="md:contents">
+          At `lg` the wrapper dissolves, so `lead` is a direct column child
+          again and the caption — `lg:hidden` there — is not in the way. */}
+      <div className="lg:contents">
         {lead}
 
         {/* Mobile only, and present only where the mobile artwork band is —
             `mediaOn="always"` is exactly the landing. A progressive step's
             content column is the form and nothing else. */}
         {mediaOn === "always" && (
-          <AuthSceneCaption {...captionProps} variant="column" className="md:hidden" />
+          <AuthSceneCaption {...captionProps} variant="column" className="lg:hidden" />
         )}
       </div>
 

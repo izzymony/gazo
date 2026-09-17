@@ -28,7 +28,7 @@ const scene = (id: AuthScene["id"], headline: string): AuthScene => ({
       kind: "event",
       icon: "order",
       title: `${id} event`,
-      placement: { x: 0.9, y: 0.3, anchor: "top-right", priority: "primary" },
+      placement: { x: 0.9, y: 0.3, anchor: "top-right", priority: "primary", mobile: { x: 0.95, y: 0.27 } },
     },
   ],
 });

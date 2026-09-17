@@ -121,7 +121,7 @@ function AuthSceneLayer({ scene, active }: AuthSceneLayerProps) {
         aria-hidden="true"
         width={150}
         height={43}
-        className="absolute left-1/2 top-16 z-20 mx-auto -translate-x-1/2 -translate-y-1/3 transform md:hidden"
+        className="absolute left-1/2 top-16 z-20 mx-auto -translate-x-1/2 -translate-y-1/3 transform lg:hidden"
       />
 
       {scene.overlays.map((overlay, position) => (
@@ -157,7 +157,7 @@ function AuthSceneLayer({ scene, active }: AuthSceneLayerProps) {
  * about to render a password field. See `useIsHydrated` for the measurement and
  * for what this costs.
  *
- * The pane reserves its own box — it is a grid track at `md` and `h-auth-band`
+ * The pane reserves its own box — it is a grid track at `lg` and `h-auth-band`
  * below it, both independent of their contents — so mounting into it after
  * hydration moves nothing.
  */
@@ -182,9 +182,9 @@ export default function AuthSceneMedia({ scenes, index, outgoing }: AuthSceneMed
 
       {/* Joins the band to the content beneath it on mobile. Must finish at
           `bottom-0` and reach FULL surface there, or the band ends on a hard
-          seam. Nothing below to fade into at `md`, hence `md:hidden`. Above the
+          seam. Nothing below to fade into at `lg`, hence `lg:hidden`. Above the
           layers, so it fades whichever scene is showing. */}
-      <div className="absolute inset-x-0 bottom-0 z-20 h-24 bg-gradient-to-t from-surface via-surface/70 to-transparent md:hidden" />
+      <div className="absolute inset-x-0 bottom-0 z-20 h-24 bg-gradient-to-t from-surface via-surface/70 to-transparent lg:hidden" />
     </div>
   );
 }

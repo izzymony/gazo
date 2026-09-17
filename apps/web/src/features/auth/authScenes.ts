@@ -56,6 +56,31 @@ const SOURCE_HEIGHT = 1086;
  * the badge overhangs its card by 8px and the pane is `overflow-hidden`, so at
  * the narrowest 344px pane a smaller x would clip the mark.
  *
+ * ## The band's coordinates are per scene, not one layout
+ *
+ * The three photographs put their subject in different places, and a card that
+ * sits politely on a podium in one lands on the product in the next. Measured
+ * against each render at 390: the secondary card was covering the trainer on
+ * `discover` and `order` and the parcel on `deliver`, so its `y` differs per
+ * scene (0.57 / 0.60 / 0.60) to drop it onto the podium or the floor instead.
+ * The primary and the chip share coordinates because the top band of every
+ * frame is bare wall.
+ *
+ * ## The copy states facts, not guarantees
+ *
+ * "Payment secured", "Funds released", "Buyer protected" and "protect the
+ * payment" all imply a defined escrow, buyer-protection, dispute, refund and
+ * automatic-release model. The payment and payout policies are still being
+ * revised, so this panel must not promise more than the operational system
+ * delivers — an auth screen is the first thing a seller reads and it sets the
+ * expectation they will hold the product to.
+ *
+ * So: "Payment received", "Delivery confirmed", "Earnings updated",
+ * "Checkout securely", "Track the order". Each is an observable event. Do not
+ * reintroduce `escrow`, `buyer protected`, `funds held` or automatic
+ * `funds released` language until the refund, dispute and payout policies
+ * support the claim.
+ *
  * ## Two cards, and one chip only where it means something
  *
  * Not a ceiling picked for tidiness. This artwork is editorial and already
@@ -138,7 +163,13 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         value: "12 products",
         tone: "brand",
         badge: "tag",
-        placement: { x: 0.92, y: 0.32, anchor: "top-right", priority: "primary" },
+        placement: {
+          x: 0.92,
+          y: 0.32,
+          anchor: "top-right",
+          priority: "primary",
+          mobile: { x: 0.96, y: 0.27 },
+        },
       },
       {
         // The tile names the SUBJECT and the badge names the state. `confirmed`
@@ -150,7 +181,13 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         description: "Ready to share",
         tone: "success",
         badge: "check",
-        placement: { x: 0.06, y: 0.38, anchor: "top-left", priority: "secondary" },
+        placement: {
+          x: 0.06,
+          y: 0.38,
+          anchor: "top-left",
+          priority: "secondary",
+          mobile: { x: 0.04, y: 0.57 },
+        },
       },
       {
         // A chip, not a card: one word in a card shape was a card carrying a
@@ -159,7 +196,13 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         // 768, and every short desktop window all show two elements.
         kind: "chip",
         label: "Saved",
-        placement: { x: 0.95, y: 0.64, anchor: "bottom-right", priority: "optional" },
+        placement: {
+          x: 0.95,
+          y: 0.64,
+          anchor: "bottom-right",
+          priority: "optional",
+          mobile: { x: 0.34, y: 0.37 },
+        },
       },
     ],
   },
@@ -196,25 +239,43 @@ export const AUTH_SCENES: readonly AuthScene[] = [
         metadata: "2 items",
         tone: "brand",
         badge: "tag",
-        placement: { x: 0.92, y: 0.32, anchor: "top-right", priority: "primary" },
+        placement: {
+          x: 0.92,
+          y: 0.32,
+          anchor: "top-right",
+          priority: "primary",
+          mobile: { x: 0.96, y: 0.27 },
+        },
       },
       {
         kind: "status",
         icon: "payment",
-        title: "Payment secured",
+        title: "Payment received",
         description: "Order confirmed",
         tone: "success",
         badge: "check",
-        placement: { x: 0.06, y: 0.38, anchor: "top-left", priority: "secondary" },
+        placement: {
+          x: 0.06,
+          y: 0.38,
+          anchor: "top-left",
+          priority: "secondary",
+          mobile: { x: 0.04, y: 0.6 },
+        },
       },
       {
         // The chip is what gives the mobile band a second element: below 30rem
         // of pane width the secondary card is dropped, and one lone card read
         // as a broken composition rather than a restrained one. It also states
-        // the escrow promise, which neither card does.
+        // one factual state neither card states.
         kind: "chip",
-        label: "Checkout safely",
-        placement: { x: 0.95, y: 0.64, anchor: "bottom-right", priority: "optional" },
+        label: "Checkout securely",
+        placement: {
+          x: 0.95,
+          y: 0.64,
+          anchor: "bottom-right",
+          priority: "optional",
+          mobile: { x: 0.34, y: 0.37 },
+        },
       },
     ],
   },
@@ -223,7 +284,7 @@ export const AUTH_SCENES: readonly AuthScene[] = [
     label: "03 · Deliver",
     headline: "Deliver confidently. Get paid.",
     description:
-      "Track delivery, protect the payment, and release earnings when the order is complete.",
+      "Track orders, confirm delivery, and keep your earnings organized.",
     image: {
       slot: "auth-deliver",
       src: sceneSrc("auth-deliver"),
@@ -244,28 +305,46 @@ export const AUTH_SCENES: readonly AuthScene[] = [
       {
         kind: "status",
         icon: "delivered",
-        title: "Delivered",
-        description: "Buyer confirmed",
+        title: "Delivery confirmed",
+        description: "Order complete",
         tone: "success",
         badge: "check",
-        placement: { x: 0.92, y: 0.3, anchor: "top-right", priority: "primary" },
+        placement: {
+          x: 0.92,
+          y: 0.3,
+          anchor: "top-right",
+          priority: "primary",
+          mobile: { x: 0.96, y: 0.27 },
+        },
       },
       {
         kind: "event",
         icon: "payout",
-        title: "Funds released",
+        title: "Earnings updated",
         value: "₦22,800",
         tone: "brand",
         badge: "check",
-        placement: { x: 0.06, y: 0.38, anchor: "top-left", priority: "secondary" },
+        placement: {
+          x: 0.06,
+          y: 0.38,
+          anchor: "top-left",
+          priority: "secondary",
+          mobile: { x: 0.04, y: 0.6 },
+        },
       },
       {
-        // Same job as the other two chips: the band's second element, and the
-        // one fact the cards leave out — that the buyer's money was held, not
-        // just that it moved.
+        // Same job as the other two chips: an extra element for the band, and
+        // a plain statement of what the product does rather than a guarantee
+        // about what happens to the money.
         kind: "chip",
-        label: "Buyer protected",
-        placement: { x: 0.95, y: 0.64, anchor: "bottom-right", priority: "optional" },
+        label: "Track the order",
+        placement: {
+          x: 0.95,
+          y: 0.64,
+          anchor: "bottom-right",
+          priority: "optional",
+          mobile: { x: 0.34, y: 0.37 },
+        },
       },
     ],
   },
@@ -281,6 +360,6 @@ export const AUTH_SCENES: readonly AuthScene[] = [
  */
 export const AUTH_LANDING_HEADING = "Buy, sell, and grow with Vibaar.";
 
-/** Supporting line. Rendered at `md+` only, where there is room for it. */
+/** Supporting line. Rendered at `lg+` only, where there is room for it. */
 export const AUTH_LANDING_SUPPORT =
   "One account for shopping, selling, and managing every order.";

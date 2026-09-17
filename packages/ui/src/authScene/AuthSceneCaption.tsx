@@ -6,7 +6,7 @@ import type { AuthScene } from "./authScene";
 /**
  * Which of the two presentation sites this is.
  *
- * `panel` sits inside the visual panel at `md+`. `column` is the existing
+ * `panel` sits inside the visual panel at `lg+`. `column` is the existing
  * content-column position below the mobile artwork band. Exactly one is
  * displayed at any width — see the component docblock for why that is a `hidden`
  * class and not a JS branch.
@@ -41,7 +41,7 @@ export interface AuthSceneCaptionProps {
  *
  * ## Why this renders twice
  *
- * At `md+` the caption belongs inside the visual panel. Below `md` it must stay
+ * At `lg+` the caption belongs inside the visual panel. Below `lg` it must stay
  * exactly where it is today — in the content column, under a fixed-height
  * artwork band — because the media wrapper clips overflow and could not place
  * it there. So there are two presentation SITES for this small block of text
@@ -50,7 +50,7 @@ export interface AuthSceneCaptionProps {
  *
  * The duplication is the text, not the engine. That distinction is the whole
  * point: the previous system duplicated the engine — two sibling subtrees under
- * `md:hidden` / `hidden md:flex`, both mounted, so every signed-out visit ran
+ * `lg:hidden` / `hidden lg:flex`, both mounted, so every signed-out visit ran
  * two slideshow controllers and fetched all three backgrounds twice.
  *
  * Only one site is displayed at a time, via `hidden`, so `display: none` keeps

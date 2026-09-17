@@ -329,12 +329,12 @@ export default function SignInOverview() {
           actionMode={liveStep === 0 ? "landing" : "step"}
           header={
             liveStep > 0 ? (
-              // `md:static lg:static`, not `md:static` alone: Header is
+              // `lg:static lg:static`, not `lg:static` alone: Header is
               // `absolute lg:sticky lg:top-0`, and responsive variants are
               // independent — without the `lg` term it would go sticky again at
               // 1024 and, being `w-full z-sticky`, paint over the media pane.
               <Header
-                  className="md:static lg:static"
+                  className="lg:static"
                   onBack={() => router.push(`/signin`)}
                   title={<BrandLogo />}
                   progress={<StepNavigation step={step} totalSteps={2} />}
@@ -350,9 +350,9 @@ export default function SignInOverview() {
             <>
               {/* The rotating caption is no longer a child here: the controller
                   places it between `lead` and these actions on mobile, and
-                  inside the visual panel at `md+`. */}
-              <div className="flex flex-col gap-2.5 md:gap-5">
-                <ul className="flex flex-col gap-2.5 md:gap-5">
+                  inside the visual panel at `lg+`. */}
+              <div className="flex flex-col gap-2.5 lg:gap-5">
+                <ul className="flex flex-col gap-2.5 lg:gap-5">
                   {signupOptions.map((option) => {
                     const isLoading =
                       (option.title === "Create my account" && buttonLoading.createAccount) ||
@@ -376,7 +376,7 @@ export default function SignInOverview() {
                     loadingText="Explore Marketplace"
                     variant="ghost"
                     fullWidth={false}
-                    className="mx-auto w-full max-w-xs md:max-w-none">
+                    className="mx-auto w-full max-w-xs lg:max-w-none">
                     <Image
                       src="/icons/shopping_cart.svg"
                       alt=""
@@ -386,7 +386,7 @@ export default function SignInOverview() {
                     />
                     Explore Marketplace
                   </Button>
-                  <p className="mt-3 text-center text-body-sm font-normal text-foreground-secondary md:hidden">
+                  <p className="mt-3 text-center text-body-sm font-normal text-foreground-secondary lg:hidden">
                     Discover Instagram vendors and products
                   </p>
                 </div>

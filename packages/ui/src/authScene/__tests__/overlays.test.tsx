@@ -7,7 +7,7 @@ import type { AuthOverlay } from "../authScene";
 
 const eventOverlay: AuthOverlay = {
   kind: "event",
-  placement: { x: 0.2, y: 0.3, anchor: "top-left", priority: "primary" },
+  placement: { x: 0.2, y: 0.3, anchor: "top-left", priority: "primary", mobile: { x: 0.9, y: 0.25 } },
   icon: "order",
   title: "New order",
   value: "₦24,500",
@@ -16,9 +16,9 @@ const eventOverlay: AuthOverlay = {
 
 const statusOverlay: AuthOverlay = {
   kind: "status",
-  placement: { x: 0.7, y: 0.8, anchor: "bottom-right", priority: "optional" },
+  placement: { x: 0.7, y: 0.8, anchor: "bottom-right", priority: "optional", mobile: { x: 0.35, y: 0.4 } },
   icon: "payment",
-  title: "Payment secured",
+  title: "Payment received",
   description: "Held until delivery",
   tone: "success",
   badge: "check",
@@ -26,7 +26,7 @@ const statusOverlay: AuthOverlay = {
 
 const chipOverlay: AuthOverlay = {
   kind: "chip",
-  placement: { x: 0.9, y: 0.6, anchor: "bottom-right", priority: "optional" },
+  placement: { x: 0.9, y: 0.6, anchor: "bottom-right", priority: "optional", mobile: { x: 0.35, y: 0.4 } },
   label: "Saved",
 };
 
@@ -120,6 +120,19 @@ describe("AuthSceneOverlay", () => {
     expect(container.querySelectorAll("button, a, input, [tabindex]")).toHaveLength(0);
   });
 
+  it("carries the band's coordinates as well as the pane's", () => {
+    // The two are a different composition, not one scaled: 390x422 at aspect
+    // 0.92 against 806x836, and the band has a wordmark across its top and a
+    // seam gradient across its bottom that the pane does not. Scaling one set
+    // produced overlapping cards, which is what led to hiding elements on
+    // mobile instead of placing them.
+    const { container } = render(<AuthSceneOverlay overlay={eventOverlay} index={0} active />);
+    const el = container.firstElementChild as HTMLElement;
+    expect(el.style.getPropertyValue("--overlay-x")).toBe("0.2");
+    expect(el.style.getPropertyValue("--overlay-x-mobile")).toBe("0.9");
+    expect(el.style.getPropertyValue("--overlay-y-mobile")).toBe("0.25");
+  });
+
   it("positions from custom properties, not from a class", () => {
     const { container } = render(<AuthSceneOverlay overlay={eventOverlay} index={2} active />);
     const el = container.firstElementChild as HTMLElement;
@@ -196,7 +209,7 @@ describe("AuthSceneOverlay", () => {
 
   it("dispatches on kind, including the chip", () => {
     render(<AuthSceneOverlay overlay={statusOverlay} index={0} active />);
-    expect(screen.getByText("Payment secured")).toBeInTheDocument();
+    expect(screen.getByText("Payment received")).toBeInTheDocument();
 
     const chip = render(<AuthSceneOverlay overlay={chipOverlay} index={0} active />);
     expect(chip.getByText("Saved")).toBeInTheDocument();
@@ -210,8 +223,17 @@ describe("scenePlacement helpers", () => {
     // The narrowness is the point: these cannot write a colour, a length or a
     // font, which is what makes the indirection tighter than the drift rule it
     // steps around rather than a way past it.
-    expect(Object.keys(overlayPlacementStyle({ x: 0.1, y: 0.2, index: 1 })))
-      .toEqual(["--overlay-x", "--overlay-y", "--overlay-index"]);
+    expect(
+      Object.keys(
+        overlayPlacementStyle({ x: 0.1, y: 0.2, mobileX: 0.9, mobileY: 0.3, index: 1 })
+      )
+    ).toEqual([
+      "--overlay-x",
+      "--overlay-y",
+      "--overlay-x-mobile",
+      "--overlay-y-mobile",
+      "--overlay-index",
+    ]);
 
     expect(Object.keys(sceneFocalStyle({
       x: 0.5, y: 0.5, compactX: 0.4, compactY: 0.3, desktopX: 0.6, desktopY: 0.45,

@@ -93,7 +93,7 @@ describe("AuthSplitShell", () => {
       // `order` is the only thing putting the band back on top. Its correctness
       // is proved by measurement at 390 — this pins that it is applied at all.
       expect(pane(getByTestId("art")).className).toContain("order-first");
-      expect(pane(getByTestId("art")).className).toContain("md:order-none");
+      expect(pane(getByTestId("art")).className).toContain("lg:order-none");
     });
   });
 
@@ -153,18 +153,24 @@ describe("AuthSplitShell", () => {
       expect(className).not.toContain("h-screen");
     });
 
-    it("splits at md, the breakpoint the auth screens already used", () => {
+    it("splits at lg, not md — a tablet in portrait keeps the stacked layout", () => {
+      // It DID split at `md`, and that shipped a 344x976 media pane at 768:
+      // aspect 0.35, which crops a 4:3 photograph to 26% of its width and shows
+      // one object out of five. 768x1024 and 820x1180 are ordinary iPad
+      // viewports, so the stacked layout holds until the pane is wide enough to
+      // be worth having — a 768x512 band at aspect 1.5 shows the whole scene.
       const { container } = render(<AuthSplitShell media={null}>content</AuthSplitShell>);
-      expect(root(container).className).toContain("md:grid");
-      expect(root(container).className).not.toContain("lg:grid ");
+      const className = root(container).className;
+      expect(className).toContain("lg:grid");
+      expect(className).not.toMatch(/\bmd:/);
     });
 
     it("carries no max-width, so the media keeps growing past 1280", () => {
       const { container } = render(<AuthSplitShell media={null}>content</AuthSplitShell>);
       // `max-w-7xl` capped the frame at 1280 and froze the pane at 592px — the
       // media stopped growing exactly where there was most room for it.
-      expect(root(container).className).not.toMatch(/\bmd:max-w-/);
       expect(root(container).className).not.toMatch(/\bmax-w-7xl\b/);
+      expect(root(container).className).not.toMatch(/\b(md|lg):max-w-/);
     });
 
     it("splits 40/60 from lg, so both columns keep growing", () => {
@@ -179,7 +185,7 @@ describe("AuthSplitShell", () => {
       const { container } = render(<AuthSplitShell media={null}>content</AuthSplitShell>);
       // Uniform padding is what makes the three insets equal; `px`/`py` pairs
       // would not.
-      expect(root(container).className).toContain("md:p-6");
+      expect(root(container).className).toContain("lg:p-8");
       expect(root(container).className).toContain("lg:p-8");
     });
 
@@ -187,7 +193,7 @@ describe("AuthSplitShell", () => {
       const { getByTestId } = render(
         <AuthSplitShell media={<span data-testid="art" />}>content</AuthSplitShell>
       );
-      expect(pane(getByTestId("art")).className).toContain("md:rounded-panel");
+      expect(pane(getByTestId("art")).className).toContain("lg:rounded-panel");
       expect(pane(getByTestId("art")).className).not.toContain("rounded-3xl");
     });
 
@@ -282,7 +288,7 @@ describe("AuthSplitShell", () => {
           content
         </AuthSplitShell>
       );
-      expect(bar(container).className).toContain("md:static");
+      expect(bar(container).className).toContain("lg:static");
     });
   });
 
@@ -305,8 +311,8 @@ describe("AuthSplitShell", () => {
       );
       const inner = container.querySelector(".mt-16") as HTMLElement;
       expect(inner).not.toBeNull();
-      expect(inner.className).toContain("md:mt-0");
-      // The auto margins must NOT live here. When they did, this `md:mt-0`
+      expect(inner.className).toContain("lg:mt-0");
+      // The auto margins must NOT live here. When they did, this `lg:mt-0`
       // silently cancelled the top one, leaving only the bottom auto — which
       // stacked every step against the top of an 836px column.
       expect(inner.className).not.toContain("my-auto");
@@ -324,8 +330,8 @@ describe("AuthSplitShell", () => {
       // Header and content sit in one group that carries both the measure and
       // the centring, so they cannot drift apart.
       const group = getByTestId("hdr").parentElement as HTMLElement;
-      expect(group.className).toContain("md:max-w-md");
-      expect(group.className).toContain("md:my-auto");
+      expect(group.className).toContain("lg:max-w-md");
+      expect(group.className).toContain("lg:my-auto");
       // It evaporates below md, leaving the mobile frame exactly as it was.
       expect(group.className).toContain("contents");
     });

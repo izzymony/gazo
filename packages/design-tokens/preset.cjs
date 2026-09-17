@@ -64,7 +64,11 @@ module.exports = {
       addBase({
         "@keyframes scene-float": {
           "0%": { translate: "0 0" },
-          "100%": { translate: "0 calc(-1 * var(--scene-float-rise, 8px))" },
+          "100%": {
+            translate:
+              "var(--scene-float-drift, 0px) " +
+              "calc(var(--scene-float-rise, 12px) * var(--scene-float-dir, -1))",
+          },
         },
       });
       addUtilities({
@@ -160,8 +164,12 @@ module.exports = {
         },
         ".scene-overlay": {
           position: "absolute",
-          left: "calc(var(--overlay-x, .5) * 100%)",
-          top: "calc(var(--overlay-y, .5) * 100%)",
+          // The BAND's coordinates are the base and the split pane overrides
+          // them, rather than the other way round — mobile-first, and it means
+          // a scene that forgets a mobile coordinate falls back to a sane
+          // centre instead of inheriting a desktop position that does not fit.
+          left: "calc(var(--overlay-x-mobile, var(--overlay-x, .5)) * 100%)",
+          top: "calc(var(--overlay-y-mobile, var(--overlay-y, .5)) * 100%)",
           // `max-content`, and this is not cosmetic. An absolutely positioned
           // box with `left` but no `right` shrink-to-fits against the space
           // LEFT OVER — at `left: 94%` in an 806px pane that is 48px — so the
@@ -173,14 +181,33 @@ module.exports = {
           width: "max-content",
           // A ceiling, because `max-content` has none: a longer string would
           // otherwise run past the pane instead of wrapping. Two terms because
-          // one cannot do it — 60cqw alone truncated "New collection" to "New
-          // collec..." in the 390px mobile band and wrapped its value onto two
-          // lines, while a fixed rem cap would let the card swallow a narrow
-          // pane. 78cqw keeps it proportional; 19rem stops it dominating.
-          "max-width": "min(78cqw, 19rem)",
+          // one cannot do it — a bare cqw truncated "New collection" to "New
+          // collec...", while a fixed rem cap would let the card swallow a
+          // narrow pane. The cqw term keeps it proportional; 19rem stops it
+          // dominating. 58cqw on the band is the figure that lets two cards and
+          // a chip coexist there; the wide override below relaxes it.
+          "max-width": "min(58cqw, 19rem)",
           // The stagger is a delay, not a timer. One transition per overlay,
           // ordered by index — no per-overlay JS and nothing to cancel.
           "transition-delay": "calc(var(--overlay-index, 0) * var(--scene-stagger, 110ms))",
+        },
+        // ── The split pane takes over ─────────────────────────────────────
+        // 30rem (480px), which is above every stacked band this ships
+        // (390-430 wide) and below every split pane (557 at 1024 and up). The
+        // 768x512 band lands ABOVE it deliberately: that pane is wide and short
+        // like a desktop one, so it wants the desktop composition, not the
+        // phone's vertical stack.
+        "@container (min-width: 30rem)": {
+          ".scene-overlay": {
+            left: "calc(var(--overlay-x, .5) * 100%)",
+            top: "calc(var(--overlay-y, .5) * 100%)",
+            // Wider cards are affordable once the pane is, and the 19rem term
+            // still stops one swallowing the composition. One declaration
+            // block, because two `.scene-overlay` keys in the same object
+            // would silently clobber each other — the duplicate-key trap this
+            // preset has already been bitten by once.
+            "max-width": "min(78cqw, 19rem)",
+          },
         },
         // Which corner of the card sits on the coordinate. `transform` carries
         // the anchor and `translate` carries the motion, as independent
@@ -198,35 +225,23 @@ module.exports = {
         "@container (max-width: 20rem)": {
           ".scene-overlay-optional": { display: "none" },
         },
-        // THREE terms, and every one of them is load-bearing. The constraint is
-        // a caption that is `max-w-md` (448px) and bottom-anchored: it reaches
-        // the chip's corner only on a pane short enough that the caption rides
-        // up, AND wide enough to have a caption at all, AND narrow enough that
-        // 448px of it spans most of the width. Measured, chip against caption:
+        // The only thing still dropped anywhere, and only where a bottom-anchored
+        // `max-w-md` caption would otherwise sit under it: a pane short enough
+        // for the caption to ride up, wide enough to have one at all, and narrow
+        // enough that 448px of it spans most of the width. Measured, chip
+        // against caption:
         //
         //   557x576 @1024x640   caption x 32-480, chip x 445-526   COLLIDES
         //   806x576 @1440x640   caption x 32-480, chip x 685-766   clear
-        //   344x976 @768        caption top 703,  chip ends 626    clear
-        //   390x422 mobile      no caption in the pane at all      clear
+        //   768x512 band        no caption in the pane             clear
+        //   390x422 band        no caption in the pane             clear
         //
-        // Height alone dropped it on three panes that had room. Adding
-        // `max-width` alone still caught the 390x422 band, which is BOTH narrow
-        // and short — and is the one pane with no caption in it, so it was the
-        // last thing that should have been trimmed. `min-width: 28rem` is what
-        // tells the band apart from the 557px pane; their aspect ratios (0.92
-        // against 0.97) are too close to use.
+        // Nothing else is hidden. `.scene-overlay-secondary` used to disappear
+        // below 30rem of pane width, which meant the phone showed one card out
+        // of three — a different composition, not a responsive one. Per-breakpoint
+        // coordinates replaced it: see `--overlay-x-mobile` above.
         "@container (min-width: 28rem) and (max-width: 36rem) and (max-height: 38rem)": {
           ".scene-overlay-optional": { display: "none" },
-        },
-        // A SECOND card needs room for two, which is a different threshold from
-        // the one above. Measured in the 390x422 mobile band: the cards are
-        // ~200px wide, so a primary at top-right and a secondary at top-left
-        // overlapped each other outright — the status card sat on top of the
-        // event card and both were unreadable. 30rem (480px) is the width below
-        // which two of these cannot coexist, so the band and the 344px pane at
-        // 768 show one card, and 1024 upward shows two.
-        "@container (max-width: 30rem)": {
-          ".scene-overlay-secondary": { display: "none" },
         },
         // The entrance, as INDEPENDENT transform properties.
         //
@@ -248,34 +263,75 @@ module.exports = {
         //
         // The old one was WAAPI (`el.animate`, `iterations: Infinity`) and that
         // is exactly why it was a defect: a Web Animations animation is
-        // unreachable from CSS, so the app's blanket
-        // `prefers-reduced-motion` rule could not stop it, and an orphaned
-        // `setTimeout` could start one on an outgoing slide that nothing would
-        // ever cancel. A CSS animation has neither problem — the media query
-        // below genuinely stops it, and it ends when the element unmounts.
+        // unreachable from CSS, so the app's blanket `prefers-reduced-motion`
+        // rule could not stop it, and an orphaned `setTimeout` could start one
+        // on an outgoing slide that nothing would ever cancel. A CSS animation
+        // has neither problem — the media query below genuinely stops it, and
+        // it ends when the element unmounts.
         //
-        // Matched to the old feel deliberately: `cubic-bezier(.5,0,.5,1)` with
-        // `alternate`, and 3800-4500ms, which is the range `slidesData` used
-        // (3800 / 4000 / 4200 / 4500). Amplitude scales with the pane for the
-        // same reason it did there — a card on a small pane should not bob the
-        // same absolute distance as one on a large pane. 1.4cqmin gives ~5px on
-        // the 390 band and ~11px on an 806px desktop pane, against the old
-        // system's ~4px and ~14px.
+        // ## The numbers, and why they are not the old ones
+        //
+        // A first pass matched `slidesData` exactly — 3800-4500ms over ~5px on
+        // mobile — and it read as static. Matching the old parameters was the
+        // wrong goal: those were tuned for nine small cards on a 450-unit
+        // canvas, where many things moving a little reads as drift. Three
+        // discrete cards need more travel each to register at all.
+        //
+        //   travel    clamp(12px, 2cqmin, 18px)  -> 12px on the 390 band,
+        //                                           16px on an 806px pane
+        //
+        // The floor is 12px, not 10: at 10 the measured peak-to-peak on the
+        // band came out at 9.0-9.5px, which sat under the intended range rather
+        // than in it. 2cqmin is only 7.8px at 390, so the floor is what decides
+        // the phone and the cqmin term only takes over from ~600px.
+        //   duration  2800 / 3200 / 3600ms       (was 3800-4500)
+        //
+        // ## Why three variants rather than one
+        //
+        // With one keyframe and one direction, three cards rise and fall in
+        // parallel and the whole layer reads as a single sheet sliding, which
+        // is worse than no motion. So each overlay takes one of three
+        // characters: a different direction, a small horizontal drift, and its
+        // own duration and negative delay. Assigned by `index % 3` in
+        // `AuthSceneOverlay`, so it is a closed set of three rather than a
+        // formula nobody can picture.
+        //
+        // Drift is 3px at most. Anything more reads as sliding rather than
+        // floating, and the brief rules out rotation, bounce and zoom — so
+        // `translate` on two axes is the whole vocabulary.
         //
         // It lives on its OWN element between the anchor wrapper and the card.
         // `translate` is already taken twice: the wrapper uses it for the
         // entrance offset and `transform` for the anchor. An animation on the
         // wrapper's `translate` would overwrite the entrance mid-flight.
         ".scene-float": {
-          "--scene-float-rise": "clamp(4px, 1.4cqmin, 12px)",
+          "--scene-float-rise": "clamp(12px, 2cqmin, 18px)",
           "animation-name": "scene-float",
-          // Staggered durations, so three cards never bob in lockstep.
-          "animation-duration": "calc(3800ms + var(--overlay-index, 0) * 350ms)",
-          // NEGATIVE, so each starts mid-cycle instead of waiting its turn.
-          "animation-delay": "calc(var(--overlay-index, 0) * -900ms)",
-          "animation-timing-function": "cubic-bezier(0.5, 0, 0.5, 1)",
+          "animation-duration": "var(--scene-float-duration, 3200ms)",
+          "animation-timing-function": "cubic-bezier(0.45, 0, 0.55, 1)",
           "animation-iteration-count": "infinite",
           "animation-direction": "alternate",
+        },
+        // Three characters. NEGATIVE delays, so each starts mid-cycle instead
+        // of waiting its turn — with positive delays all three would sit still
+        // for the first second, which is exactly when someone is looking.
+        ".scene-float-a": {
+          "--scene-float-duration": "2800ms",
+          "--scene-float-dir": "-1",
+          "--scene-float-drift": "0px",
+          "animation-delay": "-600ms",
+        },
+        ".scene-float-b": {
+          "--scene-float-duration": "3600ms",
+          "--scene-float-dir": "1",
+          "--scene-float-drift": "3px",
+          "animation-delay": "-1900ms",
+        },
+        ".scene-float-c": {
+          "--scene-float-duration": "3200ms",
+          "--scene-float-dir": "-1",
+          "--scene-float-drift": "-3px",
+          "animation-delay": "-1200ms",
         },
         "@media (prefers-reduced-motion: reduce)": {
           ".scene-float": { "animation-name": "none" },

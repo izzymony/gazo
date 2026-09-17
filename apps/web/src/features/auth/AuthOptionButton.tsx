@@ -55,8 +55,8 @@ export default function AuthOptionButton({
       variant={option.isPrimary ? "filled" : "bordered"}
       className={cn(
         "w-full rounded-full",
-        "h-[52px] text-body font-normal md:h-14 md:text-body-lg md:font-medium",
-        option.isSecondary && "md:border-2",
+        "h-[52px] text-body font-normal lg:h-14 lg:text-body-lg lg:font-medium",
+        option.isSecondary && "lg:border-2",
         option.isSecondary && "hover:bg-brand hover:text-brandInk",
         !option.isPrimary &&
           !option.isSecondary &&

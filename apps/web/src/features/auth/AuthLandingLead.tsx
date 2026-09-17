@@ -14,7 +14,7 @@ import { AUTH_LANDING_HEADING, AUTH_LANDING_SUPPORT } from "./authScenes";
  *
  * ## Why the heading is `sr-only` on mobile
  *
- * At `md+` this is a visible heading above the actions. Below `md` the rotating
+ * At `lg+` this is a visible heading above the actions. Below `lg` the rotating
  * scene copy stays exactly where it is today — directly under the artwork band,
  * at the same offset — and adding a second heading above it would push that
  * caption down the column, which is the one thing the mobile presentation was
@@ -27,30 +27,30 @@ import { AUTH_LANDING_HEADING, AUTH_LANDING_SUPPORT } from "./authScenes";
  * proposition, stated once, in the position the outline wants it.
  */
 export default function AuthLandingLead() {
-  // A `display: none` image is still fetched, so `hidden md:block` shipped the
+  // A `display: none` image is still fetched, so `hidden lg:block` shipped the
   // wordmark to every phone that never saw it. This gates the MOUNT, and is
   // `false` on the server, so it does not reach the mobile HTML at all.
-  const showWordmark = useMediaActive("md");
+  const showWordmark = useMediaActive("lg");
 
   return (
-    <div className="md:text-center">
+    <div className="lg:text-center">
       {/* The box is reserved at its rendered height: this column is vertically
-          centred at `md`, so mounting the logo after hydration would otherwise
+          centred at `lg`, so mounting the logo after hydration would otherwise
           shift everything beneath it by half the logo's height. */}
-      <div className="hidden md:mb-8 md:flex md:h-14 md:items-center md:justify-center">
+      <div className="hidden lg:mb-8 lg:flex lg:h-14 lg:items-center lg:justify-center">
         {showWordmark && <BrandLogo width={180} />}
       </div>
 
-      {/* `text-display` at `md` to match `/welcome`, which shares this frame —
+      {/* `text-display` at `lg` to match `/welcome`, which shares this frame —
           at `text-h1` on both widths it read as a different screen sitting next
           to a 40px headline. No `leading-[44px]`: the token already carries it. */}
-      <h1 className="sr-only text-balance font-medium tracking-wide text-foreground-primary md:not-sr-only md:text-display">
+      <h1 className="sr-only text-balance font-medium tracking-wide text-foreground-primary lg:not-sr-only lg:text-display">
         {AUTH_LANDING_HEADING}
       </h1>
 
       {/* Desktop only. On mobile the rotating description occupies this
           position, and two descriptions would say the same thing twice. */}
-      <p className="hidden text-balance text-body font-normal text-foreground-secondary md:mt-3 md:block">
+      <p className="hidden text-balance text-body font-normal text-foreground-secondary lg:mt-3 lg:block">
         {AUTH_LANDING_SUPPORT}
       </p>
     </div>

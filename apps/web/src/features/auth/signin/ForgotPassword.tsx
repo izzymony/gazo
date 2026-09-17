@@ -195,12 +195,12 @@ export default function ForgotPasswordComp() {
                             actionMode="step"
                             header={
                                 <Header
-                                  // `lg:static` as well as `md:static`: Header is
+                                  // `lg:static` as well as `lg:static`: Header is
                                   // `absolute lg:sticky lg:top-0`, and responsive
-                                  // variants are independent, so the `md` term
+                                  // variants are independent, so the `lg` term
                                   // alone lets it go sticky again at 1024 and,
                                   // being `w-full z-sticky`, paint over the media.
-                                  className="md:static lg:static"
+                                  className="lg:static"
                                   onBack={onBack}
                                   title={<BrandLogo />}
                                   progress={progress}

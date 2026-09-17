@@ -93,7 +93,7 @@ describe("auth step zero renders one tree", () => {
     const button = read("AuthOptionButton.tsx");
     // The prop existed only to pick between the two forked blocks' sizing.
     expect(button).not.toMatch(/layout\??\s*[:=]/);
-    expect(button).toContain("md:h-14");
+    expect(button).toContain("lg:h-14");
   });
 });
 

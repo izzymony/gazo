@@ -126,7 +126,7 @@ export default function Welcome() {
   const userName = getUserName();
 
   // Desktop wordmark: a mount, not a `hidden` class — see the slot below.
-  const showWordmark = useMediaActive("md");
+  const showWordmark = useMediaActive("lg");
 
   if (loading) {
     return <Loader />;
@@ -150,7 +150,7 @@ export default function Welcome() {
               band to the content beneath it, which the detached desktop pane
               has no need of — there the image shows uninterrupted. Kept out
               of the asset deliberately, so the two crops stay independent. */}
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-surface via-surface/70 to-transparent md:hidden" />
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-surface via-surface/70 to-transparent lg:hidden" />
         </>
       }
       contentClassName="gap-5"
@@ -168,7 +168,7 @@ export default function Welcome() {
 {/* Desktop wordmark, so this column opens the way the auth screens
             do — they share a frame and should start the same way.
 
-            Gated on a MOUNT rather than `hidden md:block`: a display:none
+            Gated on a MOUNT rather than `hidden lg:block`: a display:none
             image is still fetched, so the class alone shipped it to every
             phone. `useMediaActive` is false on the server, so it never reaches
             the mobile HTML.
@@ -181,14 +181,14 @@ export default function Welcome() {
             The box is reserved at its rendered height, because this column is
             vertically centred and a post-hydration mount would otherwise shift
             everything beneath it. */}
-        <div className="hidden md:flex md:h-14 md:mb-8 md:items-center md:justify-center">
+        <div className="hidden lg:flex lg:h-14 lg:mb-8 lg:items-center lg:justify-center">
           {showWordmark && <BrandLogo width={180} />}
         </div>
 
         {/* Matches SlideContent's scale exactly. It was `text-h1` at every
             width, so beside a 40px auth headline in the same frame this one
             read as a different screen. */}
-        <h1 className="text-h1 md:text-display md:leading-[44px] font-medium text-foreground-primary leading-tight text-balance">
+        <h1 className="text-h1 lg:text-display lg:leading-[44px] font-medium text-foreground-primary leading-tight text-balance">
           Welcome to <span className="text-brandDeep font-bold">Vibaar</span>, <span className="font-bold">{userName}</span>! 👋
         </h1>
       </div>

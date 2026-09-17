@@ -106,18 +106,40 @@ export default function AuthOverlayCard({
         <Icon size={20} />
       </span>
 
+      {/* TWO ROWS, not three columns — and this is what makes the mobile
+          composition possible rather than a styling preference.
+
+          The value used to be a third column pushed right by `ml-auto`, so a
+          card's natural width was tile + title + value on one line: 261px for
+          "New collection / 12 products". Two of those cannot sit in a 390px
+          band without colliding, which is why the secondary card was being
+          hidden there. Moving the value under the title makes the width the
+          WIDER OF TWO SHORT ROWS instead of the sum of everything — about
+          200px for the same content — and three elements fit.
+
+          It is also the reference's own anatomy: a bold title, then a row with
+          the detail on the left and the figure on the right. */}
       <span className="flex min-w-0 flex-col">
         <span className="truncate text-body font-semibold text-foreground-primary">{title}</span>
-        {/* `foreground-secondary`, never `foreground-muted`: muted measures
-            2.2:1 on this glass over the darkest patch the card can land on. */}
-        {detail && <span className="text-body-sm text-foreground-secondary">{detail}</span>}
+
+        {(detail || value) && (
+          <span className="flex items-baseline gap-3">
+            {/* `foreground-secondary`, never `foreground-muted`: muted measures
+                2.2:1 on this glass over the darkest patch a card can land on. */}
+            {detail && (
+              <span className="truncate text-body-sm text-foreground-secondary">{detail}</span>
+            )}
+            {/* `ml-auto` so the figure sits right whether or not there is a
+                detail beside it. */}
+            {value && (
+              <span className="ml-auto shrink-0 text-body font-semibold tabular-nums text-foreground-primary">
+                {value}
+              </span>
+            )}
+          </span>
+        )}
       </span>
 
-      {value && (
-        <span className="ml-auto pl-3 text-body font-semibold tabular-nums text-foreground-primary">
-          {value}
-        </span>
-      )}
     </div>
   );
 }

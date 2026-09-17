@@ -29,18 +29,29 @@ import type { CSSProperties } from "react";
 
 /** Position and entrance order for one overlay. All fractions of the pane. */
 export interface OverlayPlacementVars {
-  /** 0–1 across the media container. */
+  /** 0–1 across the media container, on the split pane. */
   x: number;
-  /** 0–1 down the media container. */
+  /** 0–1 down the media container, on the split pane. */
   y: number;
+  /** The same, for the stacked band — a different composition, not a scaled one. */
+  mobileX: number;
+  mobileY: number;
   /** Entrance order, from 0. Multiplied by the stagger to make a delay. */
   index: number;
 }
 
-export function overlayPlacementStyle({ x, y, index }: OverlayPlacementVars): CSSProperties {
+export function overlayPlacementStyle({
+  x,
+  y,
+  mobileX,
+  mobileY,
+  index,
+}: OverlayPlacementVars): CSSProperties {
   return {
     "--overlay-x": x,
     "--overlay-y": y,
+    "--overlay-x-mobile": mobileX,
+    "--overlay-y-mobile": mobileY,
     "--overlay-index": index,
   } as CSSProperties;
 }

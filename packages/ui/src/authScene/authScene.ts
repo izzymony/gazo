@@ -90,6 +90,22 @@ export interface AuthOverlayPlacement {
   y: number;
   anchor: AuthOverlayAnchor;
   priority: AuthOverlayPriority;
+  /**
+   * Coordinates for the stacked band, which is a different composition rather
+   * than a smaller copy of the split pane.
+   *
+   * Required, not optional. The two panes have almost nothing in common —
+   * 390x422 at aspect 0.92 against 806x836 — and the band has two obstacles
+   * the pane does not: the white wordmark across the top and the seam gradient
+   * across the bottom. Scaling one set of coordinates produced overlapping
+   * cards, which is what led to hiding elements on mobile instead of placing
+   * them. Making this required means a new scene cannot forget it.
+   *
+   * The ANCHOR is deliberately not per-breakpoint. A coordinate expressed
+   * against the same corner can put a card anywhere in the pane, so a second
+   * anchor would buy nothing and would need ten more classes to express.
+   */
+  mobile: { x: number; y: number };
 }
 
 /**
@@ -111,7 +127,7 @@ export type AuthSceneIconKey =
  * The overhanging corner mark, or nothing.
  *
  * A closed key for the same reason the icon is one. NOT derived from `kind` and
- * `tone`: "New order · ₦24,500" and "Funds released · ₦22,800" are both
+ * `tone`: "New order · ₦24,500" and "Earnings updated · ₦22,800" are both
  * `event` + `brand` + carrying a value, and they deliberately want different
  * marks — one is a thing arriving, the other is a thing completing. A rule that
  * is wrong for two of the six overlays is not a rule.
@@ -140,7 +156,7 @@ export interface AuthEventOverlay extends AuthOverlayBase {
   metadata?: string;
 }
 
-/** A state the seller is now in — "Payment secured", "Store is live". */
+/** A state the seller is now in — "Payment received", "Store is live". */
 export interface AuthStatusOverlay extends AuthOverlayBase {
   kind: "status";
   icon: AuthSceneIconKey;
