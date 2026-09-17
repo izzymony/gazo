@@ -73,13 +73,38 @@ export default function SignInOverview() {
     clearOrderState();
   }, [clearProductState, clearStoreState, clearUserState, clearOrderState]);
 
-  // Auto-advance slides every 8 seconds
+  // Only audited-live steps enter the split. `step > 0` would sweep in
+  // /signin?step=2 and any non-numeric step, which render a header, a progress
+  // bar and a live CTA over an empty column — dressing a broken URL as a
+  // finished screen is not this change's job.
+  //
+  // Declared here, above the slideshow effect that reads it, rather than beside
+  // the render. It is a pure function of `step`, so the position is free.
+  const liveStep = resolveAuthStep("signin", step);
+
+  // Auto-advance slides, but only while slides are actually on screen.
+  //
+  // This effect used to have `[]` deps and no guard, and it is declared above
+  // every early return — so it ticked in 11 of the 14 auth states this file can
+  // render: behind the `isLoginLoading` spinner, behind `isRedirecting`, on
+  // `/signin?step=2` (which renders no media at all), and on `?step=1` on a
+  // phone, where `mediaOn="desktop"` means the pane is never mounted. Each tick
+  // is a `setState` on this component, so it re-rendered four Zustand stores,
+  // Formik and the whole form subtree every 8 seconds with nothing observing
+  // the value.
+  //
+  // `slideshowVisible` is the one state that shows slides: the landing, not
+  // redirecting, not loading. `SlideContent` is rendered only under
+  // `liveStep === 0` too, so this now matches what is on screen.
+  const slideshowVisible = liveStep === 0 && !isRedirecting && !isLoginLoading;
+
   useEffect(() => {
+    if (!slideshowVisible) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slidesData.length);
     }, 8000);
     return () => clearInterval(interval);
-  }, []);
+  }, [slideshowVisible]);
 
   const handleNextStep = async () => {
     const errors = await formik.validateForm();
@@ -263,11 +288,6 @@ export default function SignInOverview() {
     }
   }, [identifierFromQuery, typeFromQuery, step, usernameFromQuery]);
 
-  // Only audited-live steps enter the split. `step > 0` would sweep in
-  // /signin?step=2 and any non-numeric step, which render a header, a progress
-  // bar and a live CTA over an empty column — dressing a broken URL as a
-  // finished screen is not this change's job.
-  const liveStep = resolveAuthStep("signin", step);
   const stepRef = useStepFocus(liveStep);
 
   if (isLoginLoading) {

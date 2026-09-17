@@ -156,13 +156,31 @@ export default function SignUpOverview() {
   const [referrerName, setReferrerName] = useState("");
   const refParam = searchParams.get("ref");
 
-  // Auto-advance slides
+  // Only audited-live steps enter the split. Declared here, above the slideshow
+  // effect that reads it, rather than beside the render — it is a pure function
+  // of `step` and the OTP flag, so the position is free.
+  const liveStep = resolveAuthStep("signup", step, { isOtpEnabled });
+
+  // Auto-advance slides, but only while slides are actually on screen.
+  //
+  // This effect used to have `[]` deps and no guard, and it is declared above
+  // the `isRedirecting` branch — so it ticked behind the redirect spinner, on
+  // `/signup?step=4` (which renders no media at all), and on every form step on
+  // a phone, where `mediaOn="desktop"` means the pane is never mounted. Each
+  // tick is a `setState` on this component, so it re-rendered Formik and the
+  // whole form subtree every 8 seconds with nothing observing the value.
+  //
+  // `slideshowVisible` is the one state that shows slides — the landing, not
+  // redirecting. `SlideContent` is rendered only under `liveStep === 0` too.
+  const slideshowVisible = liveStep === 0 && !isRedirecting;
+
   useEffect(() => {
+    if (!slideshowVisible) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slidesData.length);
     }, 8000);
     return () => clearInterval(interval);
-  }, []);
+  }, [slideshowVisible]);
 
   useEffect(() => {
     if (queryStep) {
@@ -529,10 +547,6 @@ export default function SignUpOverview() {
   };
 
 
-  // Only audited-live steps enter the split. The ladder changes shape with the
-  // OTP flag — with it off, step 2 is the password screen and step 4 renders
-  // nothing at all — so the allowed set is asked for, not assumed from `> 0`.
-  const liveStep = resolveAuthStep("signup", step, { isOtpEnabled });
   const stepRef = useStepFocus(liveStep);
 
   return (
