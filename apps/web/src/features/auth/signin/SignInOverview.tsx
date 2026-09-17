@@ -27,6 +27,7 @@ import { slidesData } from "@vibaar/ui/animated/slidesData";
 import { trackLogin, setUserProperties } from "@/lib/analytics";
 import { resolveAuthStep } from "../authSteps";
 import useStepFocus from "../useStepFocus";
+import usePrefersReducedMotion from "@vibaar/ui/common/usePrefersReducedMotion";
 
 const validationSchema = Yup.object({
   identifier: Yup.string().required("Email is required"),
@@ -96,7 +97,13 @@ export default function SignInOverview() {
   // `slideshowVisible` is the one state that shows slides: the landing, not
   // redirecting, not loading. `SlideContent` is rendered only under
   // `liveStep === 0` too, so this now matches what is on screen.
-  const slideshowVisible = liveStep === 0 && !isRedirecting && !isLoginLoading;
+  // Reduced motion also stops the ADVANCE, which no CSS rule can do: a
+  // slideshow that keeps changing content on its own is motion, whatever
+  // the transition duration is. The dots stay live, so the narrative is
+  // still reachable — it just waits to be asked for.
+  const reducedMotion = usePrefersReducedMotion();
+  const slideshowVisible =
+    liveStep === 0 && !isRedirecting && !isLoginLoading && !reducedMotion;
 
   useEffect(() => {
     if (!slideshowVisible) return;

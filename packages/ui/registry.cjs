@@ -101,6 +101,8 @@ const entries = [
   ["common/Typography", "primitive", "stable"],
   ["common/UserProfileImage", "component", "candidate"],
   ["common/useMediaActive", "internal"],
+  ["common/useMediaQuery", "internal"],
+  ["common/usePrefersReducedMotion", "internal"],
   ["common/useModalBehaviour", "internal"],
   ["common/VerifiedCheck", "component", "candidate"],
   ["ConfettiCelebration", "pattern"],

@@ -39,6 +39,7 @@ import { validateFullName, validatePhoneNumber, validateEmail, validateUsername 
 import { trackSignUp, setUserProperties, trackFormError } from "@/lib/analytics";
 import { resolveAuthStep } from "../authSteps";
 import useStepFocus from "../useStepFocus";
+import usePrefersReducedMotion from "@vibaar/ui/common/usePrefersReducedMotion";
 
 // Check if OTP is enabled via feature flag
 const isOtpEnabled = FEATURES.OTP_VERIFICATION_ENABLED;
@@ -172,7 +173,13 @@ export default function SignUpOverview() {
   //
   // `slideshowVisible` is the one state that shows slides — the landing, not
   // redirecting. `SlideContent` is rendered only under `liveStep === 0` too.
-  const slideshowVisible = liveStep === 0 && !isRedirecting;
+  // Reduced motion also stops the ADVANCE, which no CSS rule can do: a
+  // slideshow that keeps changing content on its own is motion, whatever
+  // the transition duration is. The dots stay live, so the narrative is
+  // still reachable — it just waits to be asked for.
+  const reducedMotion = usePrefersReducedMotion();
+  const slideshowVisible =
+    liveStep === 0 && !isRedirecting && !reducedMotion;
 
   useEffect(() => {
     if (!slideshowVisible) return;

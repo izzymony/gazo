@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useSyncExternalStore } from "react";
 import { tokens } from "@vibaar/design-tokens/tokens";
+import useMediaQuery from "./useMediaQuery";
 
 /**
  * Is the viewport at or above a breakpoint, as a subscription?
@@ -32,27 +32,11 @@ import { tokens } from "@vibaar/design-tokens/tokens";
  * gate on this at all.
  */
 export function useMediaActive(breakpoint: keyof typeof tokens.screens = "md"): boolean {
-  const query = `(min-width: ${tokens.screens[breakpoint]})`;
-
-  const subscribe = useCallback(
-    (onChange: () => void) => {
-      // Guarded because a subscribe callback can still run in environments
-      // without matchMedia (jsdom without a polyfill); returning a no-op
-      // unsubscribe keeps the store inert rather than throwing.
-      if (typeof window === "undefined" || !window.matchMedia) return () => {};
-      const list = window.matchMedia(query);
-      list.addEventListener("change", onChange);
-      return () => list.removeEventListener("change", onChange);
-    },
-    [query]
-  );
-
-  const getSnapshot = useCallback(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return false;
-    return window.matchMedia(query).matches;
-  }, [query]);
-
-  return useSyncExternalStore(subscribe, getSnapshot, () => false);
+  // The plumbing lives in `useMediaQuery` now — there were about to be three
+  // copies of it. The closed `keyof tokens.screens` parameter stays, and stays
+  // load-bearing: it is what keeps a breakpoint from being retyped as a literal
+  // somewhere, which is the defect this hook replaced.
+  return useMediaQuery(`(min-width: ${tokens.screens[breakpoint]})`, false);
 }
 
 export default useMediaActive;

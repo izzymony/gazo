@@ -2,6 +2,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { slidesData, COMPOSITION_CANVAS } from "./slidesData";
+import usePrefersReducedMotion from "../common/usePrefersReducedMotion";
 
 interface AnimatedImagesProps {
   currentSlide: number;
@@ -26,6 +27,11 @@ const GATHERED = "translate(-50%, -50%)";
 
 export default function AnimatedImages({ currentSlide }: AnimatedImagesProps) {
   const containerRefs = useRef<(HTMLDivElement | null)[]>([]);
+  // The app's blanket `@media (prefers-reduced-motion)` rule flattens every CSS
+  // transition, but `animation-duration`/`animation-iteration-count` do NOT
+  // apply to a Web Animations animation — so the infinite float below survived
+  // the rule that was meant to stop it. CSS cannot reach it; this can.
+  const reducedMotion = usePrefersReducedMotion();
 
   const animateSlide = useCallback(
     (container: HTMLDivElement | null, index: number) => {
@@ -96,7 +102,10 @@ export default function AnimatedImages({ currentSlide }: AnimatedImagesProps) {
       let floatTimeout: ReturnType<typeof setTimeout> | undefined;
       const spreadTimeout = setTimeout(() => {
         spread();
-        floatTimeout = setTimeout(startFloating, 1800);
+        // The settle still happens — it is a transition, so the blanket CSS
+        // rule already collapses it to nothing for these users. The float is
+        // the part that has to be refused here, because it is perpetual.
+        if (!reducedMotion) floatTimeout = setTimeout(startFloating, 1800);
       }, 800);
 
       return () => {
@@ -105,7 +114,7 @@ export default function AnimatedImages({ currentSlide }: AnimatedImagesProps) {
         stop();
       };
     },
-    []
+    [reducedMotion]
   );
 
   useEffect(() => {
