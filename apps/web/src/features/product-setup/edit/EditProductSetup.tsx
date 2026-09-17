@@ -4,7 +4,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { BiChevronDown, BiChevronUp, BsThreeDots, X, Plus, CircleCheck } from "@vibaar/ui/icons";
@@ -169,6 +169,10 @@ function EditProductSetupInner({ productId }: EditProductSetupProps) {
     // Includes variant-image pickers deep in the variants editor, not just this
     // screen's own gallery.
     const preparingImages = useIsPreparingProductImages();
+    // Submit handlers close over the render they were created in; a ref is what
+    // makes the guard see the current value rather than a stale `false`.
+    const preparingRef = useRef(preparingImages);
+    preparingRef.current = preparingImages;
     const [productData, setProductData] = useState<any>(null);
     const [images, setImages] = useState<ImageProps[]>([]);
     const [variations, setVariations] = useState<Variation[]>([{ option: "size", name: "Size", values: [] }]);
@@ -201,19 +205,28 @@ function EditProductSetupInner({ productId }: EditProductSetupProps) {
         const files = event.target.files;
         if (!files || !formik?.values) return;
 
-        const currentImages = formik.values.images || [];
         const prepared = await prepare(files);
         event.target.value = "";
         if (!prepared || prepared.length === 0) return;
 
-        formik.setFieldValue("images", [
-            ...currentImages,
-            ...prepared.map((image, index) => ({
-                base64: image.dataUrl,
-                name: `image${currentImages.length + index + 1}`,
-                toggle: true,
-            })),
-        ]);
+        // Merge against the LATEST value, not one captured before the await.
+        // Preparation takes 1-3s, and a gallery read before it and written after
+        // it silently resurrects an image deleted in between, or undoes a
+        // reorder. `setValues` takes an updater; `setFieldValue` does not.
+        formik.setValues((prev: typeof formik.values) => {
+            const existing = prev.images || [];
+            return {
+                ...prev,
+                images: [
+                    ...existing,
+                    ...prepared.map((image, index) => ({
+                        base64: image.dataUrl,
+                        name: `image${existing.length + index + 1}`,
+                        toggle: true,
+                    })),
+                ],
+            };
+        });
     };
 
     const handleDeleteImage = (index: number) => {
@@ -286,6 +299,14 @@ function EditProductSetupInner({ productId }: EditProductSetupProps) {
         },
         validationSchema,
         onSubmit: async (values) => {
+            // The form is `onSubmit={formik.handleSubmit}`, so Enter in any field
+            // submits it — the disabled Update button never covered that path.
+            // Submitting mid-preparation would save the product WITHOUT the photo
+            // the seller just chose, silently.
+            if (preparingRef.current) {
+                toast.error("Still preparing your image. Try again in a moment.");
+                return;
+            }
 
             if (!productId) {
                 console.error("No product ID provided");

@@ -5,7 +5,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "sonner";
@@ -109,6 +109,11 @@ export default function ProgressiveProductSetup() {
 
 function ProgressiveProductSetupInner() {
     const preparingImages = useIsPreparingProductImages();
+    // Read through a ref inside submit handlers: those close over the render
+    // they were created in, and a stale `false` there is exactly the race this
+    // guard exists to close.
+    const preparingRef = useRef(preparingImages);
+    preparingRef.current = preparingImages;
     const router = useRouter();
     const searchParams = useSearchParams();
     const queryStep = searchParams.get("step");
@@ -137,6 +142,11 @@ function ProgressiveProductSetupInner() {
     }, []);
 
     async function handleNextStep() {
+        // A disabled button is an affordance, not a contract: nothing stops a
+        // keyboard submit, a programmatic call, or a click landing in the frame
+        // before React re-renders. The guard belongs on the submission path.
+        if (preparingRef.current) return;
+
         // Log form values without images to avoid quota issues
         const { images, ...valuesWithoutImages } = formik.values;
         const errors = await formik.validateForm();
@@ -219,6 +229,8 @@ function ProgressiveProductSetupInner() {
     // }, [formik.values]);
 
     const handlePublish = () => {
+        if (preparingRef.current) return;
+
         const finalCategoryId = selectedCategory?.categoryId || formik.values.categoryId || "";
         const finalSubCategoryId = selectedCategory?.subCategoryId || formik.values.subCategoryId || "";
 

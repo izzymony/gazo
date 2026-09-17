@@ -33,20 +33,29 @@ const Step1StartStrong = ({ formik }: Step1Props) => {
         const files = event.target.files;
         if (!files || !formik?.values) return;
 
-        const currentImages = formik.values.images || [];
         const prepared = await prepare(files);
         // Let the same file be chosen again after a failure.
         event.target.value = "";
         if (!prepared || prepared.length === 0) return;
 
-        formik.setFieldValue("images", [
-            ...currentImages,
-            ...prepared.map((image, index) => ({
-                base64: image.dataUrl,
-                name: `image${currentImages.length + index + 1}`,
-                toggle: true,
-            })),
-        ]);
+        // Merge against the LATEST value, not one captured before the await.
+        // Preparation takes 1-3s, and a gallery read before it and written after
+        // it silently resurrects an image deleted in between, or undoes a
+        // reorder. `setValues` takes an updater; `setFieldValue` does not.
+        formik.setValues((prev: typeof formik.values) => {
+            const existing = prev.images || [];
+            return {
+                ...prev,
+                images: [
+                    ...existing,
+                    ...prepared.map((image, index) => ({
+                        base64: image.dataUrl,
+                        name: `image${existing.length + index + 1}`,
+                        toggle: true,
+                    })),
+                ],
+            };
+        });
     };
 
     const handleImageToggleChange = (

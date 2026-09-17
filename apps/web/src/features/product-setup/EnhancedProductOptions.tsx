@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Button from "@vibaar/ui/common/Button";
 import { useProductImagePreparation } from "./lib/useProductImagePreparation";
 import Checkbox from "@vibaar/ui/common/Checkbox";
@@ -649,6 +649,15 @@ const VariationFieldWithProperties = ({
   // Variant images ride to the backend in `image_values`, inside the same JSON
   // body as the product's own photos, so they carry exactly the same cost and
   // get exactly the same treatment. A failure adds nothing.
+  // The same staleness rule as the product gallery. `variation` and `onUpdate`
+  // are props: the values captured when this input's handler was created are
+  // 1-3s old by the time preparation finishes, so writing a map built from them
+  // would undo any variant edit made in between. Read both through refs.
+  const variationRef = useRef(variation);
+  variationRef.current = variation;
+  const onUpdateRef = useRef(onUpdate);
+  onUpdateRef.current = onUpdate;
+
   const pickVariantImage = (value: string) => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -658,8 +667,9 @@ const VariationFieldWithProperties = ({
       if (!file) return;
       const prepared = await prepare([file]);
       if (!prepared || prepared.length === 0) return;
-      onUpdate(variation.id, {
-        imageValues: { ...variation.imageValues, [value]: prepared[0].dataUrl },
+      const current = variationRef.current;
+      onUpdateRef.current(current.id, {
+        imageValues: { ...current.imageValues, [value]: prepared[0].dataUrl },
       });
     };
     input.click();
