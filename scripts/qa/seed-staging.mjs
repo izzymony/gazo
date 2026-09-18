@@ -190,8 +190,14 @@ async function firstCategory() {
   const cat = list[0];
   if (!cat) {
     throw new Error(
-      "No categories in this environment. Categories come from the backend's own " +
-        "seeder (`./backend seed`), which must run once against this database first."
+      "No categories in this environment. The product taxonomy is applied by " +
+        "migration 014_seed_product_taxonomy.sql, which the backend runs at startup " +
+        "and records in schema_migrations — so an empty list means that migration " +
+        "has not been deployed here yet, or failed. Check the deploy logs for " +
+        "`migration applied: 014_seed_product_taxonomy.sql`; a failure rolls the " +
+        "whole file back and leaves the version unrecorded, so the next deploy " +
+        "retries it. `./backend seed` still works for local recovery, but it is no " +
+        "longer how this data is meant to arrive."
     );
   }
   const sub = cat.sub_categories?.[0] || cat.subCategories?.[0];
