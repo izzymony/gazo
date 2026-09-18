@@ -29,6 +29,13 @@ type SubcategoryData struct {
 }
 
 // SeedComprehensiveCategories seeds all 13 main categories with 44 subcategories
+// NOTE: the product taxonomy is now owned by migration 014, which the deployment
+// applies exactly once per database (internal/migration/sql/014_seed_product_taxonomy.sql).
+// This function remains for LOCAL work and manual recovery, and the two must
+// describe the same taxonomy: 014 was generated from this data and from the
+// production dump, which agreed on all 13 categories, all 52 sub-categories and
+// every shipping dimension. If you change the taxonomy here, add a new migration
+// — editing 014 will not re-run on a database that has already applied it.
 func SeedComprehensiveCategories(db *gorm.DB) error {
 	log.Println("🌱 Starting comprehensive category seeding...")
 

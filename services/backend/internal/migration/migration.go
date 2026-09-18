@@ -10,58 +10,63 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// migrationTables is every model AutoMigrate owns. Package-level so tests can
+// stand up the same schema a real deploy has — the versioned SQL migrations
+// that follow reference tables across the whole schema, not just their own.
+var migrationTables = []interface{}{
+	&domain.User{},
+	&domain.OTP{},
+	&domain.Business{},
+	&domain.BusinessAddress{},
+	&domain.BusinessSetting{},
+	&domain.BusinessBankAccountDetail{},
+	&domain.Category{},
+	&domain.SubCategory{},
+	&domain.Variant{},
+	&domain.Order{},
+	&domain.OrderItem{},
+	&domain.ShippingProfile{},
+	&domain.Product{},
+	&domain.ShippingOption{},
+	&domain.Transaction{},
+	&domain.ProductRating{},
+	&domain.ShippingUser{},
+	&domain.ExternalCategory{},
+	&domain.ProductWishlist{},
+	&domain.RecentlyViewedBusiness{},
+	&domain.Shipment{},
+	&domain.RecentlyViewedProduct{},
+	&domain.Follower{},
+	&domain.Discount{},
+	&domain.Wallet{},
+	&domain.WalletTransaction{},
+	&domain.VerificationCode{},
+	&domain.WithdrawalRequest{},
+	&domain.Admin{},
+	&domain.AdminUser{},
+	&domain.AdminSession{},
+	&domain.AdminAuditLog{},
+	&domain.AdminRole{},
+	&domain.AdminNotification{},
+	&domain.Collection{},
+	&domain.TwilioCache{},
+	&domain.KYC{},
+	&domain.Conversation{},
+	&domain.ConversationMessage{},
+	&domain.Notification{},
+	// Transactional Notification System tables
+	&domain.NotificationTemplate{},
+	&domain.NotificationLog{},
+	&domain.UserNotificationPreferences{},
+	// Referral System
+	&domain.CreditEntry{},
+}
+
 func Migrate() {
 	log.Println("running migrations...")
 	db := database.ConnectDB()
 
-	tables := []interface{}{
-		&domain.User{},
-		&domain.OTP{},
-		&domain.Business{},
-		&domain.BusinessAddress{},
-		&domain.BusinessSetting{},
-		&domain.BusinessBankAccountDetail{},
-		&domain.Category{},
-		&domain.SubCategory{},
-		&domain.Variant{},
-		&domain.Order{},
-		&domain.OrderItem{},
-		&domain.ShippingProfile{},
-		&domain.Product{},
-		&domain.ShippingOption{},
-		&domain.Transaction{},
-		&domain.ProductRating{},
-		&domain.ShippingUser{},
-		&domain.ExternalCategory{},
-		&domain.ProductWishlist{},
-		&domain.RecentlyViewedBusiness{},
-		&domain.Shipment{},
-		&domain.RecentlyViewedProduct{},
-		&domain.Follower{},
-		&domain.Discount{},
-		&domain.Wallet{},
-		&domain.WalletTransaction{},
-		&domain.VerificationCode{},
-		&domain.WithdrawalRequest{},
-		&domain.Admin{},
-		&domain.AdminUser{},
-		&domain.AdminSession{},
-		&domain.AdminAuditLog{},
-		&domain.AdminRole{},
-		&domain.AdminNotification{},
-		&domain.Collection{},
-		&domain.TwilioCache{},
-		&domain.KYC{},
-		&domain.Conversation{},
-		&domain.ConversationMessage{},
-		&domain.Notification{},
-		// Transactional Notification System tables
-		&domain.NotificationTemplate{},
-		&domain.NotificationLog{},
-		&domain.UserNotificationPreferences{},
-		// Referral System
-		&domain.CreditEntry{},
-	}
+	tables := migrationTables
 
 	// GORM's AutoMigrate returns on the FIRST table that errors, and the error
 	// used to be discarded here — so one drifted table silently skipped every

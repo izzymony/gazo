@@ -61,6 +61,26 @@ jobs:
     defaults:
       run:
         working-directory: services/backend
+    # The taxonomy migration (014) asserts its own results by casting a message
+    # to integer when a count is wrong. sqlite turns that cast into 0 instead of
+    # an error, so on sqlite a BROKEN migration would look like a passing one —
+    # its tests need real Postgres, and a test that always skips protects nothing.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: vibaar_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      TEST_DATABASE_DSN: host=localhost user=postgres password=postgres dbname=vibaar_test port=5432 sslmode=disable
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
