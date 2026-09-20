@@ -45,9 +45,15 @@ SELECT version, name FROM schema_migrations ORDER BY version;
 ```
 
 Expect every file in `services/backend/internal/migration/sql/` to be listed —
-currently **007, 009, 010, 011, 012, 013**. A missing row means the runner failed
-and the deploy logs will say why; applying it by hand hides the failure instead
-of fixing it.
+currently **007, 009, 010, 011, 012, 013, 014**. A missing row means the runner
+failed and the deploy logs will say why; applying it by hand hides the failure
+instead of fixing it.
+
+**014 seeds the product taxonomy** (13 categories, 52 subcategories, their
+Shipbubble links and shipping defaults). It is a migration, not a manual seed —
+`pnpm qa:seed` deliberately refuses to invent categories, because an empty
+taxonomy means 014 did not run. The `Taxonomy` smoke test asserts all four
+numbers, so this is checked on every run rather than only when someone looks.
 
 > Any instruction to "run 009/010/011 by hand" is obsolete. It predates the
 > versioned runner and should be deleted wherever it is still written down.
@@ -64,8 +70,13 @@ target is overridable so the same suite serves the production smoke.
 - API healthcheck and products endpoint respond
 - CORS allows the web origin and refuses an unknown one
 - Paystack and Shipbubble webhooks reject unsigned calls
+- the landing CTA opens the sign-in form *(covered separately from login — see §5)*
+- the taxonomy is complete and linked: 13 / 52 / 13 / 52
 
-**Core** — needs a seeded environment and `QA_SELLER_*`:
+**Core** — needs a seeded environment and `QA_SELLER_*`. **Missing credentials
+FAIL the run, they do not skip**: a skipped core run reports green having
+exercised no authenticated journey at all. Core also runs on a single worker,
+because its tests mutate one shared seller, cart and product:
 - seller signs in and reaches the dashboard
 - **a product edit survives a reload**
 - a product page opens and renders
@@ -103,6 +114,20 @@ every unknown path** and renders a client-side "Page not found", and *every page
 shares one `<title>`*. A suite built on status codes or titles passes for routes
 that do not exist. Assert on route-specific **content**. The "unknown route
 renders not-found" test exists to keep the others honest.
+
+**A fixed sleep asserts on the clock, not the application.** The admin gate test
+slept exactly 3s; under Cloudflare latency the redirect was still ~11s away, so
+it reported the gate broken when it was merely slow. Wait for the OUTCOME. The
+answer is never a longer sleep.
+
+**Never `waitUntil: "load"`.** It waits for every image and font on the page —
+it blew a 45s budget on the dashboard edit route. Use `gotoRoute()`:
+`domcontentloaded` plus a route-specific locator.
+
+**Clean up what you mutate, in `finally`.** The edit test once renamed a seeded
+product and never restored it, destroying `QA Test Cap`'s identity on staging
+and leaving the next seed to create a duplicate. Restore the original, and let
+a failed cleanup report the resource id loudly.
 
 **Markers must not span an inline `<br>`.** The homepage `<h1>` is
 `Turn your attention<br>into income.`, whose `textContent` reads
