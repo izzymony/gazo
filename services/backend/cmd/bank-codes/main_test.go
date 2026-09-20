@@ -149,11 +149,7 @@ func testDB(t *testing.T) *gorm.DB {
 	}
 	t.Cleanup(func() { admin.Exec("DROP SCHEMA " + schema + " CASCADE") })
 
-	sep := "?"
-	if strings.Contains(dsn, "?") {
-		sep = "&"
-	}
-	db, err := gorm.Open(postgres.Open(dsn+sep+"search_path="+schema), &gorm.Config{Logger: logger.Discard})
+	db, err := gorm.Open(postgres.Open(withSearchPath(dsn, schema)), &gorm.Config{Logger: logger.Discard})
 	if err != nil {
 		t.Fatalf("connect (scoped): %v", err)
 	}
@@ -214,4 +210,28 @@ func TestApplyRepair_RefusalRollsEverythingBack(t *testing.T) {
 	if got.Recipient != "RCP_typed" {
 		t.Errorf("recipient = %q, want the original \"RCP_typed\" — partially applied", got.Recipient)
 	}
+}
+
+// withSearchPath appends a schema to a Postgres DSN, in whichever of the two
+// forms the DSN is written.
+//
+// `search_path` goes in the DSN rather than a `SET` statement because `SET`
+// binds to ONE pooled connection, and the concurrency test deliberately uses
+// several — it would find the tables on one goroutine and not the next.
+//
+// The two forms need different punctuation, and getting it wrong is silent
+// locally and fatal in CI: a URL DSN takes `?key=value`, while a keyword DSN
+// ("host=... sslmode=disable", which is what the CI workflow sets) takes a
+// space-separated `key=value`. Appending `?search_path=...` to a keyword DSN
+// produces `sslmode=disable?search_path=x`, and pgx rejects the whole string
+// with "failed to configure TLS (sslmode is invalid)".
+func withSearchPath(dsn, schema string) string {
+	if strings.HasPrefix(dsn, "postgres://") || strings.HasPrefix(dsn, "postgresql://") {
+		sep := "?"
+		if strings.Contains(dsn, "?") {
+			sep = "&"
+		}
+		return dsn + sep + "search_path=" + schema
+	}
+	return strings.TrimSpace(dsn) + " search_path=" + schema
 }

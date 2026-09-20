@@ -153,11 +153,7 @@ func openTestDB(t *testing.T) (*gorm.DB, bool) {
 	// `SET search_path` binds to ONE pooled connection, so the concurrency test
 	// — the one test that deliberately uses several — would find the tables on
 	// one goroutine and not on the next.
-	sep := "?"
-	if strings.Contains(dsn, "?") {
-		sep = "&"
-	}
-	db, err := gorm.Open(postgres.Open(dsn+sep+"search_path="+schema), &gorm.Config{
+	db, err := gorm.Open(postgres.Open(withSearchPath(dsn, schema)), &gorm.Config{
 		// Same as database.ConnectDB: without it AutoMigrate orders tables by
 		// declaration and trips over forward FK references.
 		DisableForeignKeyConstraintWhenMigrating: true,
@@ -1461,5 +1457,85 @@ func TestLegacyUppercaseReference_IsReSentVerbatim(t *testing.T) {
 	if sent := f.transfer.initiated[0].Reference; sent != legacy {
 		t.Errorf("re-sent as %q, want the stored %q — a rewritten reference is a NEW "+
 			"reference to Paystack, so it would create a second transfer", sent, legacy)
+	}
+}
+
+// withSearchPath appends a schema to a Postgres DSN, in whichever of the two
+// forms the DSN is written.
+//
+// `search_path` goes in the DSN rather than a `SET` statement because `SET`
+// binds to ONE pooled connection, and the concurrency test deliberately uses
+// several — it would find the tables on one goroutine and not the next.
+//
+// The two forms need different punctuation, and getting it wrong is silent
+// locally and fatal in CI: a URL DSN takes `?key=value`, while a keyword DSN
+// ("host=... sslmode=disable", which is what the CI workflow sets) takes a
+// space-separated `key=value`. Appending `?search_path=...` to a keyword DSN
+// produces `sslmode=disable?search_path=x`, and pgx rejects the whole string
+// with "failed to configure TLS (sslmode is invalid)".
+func withSearchPath(dsn, schema string) string {
+	if strings.HasPrefix(dsn, "postgres://") || strings.HasPrefix(dsn, "postgresql://") {
+		sep := "?"
+		if strings.Contains(dsn, "?") {
+			sep = "&"
+		}
+		return dsn + sep + "search_path=" + schema
+	}
+	return strings.TrimSpace(dsn) + " search_path=" + schema
+}
+
+// A DSN comes in two forms and they punctuate differently. Getting this wrong
+// passes locally and fails in CI, which is exactly what happened: the fixture
+// appended `?search_path=…` unconditionally, so CI's keyword DSN became
+// `sslmode=disable?search_path=x` and pgx rejected the whole string with
+// "failed to configure TLS (sslmode is invalid)" — taking 13 payout tests with
+// it while they looked green on a developer's machine.
+func TestWithSearchPath(t *testing.T) {
+	cases := []struct {
+		name string
+		dsn  string
+		want string
+	}{
+		{
+			name: "keyword DSN, the shape CI sets",
+			dsn:  "host=localhost user=postgres password=postgres dbname=vibaar_test port=5432 sslmode=disable",
+			want: "host=localhost user=postgres password=postgres dbname=vibaar_test port=5432 sslmode=disable search_path=s1",
+		},
+		{
+			name: "keyword DSN with trailing space",
+			dsn:  "host=localhost sslmode=disable ",
+			want: "host=localhost sslmode=disable search_path=s1",
+		},
+		{
+			name: "URL DSN with an existing query",
+			dsn:  "postgres://u:p@localhost:5432/db?sslmode=disable",
+			want: "postgres://u:p@localhost:5432/db?sslmode=disable&search_path=s1",
+		},
+		{
+			name: "URL DSN with no query",
+			dsn:  "postgres://u:p@localhost:5432/db",
+			want: "postgres://u:p@localhost:5432/db?search_path=s1",
+		},
+		{
+			name: "postgresql:// scheme",
+			dsn:  "postgresql://u:p@localhost:5432/db",
+			want: "postgresql://u:p@localhost:5432/db?search_path=s1",
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := withSearchPath(c.dsn, "s1"); got != c.want {
+				t.Errorf("withSearchPath:\n  got  %q\n  want %q", got, c.want)
+			}
+		})
+	}
+
+	// A keyword DSN must never acquire URL punctuation: `?` inside one is what
+	// makes pgx reject the preceding value rather than the appended one, which
+	// is why the error named sslmode and not search_path.
+	keyword := withSearchPath("host=localhost sslmode=disable", "s1")
+	if strings.ContainsAny(keyword, "?&") {
+		t.Errorf("keyword DSN gained URL punctuation: %q", keyword)
 	}
 }
