@@ -33,28 +33,45 @@ The API does not expose these, so they are confirmed by hand:
 - A real test-mode transfer completes end to end **and its webhook arrives**.
 - The webhook URL registered with Paystack points at this environment.
 
-## Result — local, 2026-09-20
+## Result — local, 2026-09-21
 
-Run against Paystack **test mode** with the credentials in `.env`:
+Transfer OTP was disabled on the Paystack test account by the account owner.
+Re-run against **test mode** with the credentials in `.env`:
 
 ```
 ✓ key mode                     TEST key — safe to exercise
 ✓ balance readable             NGN 1831900.06
 ✓ transfers enabled            the transfer API answers
-✗ OTP not required             a recent transfer is stuck at `otp`: this account
-                               requires transfer confirmation, which strands every
-                               payout AND the seller's reserved funds
+✓ OTP not required             none of the last 4 transfers needed OTP
 ✓ settlement visible           no settlements yet
-RESULT: not ready — 1 blocking failure(s). Leave PAYOUTS_LIVE unset.
+RESULT: every automated check passed.
 ```
 
-**This account requires transfer OTP.** Two probe transfers came back "Transfer
-requires OTP to continue" and sat at `status: otp`. An earlier run of this
-preflight reported "every automated check passed" — it had no OTP check, so the
-readiness gate was giving a false green on the one setting that silently
-strands payouts.
+All five automated checks pass.
 
-`PAYOUTS_LIVE` stays unset.
+**What this check can and cannot see.** It infers the OTP setting from transfer
+history, because Paystack exposes no endpoint for the setting itself. The two
+transfers that sat at `otp` on 2026-09-20 have since expired to `abandoned`, so
+"none needed OTP" is true of the history — but history alone cannot distinguish
+"the setting was turned off" from "the OTP transfers aged out". The
+authoritative confirmation is the account owner's, given on 2026-09-21: Settings
+→ Preferences → "Confirm transfers before sending" is OFF. The first real
+test-mode transfer is what will prove it end to end.
+
+### Previous run — 2026-09-20 (superseded)
+
+```
+✗ OTP not required             a recent transfer is stuck at `otp`
+RESULT: not ready — 1 blocking failure(s).
+```
+
+An earlier run, before this check existed, reported "every automated check
+passed" on that same account. The readiness gate was giving a false green on the
+one setting that silently strands payouts, which is why the check was added.
+
+`PAYOUTS_LIVE` remains unset. The automated checks are a precondition, not the
+authorisation: the remaining manual checks above, the data audit, the bank-code
+audit and a completed test-mode transfer all come first.
 
 ## Bank codes — required once, before the first payout
 
