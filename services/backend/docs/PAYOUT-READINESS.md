@@ -17,6 +17,7 @@ Read-only: it lists and reads, and initiates nothing.
 | key mode | Running against `sk_live_` moves real money. It should never be a surprise which key is loaded. |
 | balance readable | Proves the secret key is accepted and the API is reachable. A 401 here is the whole integration. |
 | transfers enabled | **Transfers are not on by default.** Paystack enables them per business. Without this the first thing to discover it is a seller's withdrawal. |
+| OTP not required | With "confirm transfers before sending" ON, `POST /transfer` succeeds with `status: "otp"` and waits for a human. Nothing in this service can move it, so the withdrawal parks in `awaiting_otp` **and the seller's funds stay reserved**. Detected by reading transfer history: it can prove OTP is on, and cannot prove it is off on an account that has never sent one. |
 | settlement visible | Transfers are funded from the Paystack **balance**. An account that settles straight to its bank keeps a zero balance, and then every transfer fails for insufficient funds no matter how correct the code is. |
 
 ## What it cannot check
@@ -24,6 +25,11 @@ Read-only: it lists and reads, and initiates nothing.
 The API does not expose these, so they are confirmed by hand:
 
 - The Paystack dashboard shows Transfers enabled for **this** business.
+- Settings → Preferences → **"Confirm transfers before sending" is OFF**. This is
+  required for Phase 1: there is no OTP finalisation path, so an OTP-gated
+  transfer escalates to `needs_review` after the retry budget and waits for a
+  person. The reservation is held throughout — no money is lost — but the payout
+  does not complete.
 - A real test-mode transfer completes end to end **and its webhook arrives**.
 - The webhook URL registered with Paystack points at this environment.
 
@@ -35,12 +41,52 @@ Run against Paystack **test mode** with the credentials in `.env`:
 ✓ key mode                     TEST key — safe to exercise
 ✓ balance readable             NGN 1831900.06
 ✓ transfers enabled            the transfer API answers
+✗ OTP not required             a recent transfer is stuck at `otp`: this account
+                               requires transfer confirmation, which strands every
+                               payout AND the seller's reserved funds
 ✓ settlement visible           no settlements yet
-RESULT: every automated check passed.
+RESULT: not ready — 1 blocking failure(s). Leave PAYOUTS_LIVE unset.
 ```
 
-Automated checks pass. The three manual checks above are **not yet done**, so
+**This account requires transfer OTP.** Two probe transfers came back "Transfer
+requires OTP to continue" and sat at `status: otp`. An earlier run of this
+preflight reported "every automated check passed" — it had no OTP check, so the
+readiness gate was giving a false green on the one setting that silently
+strands payouts.
+
 `PAYOUTS_LIVE` stays unset.
+
+## Bank codes — required once, before the first payout
+
+`bank_code` was an integer column, which destroyed every code whose leading
+characters matter. 52 of 284 NGN codes begin with a zero (Access 044, First
+Bank 011, UBA 033, Zenith 057, GTBank 058) and 10 are not numeric at all
+(035A, MFB50094, FC40163, D53).
+
+Measured, not inferred: `POST /transferrecipient` with bank_code `"44"` is
+refused with **"Bank is invalid"**; the same request with `"044"` returns 201
+and a recipient code. So while the column was an integer, sellers at most of
+Nigeria's largest banks could not be paid — and it surfaced to them as "check
+your bank details".
+
+Migration 016 widens the column to text but does **not** guess the missing
+characters: padding 33 to "033" is right for UBA and the same rule turns
+MINT-FINEX MFB's real code "09" into "009". The repair matches the stored bank
+NAME against Paystack's live list.
+
+```bash
+make bank-codes-audit    # report only
+make bank-codes-repair   # apply, and clear recipient codes built from the wrong bank
+```
+
+Run per environment after migration 016. Anything it cannot resolve
+unambiguously is listed for a human rather than guessed at.
+
+| Environment | Bank codes |
+|---|---|
+| local | Repaired. 1 account: UBA `33` → `033`, stale recipient cleared. Re-audit clean. |
+| staging | **Not run** — database unreachable. |
+| production | **Not run** — no access from here. |
 
 ## Data audit — required before enabling, per environment
 
@@ -73,13 +119,21 @@ relabelling them would restate the same unverified claim in new vocabulary.
 
 ## Enabling
 
-Only after: the automated checks pass, the three manual checks are done, the
-data audit is clean for that environment, and a test-mode transfer has settled
-end to end through the webhook.
+Only after: the automated checks pass (including **OTP not required**), the
+manual checks are done, the data audit is clean for that environment, the bank
+code audit reports no wrong or unresolved accounts, and a test-mode transfer has
+settled end to end through the webhook.
 
 ```
 PAYOUTS_LIVE=true
 ```
+
+Note what the flag does and does not stop. It gates the one step that sends
+money — initiation, including the reconciler's re-send. It deliberately does
+**not** gate reconciliation or webhook handling, because the moment it is most
+likely to be pulled is during an incident, with transfers already in flight and
+sellers' funds already reserved; switching off the thing that resolves them
+would freeze every one of those payouts.
 
 Until then `ApproveWithdrawal` returns `503 payouts_disabled` **before any state
 change**, and the admin UI disables the action. Nothing is recorded, no wallet

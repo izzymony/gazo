@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
@@ -51,6 +52,21 @@ const (
 	// whereas "rejected" means it must not be. Collapsing the two would either
 	// strand a recoverable payout or retry one Paystack already refused.
 	TransferNotFound
+	// Paystack already holds a transfer with this reference.
+	//
+	// This arrives as an ordinary HTTP 400 with `status:false` — measured:
+	// "Please provide a unique reference. Reference already exists on a
+	// transfer" — which is exactly the shape of a definitive rejection, and
+	// treating it as one is the worst available mistake. A duplicate reference
+	// means THE TRANSFER EXISTS. Releasing the seller's reservation on it
+	// returns money to their available balance while Paystack is still holding
+	// a live transfer for the same payout, and they can withdraw it twice.
+	//
+	// So it is its own outcome, resolved by asking what that existing transfer
+	// actually did. Reachable in normal operation: verification can answer
+	// "not found" in the window before a transfer is visible, the reconciler
+	// re-initiates on that answer, and Paystack then says "already exists".
+	TransferAlreadyExists
 )
 
 func (o TransferOutcome) String() string {
@@ -61,6 +77,8 @@ func (o TransferOutcome) String() string {
 		return "definitively_rejected"
 	case TransferNotFound:
 		return "not_found"
+	case TransferAlreadyExists:
+		return "already_exists"
 	default:
 		return "ambiguous"
 	}
@@ -89,8 +107,22 @@ type transferEnvelope struct {
 		Reference    string `json:"reference"`
 		Status       string `json:"status"`
 		Amount       int64  `json:"amount"`
-		Fee          int64  `json:"fee"`
+		// `fee_charged` is the field Paystack sends. Verified against a real
+		// transfer object: its keys include `fee_charged` and `fees_breakdown`,
+		// and there is NO `fee` key at all — so decoding `fee` recorded every
+		// transfer fee as zero. `Fee` is kept as a fallback rather than removed
+		// because it costs one line and a silently-zero fee is invisible.
+		FeeCharged int64 `json:"fee_charged"`
+		Fee        int64 `json:"fee"`
 	} `json:"data"`
+}
+
+// fee returns whichever fee field the response carried.
+func (e transferEnvelope) fee() int64 {
+	if e.Data.FeeCharged != 0 {
+		return e.Data.FeeCharged
+	}
+	return e.Data.Fee
 }
 
 // InitiateTransferInput carries a reference the CALLER has already committed to
@@ -131,7 +163,7 @@ func (p Paystack) EnsureTransferRecipient(account *domain.BusinessBankAccountDet
 		Type:          "nuban",
 		Name:          account.AccountName,
 		AccountNumber: account.AccountNumber,
-		BankCode:      fmt.Sprintf("%d", account.BankCode),
+		BankCode:      account.BankCode,
 		Currency:      "NGN",
 	}
 	body, err := p.postJSON("/transferrecipient", payload)
@@ -257,7 +289,17 @@ func classifyTransferResponse(httpStatus int, body []byte, callErr error, refere
 	if env.Data.Reference != "" {
 		res.Reference = env.Data.Reference
 	}
-	res.Fee = helper.FromKobo(env.Data.Fee)
+	res.Fee = helper.FromKobo(env.fee())
+
+	// "That reference is already on a transfer" arrives as an ordinary 400 with
+	// `status:false`, so it has to be pulled out BEFORE the rejection branch
+	// below would swallow it. It is the opposite of a rejection: the transfer
+	// exists, and the reservation must be held until we know what it did.
+	if isDuplicateReference(env.Message) {
+		res.Outcome = TransferAlreadyExists
+		res.Reason = env.Message
+		return res
+	}
 
 	// A 4xx WITH a readable refusal is the only definitive rejection. Both
 	// halves matter: a 4xx we cannot parse could still have been actioned, and
@@ -326,4 +368,28 @@ func (p Paystack) do(req *http.Request) (int, []byte, error) {
 		return resp.StatusCode, nil, fmt.Errorf("read response: %w", err)
 	}
 	return resp.StatusCode, body, nil
+}
+
+// isDuplicateReference recognises Paystack telling us the reference is taken.
+//
+// Measured message: "Please provide a unique reference. Reference already
+// exists on a transfer". Matched on two independent parts rather than the
+// whole sentence, so a rewording on Paystack's side does not silently turn
+// this back into a definitive rejection — which would release a reservation
+// against a transfer that exists.
+//
+// It requires BOTH a reference word and an already-taken word, so unrelated
+// refusals ("Bank is invalid", "Insufficient balance") do not match and stay
+// definitive.
+func isDuplicateReference(message string) bool {
+	m := strings.ToLower(message)
+	if !strings.Contains(m, "reference") {
+		return false
+	}
+	for _, taken := range []string{"already exists", "already been used", "unique reference", "duplicate"} {
+		if strings.Contains(m, taken) {
+			return true
+		}
+	}
+	return false
 }

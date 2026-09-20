@@ -37,7 +37,7 @@ type BusinessBankAccountDetail struct {
 	Bank          string `json:"bank"`
 	AccountNumber string `json:"account_number"`
 	AccountName   string `json:"account_name"`
-	BankCode      int    `json:"bank_code"`
+	BankCode      string `json:"bank_code"` // string: leading zeros are significant — see domain.BusinessBankAccountDetail
 	IsDefault     bool   `json:"is_default"`
 }
 

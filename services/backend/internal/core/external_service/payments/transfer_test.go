@@ -18,7 +18,7 @@ func accountWithRecipient() *domain.BusinessBankAccountDetail {
 	return &domain.BusinessBankAccountDetail{
 		AccountName:           "Test Seller",
 		AccountNumber:         "0123456789",
-		BankCode:              58,
+		BankCode:              "058",
 		PaystackRecipientCode: "RCP_test",
 	}
 }
@@ -204,4 +204,148 @@ func TestExistingRecipientCode_FallsBackToLegacyMetadata(t *testing.T) {
 
 func decodeJSON(r *http.Request, out any) error {
 	return json.NewDecoder(r.Body).Decode(out)
+}
+
+// ── Bank codes are strings (finding 3) ───────────────────────────────────
+//
+// Measured against Paystack, not inferred: POST /transferrecipient with
+// bank_code "44" is refused with "Bank is invalid"; the same request with
+// "044" returns 201 and a recipient code. 52 of 284 NGN bank codes begin with
+// a zero — Access 044, First Bank 011, UBA 033, Zenith 057, GTBank 058 — and
+// 10 are not numeric at all (035A, MFB50094, FC40163, D53).
+//
+// While `BankCode` was an `int` and this call formatted it with %d, sellers at
+// most of Nigeria's largest banks could not be paid, and it surfaced to them as
+// "check your bank details".
+func TestEnsureTransferRecipient_SendsTheBankCodeVerbatim(t *testing.T) {
+	codes := []string{"044", "011", "033", "057", "058", "09", "50211", "035A", "MFB50094", "D53"}
+
+	for _, code := range codes {
+		t.Run(code, func(t *testing.T) {
+			var got map[string]any
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				_ = decodeJSON(r, &got)
+				w.Header().Set("Content-Type", "application/json")
+				_, _ = w.Write([]byte(`{"status":true,"data":{"recipient_code":"RCP_x"}}`))
+			}))
+			defer srv.Close()
+
+			account := &domain.BusinessBankAccountDetail{
+				Bank: "Test Bank", AccountNumber: "0123456789",
+				AccountName: "Test Seller", BankCode: code,
+			}
+			if _, err := testClient(srv.URL).EnsureTransferRecipient(account); err != nil {
+				t.Fatalf("ensure recipient: %v", err)
+			}
+			if got["bank_code"] != code {
+				t.Errorf("bank_code sent = %#v, want %q — Paystack refuses a code whose "+
+					"leading characters were dropped with \"Bank is invalid\"", got["bank_code"], code)
+			}
+		})
+	}
+}
+
+// ── The fee field Paystack actually sends (finding 5) ────────────────────
+//
+// Verified against a real transfer object: its keys include `fee_charged` and
+// `fees_breakdown`, and there is no `fee` key at all. Decoding `fee` recorded
+// every transfer fee as zero, silently.
+func TestTransferFee_ReadsFeeCharged(t *testing.T) {
+	cases := []struct {
+		name string
+		body string
+		want float64
+	}{
+		{"fee_charged, as Paystack sends it", `{"status":true,"data":{"status":"success","fee_charged":1050}}`, 10.50},
+		{"legacy fee, as a fallback", `{"status":true,"data":{"status":"success","fee":2575}}`, 25.75},
+		{"fee_charged wins when both appear", `{"status":true,"data":{"status":"success","fee_charged":1050,"fee":9999}}`, 10.50},
+		{"absent means zero", `{"status":true,"data":{"status":"success"}}`, 0},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				_, _ = w.Write([]byte(c.body))
+			}))
+			defer srv.Close()
+
+			res := testClient(srv.URL).VerifyTransfer("REF_FEE")
+			if res.Fee != c.want {
+				t.Errorf("Fee = %v, want %v", res.Fee, c.want)
+			}
+		})
+	}
+}
+
+// ── "That reference is already on a transfer" (finding 2) ────────────────
+//
+// Measured message: HTTP 400, status:false, "Please provide a unique reference.
+// Reference already exists on a transfer". That is byte-for-byte the shape of a
+// definitive rejection, and reading it as one releases the seller's reservation
+// against a transfer that EXISTS — so they can withdraw the same money twice.
+func TestClassify_DuplicateReferenceIsNotARejection(t *testing.T) {
+	duplicates := []string{
+		"Please provide a unique reference. Reference already exists on a transfer",
+		"Reference already exists on a transfer",
+		"Transfer reference has already been used",
+		"Duplicate transfer reference",
+	}
+	for _, msg := range duplicates {
+		body := []byte(`{"status":false,"message":"` + msg + `"}`)
+		res := classifyTransferResponse(http.StatusBadRequest, body, nil, "REF_DUP")
+		if res.Outcome != TransferAlreadyExists {
+			t.Errorf("%q classified as %s, want already_exists — as a rejection this "+
+				"releases funds against a live transfer", msg, res.Outcome)
+		}
+	}
+
+	// And unrelated refusals stay definitive, or nothing would ever fail.
+	for _, msg := range []string{
+		"Bank is invalid",
+		"Insufficient balance",
+		"Cannot resolve account",
+		"Your balance is not enough to fulfil this request",
+		"Invalid recipient",
+	} {
+		body := []byte(`{"status":false,"message":"` + msg + `"}`)
+		res := classifyTransferResponse(http.StatusBadRequest, body, nil, "REF_REJ")
+		if res.Outcome != TransferDefinitivelyRejected {
+			t.Errorf("%q classified as %s, want definitively_rejected", msg, res.Outcome)
+		}
+	}
+}
+
+// ── The reference format (finding 1) ────────────────────────────────────
+//
+// Reported as a P0 on the basis that Paystack permits only lowercase. It does
+// not: probed against the live API, `VBR-PO-ABCDEF0123456789AB` was ACCEPTED
+// (HTTP 200, transfer created), stored with its case intact, and
+// GET /transfer/verify/VBR-PO-ABCDEF0123456789AB retrieved it.
+//
+// Case preservation is the part worth pinning. If Paystack lowercased a
+// reference on storage, verifying by the string we saved would 404, the
+// reconciler would read that as "never created", re-send, and be refused for a
+// duplicate — so this test guards the assumption the recovery path rests on.
+func TestReferenceFormat_IsSafeForPaystack(t *testing.T) {
+	var got map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = decodeJSON(r, &got)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"status":true,"data":{"status":"pending","transfer_code":"TRF_F","reference":"VBR-PO-ABC123"}}`))
+	}))
+	defer srv.Close()
+
+	const ref = "VBR-PO-ABC123"
+	res := testClient(srv.URL).InitiateTransfer(InitiateTransferInput{
+		Account: accountWithRecipient(), Amount: 100, Reason: "payout", Reference: ref,
+	})
+	if got["reference"] != ref {
+		t.Errorf("reference was altered before sending: %#v, want %q", got["reference"], ref)
+	}
+	// Paystack echoes the reference back; we must keep ITS spelling, because
+	// that is the key the transfer is stored under.
+	if res.Reference != ref {
+		t.Errorf("Reference = %q, want %q — the stored key must match what we verify by", res.Reference, ref)
+	}
 }

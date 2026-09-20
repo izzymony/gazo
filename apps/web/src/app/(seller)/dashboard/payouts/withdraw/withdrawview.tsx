@@ -26,7 +26,7 @@ export default function WithdrawView() {
           bank: "",
           account_number: "",
           account_name: "",
-          bank_code: 0,
+          bank_code: "",
           business_id: "",
           is_default: false,
           metadata: [],

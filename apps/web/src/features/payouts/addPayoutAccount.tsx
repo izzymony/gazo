@@ -49,7 +49,10 @@ export function useAddPayoutAccount(
       is_default: checked,
       account_name: data.account_name || "",
       account_number: data.account_number || "",
-      bank_code: +selectedBank.BankCode,
+      // NOT `+selectedBank.BankCode`. That unary plus was where "044" became
+      // 44, before the request was even sent, and the backend could not tell
+      // the difference afterwards.
+      bank_code: selectedBank.BankCode,
       bank: banks,
     };
     // Navigate only on a confirmed create. The `.then()` had no `.catch()`, and

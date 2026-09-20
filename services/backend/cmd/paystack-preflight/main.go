@@ -48,6 +48,7 @@ func main() {
 		keyMode(key),
 		balanceReachable(client, base, key),
 		transfersEnabled(client, base, key),
+		otpDisabled(client, base, key),
 		settlementDestination(client, base, key),
 	}
 
@@ -67,6 +68,7 @@ func main() {
 	fmt.Println()
 	fmt.Println("Not checkable from here — confirm by hand:")
 	fmt.Println("  • The Paystack dashboard shows Transfers as enabled for THIS business.")
+	fmt.Println("  • Settings → Preferences → 'Confirm transfers before sending' is OFF.")
 	fmt.Println("  • A real test-mode transfer completes end to end and its webhook arrives.")
 	fmt.Println("  • The webhook URL registered with Paystack points at this environment.")
 	fmt.Println()
@@ -178,6 +180,54 @@ func settlementDestination(c *http.Client, base, key string) check {
 		ok:     true,
 		detail: fmt.Sprintf("%d settlement(s) visible — confirm they credit the BALANCE, not a bank account", len(resp.Data)),
 	}
+}
+
+// otpDisabled is the check whose absence strands payouts.
+//
+// With "confirm transfers before sending" enabled, POST /transfer succeeds with
+// `status: "otp"` and the transfer sits there until a human enters a code.
+// Nothing in this service can move it: the withdrawal parks in `awaiting_otp`
+// and the seller's funds stay reserved. Measured on this account — two
+// transfers came back "Transfer requires OTP to continue".
+//
+// Paystack exposes no endpoint for the setting, so this reads TRANSFER HISTORY
+// instead, which is honest about its limits: it can prove OTP is on, and it
+// cannot prove OTP is off on an account that has never sent a transfer. In that
+// case it says so rather than passing.
+func otpDisabled(c *http.Client, base, key string) check {
+	status, body, err := get(c, base+"/transfer?perPage=20", key)
+	if err != nil {
+		return check{name: "OTP not required", detail: err.Error()}
+	}
+	if status != http.StatusOK {
+		return check{name: "OTP not required", detail: fmt.Sprintf("HTTP %d — confirm the setting by hand", status)}
+	}
+
+	var resp struct {
+		Data []struct {
+			Status string `json:"status"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return check{name: "OTP not required", detail: "unreadable transfer list — confirm by hand"}
+	}
+	if len(resp.Data) == 0 {
+		return check{
+			name:   "OTP not required",
+			detail: "no transfer history, so this cannot be proven here — confirm the setting by hand",
+		}
+	}
+	for _, t := range resp.Data {
+		if t.Status == "otp" {
+			return check{
+				name:  "OTP not required",
+				fatal: true,
+				detail: "a recent transfer is stuck at `otp`: this account requires transfer " +
+					"confirmation, which strands every payout AND the seller's reserved funds",
+			}
+		}
+	}
+	return check{name: "OTP not required", ok: true, detail: fmt.Sprintf("none of the last %d transfers needed OTP", len(resp.Data))}
 }
 
 func get(c *http.Client, url, key string) (int, []byte, error) {

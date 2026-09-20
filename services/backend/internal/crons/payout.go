@@ -55,10 +55,18 @@ func NewPayoutCron(db *gorm.DB) *PayoutCron {
 const stuckAfter = 10 * time.Minute
 
 func (c *PayoutCron) ReconcileStuckTransfers() {
-	if !services.PayoutsLive() {
-		// Nothing can have been initiated, so there is nothing to reconcile.
-		return
-	}
+	// Deliberately NOT gated on PayoutsLive.
+	//
+	// It used to be, on the reasoning that nothing could have been initiated
+	// so there was nothing to reconcile. That is only true of an environment
+	// where payouts were never on. The flag is a kill switch, and the moment
+	// it is most likely to be pulled is DURING an incident — with transfers
+	// already in flight and sellers' funds already reserved. Gating this here
+	// meant flipping the switch also switched off the thing that resolves
+	// them, so every in-flight payout froze with the reservation held.
+	//
+	// The gate belongs on the single step that sends money, and that is where
+	// it now is: PayoutService.retryInitiation.
 	checked, err := c.payouts.ReconcileStuckTransfers(stuckAfter)
 	if err != nil {
 		logger.Error(fmt.Sprintf("payout reconciliation failed: %v", err))

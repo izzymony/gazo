@@ -70,7 +70,7 @@ describe("businessStore.updateStore", () => {
 });
 
 describe("businessStore.createBank", () => {
-  const bank = { account_name: "A", account_number: "1", bank_code: 1 } as never;
+  const bank = { account_name: "A", account_number: "1", bank_code: "011" } as never;
 
   it("resolves when the account is created", async () => {
     mockClient.mockResolvedValueOnce(ok({ message: "Bank account added successfully" }));

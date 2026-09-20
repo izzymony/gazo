@@ -92,7 +92,16 @@ type BusinessBankAccountDetail struct {
 	Bank          string   `json:"bank"`
 	AccountNumber string   `json:"account_number"`
 	AccountName   string   `json:"account_name"`
-	BankCode      int      `json:"bank_code"`
+	// A STRING, and that is load-bearing. Paystack bank codes are strings with
+	// meaning in their leading characters: 52 of 284 NGN codes begin with a
+	// zero (Access 044, First Bank 011, UBA 033, Zenith 057, GTBank 058) and 10
+	// are not numeric at all (035A, MFB50094, FC40163, D53). As an integer this
+	// column silently rewrote "044" to 44 and could not hold the others.
+	//
+	// Measured against Paystack: bank_code "44" is refused with "Bank is
+	// invalid"; "044" creates the recipient. So the int form made it impossible
+	// to pay a seller at most of Nigeria's largest banks.
+	BankCode      string   `json:"bank_code"`
 	BusinessID    string   `json:"business_id" gorm:"index"`
 	IsDefault     bool     `json:"is_default"`
 	Metadata      MapArray `json:"metadata" gorm:"type:jsonb"`

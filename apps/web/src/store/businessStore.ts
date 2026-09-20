@@ -531,7 +531,11 @@ export interface BankData {
   bank: string;
   account_number: string;
   account_name: string;
-  bank_code: number;
+  // A string, because leading zeros are part of the code. Paystack refuses
+  // bank_code "44" with "Bank is invalid" and accepts "044" — and 52 of 284
+  // NGN codes start with a zero, including Access, GTBank, UBA, Zenith and
+  // First Bank. Ten codes are not numeric at all (035A, MFB50094, D53).
+  bank_code: string;
   is_default: boolean;
 }
 
@@ -546,7 +550,7 @@ export interface BankAccount {
   bank: string;
   account_number: string;
   account_name: string;
-  bank_code: number;
+  bank_code: string;
   business_id: string;
   is_default: boolean;
   metadata: BankAccountMetadata[];

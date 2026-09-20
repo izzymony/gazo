@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -221,7 +222,7 @@ func newPayoutFixture(t *testing.T) *payoutFixture {
 	}
 	account := &domain.BusinessBankAccountDetail{
 		BusinessID: "biz-1", Bank: "Test Bank", AccountNumber: "0123456789",
-		AccountName: "Test Seller", BankCode: 58, PaystackRecipientCode: "RCP_test",
+		AccountName: "Test Seller", BankCode: "058", PaystackRecipientCode: "RCP_test",
 	}
 	if err := db.Create(account).Error; err != nil {
 		t.Fatalf("seed account: %v", err)
@@ -928,7 +929,7 @@ func TestUnclaimedRowsDoNotCollideOnTheEmptyString(t *testing.T) {
 	// A second bank account with no recipient code yet.
 	other := &domain.BusinessBankAccountDetail{
 		BusinessID: "biz-2", Bank: "Other Bank", AccountNumber: "9876543210",
-		AccountName: "Other Seller", BankCode: 44,
+		AccountName: "Other Seller", BankCode: "044",
 	}
 	if err := f.db.Create(other).Error; err != nil {
 		t.Fatalf("a second bank account with no recipient was rejected — no seller "+
@@ -970,7 +971,7 @@ func TestEditingABankAccountSucceedsAndDropsTheStaleRecipient(t *testing.T) {
 	repo := mysql_repo.NewBusinessRepository(f.db)
 	err := repo.UpdateAccountDetails(account.ID, domain.BusinessBankAccountDetail{
 		Bank: "New Bank", AccountNumber: "5555566666", AccountName: "Test Seller",
-		BankCode: 999, IsDefault: true,
+		BankCode: "999", IsDefault: true,
 	})
 	if err != nil {
 		t.Fatalf("editing a payout bank account failed: %v", err)
@@ -980,8 +981,8 @@ func TestEditingABankAccountSucceedsAndDropsTheStaleRecipient(t *testing.T) {
 	if err := f.db.Where("id = ?", account.ID).First(&updated).Error; err != nil {
 		t.Fatalf("reload: %v", err)
 	}
-	if updated.BankCode != 999 {
-		t.Errorf("bank_code = %d, want 999 — the edit did not reach the column", updated.BankCode)
+	if updated.BankCode != "999" {
+		t.Errorf("bank_code = %q, want \"999\" — the edit did not reach the column", updated.BankCode)
 	}
 	if updated.Bank != "New Bank" || updated.AccountNumber != "5555566666" {
 		t.Errorf("account details were not updated: %+v", updated)
@@ -989,5 +990,316 @@ func TestEditingABankAccountSucceedsAndDropsTheStaleRecipient(t *testing.T) {
 	if updated.PaystackRecipientCode != "" {
 		t.Errorf("the recipient code for the PREVIOUS account survived the edit (%q); "+
 			"the next payout would pay the old bank account", updated.PaystackRecipientCode)
+	}
+}
+
+// ── Duplicate reference during recovery (finding 2) ──────────────────────
+//
+// The sequence is not exotic; it is what the recovery path does. Verification
+// answers "not found" — which it can, in the window before a transfer is
+// visible — so the reconciler re-sends with the same reference, and Paystack
+// refuses it because that reference is already on a transfer.
+//
+// That refusal arrives as HTTP 400 with status:false, indistinguishable in
+// shape from "Insufficient balance". Treating it as a rejection releases the
+// reservation while Paystack holds a LIVE transfer for the same payout, and the
+// seller can withdraw the money twice.
+func TestDuplicateReferenceDuringRecovery_NeverReleasesFunds(t *testing.T) {
+	f := newPayoutFixture(t)
+
+	// First attempt: we never learn what happened.
+	f.transfer.onInit = func(payments.InitiateTransferInput) payments.TransferResult {
+		return payments.TransferResult{Outcome: payments.TransferAmbiguous, Reason: "timeout"}
+	}
+	if err := f.svc.ApproveAndTransfer(f.reqID); err != nil {
+		t.Fatalf("approve: %v", err)
+	}
+	ref := f.request(t).ProviderReference
+
+	// Reconciliation: verify says not-found, so the retry re-sends — and
+	// Paystack says the reference is taken. Verification then stays
+	// inconclusive, which is the worst case: we know a transfer exists and
+	// cannot see what it did.
+	var verifyCalls int
+	f.transfer.onVerify = func(r string) payments.TransferResult {
+		verifyCalls++
+		if verifyCalls == 1 {
+			return payments.TransferResult{Outcome: payments.TransferNotFound, Reference: r}
+		}
+		return payments.TransferResult{Outcome: payments.TransferAmbiguous, Reference: r, Reason: "gateway timeout"}
+	}
+	f.transfer.onInit = func(in payments.InitiateTransferInput) payments.TransferResult {
+		return payments.TransferResult{
+			Outcome:   payments.TransferAlreadyExists,
+			Reference: in.Reference,
+			Reason:    "Please provide a unique reference. Reference already exists on a transfer",
+		}
+	}
+	if _, err := f.svc.ReconcileStuckTransfers(0); err != nil {
+		t.Fatalf("reconcile: %v", err)
+	}
+
+	if got := domain.WithdrawalStatus(f.request(t).Status); got != domain.WithdrawalProcessing {
+		t.Errorf("status = %q, want processing — a duplicate reference means the "+
+			"transfer EXISTS; it is the opposite of a refusal", got)
+	}
+	f.assertWallet(t, startingAvailable, startingPending, 0,
+		"a duplicate-reference refusal must not release the reservation: Paystack is "+
+			"holding a live transfer for this payout")
+	if n := f.ledgerRows(t, domain.LedgerRowWithdrawal); n != 0 {
+		t.Errorf("wrote %d ledger rows for an unresolved payout", n)
+	}
+	if verifyCalls < 2 {
+		t.Errorf("verify called %d time(s); a duplicate must be resolved by asking what "+
+			"the existing transfer did", verifyCalls)
+	}
+	if ref != f.request(t).ProviderReference {
+		t.Error("the reference changed during recovery; it is the idempotency key")
+	}
+}
+
+// And when the existing transfer turns out to have succeeded, the payout
+// settles exactly once.
+func TestDuplicateReference_SettlesFromTheExistingTransfer(t *testing.T) {
+	f := newPayoutFixture(t)
+	f.transfer.onInit = func(in payments.InitiateTransferInput) payments.TransferResult {
+		return payments.TransferResult{
+			Outcome: payments.TransferAlreadyExists, Reference: in.Reference,
+			Reason: "Reference already exists on a transfer",
+		}
+	}
+	f.transfer.onVerify = func(r string) payments.TransferResult {
+		return payments.TransferResult{
+			Outcome: payments.TransferAccepted, Status: domain.PaystackTransferSuccess,
+			TransferCode: "TRF_dup_ok", Reference: r,
+		}
+	}
+
+	if err := f.svc.ApproveAndTransfer(f.reqID); err != nil {
+		t.Fatalf("approve: %v", err)
+	}
+	if got := domain.WithdrawalStatus(f.request(t).Status); got != domain.WithdrawalPaid {
+		t.Errorf("status = %q, want paid", got)
+	}
+	f.assertWallet(t, startingAvailable-payoutAmount, startingPending-payoutAmount, payoutAmount,
+		"the existing transfer had succeeded, so the payout settles once")
+	if n := f.ledgerRows(t, domain.LedgerRowWithdrawal); n != 1 {
+		t.Errorf("ledger rows = %d, want 1", n)
+	}
+}
+
+// If the existing transfer genuinely failed, releasing is then correct.
+func TestDuplicateReference_ReleasesOnlyWhenTheTransferItselfFailed(t *testing.T) {
+	f := newPayoutFixture(t)
+	f.transfer.onInit = func(in payments.InitiateTransferInput) payments.TransferResult {
+		return payments.TransferResult{Outcome: payments.TransferAlreadyExists, Reference: in.Reference, Reason: "duplicate"}
+	}
+	f.transfer.onVerify = func(r string) payments.TransferResult {
+		return payments.TransferResult{Outcome: payments.TransferDefinitivelyRejected, Reference: r, Reason: "Transfer failed"}
+	}
+	if err := f.svc.ApproveAndTransfer(f.reqID); err != nil {
+		t.Fatalf("approve: %v", err)
+	}
+	if got := domain.WithdrawalStatus(f.request(t).Status); got != domain.WithdrawalFailed {
+		t.Errorf("status = %q, want failed", got)
+	}
+	f.assertWallet(t, startingAvailable, startingPending-payoutAmount, 0,
+		"a verified failure releases the reservation")
+}
+
+// ── OTP cannot sit forever (finding 4) ──────────────────────────────────
+//
+// With "confirm transfers before sending" enabled, POST /transfer succeeds
+// with status `otp` and waits for a human. Verified on the live test account:
+// two transfers came back "Transfer requires OTP to continue".
+//
+// The reconciler used to return early whenever the verified status matched the
+// current one, on the reasoning that a transfer sitting at `pending` should not
+// burn its retry budget. That is right for `pending`, which resolves itself,
+// and wrong for `otp`, which never does — so attempt_count never grew,
+// escalation never fired, and the payout plus the seller's reservation were
+// stranded indefinitely with nobody notified.
+func TestAwaitingOTP_EscalatesInsteadOfStrandingForever(t *testing.T) {
+	f := newPayoutFixture(t)
+	f.transfer.onInit = func(in payments.InitiateTransferInput) payments.TransferResult {
+		return payments.TransferResult{
+			Outcome: payments.TransferAccepted, Status: domain.PaystackTransferOTP,
+			TransferCode: "TRF_otp", Reference: in.Reference,
+		}
+	}
+	if err := f.svc.ApproveAndTransfer(f.reqID); err != nil {
+		t.Fatalf("approve: %v", err)
+	}
+	if got := domain.WithdrawalStatus(f.request(t).Status); got != domain.WithdrawalAwaitingOTP {
+		t.Fatalf("status = %q, want awaiting_otp", got)
+	}
+
+	// Paystack keeps saying `otp`, because nothing here can confirm it.
+	f.transfer.onVerify = func(r string) payments.TransferResult {
+		return payments.TransferResult{
+			Outcome: payments.TransferAccepted, Status: domain.PaystackTransferOTP, Reference: r,
+		}
+	}
+	for i := 0; i < maxTransferAttempts+2; i++ {
+		if _, err := f.svc.ReconcileStuckTransfers(0); err != nil {
+			t.Fatalf("reconcile %d: %v", i, err)
+		}
+	}
+
+	req := f.request(t)
+	if domain.WithdrawalStatus(req.Status) != domain.WithdrawalNeedsReview {
+		t.Errorf("status = %q, want needs_review — an OTP-gated transfer never resolves "+
+			"itself, so it has to reach a human", req.Status)
+	}
+	if req.FailureReason == "" {
+		t.Error("escalated with no reason recorded; an operator cannot act on that")
+	}
+	f.assertWallet(t, startingAvailable, startingPending, 0,
+		"escalation holds the reservation: the transfer may still be confirmed")
+}
+
+// A transfer legitimately sitting at `pending` must NOT be escalated — that is
+// the behaviour the OTP fix had to preserve.
+func TestPendingTransfer_IsNotEscalatedByWaiting(t *testing.T) {
+	f := newPayoutFixture(t)
+	if err := f.svc.ApproveAndTransfer(f.reqID); err != nil {
+		t.Fatalf("approve: %v", err)
+	}
+	f.transfer.onVerify = func(r string) payments.TransferResult {
+		return payments.TransferResult{
+			Outcome: payments.TransferAccepted, Status: domain.PaystackTransferPending, Reference: r,
+		}
+	}
+	for i := 0; i < maxTransferAttempts+3; i++ {
+		if _, err := f.svc.ReconcileStuckTransfers(0); err != nil {
+			t.Fatalf("reconcile %d: %v", i, err)
+		}
+	}
+	if got := domain.WithdrawalStatus(f.request(t).Status); got != domain.WithdrawalProcessing {
+		t.Errorf("status = %q, want processing — a queued transfer that is simply taking "+
+			"its time must not be escalated", got)
+	}
+}
+
+// ── The kill switch must not disable recovery (finding 6) ───────────────
+//
+// PAYOUTS_LIVE is most likely to be switched off DURING an incident — with
+// transfers already in flight and sellers' funds already reserved. Gating
+// reconciliation on it meant flipping the switch also switched off the only
+// thing that could resolve them.
+func TestPayoutsDisabled_ReconciliationStillSettlesInFlightTransfers(t *testing.T) {
+	f := newPayoutFixture(t)
+	f.transfer.onInit = func(payments.InitiateTransferInput) payments.TransferResult {
+		return payments.TransferResult{Outcome: payments.TransferAmbiguous, Reason: "timeout"}
+	}
+	if err := f.svc.ApproveAndTransfer(f.reqID); err != nil {
+		t.Fatalf("approve: %v", err)
+	}
+
+	// The switch is pulled with a transfer in flight.
+	t.Setenv("PAYOUTS_LIVE", "false")
+
+	f.transfer.onVerify = func(r string) payments.TransferResult {
+		return payments.TransferResult{
+			Outcome: payments.TransferAccepted, Status: domain.PaystackTransferSuccess,
+			TransferCode: "TRF_incident", Reference: r,
+		}
+	}
+	checked, err := f.svc.ReconcileStuckTransfers(0)
+	if err != nil {
+		t.Fatalf("reconcile: %v", err)
+	}
+	if checked != 1 {
+		t.Fatalf("checked %d transfers with payouts disabled, want 1 — recovery must "+
+			"outlive the kill switch", checked)
+	}
+	if got := domain.WithdrawalStatus(f.request(t).Status); got != domain.WithdrawalPaid {
+		t.Errorf("status = %q, want paid — this money already left; refusing to record "+
+			"it does not bring it back", got)
+	}
+	f.assertWallet(t, startingAvailable-payoutAmount, startingPending-payoutAmount, payoutAmount,
+		"a verified success is recorded even while payouts are disabled")
+}
+
+// The flag still stops the one step that sends money.
+func TestPayoutsDisabled_ReconciliationDoesNotReSend(t *testing.T) {
+	f := newPayoutFixture(t)
+	f.transfer.onInit = func(payments.InitiateTransferInput) payments.TransferResult {
+		return payments.TransferResult{Outcome: payments.TransferAmbiguous, Reason: "timeout"}
+	}
+	if err := f.svc.ApproveAndTransfer(f.reqID); err != nil {
+		t.Fatalf("approve: %v", err)
+	}
+	sentBefore := f.transfer.count()
+
+	t.Setenv("PAYOUTS_LIVE", "false")
+	f.transfer.onVerify = func(r string) payments.TransferResult {
+		return payments.TransferResult{Outcome: payments.TransferNotFound, Reference: r}
+	}
+	if _, err := f.svc.ReconcileStuckTransfers(0); err != nil {
+		t.Fatalf("reconcile: %v", err)
+	}
+
+	if f.transfer.count() != sentBefore {
+		t.Error("a transfer was SENT while payouts are disabled; the flag has to stop " +
+			"new money leaving even though reconciliation keeps running")
+	}
+	f.assertWallet(t, startingAvailable, startingPending, 0, "nothing moved")
+}
+
+// ── The generated reference (finding 1) ─────────────────────────────────
+//
+// Reported as a P0 on the basis that Paystack permits lowercase only. Probed
+// against the live API instead: `VBR-PO-ABCDEF0123456789AB` was accepted (HTTP
+// 200, transfer created), stored with its case intact, and retrievable by
+// GET /transfer/verify/<that exact string>. So the uppercase form is valid.
+//
+// Pinned anyway, because the reference is the idempotency key and the recovery
+// path depends on it round-tripping unchanged. The charset here is the
+// conservative intersection everyone agrees on: letters, digits, hyphen,
+// underscore.
+func TestGeneratedReference_UsesOnlySafeCharacters(t *testing.T) {
+	safe := regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
+
+	seen := make(map[string]bool, 20000)
+	for i := 0; i < 20000; i++ {
+		ref := newPayoutReference()
+
+		if !safe.MatchString(ref) {
+			t.Fatalf("reference %q contains a character outside [A-Za-z0-9_-]", ref)
+		}
+		if len(ref) < 8 || len(ref) > 100 {
+			t.Fatalf("reference %q is %d characters; keep it well inside Paystack's limit",
+				ref, len(ref))
+		}
+		if seen[ref] {
+			t.Fatalf("reference %q was generated twice in %d draws — it is the "+
+				"idempotency key, and a collision makes Paystack refuse a DIFFERENT "+
+				"seller's payout as a duplicate", ref, i+1)
+		}
+		seen[ref] = true
+	}
+}
+
+// The reference the service commits is the one that reaches Paystack. Anything
+// that rewrote it between the two would break recovery, because the reconciler
+// verifies by the stored string.
+func TestClaimedReferenceIsTheOneSent(t *testing.T) {
+	f := newPayoutFixture(t)
+	if err := f.svc.ApproveAndTransfer(f.reqID); err != nil {
+		t.Fatalf("approve: %v", err)
+	}
+	stored := f.request(t).ProviderReference
+
+	f.transfer.mu.Lock()
+	sent := f.transfer.initiated[0].Reference
+	f.transfer.mu.Unlock()
+
+	if sent != stored {
+		t.Errorf("sent %q but stored %q — the reconciler verifies by the stored value",
+			sent, stored)
+	}
+	if !regexp.MustCompile(`^VBR-PO-[A-Z0-9]{18}$`).MatchString(stored) {
+		t.Errorf("reference %q does not match the documented shape", stored)
 	}
 }

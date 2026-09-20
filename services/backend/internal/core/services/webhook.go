@@ -137,7 +137,7 @@ func (s *WebhookService) handleTransferEvent(payload requests.PaystackWebhookReq
 		TransferCode: payload.Data.TransferCode,
 		Reference:    payload.Data.Reference,
 		Status:       providerStatus,
-		Fee:          helper.FromKobo(payload.Data.Fee),
+		Fee:          helper.FromKobo(payload.TransferFee()),
 	}, next)
 }
 

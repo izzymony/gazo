@@ -103,22 +103,117 @@ func runVersionedMigrations(db *gorm.DB) error {
 // no functions / dollar-quoted blocks / semicolons inside string literals (those
 // would need a real SQL parser). Driver-agnostic: pgx's extended protocol rejects
 // multi-statement Exec, so each statement is run on its own.
+// splitSQLStatements breaks a migration file into statements on `;`.
+//
+// It has to understand three kinds of text where a `;` or a `--` is just a
+// character and not punctuation, because getting any of them wrong splits a
+// statement in half and the migration fails with a syntax error that points
+// nowhere useful:
+//
+//   - line comments, which are stripped;
+//   - single-quoted literals, which may contain both;
+//   - dollar-quoted bodies ($$ ... $$ or $tag$ ... $tag$), which is how a
+//     DO block, function or trigger is written and which contain semicolons
+//     by definition.
+//
+// The dollar-quote case is not hypothetical: the first migration to use a DO
+// block failed with "unterminated dollar-quoted string", because the body was
+// cut at its first internal semicolon.
 func splitSQLStatements(sql string) []string {
-	var stripped strings.Builder
-	for _, line := range strings.Split(sql, "\n") {
-		if i := strings.Index(line, "--"); i >= 0 {
-			line = line[:i]
-		}
-		stripped.WriteString(line)
-		stripped.WriteByte('\n')
-	}
-	var out []string
-	for _, s := range strings.Split(stripped.String(), ";") {
-		if trimmed := strings.TrimSpace(s); trimmed != "" {
+	var (
+		out     []string
+		current strings.Builder
+		runes   = []rune(sql)
+	)
+
+	flush := func() {
+		if trimmed := strings.TrimSpace(current.String()); trimmed != "" {
 			out = append(out, trimmed)
 		}
+		current.Reset()
 	}
+
+	for i := 0; i < len(runes); {
+		switch {
+		// Line comment: drop to the end of the line, keeping the newline so
+		// tokens on either side do not run together.
+		case runes[i] == '-' && i+1 < len(runes) && runes[i+1] == '-':
+			for i < len(runes) && runes[i] != '\n' {
+				i++
+			}
+
+		// Single-quoted literal, copied verbatim. '' is an escaped quote.
+		case runes[i] == '\'':
+			current.WriteRune(runes[i])
+			i++
+			for i < len(runes) {
+				current.WriteRune(runes[i])
+				if runes[i] == '\'' {
+					if i+1 < len(runes) && runes[i+1] == '\'' {
+						current.WriteRune(runes[i+1])
+						i += 2
+						continue
+					}
+					i++
+					break
+				}
+				i++
+			}
+
+		// Dollar-quoted body, copied verbatim until its matching tag.
+		case runes[i] == '$':
+			if tag, ok := dollarTag(runes, i); ok {
+				current.WriteString(tag)
+				i += len([]rune(tag))
+				for i < len(runes) {
+					if runes[i] == '$' {
+						if closing, ok := dollarTag(runes, i); ok && closing == tag {
+							current.WriteString(tag)
+							i += len([]rune(tag))
+							break
+						}
+					}
+					current.WriteRune(runes[i])
+					i++
+				}
+			} else {
+				current.WriteRune(runes[i])
+				i++
+			}
+
+		case runes[i] == ';':
+			flush()
+			i++
+
+		default:
+			current.WriteRune(runes[i])
+			i++
+		}
+	}
+	flush()
 	return out
+}
+
+// dollarTag reads a dollar-quote delimiter starting at i — `$$` or `$tag$` —
+// and reports whether there was one. A lone `$` (a parameter placeholder, say)
+// is not a delimiter.
+func dollarTag(runes []rune, i int) (string, bool) {
+	if runes[i] != '$' {
+		return "", false
+	}
+	for j := i + 1; j < len(runes); j++ {
+		if runes[j] == '$' {
+			return string(runes[i : j+1]), true
+		}
+		// Tags are identifiers; anything else means this is not a delimiter.
+		if !(runes[j] == '_' ||
+			(runes[j] >= 'a' && runes[j] <= 'z') ||
+			(runes[j] >= 'A' && runes[j] <= 'Z') ||
+			(runes[j] >= '0' && runes[j] <= '9')) {
+			return "", false
+		}
+	}
+	return "", false
 }
 
 func truncate(s string, n int) string {

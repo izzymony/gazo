@@ -188,6 +188,24 @@ func (s *PayoutService) RegisterPayoutAccount(account *domain.BusinessBankAccoun
 	return s.ensureRecipient(account)
 }
 
+// newPayoutReference mints the idempotency key for one payout.
+//
+// It is Paystack's deduplication handle: re-sending with the same reference is
+// a no-op there rather than a second payout, which is what makes the recovery
+// path safe. So it must round-trip through Paystack unchanged and never
+// collide with another payout's.
+//
+// The charset is letters, digits and the hyphen in the prefix — the
+// conservative intersection of what Paystack accepts. Probed against the live
+// API: the uppercase form is accepted, stored with its case intact, and
+// retrievable by GET /transfer/verify/<that exact string>. Case preservation
+// is the property that matters, because if Paystack lowercased it, verifying
+// by the string we saved would 404 and the reconciler would read that as
+// "never created".
+func newPayoutReference() string {
+	return "VBR-PO-" + helper.RandomString(18)
+}
+
 // bankLabel renders the payout account the way the seller recognises it —
 // "GTBank ••4321" — for the {{bank}} placeholder the payout copy uses.
 //
@@ -246,7 +264,7 @@ func (s *PayoutService) claimForTransfer(requestID string) (*domain.WithdrawalRe
 		// reuses it, which is what makes Paystack's own deduplication work for
 		// us instead of against us.
 		if req.ProviderReference == "" {
-			req.ProviderReference = "VBR-PO-" + helper.RandomString(18)
+			req.ProviderReference = newPayoutReference()
 		}
 		now := time.Now()
 		req.Status = string(domain.WithdrawalProcessing)
@@ -295,8 +313,50 @@ func (s *PayoutService) recordInitiation(req *domain.WithdrawalRequest, result p
 	case payments.TransferDefinitivelyRejected:
 		return s.applyTransition(req.ID, domain.WithdrawalProcessing, domain.WithdrawalFailed, result)
 
+	case payments.TransferAlreadyExists:
+		// Paystack is holding a transfer for this reference. That is the
+		// opposite of a refusal, so it must not reach the branch above.
+		return s.resolveExistingTransfer(req, result.Reason)
+
 	default: // ambiguous
 		return s.markAmbiguous(req, result.Reason)
+	}
+}
+
+// resolveExistingTransfer settles a payout Paystack says it already has.
+//
+// Reached when initiation is refused for a duplicate reference, which happens
+// in ordinary operation: verification can answer "not found" in the window
+// before a transfer becomes visible, the reconciler re-sends on that answer,
+// and Paystack then refuses the reference. The wrong move at that moment is to
+// read the 400 as a rejection and give the seller their reservation back —
+// there is a live transfer for the same payout, and they could withdraw it
+// twice.
+//
+// So the answer comes from the transfer itself, and every path that does not
+// produce a verified verdict HOLDS.
+func (s *PayoutService) resolveExistingTransfer(req *domain.WithdrawalRequest, why string) error {
+	current := domain.WithdrawalStatus(req.Status)
+	verified := s.transfer.VerifyTransfer(req.ProviderReference)
+
+	switch verified.Outcome {
+	case payments.TransferAccepted:
+		next, ok := domain.NextStatusFor(current, verified.Status)
+		if !ok {
+			return s.markAmbiguous(req, fmt.Sprintf("%s; unrecognised status %q", why, verified.Status))
+		}
+		return s.Finalize(req.ProviderReference, verified, next)
+
+	case payments.TransferDefinitivelyRejected:
+		// The existing transfer itself failed. Now releasing is correct.
+		return s.applyTransition(req.ID, current, domain.WithdrawalFailed, verified)
+
+	default:
+		// Includes TransferNotFound, which is a contradiction: Paystack says
+		// the reference is taken and then cannot show us the transfer. A
+		// contradiction is the least safe moment to release money, so it holds
+		// and a human sees it if it persists.
+		return s.markAmbiguous(req, fmt.Sprintf("%s; verification inconclusive: %s", why, verified.Reason))
 	}
 }
 
@@ -591,9 +651,20 @@ func (s *PayoutService) reconcileOne(req *domain.WithdrawalRequest) {
 			return
 		}
 		if next == current {
-			// Still in flight. Nothing to do, and deliberately NOT an attempt:
-			// a transfer legitimately sitting at `pending` must not burn the
-			// retry budget and end up escalated.
+			if current == domain.WithdrawalAwaitingOTP {
+				// `pending` resolves itself; `otp` does not. Paystack is
+				// waiting for someone to confirm the transfer on the account,
+				// and nothing this process does will move it. Returning early
+				// here meant an OTP-enabled account stranded the payout AND
+				// the seller's reservation forever, because attempt_count
+				// never grew and escalation never fired.
+				s.bumpAttempt(req, "awaiting OTP confirmation on the Paystack account — "+
+					"disable 'confirm transfers before sending', or confirm it manually")
+				return
+			}
+			// Still in flight. Deliberately NOT an attempt: a transfer
+			// legitimately sitting at `pending` must not burn the retry budget
+			// and end up escalated.
 			return
 		}
 		_ = s.applyTransition(req.ID, current, next, result)
@@ -614,6 +685,14 @@ func (s *PayoutService) reconcileOne(req *domain.WithdrawalRequest) {
 // retryInitiation re-sends a transfer that Paystack never received, reusing the
 // original reference so the operation stays idempotent end to end.
 func (s *PayoutService) retryInitiation(req *domain.WithdrawalRequest) {
+	if !PayoutsLive() {
+		// The kill switch stops NEW money leaving; it must not stop us finding
+		// out what happened to money already in flight. Verification and
+		// webhooks keep resolving existing transfers either way — only this,
+		// the one step that actually sends, is gated.
+		s.bumpAttempt(req, "not re-sent: payouts are disabled")
+		return
+	}
 	if req.AttemptCount >= maxTransferAttempts {
 		_ = s.escalate(req, fmt.Sprintf("not created after %d attempts", req.AttemptCount))
 		return
