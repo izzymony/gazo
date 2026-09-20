@@ -97,21 +97,24 @@ func (s *ProductService) CreateProduct(input requests.Product, userId string) (*
 		input.Height = subCategory.DefaultHeight
 	}
 
-	var urls []string
-	for _, base64Image := range input.Image {
-		decodedImage, err := helper.DecodeBase64Image(base64Image)
-		if err != nil {
-			return nil, fmt.Errorf("something went wrong")
-		}
-		url, err := fileupload.UploadFileWithFallback(decodedImage)
-		if err != nil {
-			continue
-		}
-		urls = append(urls, url)
+	// Atomic: every image must resolve, or the product is not written at all.
+	// This used to `continue` past a failed upload, so a product could save
+	// "successfully" holding fewer images than the seller chose — or, once the
+	// uploader started returning empty URLs without an error, holding nothing
+	// but empty strings while reporting success.
+	//
+	// Already-stored http(s) URLs pass through untouched; only new image data
+	// is uploaded.
+	urls, err := fileupload.ResolveImages(context.Background(), input.Image)
+	if err != nil {
+		return nil, fmt.Errorf("could not save product images: %w", err)
 	}
-
 	var variants []domain.Variant
 	for _, v := range input.Variants {
+		variantImages, err := fileupload.ResolveImageMap(context.Background(), v.ImageValues)
+		if err != nil {
+			return nil, fmt.Errorf("could not save variant images: %w", err)
+		}
 		variant := domain.Variant{
 			Name:            v.Name,
 			Status:          v.Status,
@@ -119,7 +122,11 @@ func (s *ProductService) CreateProduct(input requests.Product, userId string) (*
 			OwnedProperties: domain.StrArray(v.OwnedProperties),
 			PriceValues:     v.PriceValues,
 			StockValues:     v.StockValues,
-			ImageValues:     v.ImageValues,
+			// Variant images were written to the database EXACTLY as received,
+			// so a data URI was stored verbatim as though it were a url — a
+			// whole image inlined into a column, and unreachable as an image.
+			// Resolved on the same atomic terms as the main gallery.
+			ImageValues: variantImages,
 		}
 		variants = append(variants, variant)
 	}
@@ -266,21 +273,22 @@ func (s *ProductService) UpdateProduct(productId, userId string, input requests.
 		input.Height = subCategory.DefaultHeight
 	}
 
-	var urls []string
-	for _, base64Image := range input.Image {
-		decodedImage, err := helper.DecodeBase64Image(base64Image)
-		if err != nil {
-			continue
-		}
-		url, err := fileupload.UploadFileWithFallback(decodedImage)
-		if err != nil {
-			continue
-		}
-		urls = append(urls, url)
+	// Atomic, and mixed-payload aware. An edit form posts the product's EXISTING
+	// images back as the urls they were stored as, alongside any newly added
+	// ones as data URIs. The old loop base64-decoded every entry, so a stored
+	// url failed to decode and was silently dropped — editing a title could
+	// therefore delete every photo on the product.
+	urls, err := fileupload.ResolveImages(context.Background(), input.Image)
+	if err != nil {
+		return nil, fmt.Errorf("could not save product images: %w", err)
 	}
 
 	var variants []domain.Variant
 	for _, v := range input.Variants {
+		variantImages, err := fileupload.ResolveImageMap(context.Background(), v.ImageValues)
+		if err != nil {
+			return nil, fmt.Errorf("could not save variant images: %w", err)
+		}
 		variants = append(variants, domain.Variant{
 			Name:            v.Name,
 			Status:          v.Status,
@@ -288,15 +296,19 @@ func (s *ProductService) UpdateProduct(productId, userId string, input requests.
 			OwnedProperties: v.OwnedProperties,
 			PriceValues:     v.PriceValues,
 			StockValues:     v.StockValues,
-			ImageValues:     v.ImageValues,
+			// Variant images were written to the database EXACTLY as received,
+			// so a data URI was stored verbatim as though it were a url — a
+			// whole image inlined into a column, and unreachable as an image.
+			// Resolved on the same atomic terms as the main gallery.
+			ImageValues: variantImages,
 		})
 	}
 
 	updatedProduct := domain.Product{
-		SKU:                input.SKU,
-		Barcode:            input.Barcode,
-		Title:              input.Title,
-		Description:        input.Description,
+		SKU:         input.SKU,
+		Barcode:     input.Barcode,
+		Title:       input.Title,
+		Description: input.Description,
 		// Slug is title-derived (URL-rework): keep it in sync with the title on
 		// update instead of trusting a possibly-empty/stale input.Slug. The product
 		// URL resolves by id, so a changed slug is corrected by the canonical redirect.
@@ -380,7 +392,7 @@ func (s *ProductService) notifyFollowersNewArrival(business *domain.Business, ti
 			Event:  "buyer.store.new_arrivals",
 			UserID: f.UserID,
 			// {{store}} = brand name (copy); {{handle}} = tag for the /@{handle} route.
-			Vars:   map[string]string{"store": business.Name, "item": title, "handle": business.Tag},
+			Vars: map[string]string{"store": business.Name, "item": title, "handle": business.Tag},
 		})
 	}
 }
