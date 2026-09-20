@@ -192,18 +192,21 @@ func (s *PayoutService) RegisterPayoutAccount(account *domain.BusinessBankAccoun
 //
 // It is Paystack's deduplication handle: re-sending with the same reference is
 // a no-op there rather than a second payout, which is what makes the recovery
-// path safe. So it must round-trip through Paystack unchanged and never
-// collide with another payout's.
+// path safe. So it must round-trip through Paystack unchanged and never collide
+// with another payout's.
 //
-// The charset is letters, digits and the hyphen in the prefix — the
-// conservative intersection of what Paystack accepts. Probed against the live
-// API: the uppercase form is accepted, stored with its case intact, and
-// retrievable by GET /transfer/verify/<that exact string>. Case preservation
-// is the property that matters, because if Paystack lowercased it, verifying
-// by the string we saved would 404 and the reconciler would read that as
-// "never created".
+// Lowercase, to stay inside Paystack's documented contract. Probing the live
+// API showed uppercase works — `VBR-PO-...` was accepted, stored with its case
+// intact, and retrievable by GET /transfer/verify/<that exact string> — but
+// the published rules specify lowercase, and there is nothing to gain from
+// depending on undocumented acceptance for the identifier that prevents double
+// payment. Entropy is unchanged: lowercasing a uniformly random pick from
+// 26 letters + 10 digits is a bijection onto 36 lowercase symbols.
+//
+// Existing uppercase references stay valid and need no migration: recovery
+// verifies by the exact string stored on the row, and Paystack preserves case.
 func newPayoutReference() string {
-	return "VBR-PO-" + helper.RandomString(18)
+	return "vbr-po-" + strings.ToLower(helper.RandomString(18))
 }
 
 // bankLabel renders the payout account the way the seller recognises it —
@@ -690,7 +693,15 @@ func (s *PayoutService) retryInitiation(req *domain.WithdrawalRequest) {
 		// out what happened to money already in flight. Verification and
 		// webhooks keep resolving existing transfers either way — only this,
 		// the one step that actually sends, is gated.
-		s.bumpAttempt(req, "not re-sent: payouts are disabled")
+		//
+		// And it must not spend the retry budget. `bumpAttempt` escalates at
+		// maxTransferAttempts, and the reconciler runs every five minutes, so
+		// counting a disabled run as an attempt meant roughly 25 minutes with
+		// the switch off pushed every in-flight withdrawal to `needs_review` —
+		// a state the reconciler no longer scans, so re-enabling payouts would
+		// not resume any of them. The budget exists to bound attempts at
+		// PAYSTACK; a run that never reached Paystack is not one of them.
+		s.holdWithoutAttempt(req, "not re-sent: payouts are disabled")
 		return
 	}
 	if req.AttemptCount >= maxTransferAttempts {
@@ -728,6 +739,18 @@ func (s *PayoutService) retryInitiation(req *domain.WithdrawalRequest) {
 		Reference: req.ProviderReference,
 	})
 	_ = s.recordInitiation(req, result)
+}
+
+// holdWithoutAttempt records why a withdrawal is waiting, and changes nothing
+// else — no status move, no attempt consumed, reservation untouched.
+//
+// For the cases where WE declined to act. `bumpAttempt` is for a round that
+// reached Paystack and came back inconclusive; spending the budget on a round
+// that never left this process escalates a healthy payout.
+func (s *PayoutService) holdWithoutAttempt(req *domain.WithdrawalRequest, reason string) {
+	_ = s.db.Model(&domain.WithdrawalRequest{}).
+		Where("id = ?", req.ID).
+		Update("failure_reason", truncateReason(reason)).Error
 }
 
 // bumpAttempt records another inconclusive round and escalates once the budget

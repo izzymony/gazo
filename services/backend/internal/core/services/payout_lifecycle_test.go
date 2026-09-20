@@ -1247,6 +1247,73 @@ func TestPayoutsDisabled_ReconciliationDoesNotReSend(t *testing.T) {
 	f.assertWallet(t, startingAvailable, startingPending, 0, "nothing moved")
 }
 
+// The kill switch must not consume the provider retry budget.
+//
+// The previous version of this fix called `bumpAttempt` on every disabled run.
+// The reconciler runs every five minutes, so roughly 25 minutes with the switch
+// off pushed every in-flight withdrawal to `needs_review` — which the
+// reconciler no longer scans, so re-enabling payouts would not resume any of
+// them. An operator would have had to reset each withdrawal by hand after a
+// routine incident pause.
+//
+// The budget bounds attempts at PAYSTACK. A round that never left this process
+// is not one of them.
+func TestPayoutsDisabled_DoesNotSpendTheRetryBudget(t *testing.T) {
+	f := newPayoutFixture(t)
+	f.transfer.onInit = func(payments.InitiateTransferInput) payments.TransferResult {
+		return payments.TransferResult{Outcome: payments.TransferAmbiguous, Reason: "timeout"}
+	}
+	if err := f.svc.ApproveAndTransfer(f.reqID); err != nil {
+		t.Fatalf("approve: %v", err)
+	}
+	attemptsAfterClaim := f.request(t).AttemptCount
+
+	t.Setenv("PAYOUTS_LIVE", "false")
+	f.transfer.onVerify = func(r string) payments.TransferResult {
+		return payments.TransferResult{Outcome: payments.TransferNotFound, Reference: r}
+	}
+
+	// Far more disabled rounds than the budget allows.
+	for i := 0; i < maxTransferAttempts*3; i++ {
+		if _, err := f.svc.ReconcileStuckTransfers(0); err != nil {
+			t.Fatalf("reconcile %d: %v", i, err)
+		}
+	}
+
+	req := f.request(t)
+	if got := domain.WithdrawalStatus(req.Status); got != domain.WithdrawalProcessing {
+		t.Errorf("status = %q after %d disabled rounds, want processing — a paused "+
+			"platform must not escalate healthy payouts into a state nothing resumes",
+			got, maxTransferAttempts*3)
+	}
+	if req.AttemptCount != attemptsAfterClaim {
+		t.Errorf("attempt_count = %d, want %d — rounds that never reached Paystack are "+
+			"not Paystack attempts", req.AttemptCount, attemptsAfterClaim)
+	}
+	if req.FailureReason == "" {
+		t.Error("nothing recorded about why it is waiting; an operator cannot tell this " +
+			"apart from a stuck payout")
+	}
+	f.assertWallet(t, startingAvailable, startingPending, 0, "nothing moved")
+
+	// And it resumes the moment payouts come back.
+	t.Setenv("PAYOUTS_LIVE", "true")
+	f.transfer.onInit = func(in payments.InitiateTransferInput) payments.TransferResult {
+		return payments.TransferResult{
+			Outcome: payments.TransferAccepted, Status: domain.PaystackTransferSuccess,
+			TransferCode: "TRF_resumed", Reference: in.Reference,
+		}
+	}
+	if _, err := f.svc.ReconcileStuckTransfers(0); err != nil {
+		t.Fatalf("reconcile after re-enabling: %v", err)
+	}
+	if got := domain.WithdrawalStatus(f.request(t).Status); got != domain.WithdrawalPaid {
+		t.Errorf("status = %q after re-enabling, want paid — the pause must be reversible", got)
+	}
+	f.assertWallet(t, startingAvailable-payoutAmount, startingPending-payoutAmount, payoutAmount,
+		"the payout settles once the pause is lifted")
+}
+
 // ── The generated reference (finding 1) ─────────────────────────────────
 //
 // Reported as a P0 on the basis that Paystack permits lowercase only. Probed
@@ -1259,14 +1326,17 @@ func TestPayoutsDisabled_ReconciliationDoesNotReSend(t *testing.T) {
 // conservative intersection everyone agrees on: letters, digits, hyphen,
 // underscore.
 func TestGeneratedReference_UsesOnlySafeCharacters(t *testing.T) {
-	safe := regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
+	// Lowercase, which is what Paystack's published rules specify. Uppercase
+	// was measured to work, but there is no reason to rely on undocumented
+	// acceptance for the key that prevents double payment.
+	safe := regexp.MustCompile(`^[a-z0-9_-]+$`)
 
 	seen := make(map[string]bool, 20000)
 	for i := 0; i < 20000; i++ {
 		ref := newPayoutReference()
 
 		if !safe.MatchString(ref) {
-			t.Fatalf("reference %q contains a character outside [A-Za-z0-9_-]", ref)
+			t.Fatalf("reference %q is outside Paystack's documented charset [a-z0-9_-]", ref)
 		}
 		if len(ref) < 8 || len(ref) > 100 {
 			t.Fatalf("reference %q is %d characters; keep it well inside Paystack's limit",
@@ -1299,7 +1369,97 @@ func TestClaimedReferenceIsTheOneSent(t *testing.T) {
 		t.Errorf("sent %q but stored %q — the reconciler verifies by the stored value",
 			sent, stored)
 	}
-	if !regexp.MustCompile(`^VBR-PO-[A-Z0-9]{18}$`).MatchString(stored) {
+	if !regexp.MustCompile(`^vbr-po-[a-z0-9]{18}$`).MatchString(stored) {
 		t.Errorf("reference %q does not match the documented shape", stored)
+	}
+}
+
+// References minted before the switch to lowercase are UPPERCASE, and they
+// must keep working. Paystack preserves case (probed: a `VBR-PO-...` transfer
+// was stored verbatim and retrieved by that exact string), and recovery
+// verifies by whatever is on the row — so nothing may normalise a reference on
+// the way out. If something did, every in-flight legacy payout would verify as
+// "not found", be re-sent, and be refused as a duplicate.
+func TestLegacyUppercaseReference_StillVerifiesAndSettles(t *testing.T) {
+	f := newPayoutFixture(t)
+
+	const legacy = "VBR-PO-ABCDEF0123456789AB"
+	if err := f.db.Model(&domain.WithdrawalRequest{}).Where("id = ?", f.reqID).
+		Updates(map[string]any{
+			"status":             string(domain.WithdrawalProcessing),
+			"provider_reference": legacy,
+			"provider":           "paystack",
+			"processing_at":      time.Now().Add(-time.Hour),
+			"attempt_count":      1,
+		}).Error; err != nil {
+		t.Fatalf("seed a legacy in-flight payout: %v", err)
+	}
+
+	var verifiedWith string
+	f.transfer.onVerify = func(r string) payments.TransferResult {
+		verifiedWith = r
+		return payments.TransferResult{
+			Outcome: payments.TransferAccepted, Status: domain.PaystackTransferSuccess,
+			TransferCode: "TRF_legacy", Reference: r,
+		}
+	}
+	if _, err := f.svc.ReconcileStuckTransfers(0); err != nil {
+		t.Fatalf("reconcile: %v", err)
+	}
+
+	if verifiedWith != legacy {
+		t.Errorf("verified with %q, want the stored %q — a reference must never be "+
+			"rewritten on the way to Paystack", verifiedWith, legacy)
+	}
+	if got := domain.WithdrawalStatus(f.request(t).Status); got != domain.WithdrawalPaid {
+		t.Errorf("status = %q, want paid", got)
+	}
+	f.assertWallet(t, startingAvailable-payoutAmount, startingPending-payoutAmount, payoutAmount,
+		"a legacy-reference payout settles normally")
+}
+
+// The same guarantee on the SEND path, not just the verify path.
+//
+// A legacy uppercase reference whose transfer Paystack never received is
+// re-sent by the reconciler, and it has to go out byte-for-byte as stored. If
+// anything lowercased it on the way, Paystack would treat it as a NEW
+// reference and create a second real transfer for a payout that may already
+// exist — the exact double-payment the reference is there to prevent.
+func TestLegacyUppercaseReference_IsReSentVerbatim(t *testing.T) {
+	f := newPayoutFixture(t)
+
+	const legacy = "VBR-PO-ABCDEF0123456789AB"
+	if err := f.db.Model(&domain.WithdrawalRequest{}).Where("id = ?", f.reqID).
+		Updates(map[string]any{
+			"status":             string(domain.WithdrawalProcessing),
+			"provider_reference": legacy,
+			"provider":           "paystack",
+			"processing_at":      time.Now().Add(-time.Hour),
+			"attempt_count":      1,
+		}).Error; err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+
+	f.transfer.onVerify = func(r string) payments.TransferResult {
+		return payments.TransferResult{Outcome: payments.TransferNotFound, Reference: r}
+	}
+	f.transfer.onInit = func(in payments.InitiateTransferInput) payments.TransferResult {
+		return payments.TransferResult{
+			Outcome: payments.TransferAccepted, Status: domain.PaystackTransferSuccess,
+			TransferCode: "TRF_legacy_retry", Reference: in.Reference,
+		}
+	}
+	if _, err := f.svc.ReconcileStuckTransfers(0); err != nil {
+		t.Fatalf("reconcile: %v", err)
+	}
+
+	f.transfer.mu.Lock()
+	defer f.transfer.mu.Unlock()
+	if len(f.transfer.initiated) != 1 {
+		t.Fatalf("%d transfers initiated, want 1", len(f.transfer.initiated))
+	}
+	if sent := f.transfer.initiated[0].Reference; sent != legacy {
+		t.Errorf("re-sent as %q, want the stored %q — a rewritten reference is a NEW "+
+			"reference to Paystack, so it would create a second transfer", sent, legacy)
 	}
 }

@@ -12,3 +12,8 @@ uploads/
 # Test files and binaries
 test_seeder_fix
 scripts/test_*.go
+
+# `go build ./...` drops a binary per cmd/ package into the module root. They
+# are ~16MB each and were not ignored, so an `add -A` would commit one.
+/bank-codes
+/paystack-preflight

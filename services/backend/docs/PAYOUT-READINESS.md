@@ -79,8 +79,26 @@ make bank-codes-audit    # report only
 make bank-codes-repair   # apply, and clear recipient codes built from the wrong bank
 ```
 
-Run per environment after migration 016. Anything it cannot resolve
-unambiguously is listed for a human rather than guessed at.
+Run per environment after migration 016. **Both exit non-zero** while anything
+is wrong, failed or unresolved, so they work as a go-live gate; a clean audit
+exits 0.
+
+Three things the repair does that matter:
+
+- It clears the recipient in **both** places. `existingRecipientCode` prefers
+  the typed `paystack_recipient_code` column and falls back to a
+  `paystack_transfer_recipient_code` key inside the `metadata` jsonb. A
+  recipient identifies an account *at Paystack*, so one created from the wrong
+  bank code points at the wrong destination — clearing only the column leaves
+  the legacy copy live and the next payout reuses it.
+- It is **one transaction, verified before it commits**. If either recipient
+  copy or the bank code is not as intended afterwards, the whole thing rolls
+  back and the account is reported as failed, untouched.
+- It **never guesses between two banks.** Candidates are grouped by normalised
+  name; anything matching zero or more than one Paystack bank is reported as
+  unresolved. (Paystack's NGN list has no such collision today — 284 banks, 284
+  distinct normalised names — but it grows, and picking wrong sends a seller's
+  money to another institution.)
 
 | Environment | Bank codes |
 |---|---|
@@ -134,6 +152,13 @@ money — initiation, including the reconciler's re-send. It deliberately does
 likely to be pulled is during an incident, with transfers already in flight and
 sellers' funds already reserved; switching off the thing that resolves them
 would freeze every one of those payouts.
+
+Nor does a pause consume the provider retry budget. A withdrawal that could not
+be re-sent because payouts were off records why and stays `processing`; it does
+not count as a Paystack attempt. Otherwise ~25 minutes with the switch off
+(the reconciler runs every five) would escalate every in-flight payout to
+`needs_review` — a state the reconciler no longer scans — and re-enabling
+payouts would resume none of them.
 
 Until then `ApproveWithdrawal` returns `503 payouts_disabled` **before any state
 change**, and the admin UI disables the action. Nothing is recorded, no wallet
