@@ -69,11 +69,28 @@ function resolveTargets(env = process.env) {
   };
 }
 
-/** Seller login for the core E2E specs. Absent → those specs skip, not fail. */
-function resolveSellerCredentials(env = process.env) {
+/**
+ * Seller login for the core specs. Absent → the core run FAILS.
+ *
+ * These used to skip. A skipped test reports green, so `qa:staging` could pass
+ * having exercised no authenticated journey at all — no login, no product edit,
+ * no cart — and a release decision could rest on it. Missing credentials are a
+ * broken run, not an absent feature.
+ *
+ * Smoke never calls this: it must stay runnable with no credentials anywhere.
+ */
+function requireSellerCredentials(env = process.env) {
   const email = env.QA_SELLER_EMAIL;
   const password = env.QA_SELLER_PASSWORD;
-  return email && password ? { email, password } : null;
+  if (!email || !password) {
+    throw new Error(
+      "Core QA requires QA_SELLER_EMAIL and QA_SELLER_PASSWORD.\n" +
+        "They are deliberately un-defaulted: a committed credential is a shared one.\n" +
+        "Seed first (pnpm qa:seed) with the same two variables exported.\n" +
+        "This FAILS rather than skips — a skipped core run reports green having tested nothing."
+    );
+  }
+  return { email, password };
 }
 
-module.exports = { resolveTargets, resolveSellerCredentials };
+module.exports = { resolveTargets, requireSellerCredentials };

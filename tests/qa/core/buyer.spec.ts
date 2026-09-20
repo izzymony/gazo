@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { resolveTargets, resolveSellerCredentials } from "../env.cjs";
+import { resolveTargets, requireSellerCredentials } from "../env.cjs";
 import { signIn, clickUntil } from "../login";
 
 const targets = resolveTargets();
@@ -38,7 +38,7 @@ async function seededProductPath(request: import("@playwright/test").APIRequestC
 test.describe("Buyer core", () => {
   test("a product page opens and renders the product", async ({ page, request }) => {
     const path = await seededProductPath(request);
-    test.skip(!path, "No product with a public id — run scripts/qa/seed-staging.mjs first");
+    expect(path, "No product with a public id on this environment — run `pnpm qa:seed` first.").toBeTruthy();
 
     await page.goto(path!);
     await expect(page.getByText("Page not found", { exact: false })).toHaveCount(0);
@@ -48,15 +48,14 @@ test.describe("Buyer core", () => {
   });
 
   test("a product can be added to the cart", async ({ page, request }) => {
-    const creds = resolveSellerCredentials();
     // The cart is tied to an account: as a guest the add silently does nothing,
     // so this signs in first rather than asserting on a no-op.
-    test.skip(!creds, "Set QA_SELLER_EMAIL / QA_SELLER_PASSWORD — the cart needs an account");
+    const creds = requireSellerCredentials();
 
     const path = await seededProductPath(request);
-    test.skip(!path, "No product with a public id — seed first");
+    expect(path, "No product with a public id on this environment — run `pnpm qa:seed` first.").toBeTruthy();
 
-    await signIn(page, creds!.email, creds!.password);
+    await signIn(page, creds.email, creds.password);
     await page.goto(path!);
 
     // Retry until the store actually records it — see clickUntil.
@@ -104,7 +103,10 @@ test.describe("Buyer core", () => {
     const hrefs = await page
       .locator("a[href*='/p/']")
       .evaluateAll((els) => els.map((e) => e.getAttribute("href") || ""));
-    test.skip(hrefs.length === 0, "No product links on /shop — seed first");
+    expect(
+      hrefs.length,
+      "No product links on /shop — run `pnpm qa:seed` first."
+    ).toBeGreaterThan(0);
 
     const malformed = hrefs.filter((h) => /-$/.test(h));
     expect(

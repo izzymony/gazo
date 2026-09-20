@@ -84,8 +84,27 @@ if (targets.isProduction) {
 }
 
 const API = targets.api;
-const EMAIL = process.env.QA_SELLER_EMAIL || "qa.seller@vibaar.test";
-const PASSWORD = process.env.QA_SELLER_PASSWORD || "QaSeller!2026";
+
+/**
+ * Credentials come from the environment, with NO fallback.
+ *
+ * These used to default to a committed email and password. Anyone reading the
+ * repo could then log into the staging QA account and change its products out
+ * from under a QA run — the results would be wrong rather than merely stale.
+ * A default that is convenient for one person is a shared credential for
+ * everyone else.
+ */
+const EMAIL = process.env.QA_SELLER_EMAIL;
+const PASSWORD = process.env.QA_SELLER_PASSWORD;
+if (!EMAIL || !PASSWORD) {
+  console.error(
+    "QA_SELLER_EMAIL and QA_SELLER_PASSWORD are required.\n\n" +
+      "  export QA_SELLER_EMAIL='...'\n" +
+      "  export QA_SELLER_PASSWORD='...'   # never pass secrets as arguments\n\n" +
+      "Store them in your local ignored config, or the GitHub 'staging' Environment for CI."
+  );
+  process.exit(1);
+}
 const USERNAME = process.env.QA_SELLER_USERNAME || "qaseller";
 const STORE_NAME = "QA Test Store";
 
@@ -253,6 +272,8 @@ await ensureSeller();
 const ids = await firstCategory();
 const store = await ensureStore();
 await ensureProducts(ids, store);
-console.log("\nDone. For the core E2E specs, export:");
-console.log(`  export QA_SELLER_EMAIL='${EMAIL}'`);
-console.log(`  export QA_SELLER_PASSWORD='${PASSWORD}'`);
+// Names, never values. This used to echo the password on every successful run,
+// which put it into terminal scrollback and CI logs — worse than the committed
+// default it came from, because those logs are retained and shared.
+console.log("\nDone. The core specs read the same two variables:");
+console.log("  QA_SELLER_EMAIL, QA_SELLER_PASSWORD");

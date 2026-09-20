@@ -1,20 +1,15 @@
 import { test, expect } from "@playwright/test";
-import { resolveTargets, resolveSellerCredentials } from "../env.cjs";
+import { resolveTargets, requireSellerCredentials } from "../env.cjs";
 import { signIn } from "../login";
 
 const targets = resolveTargets();
-const creds = resolveSellerCredentials();
-
-// Absent credentials means "not set up yet", not "broken" — skip rather than
-// fail, so the smoke suite stays usable on an unseeded environment.
-test.skip(
-  !creds,
-  "Set QA_SELLER_EMAIL and QA_SELLER_PASSWORD (see scripts/qa/seed-staging.mjs)"
-);
+// Throws at load if the credentials are absent, failing the core run. It used
+// to skip, which reported green having tested no authenticated journey at all.
+const creds = requireSellerCredentials();
 
 test.describe("Seller core", () => {
   test("can sign in and reach the dashboard", async ({ page }) => {
-    await signIn(page, creds!.email, creds!.password);
+    await signIn(page, creds.email, creds.password);
     await expect(page).toHaveURL(/dashboard|welcome/);
   });
 
@@ -28,7 +23,7 @@ test.describe("Seller core", () => {
     // `request` is already an APIRequestContext — newContext() lives on the
     // `playwright` fixture, not on this one.
     const auth = await request.post(`${targets.api}/login`, {
-      data: { identifier: creds!.email, email: creds!.email, password: creds!.password },
+      data: { identifier: creds.email, email: creds.email, password: creds.password },
     });
     const token = (await auth.json())?.data?.access_token;
     expect(token, "could not log in via the API to find a product").toBeTruthy();
@@ -38,12 +33,17 @@ test.describe("Seller core", () => {
     });
     const products = (await list.json())?.data?.data ?? [];
     const target = products.find((p: any) => /^QA Test/.test(p?.title ?? ""));
-    test.skip(!target, "No QA seed product found — run scripts/qa/seed-staging.mjs first");
+    // Fails rather than skips, for the same reason the credentials do: core
+    // running against an unseeded environment must not report green.
+    expect(
+      target,
+      "No QA seed product on this environment — run `pnpm qa:seed` first."
+    ).toBeTruthy();
 
     const nextTitle = `QA Test Tee ${Date.now()}`;
     const titleSelector = "input[name='title'], input[name='name']";
 
-    await signIn(page, creds!.email, creds!.password);
+    await signIn(page, creds.email, creds.password);
     await page.goto(`/dashboard/catalog/product/create/manual/edit/${target.id}`);
 
     const titleField = page.locator(titleSelector).first();
