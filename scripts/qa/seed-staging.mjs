@@ -267,11 +267,62 @@ async function ensureProducts(ids, store) {
   }
 }
 
+/**
+ * The photo-upload test's fixture — created once, then REUSED.
+ *
+ * It is deliberately not one of the three catalogue products: the title-edit
+ * test renames whatever it picks, and a fixture another test can rename is not
+ * a fixture. It is found by a marker in its DESCRIPTION rather than by title,
+ * for the same reason.
+ *
+ * Reused rather than created per run because there is no product-delete
+ * endpoint — a per-run product could only be archived, so staging would grow one
+ * dead row per run and the "product count unchanged" assertion would have to be
+ * weakened to active-only.
+ */
+const FIXTURE_MARKER = "qa-fixture:photo-upload";
+
+async function ensurePhotoFixture(ids, store) {
+  const mine = await call("/products?page=1&limit=100");
+  const all = mine.json?.data?.data || mine.json?.data || [];
+  const existing = (Array.isArray(all) ? all : []).find((p) =>
+    String(p?.description || "").startsWith(FIXTURE_MARKER)
+  );
+  if (existing) {
+    console.log(`  photo fixture exists: ${existing.id}`);
+    return existing;
+  }
+
+  const res = await call("/products", {
+    method: "POST",
+    body: {
+      title: "QA Photo Upload Fixture",
+      description: `${FIXTURE_MARKER} | baseline`,
+      image: [pngDataUri([120, 120, 120])],
+      stock: 5,
+      tag: ["qa", "fixture"],
+      is_combination: false,
+      status: "active",
+      category_id: ids.categoryId,
+      sub_category_id: ids.subCategoryId,
+      price: { old_price: 1000, price: 900 },
+      weight: 1, length: 10, width: 10, height: 5,
+    },
+  });
+  console.log(
+    res.ok
+      ? "  photo fixture created"
+      : `  photo fixture FAILED (${res.status}) ${JSON.stringify(res.json).slice(0, 160)}`
+  );
+  return res.json?.data?.product || res.json?.data || null;
+}
+
 console.log(`Seeding ${targets.label} via ${API}`);
 await ensureSeller();
 const ids = await firstCategory();
 const store = await ensureStore();
 await ensureProducts(ids, store);
+await ensurePhotoFixture(ids, store);
 // Names, never values. This used to echo the password on every successful run,
 // which put it into terminal scrollback and CI logs — worse than the committed
 // default it came from, because those logs are retained and shared.
