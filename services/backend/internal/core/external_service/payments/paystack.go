@@ -13,12 +13,11 @@ import (
 	"strings"
 	"time"
 
-	"gorm.io/gorm"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
 	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
-	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
+	"gorm.io/gorm"
 )
 
 type Paystack struct {
@@ -366,110 +365,10 @@ type TransferRecipientResponse struct {
 	} `json:"data"`
 }
 
-type InitiateTransferRequest struct {
-	Source    string `json:"source"`
-	Amount    int    `json:"amount"`
-	Recipient string `json:"recipient"`
-	Reason    string `json:"reason"`
-}
-
-type InitiateTransferResponse struct {
-	Status  bool   `json:"status"`
-	Message string `json:"message"`
-	Data    any    `json:"data"`
-}
-
-type ProcessWithdrawalRequest struct {
-	AccountDetails *domain.BusinessBankAccountDetail
-	Amount         float64
-	Reason         string
-}
-
-func (p Paystack) ProcessWithdrawal(request *ProcessWithdrawalRequest) error {
-	var (
-		recipientCode string
-		client        = &http.Client{Timeout: 30 * time.Second}
-	)
-
-	for _, item := range request.AccountDetails.Metadata {
-		if code, ok := item["paystack_transfer_recipient_code"]; ok && code != "" {
-			recipientCode = code.(string)
-			break
-		}
-	}
-
-	if recipientCode == "" {
-		createRecipientUrl := fmt.Sprintf("%s/transferrecipient", p.url)
-		payload := TransferRecipientRequest{
-			Type:          "nuban",
-			Name:          request.AccountDetails.AccountName,
-			AccountNumber: request.AccountDetails.AccountNumber,
-			BankCode:      fmt.Sprintf(`%d`, request.AccountDetails.BankCode),
-			Currency:      "NGN",
-		}
-
-		bodyBytes, _ := json.Marshal(payload)
-		req, err := http.NewRequest("POST", createRecipientUrl, bytes.NewBuffer(bodyBytes))
-		if err != nil {
-			return fmt.Errorf("error creating recipient request: %w", err)
-		}
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", p.secretKey))
-		req.Header.Set("Content-Type", "application/json")
-
-		resp, err := client.Do(req)
-		if err != nil {
-			return fmt.Errorf("error sending recipient request: %w", err)
-		}
-		defer resp.Body.Close()
-
-		respBody, _ := io.ReadAll(resp.Body)
-
-		var recipientResp TransferRecipientResponse
-		if err := json.Unmarshal(respBody, &recipientResp); err != nil {
-			return fmt.Errorf("error parsing recipient response: %w", err)
-		}
-		if !recipientResp.Status {
-			return fmt.Errorf("failed to create transfer recipient: %s", recipientResp.Message)
-		}
-		recipientCode = recipientResp.Data.RecipientCode
-		if err := p.businessRepo.AppendAccountDetailsMetadata(request.AccountDetails.ID, map[string]interface{}{
-			"paystack_transfer_recipient_code": recipientCode,
-		}); err != nil {
-			return err
-		}
-	}
-
-	initiateUrl := fmt.Sprintf("%s/transfer", p.url)
-	initiatePayload := InitiateTransferRequest{
-		Source:    "balance",
-		Amount:    int(request.Amount * 100),
-		Recipient: recipientCode,
-		Reason:    request.Reason,
-	}
-
-	initiateBody, _ := json.Marshal(initiatePayload)
-	initiateReq, err := http.NewRequest("POST", initiateUrl, bytes.NewBuffer(initiateBody))
-	if err != nil {
-		return fmt.Errorf("error creating transfer request: %w", err)
-	}
-	initiateReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", p.secretKey))
-	initiateReq.Header.Set("Content-Type", "application/json")
-
-	initiateResp, err := client.Do(initiateReq)
-	if err != nil {
-		return fmt.Errorf("error sending Ptransfer request: %w", err)
-	}
-	defer initiateResp.Body.Close()
-
-	initiateRespBody, _ := io.ReadAll(initiateResp.Body)
-
-	var transferResp InitiateTransferResponse
-	if err := json.Unmarshal(initiateRespBody, &transferResp); err != nil {
-		return fmt.Errorf("error parsing transfer response: %w", err)
-	}
-	if !transferResp.Status {
-		return fmt.Errorf("failed to initiate transfer: %s", transferResp.Message)
-	}
-
-	return nil
-}
+// ProcessWithdrawal lived here, unreferenced, and is deleted rather than left
+// for someone to find and wire up. It computed kobo as `int(amount * 100)`,
+// which truncates — ₦8.29 became 828 — sent no `reference`, so a retry created
+// a SECOND REAL TRANSFER, and discarded the transfer object, so no webhook
+// could ever be matched back to a payout. Its replacement is
+// `transfer.go`: EnsureTransferRecipient / InitiateTransfer / VerifyTransfer,
+// driven by PayoutService.

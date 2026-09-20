@@ -335,7 +335,7 @@ func (s *WalletService) RequestWithdrawal(userId string, req requests.Withdrawal
 		UserID:               userId,
 		WalletID:             wallet.ID,
 		Amount:               req.Amount,
-		Status:               "pending",
+		Status:               string(domain.WithdrawalRequested),
 		BankAccountDetailsID: req.BusinessBankAccountDetailsID,
 		Reference:            helper.GenerateReference(),
 	}

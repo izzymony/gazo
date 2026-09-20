@@ -73,6 +73,46 @@ interface WithdrawalRequest {
   };
 }
 
+/**
+ * The withdrawal lifecycle, as the backend now reports it.
+ *
+ * Approval used to mean "an admin pressed a button and then made a bank
+ * transfer by hand", and this page said so — it told the admin to go and send
+ * the money. Approval now AUTHORISES a Paystack transfer, and a withdrawal
+ * becomes `paid` only when Paystack confirms it. Anyone transferring manually
+ * on top of that pays the seller twice.
+ *
+ * `pending`, `approved` and `completed` are the old vocabulary. `pending` was
+ * migrated to `requested`, and `completed` was deliberately NOT migrated —
+ * those rows record an approval whose payment nobody ever verified, so they are
+ * left distinguishable for reconciliation rather than relabelled `paid`. All
+ * three are still mapped here so historical rows render.
+ */
+const WITHDRAWAL_STATUS: Record<string, { label: string; badge: string; tone: "waiting" | "inFlight" | "done" | "bad" | "neutral" }> = {
+  requested:    { label: "Awaiting Approval", badge: "bg-yellow-100 text-yellow-800", tone: "waiting" },
+  processing:   { label: "Sending",           badge: "bg-blue-100 text-blue-800",     tone: "inFlight" },
+  awaiting_otp: { label: "Awaiting OTP",      badge: "bg-blue-100 text-blue-800",     tone: "inFlight" },
+  paid:         { label: "Paid",              badge: "bg-green-100 text-green-800",   tone: "done" },
+  failed:       { label: "Failed",            badge: "bg-red-100 text-red-800",       tone: "bad" },
+  blocked:      { label: "Blocked",           badge: "bg-red-100 text-red-800",       tone: "bad" },
+  reversed:     { label: "Returned by bank",  badge: "bg-red-100 text-red-800",       tone: "bad" },
+  rejected:     { label: "Rejected",          badge: "bg-red-100 text-red-800",       tone: "bad" },
+  needs_review: { label: "Needs Review",      badge: "bg-orange-100 text-orange-800", tone: "bad" },
+
+  // Legacy.
+  pending:      { label: "Awaiting Approval", badge: "bg-yellow-100 text-yellow-800", tone: "waiting" },
+  approved:     { label: "Approved (legacy)", badge: "bg-gray-100 text-gray-800",     tone: "neutral" },
+  completed:    { label: "Paid (unverified)", badge: "bg-gray-100 text-gray-800",     tone: "neutral" },
+  under_review: { label: "Under Review",      badge: "bg-blue-100 text-blue-800",     tone: "inFlight" },
+};
+
+/**
+ * `pending` is accepted alongside `requested` so the page keeps working against
+ * a backend whose migration has not run yet. Gating the approve button on one
+ * spelling is how it would silently become impossible to approve anything.
+ */
+const isAwaitingApproval = (status: string) => status === "requested" || status === "pending";
+
 export default function FinancialPage() {
   const [selectedTab, setSelectedTab] = useState("withdrawals");
   const [selectedFilter, setSelectedFilter] = useState("all");
@@ -123,57 +163,22 @@ export default function FinancialPage() {
     }
   };
 
-  const getWithdrawalStatusBadge = (status: string) => {
-    switch (status) {
-      case "completed":
-      case "approved":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "processing":
-      case "under_review":
-        return "bg-blue-100 text-blue-800";
-      case "rejected":
-      case "failed":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+  const getWithdrawalStatusBadge = (status: string) =>
+    WITHDRAWAL_STATUS[status]?.badge ?? "bg-gray-100 text-gray-800";
 
-  const getWithdrawalStatusText = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "Completed";
-      case "approved":
-        return "Approved";
-      case "pending":
-        return "Pending";
-      case "processing":
-        return "Processing";
-      case "under_review":
-        return "Under Review";
-      case "rejected":
-        return "Rejected";
-      case "failed":
-        return "Failed";
-      default:
-        return status;
-    }
-  };
+  const getWithdrawalStatusText = (status: string) =>
+    WITHDRAWAL_STATUS[status]?.label ?? status;
 
   const getWithdrawalStatusIcon = (status: string) => {
-    switch (status) {
-      case "completed":
-      case "approved":
+    const tone = WITHDRAWAL_STATUS[status]?.tone ?? "neutral";
+    switch (tone) {
+      case "done":
         return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case "pending":
+      case "waiting":
         return <Clock className="h-4 w-4 text-yellow-500" />;
-      case "processing":
-      case "under_review":
+      case "inFlight":
         return <AlertTriangle className="h-4 w-4 text-blue-500" />;
-      case "rejected":
-      case "failed":
+      case "bad":
         return <XCircle className="h-4 w-4 text-red-500" />;
       default:
         return <Clock className="h-4 w-4 text-gray-500" />;
@@ -223,9 +228,10 @@ export default function FinancialPage() {
   // Calculate counts for filter tabs
   const statusCounts = {
     all: withdrawals.length,
-    pending: withdrawals.filter(w => w.status === "pending").length,
-    processing: withdrawals.filter(w => w.status === "processing").length,
-    completed: withdrawals.filter(w => w.status === "completed" || w.status === "approved").length,
+    requested: withdrawals.filter(w => isAwaitingApproval(w.status)).length,
+    processing: withdrawals.filter(w => w.status === "processing" || w.status === "awaiting_otp").length,
+    paid: withdrawals.filter(w => w.status === "paid" || w.status === "completed").length,
+    attention: withdrawals.filter(w => ["failed", "blocked", "reversed", "needs_review"].includes(w.status)).length,
   };
 
   // Action handlers
@@ -233,7 +239,12 @@ export default function FinancialPage() {
     if (actionLoading) return;
 
     const confirmApprove = window.confirm(
-      `Are you sure you want to approve this withdrawal?\n\nAmount: ₦${withdrawal.amount.toLocaleString()}\nVendor: ${withdrawal.user?.business?.name || "Unknown"}\nBank: ${withdrawal.bank_account?.bank || "Unknown"}\nAccount: ${withdrawal.bank_account?.account_number || "Unknown"}`
+      `Approve this withdrawal and send the transfer?\n\n` +
+      `Amount: ₦${withdrawal.amount.toLocaleString()}\n` +
+      `Vendor: ${withdrawal.user?.business?.name || "Unknown"}\n` +
+      `Bank: ${withdrawal.bank_account?.bank || "Unknown"}\n` +
+      `Account: ${withdrawal.bank_account?.account_number || "Unknown"}\n\n` +
+      `Paystack sends this automatically. Do NOT also transfer it manually.`
     );
 
     if (!confirmApprove) return;
@@ -241,11 +252,21 @@ export default function FinancialPage() {
     setActionLoading(withdrawal.id);
     try {
       await approveWithdrawal(withdrawal.id);
-      toast.success(`Withdrawal approved! Please transfer ₦${withdrawal.amount.toLocaleString()} to ${withdrawal.bank_account?.account_name || "vendor"}`);
+      // This used to read "Please transfer ₦X to vendor" — an instruction to
+      // make the payment by hand, which was correct when nothing else did.
+      // It is now the instruction that pays a seller twice.
+      toast.success(`Transfer sent to Paystack. It will show as Paid once Paystack confirms — no manual transfer needed.`);
       fetchWithdrawals(); // Refresh data
     } catch (error: any) {
       console.error("Failed to approve withdrawal:", error);
-      toast.error(error?.message || "Failed to approve withdrawal");
+      // 503 means the platform cannot pay right now and NOTHING happened to
+      // this withdrawal — distinct from a rejected request, and the admin needs
+      // to know it is safe to try again later rather than chase the seller.
+      if (error?.status === 503 || error?.reason === "payouts_disabled") {
+        toast.error("Payouts are switched off, so nothing was approved. Try again once they are enabled.");
+      } else {
+        toast.error(error?.message || "Failed to approve withdrawal");
+      }
     } finally {
       setActionLoading(null);
     }
@@ -345,9 +366,9 @@ export default function FinancialPage() {
               iconColor="text-blue-500"
             />
             <MetricCard
-              title="Pending Withdrawals"
-              value={`₦${(withdrawals.filter(w => w.status === "pending").reduce((sum, w) => sum + w.amount, 0) / 1000000).toFixed(1)}M`}
-              change={`${statusCounts.pending} requests`}
+              title="Awaiting Approval"
+              value={`₦${(withdrawals.filter(w => isAwaitingApproval(w.status)).reduce((sum, w) => sum + w.amount, 0) / 1000000).toFixed(1)}M`}
+              change={`${statusCounts.requested} requests`}
               changeType="neutral"
               icon={Clock}
               iconColor="text-yellow-500"
@@ -404,9 +425,10 @@ export default function FinancialPage() {
                 <FilterTabs
                   filters={[
                     { key: "all", label: "All Requests", count: statusCounts.all },
-                    { key: "pending", label: "Pending", count: statusCounts.pending },
-                    { key: "processing", label: "Processing", count: statusCounts.processing },
-                    { key: "completed", label: "Completed", count: statusCounts.completed },
+                    { key: "requested", label: "Awaiting Approval", count: statusCounts.requested },
+                    { key: "processing", label: "Sending", count: statusCounts.processing },
+                    { key: "paid", label: "Paid", count: statusCounts.paid },
+                    { key: "needs_review", label: "Needs Review", count: statusCounts.attention },
                   ]}
                   selectedFilter={selectedFilter}
                   onFilterChange={setSelectedFilter}
@@ -545,12 +567,12 @@ export default function FinancialPage() {
                               <button
                                 onClick={() => handleApproveWithdrawal(withdrawal)}
                                 className={`w-8 h-8 flex items-center justify-center rounded-full border transition-colors ${
-                                  withdrawal.status === 'pending' && !actionLoading
+                                  isAwaitingApproval(withdrawal.status) && !actionLoading
                                     ? 'border-green-200 text-green-600 hover:bg-green-50'
                                     : 'border-gray-200 text-gray-400 cursor-not-allowed'
                                 }`}
-                                title="Approve Withdrawal"
-                                disabled={withdrawal.status !== 'pending' || !!actionLoading}
+                                title="Approve withdrawal and send the transfer"
+                                disabled={!isAwaitingApproval(withdrawal.status) || !!actionLoading}
                               >
                                 {actionLoading === withdrawal.id ? (
                                   <Loader2 className="h-4 w-4 animate-spin" />

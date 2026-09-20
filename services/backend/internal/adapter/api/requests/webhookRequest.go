@@ -60,6 +60,15 @@ type PaystackWebhookRequest struct {
 		Customer  struct {
 			Email string `json:"email"`
 		} `json:"customer"`
+
+		// `transfer.*` events only. The reference is ours (we set it when
+		// initiating); the transfer code is Paystack's. Either can identify the
+		// withdrawal, which matters because a transfer created by an older
+		// build may predate our reference.
+		TransferCode string `json:"transfer_code"`
+		Status       string `json:"status"`
+		Amount       int64  `json:"amount"`
+		Fee          int64  `json:"fee"`
 	} `json:"data"`
 }
 

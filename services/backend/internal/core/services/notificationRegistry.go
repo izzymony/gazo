@@ -120,10 +120,22 @@ var notifRegistry = map[string]NotifDef{
 		Title: "Funds cleared · {{amount}}", Body: "From your {{item}} sale — now in your available balance.", Route: "/dashboard/wallet", TxEvent: domain.EventPayoutReady},
 	"seller.payout.withdrawal_processing": {Key: "seller.payout.withdrawal_processing", Tier: TierAmbient, Badge: false, WhatsApp: false, Type: notifTypeSystem,
 		Title: "Withdrawal processing · {{amount}}", Body: "On its way to your {{bank}}.", Route: "/dashboard/wallet"},
+	// Fires when Paystack CONFIRMS the money left — not when an admin approves.
+	// It used to fire at approval, which is why its copy said "approved": at
+	// that point nothing had been sent, and the seller was told it had. Approval
+	// now emits `withdrawal_processing` above, and this waits for the transfer.
 	"seller.payout.withdrawal_sent": {Key: "seller.payout.withdrawal_sent", Tier: TierCritical, Badge: true, WhatsApp: true, Type: notifTypeSystem,
-		Title: "Withdrawal approved · {{amount}}", Body: "Approved — on its way to your {{bank}}.", Route: "/dashboard/wallet"}, // fires at admin approve; TxEvent TBD
+		Title: "Withdrawal sent · {{amount}}", Body: "Sent to your {{bank}}. Banks usually credit within minutes.", Route: "/dashboard/wallet"}, // TxEvent TBD
+	// "Tap to retry" was removed: the money is already back in the available
+	// balance, so the seller requests a new withdrawal rather than retrying a
+	// dead one, and there is no retry affordance on the wallet screen to tap.
 	"seller.payout.withdrawal_failed": {Key: "seller.payout.withdrawal_failed", Tier: TierCritical, Badge: true, WhatsApp: true, Type: notifTypeSystem,
-		Title: "Withdrawal failed · {{amount}}", Body: "It didn't go through. Tap to retry.", Route: "/dashboard/wallet"}, // TxEvent TBD
+		Title: "Withdrawal failed · {{amount}}", Body: "It didn't go through, so the money is back in your balance. Check your {{bank}} details and try again.", Route: "/dashboard/wallet"}, // TxEvent TBD
+	// A reversal is rare and alarming: the seller was told the money was sent,
+	// and their bank sent it back. Saying where the money IS now is the whole
+	// job of this message.
+	"seller.payout.withdrawal_reversed": {Key: "seller.payout.withdrawal_reversed", Tier: TierCritical, Badge: true, WhatsApp: true, Type: notifTypeSystem,
+		Title: "Withdrawal returned · {{amount}}", Body: "Your bank returned this transfer, so the money is back in your available balance. Check your {{bank}} details and withdraw again.", Route: "/dashboard/wallet"}, // TxEvent TBD
 	"seller.payout.bank_changed": {Key: "seller.payout.bank_changed", Tier: TierCritical, Badge: true, WhatsApp: true, Type: notifTypeSystem,
 		Title: "Payout bank changed · {{bank}}", Body: "If this wasn't you, secure your account immediately.", Route: "/dashboard/payouts"}, // unmutable (Phase 2 prefs)
 	"seller.payout.bank_added": {Key: "seller.payout.bank_added", Tier: TierAmbient, Badge: false, WhatsApp: false, Type: notifTypeSystem,

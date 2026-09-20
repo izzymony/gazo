@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"math"
 	"net/http"
 	"strconv"
@@ -49,12 +50,29 @@ func (s *AdminController) ApproveWithdrawal(c *gin.Context) {
 	id := c.Param("id")
 
 	err := s.service.ApproveWithdrawal(id)
+	if errors.Is(err, services.ErrPayoutsDisabled) {
+		// 503, not 400. Nothing is wrong with the request or the withdrawal —
+		// the platform cannot pay right now. A 400 would read as "this
+		// withdrawal is invalid" and send an admin looking at the seller.
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"error":  err.Error(),
+			"reason": "payouts_disabled",
+		})
+		return
+	}
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Withdrawal approved"})
+	// "Approved", not "sent". Approval authorises a transfer; Paystack performs
+	// it, and the seller is told it arrived only once Paystack confirms. The
+	// previous response claimed a completed payment that had never been
+	// attempted.
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Withdrawal approved — transfer initiated",
+		"status":  "processing",
+	})
 }
 
 func (s *AdminController) RejectWithdrawal(c *gin.Context) {

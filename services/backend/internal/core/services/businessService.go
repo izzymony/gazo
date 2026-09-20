@@ -14,6 +14,7 @@ import (
 	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	fileupload "github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/file-upload"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/payments"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
@@ -34,6 +35,7 @@ type BusinessService struct {
 	productService                   *ProductService
 	walletService                    *WalletService
 	dispatcher                       *NotificationDispatcher
+	payouts                          *PayoutService
 }
 
 func NewBusinessService(db *gorm.DB) *BusinessService {
@@ -50,6 +52,9 @@ func NewBusinessService(db *gorm.DB) *BusinessService {
 		productService:                   NewProductService(db),
 		walletService:                    NewWalletService(db),
 		dispatcher:                       NewNotificationDispatcher(db),
+		// Notifications for payout events are emitted by the flows that own
+		// them, not by account maintenance, so this one needs no dispatcher.
+		payouts: NewPayoutService(db, payments.NewPaystackPaymentService(db), nil),
 	}
 }
 
@@ -1327,15 +1332,23 @@ func (s *BusinessService) UpdateBankAccountDetail(id string, userID string, data
 		return err
 	}
 
-	// NS2 seller.payout.bank_changed — security alert, in-app + WhatsApp, best-effort.
-	bankLabel := data.Bank
-	if len(data.AccountNumber) >= 4 {
-		bankLabel = data.Bank + " ••" + data.AccountNumber[len(data.AccountNumber)-4:]
+	// UpdateAccountDetails clears the cached Paystack recipient in the same
+	// statement, because it pointed at the OLD bank account and reusing it would
+	// pay the previous destination. This re-registers against the new details;
+	// if Paystack is unreachable, the payout path registers it later.
+	account.ID = id
+	account.PaystackRecipientCode = ""
+	// Best-effort: a Paystack outage must not stop a seller saving their bank
+	// details. The payout path ensures the recipient again if this misses.
+	if err := s.payouts.RegisterPayoutAccount(&account); err != nil {
+		logger.Error(fmt.Errorf("could not pre-register payout account %s: %w", id, err))
 	}
+
+	// NS2 seller.payout.bank_changed — security alert, in-app + WhatsApp, best-effort.
 	_ = s.dispatcher.Emit(context.Background(), EmitInput{
 		Event:  "seller.payout.bank_changed",
 		UserID: userID,
-		Vars:   map[string]string{"bank": bankLabel},
+		Vars:   map[string]string{"bank": maskedBankLabel(data.Bank, data.AccountNumber)},
 	})
 
 	return nil
@@ -1389,15 +1402,18 @@ func (s *BusinessService) AddBankAccountDetail(userID string, req requests.Busin
 		return fmt.Errorf("something went wrong")
 	}
 
-	// NS2 seller.payout.bank_added (in-app).
-	bankLabel := req.Bank
-	if len(req.AccountNumber) >= 4 {
-		bankLabel = req.Bank + " ••" + req.AccountNumber[len(req.AccountNumber)-4:]
+	// Register the Paystack payout recipient now rather than at the first
+	// withdrawal. Best-effort on purpose: a Paystack outage must not stop a
+	// seller saving their bank details, and the payout path ensures it again.
+	if err := s.payouts.RegisterPayoutAccount(account); err != nil {
+		logger.Error(fmt.Errorf("could not pre-register payout account %s: %w", account.ID, err))
 	}
+
+	// NS2 seller.payout.bank_added (in-app).
 	_ = s.dispatcher.Emit(context.Background(), EmitInput{
 		Event:  "seller.payout.bank_added",
 		UserID: userID,
-		Vars:   map[string]string{"bank": bankLabel},
+		Vars:   map[string]string{"bank": maskedBankLabel(req.Bank, req.AccountNumber)},
 	})
 
 	return nil

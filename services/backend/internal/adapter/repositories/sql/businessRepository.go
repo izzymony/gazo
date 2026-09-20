@@ -1056,8 +1056,17 @@ func (repo *BusinessRepository) UpdateAccountDetails(id string, data domain.Busi
 			"bank":           data.Bank,
 			"account_number": data.AccountNumber,
 			"account_name":   data.AccountName,
-			"bank_id":        data.BankCode,
-			"is_default":     data.IsDefault,
+			// `bank_id` — there is no such column, only `bank_code`. Postgres
+			// rejected the whole statement, so EVERY edit of a payout bank
+			// account failed with "something went wrong" while the seller was
+			// looking at correct details. Verified against the live schema.
+			"bank_code":  data.BankCode,
+			"is_default": data.IsDefault,
+			// Changing the account invalidates the cached Paystack recipient:
+			// it still points at the OLD bank account, so reusing it would pay
+			// the previous destination. Cleared here, in the same statement as
+			// the change, and re-registered by the caller.
+			"paystack_recipient_code": "",
 		}).Error
 }
 

@@ -30,6 +30,35 @@ export function useApiClient<T = any>() {
     }
   }, []);
 
+  /**
+   * Same as `execute`, but the failure reaches the caller.
+   *
+   * `execute` turns every failure into `null`, which means a caller written as
+   * `try { await action(); toast.success(...) } catch { ... }` shows SUCCESS for
+   * a request that failed — the catch block is unreachable. That is tolerable
+   * for a read that renders an empty list, and not tolerable for approving a
+   * payout: the admin would be told a transfer was sent when the server had
+   * refused it.
+   *
+   * Added alongside `execute` rather than changing it, because twenty-odd
+   * callers are written against the `null` contract.
+   */
+  const executeOrThrow = useCallback(async <R = T>(
+    apiCall: () => Promise<R>
+  ): Promise<R> => {
+    setState(prev => ({ ...prev, loading: true, error: null }));
+
+    try {
+      const result = await apiCall();
+      setState({ data: result as T, loading: false, error: null });
+      return result;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+      setState(prev => ({ ...prev, loading: false, error: errorMessage }));
+      throw error;
+    }
+  }, []);
+
   const reset = useCallback(() => {
     setState({ data: null, loading: false, error: null });
   }, []);
@@ -37,6 +66,7 @@ export function useApiClient<T = any>() {
   return {
     ...state,
     execute,
+    executeOrThrow,
     reset,
   };
 }
@@ -187,19 +217,21 @@ export function useOrders() {
 
 // Financial management hooks
 export function useFinancial() {
-  const { data, loading, error, execute } = useApiClient();
+  const { data, loading, error, execute, executeOrThrow } = useApiClient();
 
   const getWithdrawals = useCallback(async (page = 1, limit = 20, status = '') => {
     return execute(() => apiClient.getAllWithdrawalRequests(page, limit, status));
   }, [execute]);
 
+  // These two move money, so a failure has to reach the caller rather than
+  // becoming a silent `null` under a success toast.
   const approveWithdrawal = useCallback(async (withdrawalId: string) => {
-    return execute(() => apiClient.approveWithdrawal(withdrawalId));
-  }, [execute]);
+    return executeOrThrow(() => apiClient.approveWithdrawal(withdrawalId));
+  }, [executeOrThrow]);
 
   const rejectWithdrawal = useCallback(async (withdrawalId: string, reason: string) => {
-    return execute(() => apiClient.rejectWithdrawal(withdrawalId, reason));
-  }, [execute]);
+    return executeOrThrow(() => apiClient.rejectWithdrawal(withdrawalId, reason));
+  }, [executeOrThrow]);
 
   const getWalletBalances = useCallback(async (businessId: string) => {
     return execute(() => apiClient.getWalletBalances(businessId));
