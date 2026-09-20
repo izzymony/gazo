@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { resolveTargets, requireSellerCredentials } from "../env.cjs";
-import { signIn, clickUntil } from "../login";
+import { signIn, clickUntil, gotoRoute } from "../login";
 
 const targets = resolveTargets();
 
@@ -40,7 +40,7 @@ test.describe("Buyer core", () => {
     const path = await seededProductPath(request);
     expect(path, "No product with a public id on this environment — run `pnpm qa:seed` first.").toBeTruthy();
 
-    await page.goto(path!);
+    await gotoRoute(page, path!);
     await expect(page.getByText("Page not found", { exact: false })).toHaveCount(0);
     await expect(page.getByRole("button", { name: /add to (cart|bag)/i }).first()).toBeVisible({
       timeout: 30_000,
@@ -56,7 +56,14 @@ test.describe("Buyer core", () => {
     expect(path, "No product with a public id on this environment — run `pnpm qa:seed` first.").toBeTruthy();
 
     await signIn(page, creds.email, creds.password);
-    await page.goto(path!);
+    await gotoRoute(page, path!);
+
+    // Start from an empty cart so the assertion cannot pass on residue from an
+    // earlier step in this same context.
+    await page.evaluate(() => {
+      try { localStorage.removeItem("order-store"); } catch { /* private mode */ }
+    });
+    await page.reload();
 
     // Retry until the store actually records it — see clickUntil.
     await clickUntil(
@@ -72,17 +79,27 @@ test.describe("Buyer core", () => {
         })
     );
 
-    await page.goto("/cart");
+    await gotoRoute(page, "/cart");
     await expect(page.getByText("Page not found", { exact: false })).toHaveCount(0);
 
     // The cart's own empty-state copy is the assertion: if it is still on screen
     // after an add, nothing was added. Verified by hand against a signed-in
     // account and an in-stock product with the control enabled — the cart still
     // read "Your cart is empty."
-    await expect(
-      page.getByText(/your cart is empty/i),
-      "Cart still shows its empty state after Add to cart — the item never landed."
-    ).toHaveCount(0, { timeout: 15_000 });
+    try {
+      await expect(
+        page.getByText(/your cart is empty/i),
+        "Cart still shows its empty state after Add to cart — the item never landed."
+      ).toHaveCount(0, { timeout: 15_000 });
+    } finally {
+      // Defensive only. The cart is client-side: no backend cart routes exist and
+      // orderStore never calls one, so this leaves NOTHING on staging and the
+      // browser context is discarded anyway. Kept so the test stays correct if the
+      // cart ever becomes server-backed, which is exactly when forgetting would cost.
+      await page.evaluate(() => {
+        try { localStorage.removeItem("order-store"); } catch { /* private mode */ }
+      });
+    }
   });
 
   /**
@@ -97,7 +114,7 @@ test.describe("Buyer core", () => {
     // Not networkidle: a Next dev server holds an HMR websocket open, so it
     // never settles and the wait burns the whole timeout. Wait for the thing
     // being asserted on instead.
-    await page.goto("/shop");
+    await gotoRoute(page, "/shop");
     await page.locator("a[href*='/p/']").first().waitFor({ timeout: 45_000 }).catch(() => {});
 
     const hrefs = await page

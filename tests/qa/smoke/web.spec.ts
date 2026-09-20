@@ -26,7 +26,7 @@ const pages = [
 test.describe("Web smoke", () => {
   for (const { path, marker } of pages) {
     test(`${path} renders its own content`, async ({ page }) => {
-      await page.goto(path);
+      await page.goto(path, { waitUntil: "domcontentloaded" });
       // filter({ visible: true }) matters: the shell renders both a desktop and
       // a mobile nav, and at a phone viewport the FIRST DOM match can be the
       // hidden desktop one — .first() alone then fails a page that is fine.
@@ -39,8 +39,24 @@ test.describe("Web smoke", () => {
     });
   }
 
+  /**
+   * The landing CTA, tested on its own.
+   *
+   * signIn() deliberately no longer goes through this button — when the auth
+   * scene left it disabled mid-navigation it took every authenticated journey
+   * down with it. Covering it here means a broken CTA fails ONE test that names
+   * it, instead of three that were trying to test something else.
+   */
+  test("the landing CTA opens the sign-in form", async ({ page }) => {
+    await page.goto("/signin", { waitUntil: "domcontentloaded" });
+    await page.getByRole("button", { name: /login to my account/i }).click();
+
+    await expect(page.locator("input[name='identifier']")).toBeVisible({ timeout: 45_000 });
+    await expect(page.locator("input[name='password']")).toBeVisible();
+  });
+
   test("an unknown route renders not-found (control for the assertions above)", async ({ page }) => {
-    const res = await page.goto("/this-route-does-not-exist-qa-control");
+    const res = await page.goto("/this-route-does-not-exist-qa-control", { waitUntil: "domcontentloaded" });
     // Documents the soft-404: the status is 200 and only the body tells the truth.
     expect(res?.status()).toBe(200);
     await expect(page.getByText(NOT_FOUND, { exact: false }).first()).toBeVisible();
