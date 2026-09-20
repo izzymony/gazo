@@ -171,16 +171,32 @@ console.log("Neutral semantic contract valid: foreground and outline roles alias
   // The size-container utility backs the auth media pane's container queries.
   // It lives in the preset precisely so @vibaar/ui does not depend on an app
   // stylesheet; if it were dropped the artwork would silently stop scaling.
-  const utilities = preset.plugins.flatMap((p) => {
-    const found = [];
-    p.handler({ addUtilities: (u) => found.push(...Object.keys(u)) });
-    return found;
-  });
-  assert.ok(
-    utilities.includes(".container-size"),
-    "the preset must provide .container-size — @vibaar/ui relies on it and must " +
-      "not fall back to an application stylesheet"
-  );
+  // Ask TAILWIND whether the utility exists, rather than introspecting the
+  // plugin through a hand-rolled API.
+  //
+  // This used to call `p.handler({ addUtilities })` with a stub carrying that
+  // one function. The moment the plugin also called `addBase` — which the
+  // scene-float keyframes needed — the stub threw `addBase is not a function`
+  // and CI went red for days. Any stub has to be kept in sync with the preset
+  // by hand, and this one silently was not.
+  //
+  // Generating the rule tests the actual contract the assertion claims (a
+  // consumer can use the class) instead of an implementation detail (the
+  // handler happened to call addUtilities with that key), and it cannot break
+  // when the preset starts using another part of the plugin API. Same
+  // technique as apps/web/scripts/design-drift.mjs.
+  const { createContext } = require("tailwindcss/lib/lib/setupContextUtils");
+  const { generateRules } = require("tailwindcss/lib/lib/generateRules");
+  const context = createContext(resolved);
+  const generates = (cls) => generateRules([cls], context).length > 0;
+
+  for (const cls of ["container-size", "container-inline"]) {
+    assert.ok(
+      generates(cls),
+      `the preset must provide .${cls} — @vibaar/ui relies on it and must ` +
+        "not fall back to an application stylesheet"
+    );
+  }
 }
 
 const roleSummary = Object.entries(toneRoleSteps)
