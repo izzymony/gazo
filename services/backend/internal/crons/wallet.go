@@ -47,10 +47,42 @@ func (c *WalletCron) ReleaseClearingBalanceToAvailable() {
 // releaseFromTable releases matured clearing funds for delivered items in one
 // order-item table (authed or guest). Every DB touch is scoped to `table` and
 // the order lookup uses `isGuest`, so the two tables are processed identically.
+// releasable reports whether a delivered item's earnings may move to available
+// balance yet.
+//
+// Extracted from the sweep because the BOUNDARY is the part worth testing and
+// the rest of releaseFromTable needs a wallet, a business, a product, an order
+// and a dispatcher to run at all. It is also the second of the two places the
+// 24-hour policy used to be hardcoded; both now derive from one duration.
+//
+// The boundary is INCLUSIVE — `!now.Before(due)` is `now >= due` — so an item
+// releases AT the delay, not only strictly after it. Written this way rather
+// than `now.Sub(t) >= delay` because the latter reads as an elapsed-time
+// comparison and invites someone to "fix" it to `>`.
+func releasable(status string, vendorCredited bool, statusUpdatedAt, now time.Time, delay time.Duration) bool {
+	if status != "delivered" || vendorCredited {
+		return false
+	}
+	due := statusUpdatedAt.Add(delay)
+	return !now.Before(due)
+}
+
 func (c *WalletCron) releaseFromTable(table string, isGuest bool) {
+	// D1: earnings become available for payout EarningsReleaseDelay after
+	// confirmed delivery — 24h at launch, configurable via
+	// EARNINGS_RELEASE_DELAY_HOURS.
+	//
+	// Read ONCE per sweep and passed to both checks below. The predicate that
+	// selects rows and the re-check inside the locked transaction used to carry
+	// two independent literals; reading the variable twice would reintroduce the
+	// same hazard, because a config change landing mid-sweep would let an item
+	// be selected under one policy and released under another.
+	delay := helper.EarningsReleaseDelay()
+	cutoff := time.Now().Add(-delay)
+
 	var items []domain.OrderItem
 	if err := c.DB.Table(table).
-		Where("status = ? AND vendor_credited = ? AND status_updated_at <= ?", "delivered", false, time.Now().Add(-24*time.Hour)).
+		Where("status = ? AND vendor_credited = ? AND status_updated_at <= ?", "delivered", false, cutoff).
 		Find(&items).Error; err != nil {
 		log.Printf("error fetching delivered items from %s: %v", table, err)
 		return
@@ -68,17 +100,32 @@ func (c *WalletCron) releaseFromTable(table string, isGuest bool) {
 				return err
 			}
 
-			if item.Status != "delivered" || item.VendorCredited || time.Since(item.StatusUpdatedAt) < 24*time.Hour {
+			if !releasable(item.Status, item.VendorCredited, item.StatusUpdatedAt, time.Now(), delay) {
 				return nil
 			}
 
-			err := c.WalletRepo.UpdateBalanceFieldByBusinessIDTx(
+			// Read the wallet BEFORE the credit, and hold it for the rest of the
+			// transaction. Two reasons, and the second one is the quiet one:
+			// without the lock two releases for the same business race, and
+			// reading AFTER the update (which is what this did) recorded the
+			// post-credit balance as the ledger row's `balance_before`, so every
+			// released-funds row ever written overstated both balance columns by
+			// one amount.
+			wallet, err := c.WalletRepo.GetOneTx(
+				tx.Clauses(clause.Locking{Strength: "UPDATE"}),
+				map[string]interface{}{"business_id": item.BusinessID},
+			)
+			if err != nil {
+				return err
+			}
+			availableBefore := wallet.AvailableBalance
+
+			if err := c.WalletRepo.UpdateBalanceFieldByBusinessIDTx(
 				tx,
 				item.BusinessID,
 				"clearing_balance", -amount,
 				"available_balance", amount,
-			)
-			if err != nil {
+			); err != nil {
 				return err
 			}
 
@@ -96,11 +143,6 @@ func (c *WalletCron) releaseFromTable(table string, isGuest bool) {
 			if err := tx.Model(&domain.Business{}).
 				Where("id = ?", item.BusinessID).
 				UpdateColumn("lifetime_sales", gorm.Expr("lifetime_sales + ?", amount)).Error; err != nil {
-				return err
-			}
-
-			wallet, err := c.WalletRepo.GetOneTx(tx, map[string]interface{}{"business_id": item.BusinessID})
-			if err != nil {
 				return err
 			}
 
@@ -123,8 +165,8 @@ func (c *WalletCron) releaseFromTable(table string, isGuest bool) {
 				TypeDescription: fmt.Sprintf("%s order funds released #%s", product.Title, order.Invoice),
 				Amount:          amount,
 				Reference:       helper.GenerateReference(),
-				BalanceBefore:   wallet.AvailableBalance,
-				BalanceAfter:    wallet.AvailableBalance + amount,
+				BalanceBefore:   availableBefore,
+				BalanceAfter:    availableBefore + amount,
 				Status:          "success",
 				Beneficiary:     wallet.BusinessID,
 				From:            string(helper.CreditClearingBalanceTransactionType),

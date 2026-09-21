@@ -47,17 +47,6 @@ func (s *WalletService) UpdateBalance(businessID, field string, amount float64) 
 	return s.walletRepo.UpdateBalanceField(businessID, field, amount)
 }
 
-func (s *WalletService) MoveFunds(businessID, from, to string, amount float64) error {
-	if amount <= 0 {
-		return errors.New("invalid amount")
-	}
-	return s.walletRepo.MoveFunds(businessID, from, to, amount)
-}
-
-func (s *WalletService) ReleaseFromClearingToAvailable(businessID string, amount float64) error {
-	return s.MoveFunds(businessID, "clearing_balance", "available_balance", amount)
-}
-
 func (s *WalletService) MoveToClearingFromOrders(orderItem *domain.OrderItem, amount float64, isGuest bool) error {
 	business, err := s.businessRepo.GetOne(map[string]interface{}{"id": orderItem.BusinessID})
 	if err != nil {
@@ -80,23 +69,17 @@ func (s *WalletService) MoveToClearingFromOrders(orderItem *domain.OrderItem, am
 		return fmt.Errorf("something went wrong while fetching order")
 	}
 
-	err = s.MoveFunds(orderItem.BusinessID, "orders_in_progress", "clearing_balance", amount)
-	if err != nil {
-		return err
-	}
-	wallet, err := s.walletRepo.GetOne(map[string]interface{}{"business_id": orderItem.BusinessID})
-	if err != nil {
-		return err
-	}
-
+	// WalletID, BalanceBefore and BalanceAfter are deliberately left unset: the
+	// repository fills them from the LOCKED read inside the same transaction as
+	// the move, which is the only way they can describe the wallet state this
+	// move actually applied to. Setting them here meant re-reading the wallet
+	// after the move had already committed — which is how every row ever written
+	// came to record the post-move balance as its "before".
 	tx := &domain.WalletTransaction{
-		WalletID:        wallet.ID,
 		Type:            string(helper.CreditClearingBalanceTransactionType),
 		TypeDescription: fmt.Sprintf("%s order completed #%s", product.Title, order.Invoice),
 		Amount:          amount,
 		Reference:       helper.GenerateReference(),
-		BalanceBefore:   wallet.ClearingBalance,
-		BalanceAfter:    wallet.ClearingBalance + amount,
 		Status:          "completed",
 		Beneficiary:     orderItem.BusinessID,
 		From:            string(helper.OrdersInProgressTransactionType),
@@ -106,7 +89,8 @@ func (s *WalletService) MoveToClearingFromOrders(orderItem *domain.OrderItem, am
 		},
 	}
 
-	return s.walletRepo.CreateWalletTransaction(tx)
+	return s.walletRepo.MoveFundsWithLedger(
+		orderItem.BusinessID, "orders_in_progress", "clearing_balance", amount, tx)
 }
 
 func (s *WalletService) CreditForOrderInProgress(orderItem *domain.OrderItem, amount float64, isGuest bool) error {
@@ -131,23 +115,13 @@ func (s *WalletService) CreditForOrderInProgress(orderItem *domain.OrderItem, am
 		return fmt.Errorf("something went wrong while fetching order")
 	}
 
-	err = s.walletRepo.UpdateBalanceField(orderItem.BusinessID, "orders_in_progress", amount)
-	if err != nil {
-		return err
-	}
-
-	wallet, err := s.walletRepo.GetOne(map[string]interface{}{"business_id": orderItem.BusinessID})
-	if err != nil {
-		return err
-	}
+	// See MoveToClearingFromOrders: the balance columns on the row are the
+	// repository's to fill, from the locked read.
 	tx := &domain.WalletTransaction{
-		WalletID:        wallet.ID,
 		Type:            string(helper.OrderInProgressTransactionType),
 		TypeDescription: fmt.Sprintf("%s order in progress #%s", product.Title, order.Invoice),
 		Amount:          amount,
 		Reference:       helper.GenerateReference(),
-		BalanceBefore:   wallet.OrdersInProgress,
-		BalanceAfter:    wallet.OrdersInProgress + amount,
 		Status:          "completed",
 		Beneficiary:     business.Name,
 		From:            "Vibaar",
@@ -157,7 +131,8 @@ func (s *WalletService) CreditForOrderInProgress(orderItem *domain.OrderItem, am
 		},
 	}
 
-	return s.walletRepo.CreateWalletTransaction(tx)
+	return s.walletRepo.CreditWithLedger(
+		orderItem.BusinessID, "orders_in_progress", amount, tx)
 }
 
 func (s *WalletService) GetWalletBalances(userId string) (*domain.Wallet, error) {
@@ -243,7 +218,43 @@ func kycWithdrawalGateNGN() float64 {
 	return 100000
 }
 
+// validatePayoutAmount applies the three server-side rules a requested payout
+// amount must satisfy, in order.
+//
+// They are deliberately not collapsed into one check. The first two are
+// STRUCTURAL and no configuration can switch them off; the third is a product
+// bound that can be tuned, and must never be the only thing standing between a
+// negative amount and the ledger.
+//
+// `binding:"required,gt=0"` on the request struct is the HTTP half of the first
+// rule, and it is not sufficient: this function is reachable from anywhere in
+// the service, and `required` alone rejected 0 while happily accepting -1000 —
+// which passed both balance checks and then DECREMENTED the reservation,
+// inflating the seller's withdrawable balance by the amount they "requested".
+func validatePayoutAmount(amount float64) error {
+	if amount <= 0 {
+		return fmt.Errorf("payout amount must be greater than zero")
+	}
+	// Reject sub-kobo amounts here rather than silently rounding at the Paystack
+	// boundary: a request stored as ₦100.005 and transferred as ₦100.01 leaves
+	// the ledger and the bank disagreeing by a kobo, permanently.
+	if helper.FromKobo(helper.ToKobo(amount)) != amount {
+		return fmt.Errorf("payout amount must be in whole kobo")
+	}
+	if minimum := helper.PayoutMinNGN(); amount < minimum {
+		return fmt.Errorf("minimum payout is %s", FormatNaira(minimum))
+	}
+	return nil
+}
+
 func (s *WalletService) RequestWithdrawal(userId string, req requests.WithdrawalRequest) (*domain.WithdrawalRequest, error) {
+	// Amount validation, server-side and FIRST — ahead of the KYC gate, the OTP
+	// and every balance read, so a malformed amount cannot consume a one-time
+	// code on its way to being rejected.
+	if err := validatePayoutAmount(req.Amount); err != nil {
+		return nil, err
+	}
+
 	business, err := s.businessRepo.GetOne(map[string]interface{}{"user_id": userId})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

@@ -177,10 +177,16 @@ func (s *AdminService) RejectWithdrawal(requestID, reason string) error {
 		sellerID = withdrawalRequest.UserID
 		amount = withdrawalRequest.Amount
 
-		// 3. Unlock pending balance (release the reserved funds back to available)
-		if err := tx.Model(&domain.Wallet{}).
-			Where("id = ?", withdrawalRequest.WalletID).
-			Update("pending_withdrawals", gorm.Expr("pending_withdrawals - ?", withdrawalRequest.Amount)).Error; err != nil {
+		// 3. Release the reservation back to available.
+		//
+		// This was an inline copy of the repository's unguarded UnlockBalance:
+		// an unconditional subtraction whose RowsAffected was never checked.
+		// Rejecting a request twice, or rejecting more than was reserved, drove
+		// pending_withdrawals negative — and since withdrawable is
+		// `available - pending`, a negative reservation INFLATES what the seller
+		// may request. One guarded implementation now, addressed by wallet id
+		// inside this transaction.
+		if err := s.walletRepo.UnlockBalanceTx(tx, withdrawalRequest.WalletID, withdrawalRequest.Amount); err != nil {
 			return fmt.Errorf("failed to unlock balance: %w", err)
 		}
 

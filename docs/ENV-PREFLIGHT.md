@@ -66,6 +66,33 @@ are on this list but verified by hand.
 > (webhook) hold the **same** live secret today. Set both. Setting only one silently
 > breaks half the money path (charges OR webhook confirmation).
 
+## 4b. Backend — money policy 💰
+
+Bounds and windows the business chooses. Every one is read through a helper that
+**falls back to the launch default when the variable is missing or
+unparseable** — a typo in a deploy config must never resolve to "no bound", and
+never to `0`.
+
+| Var | Blocking | Prod-guard | Format / example | Set at | Verify |
+|---|---|---|---|---|---|
+| `PAYOUTS_LIVE` | — | — | `false` (default when unset). **Only the literal `true` enables transfers** — the kill switch for money leaving the platform | Render | `POST /wallet/withdraw` approval returns 503 while `false` |
+| `EARNINGS_RELEASE_DELAY_HOURS` | — | — | `24` (default). Hours after a **confirmed delivery** before earnings become available for payout. Fractional accepted (`0.5`). Unset/garbage/negative → 24. An explicit `0` releases immediately | Render | a delivered item stays in clearing until the window elapses |
+| `PAYOUT_MIN_NGN` | — | — | `1000` (default). Smallest payout a seller may request, in naira. Unset/garbage/negative → 1000. An explicit `0` disables the minimum | Render | a ₦500 request is refused with "minimum payout is ₦1,000.00" |
+| `CHECKOUT_MAX_NGN` | — | — | `1000000` (default). Largest order total accepted for collection, in naira | Render | an order above it is refused before Paystack is called |
+| `KYC_WITHDRAWAL_GATE_NGN` | — | — | `100000` (default) — see §5 | Render | withdrawal gate fires at threshold |
+
+> ⚠ **These bounds are not the safety guards.** Positivity, whole-kobo
+> precision and the payments client's own kobo ceiling are enforced
+> independently in code and **no environment variable can switch them off**.
+> The variables above are product policy; a misconfigured one changes what is
+> allowed, never whether a negative or sub-kobo amount can reach the ledger.
+
+> ⚠ **`PAYOUTS_LIVE` fails closed and silently.** Anything other than the
+> literal `true` — including `TRUE`, `1`, a typo, or the variable being renamed
+> — disables payouts with no error. It is read in exactly one place
+> (`payoutService.PayoutsLive`) and is **not** yet checked by `ValidateEnv`;
+> that boot guard is G26, scheduled for P13.
+
 ## 5. Backend — Cloudinary & KYC (NDPR) 🔐
 
 | Var | Blocking | Prod-guard | Format / example | Set at | Verify |

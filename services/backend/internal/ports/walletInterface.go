@@ -12,7 +12,12 @@ type WalletInterface interface {
 	GetOneTx(tx *gorm.DB, param map[string]interface{}) (*domain.Wallet, error)
 	Update(id string, data domain.Wallet) (*domain.Wallet, error)
 	UpdateBalanceField(businessID, field string, amount float64) error
-	MoveFunds(businessID string, fromField string, toField string, amount float64) error
+	// MoveFundsWithLedger and CreditWithLedger replace MoveFunds +
+	// UpdateBalanceField + a separate CreateWalletTransaction. The ledger row is
+	// not optional and not a second call: a balance change without its entry is
+	// the failure mode these exist to make unrepresentable.
+	MoveFundsWithLedger(businessID, fromField, toField string, amount float64, record *domain.WalletTransaction) error
+	CreditWithLedger(businessID, field string, amount float64, record *domain.WalletTransaction) error
 	UpdateBalanceFieldByBusinessIDTx(
 		tx *gorm.DB,
 		businessID string,
@@ -31,4 +36,5 @@ type WalletInterface interface {
 	DeleteTransactionsByOrderItemID(orderItemId string) error
 	LockBalance(businessID string, amount float64) error
 	UnlockBalance(businessID string, amount float64) error
+	UnlockBalanceTx(tx *gorm.DB, walletID string, amount float64) error
 }
