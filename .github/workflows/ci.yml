@@ -47,6 +47,14 @@ jobs:
       # component still counts as adopted. Fails when a module claims a stable
       # API, has no consumer, and offers no disposition explaining why.
       - run: node scripts/check-ui-adoption.cjs
+      # Does any user-visible string claim Vibaar holds customer money?
+      # "The money is held safely... then moves to your wallet... you
+      # withdraw" sat on the homepage for months: a custody claim for a
+      # stored-value product Vibaar does not operate, which no type check
+      # or test could see. The self-test runs FIRST and plants a violation,
+      # because a lint nobody has seen fail is not known to work.
+      - run: node scripts/check-copy-claims.mjs --self-test
+      - run: node scripts/check-copy-claims.mjs
       # Build smoke. Verified env-safe: both apps compile with NO .env files
       # present. Fonts are self-hosted (F3) so there is no build-time Google
       # fetch, Sentry is inert without a DSN, and the statically-generated

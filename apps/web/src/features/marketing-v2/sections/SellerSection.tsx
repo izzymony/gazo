@@ -93,7 +93,7 @@ function ConversationVisual() {
 
   return (
     <div
-      aria-label="A customer conversation moving from a price question to a protected checkout"
+      aria-label="A customer conversation moving from a price question to a confirmed order"
       className={styles.sellerVisual}
       role="img"
     >
@@ -160,7 +160,7 @@ function StorefrontVisual() {
 
         <div className={styles.sellerProfileBody}>
           <strong>Vibaar Goods Store</strong>
-          <p>Everyday pieces, protected checkout and delivery you can track.</p>
+          <p>Everyday pieces, simple checkout and delivery you can track.</p>
           <span className={styles.sellerProfileLink}>vibaar.com/vibaar-goods</span>
         </div>
 

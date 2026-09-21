@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import useBusinessStore from "@/store/businessStore";
+import useBusinessStore, { releaseDelayHours } from "@/store/businessStore";
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
 import Header from "@vibaar/ui/common/Header";
@@ -33,6 +33,7 @@ export default function Withdraw({
 }) {
   const { walletAnalytics, bankAccounts, singleStore } = useBusinessStore();
   const balance = walletAnalytics.available_balance;
+  const delayHours = releaseDelayHours(walletAnalytics);
   const hasAccount = bankAccounts && bankAccounts.length > 0 && data.accountnumber;
   const checker = balance < +amount;
   const buttonActivator = hasAccount && +amount > 0 && +amount <= balance;
@@ -49,7 +50,7 @@ export default function Withdraw({
       header={
         <Header
           onBack={() => router.back()}
-          title="Withdraw Funds"
+          title="Request payout"
         />
       }
       footerAction={
@@ -91,7 +92,7 @@ export default function Withdraw({
                   + Add bank account
                 </p>
                 <p className="text-foreground-secondary text-body-sm font-normal">
-                  Add a bank account to withdraw
+                  Add a bank account to be paid into
                 </p>
               </Link>
             )}
@@ -110,7 +111,7 @@ export default function Withdraw({
         <Section>
           <div className="rounded-card border border-brandDeep/30 bg-brand/5 p-3">
             <p className="text-body-sm font-medium text-foreground-primary">
-              Verify your identity to withdraw
+              Verify your identity to request a payout
             </p>
             <p className="text-caption text-foreground-secondary">
               You&apos;ve earned over ₦{GATE_NGN.toLocaleString()}.{" "}
@@ -134,7 +135,7 @@ export default function Withdraw({
                 onClick={() => router.push("/verify")}>
                 verify now
               </button>{" "}
-              so withdrawals aren&apos;t held.
+              so your payout requests aren&apos;t blocked.
             </p>
           </div>
         </Section>
@@ -167,6 +168,16 @@ export default function Withdraw({
             N {balance}
           </span>
         </p>
+        {/* Two facts a seller had no way to learn from this screen: what makes
+            earnings eligible, and that submitting is a request rather than a
+            transfer. The first explains why the available balance is lower than
+            their sales; the second stops a normal review looking like a fault.
+            The hours come from the API, which serves the policy the release job
+            enforces — not a second copy of the number. */}
+        <p className="text-caption font-normal text-foreground-secondary">
+          Earnings become available to request {delayHours} hours after a delivery
+          is confirmed. We review each request before paying it to your bank.
+        </p>
       </Section>
 
       <BottomModal isOpen={showGate} onClose={() => setShowGate(false)}>
@@ -174,10 +185,12 @@ export default function Withdraw({
           <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand/10">
             <Shield size={32} className="text-brandDeep" />
           </span>
-          <h2 className="text-body-lg font-medium text-foreground-primary">Verify to withdraw</h2>
+          <h2 className="text-body-lg font-medium text-foreground-primary">
+            Verify to request a payout
+          </h2>
           <p className="max-w-[280px] text-body-sm text-foreground-secondary">
             You&apos;ve earned over ₦{GATE_NGN.toLocaleString()} — verify your
-            identity to unlock withdrawals. It takes about 2 minutes.
+            identity to request payouts. It takes about 2 minutes.
           </p>
           <Button onClick={() => router.push("/verify")} className="w-full">
             Verify now

@@ -27,7 +27,7 @@ export default function StructuredData() {
       url: SITE,
       logo: `${SITE}/brand/logo-yellow.svg`,
       description:
-        "Vibaar turns the demand social sellers create into protected, paid, trackable orders — from checkout to delivery.",
+        "Vibaar turns the demand social sellers create into real, paid, trackable orders — from checkout to delivery.",
       sameAs: footer.socials.map((social) => social.href),
     },
     {

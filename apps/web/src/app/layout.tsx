@@ -9,7 +9,7 @@ import { outfit } from "./fonts";
 
 export const metadata: Metadata = {
   title: "Vibaar — Turn your attention into income",
-  description: "Turn social attention into protected, paid, trackable orders — a storefront for Instagram and TikTok sellers that takes payment and tracks delivery.",
+  description: "Turn social attention into real, paid, trackable orders — a storefront for Instagram and TikTok sellers that takes payment and tracks delivery.",
   generator: "Next.js",
   manifest: "/manifest.json",
   icons: {
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://vibaar.com'),
   openGraph: {
     title: "Vibaar — Turn your attention into income",
-    description: "Turn social attention into protected, paid, trackable orders — a storefront for Instagram and TikTok sellers that takes payment and tracks delivery.",
+    description: "Turn social attention into real, paid, trackable orders — a storefront for Instagram and TikTok sellers that takes payment and tracks delivery.",
     url: 'https://vibaar.com',
     siteName: 'Vibaar',
     images: [
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: "Vibaar — Turn your attention into income",
-    description: "Turn social attention into protected, paid, trackable orders — a storefront for Instagram and TikTok sellers that takes payment and tracks delivery.",
+    description: "Turn social attention into real, paid, trackable orders — a storefront for Instagram and TikTok sellers that takes payment and tracks delivery.",
     images: ['/og/og-default.jpg'],
   },
 };

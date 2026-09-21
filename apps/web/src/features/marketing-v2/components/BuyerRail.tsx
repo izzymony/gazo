@@ -41,7 +41,7 @@ function ProductCard({
         <div>
           <strong>{product.store}</strong>
           <small>{product.category}</small>
-          <small>Protected checkout</small>
+          <small>Tracked delivery</small>
         </div>
         <span className={styles.storeStatus}>View store <b aria-hidden="true">›</b></span>
       </header>

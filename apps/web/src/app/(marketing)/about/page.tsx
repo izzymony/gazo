@@ -5,16 +5,16 @@ import { marketingContent } from "@/features/marketing-v2/content";
 export const metadata: Metadata = {
   title: "About Vibaar",
   description:
-    "Vibaar turns social selling into protected, paid, trackable orders — what we build, and who we build it for.",
+    "Vibaar turns social selling into real, paid, trackable orders — what we build, and who we build it for.",
   openGraph: {
     title: "About Vibaar",
-    description: "Vibaar turns social selling into protected, paid, trackable orders — what we build, and who we build it for.",
+    description: "Vibaar turns social selling into real, paid, trackable orders — what we build, and who we build it for.",
     images: [{ url: "/og/og-about.jpg", width: 1200, height: 630, alt: "About Vibaar" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "About Vibaar",
-    description: "Vibaar turns social selling into protected, paid, trackable orders — what we build, and who we build it for.",
+    description: "Vibaar turns social selling into real, paid, trackable orders — what we build, and who we build it for.",
     images: ["/og/og-about.jpg"],
   },
 };
@@ -39,8 +39,8 @@ export default function AboutPage() {
         Someone asks &ldquo;how much?&rdquo;, a price is sent, and the order
         depends on both sides trusting a screenshot. Vibaar gives sellers a
         storefront link that can take the order properly: the buyer pays at
-        checkout, the money is held until delivery is confirmed, and the parcel
-        is tracked from the seller to the door.
+        checkout, the parcel is tracked from the seller to the door, and the
+        seller’s earnings become available once delivery is confirmed.
       </p>
 
       <h2>Who it is for</h2>
@@ -55,7 +55,7 @@ export default function AboutPage() {
       <p>
         We are building for Nigeria first, on the payment methods and delivery
         partners people here already use. Vibaar is in preview: the storefronts,
-        protected checkout and order tracking are live, and creator tools are
+        checkout and order tracking are live, and creator tools are
         still ahead of us.
       </p>
 

@@ -73,8 +73,10 @@ export default function WithdrawalDetails({
             {selectedTransaction.amount || "-₦ " + datas.amount}
           </p>
           <p className="text-body-sm w-3/4 font-normal text-foreground-secondary text-center">
+            {/* Same correction as the request screen: the fallback promised a
+                transfer in flight for what is still an unreviewed request. */}
             {selectedTransaction.title ||
-              "We are working on your transfer! Your money should enter your account shortly."}
+              "Your payout request is being reviewed. We'll notify you when the transfer to your bank is on its way."}
           </p>
         </div>
       </Section>

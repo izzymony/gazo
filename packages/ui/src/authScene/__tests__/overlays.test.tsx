@@ -19,7 +19,7 @@ const statusOverlay: AuthOverlay = {
   placement: { x: 0.7, y: 0.8, anchor: "bottom-right", priority: "optional", mobile: { x: 0.35, y: 0.4 } },
   icon: "payment",
   title: "Payment received",
-  description: "Held until delivery",
+  description: "Order confirmed",
   tone: "success",
   badge: "check",
 };

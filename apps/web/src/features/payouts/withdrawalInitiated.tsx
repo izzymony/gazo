@@ -58,11 +58,17 @@ export default function WithdrawalInitiated({
         </div>
         <div className="flex justify-center items-center flex-col gap-2">
           <p className="text-h1 font-bold text-foreground-primary text-center">
-            Withdrawal Initiated!
+            Payout requested
           </p>
+          {/* "Withdrawal Initiated! ... your money should enter your account
+              shortly" described a transfer that was already on its way. It is
+              not: a request is reviewed first, and no transfer is attempted
+              until it is approved. Saying otherwise sets a seller waiting for
+              money that has not been sent, and makes a normal review look like
+              a fault. */}
           <p className="text-body font-normal text-foreground-secondary text-center">
-            We are working on your transfer! Your money should enter your
-            account shortly.
+            We&apos;ve received your request. It will be reviewed before payment,
+            and we&apos;ll notify you when the transfer to your bank is on its way.
           </p>
         </div>
         <div className="p-3 border gap-3 flex flex-col bg-brand/10 w-full border-brandDeep rounded-field">

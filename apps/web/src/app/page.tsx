@@ -4,7 +4,7 @@ import StructuredData from "@/features/marketing-v2/StructuredData";
 
 const TITLE = "Vibaar — Turn your attention into income";
 const DESCRIPTION =
-  "Turn social attention into protected, paid, trackable orders — a storefront for Instagram and TikTok sellers that takes payment and tracks delivery.";
+  "Turn social attention into real, paid, trackable orders — a storefront for Instagram and TikTok sellers that takes payment and tracks delivery.";
 
 export const metadata: Metadata = {
   title: TITLE,

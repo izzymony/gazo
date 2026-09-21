@@ -589,6 +589,35 @@ export interface WalletAnalytics {
   orders_in_progress: number;
   total_earnings: number;
   total_withdrawn: number;
+  /**
+   * Hours after a confirmed delivery before earnings become available for
+   * payout. Served by `/wallet/get-wallet-balances` from the same policy the
+   * release job enforces (`EARNINGS_RELEASE_DELAY_HOURS`, 24 at launch).
+   *
+   * Read from the API rather than written here on purpose. The gate threshold
+   * is already duplicated in five places across the backend and this bundle,
+   * so changing it desynchronises every message about it from what is actually
+   * enforced — silently. One number, one source.
+   *
+   * Optional because an older backend will not send it; use
+   * `releaseDelayHours()` below rather than reading it directly.
+   */
+  release_delay_hours?: number;
+}
+
+/**
+ * The release delay in whole hours, with the launch default as a fallback.
+ *
+ * Falls back rather than hiding the sentence: a seller seeing "24 hours" when
+ * the policy is 48 is a smaller problem than a screen that cannot say when
+ * their money arrives. A wrong number here is visible; silence is not.
+ */
+export function releaseDelayHours(analytics: WalletAnalytics): number {
+  const hours = analytics.release_delay_hours;
+  if (typeof hours !== "number" || !Number.isFinite(hours) || hours < 0) {
+    return 24;
+  }
+  return Math.round(hours);
 }
 
 interface UpdateThemeProps {

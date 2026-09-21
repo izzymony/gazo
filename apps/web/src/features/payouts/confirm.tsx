@@ -81,7 +81,7 @@ export default function Confirm({
       header={
         <Header
           onBack={goBack}
-          title="Confirm Withdraw"
+          title="Confirm payout request"
         />
       }
       footerAction={<Button onClick={handleConfirm}>Confirm</Button>}>
@@ -98,7 +98,7 @@ export default function Confirm({
             data.bankname.slice(0, 3) || "ACC"
           }-Ending in ${data.accountnumber.slice(-4)}`}
         />
-        <ReceiptCard title={"Withdrawal Amount"} sub={"NGN " + amount} />
+        <ReceiptCard title={"Payout amount"} sub={"NGN " + amount} />
         <ReceiptCard title={"Withdrawal Fee"} sub={"NGN " + withdrawalfee.toFixed(2)} />
         <ReceiptCard title={"Total"} sub={"NGN " + total} />
       </Section>

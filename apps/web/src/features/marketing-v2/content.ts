@@ -13,7 +13,7 @@ export const marketingContent = {
     titleBefore: "Turn your",
     titleAccent: "attention",
     titleAfter: "into income.",
-    body: "Vibaar turns the demand you create on social into protected, paid, trackable orders—from checkout to delivery.",
+    body: "Vibaar turns the demand you create on social into real, paid, trackable orders—from checkout to delivery.",
     primaryAction: "Start selling",
     secondaryAction: "Explore stores",
     imageAlt:
@@ -31,18 +31,18 @@ export const marketingContent = {
       {
         id: "conversation",
         title: "The sale should not disappear in your DMs.",
-        body: "When someone asks “how much?”, send them to a storefront that can take the order, protect the payment and keep delivery moving.",
+        body: "When someone asks “how much?”, send them to a storefront that can take the order, take the payment and keep delivery moving.",
       },
       {
         id: "storefront",
         title: "Become the brand customers come back to.",
-        body: "One link turns your social profile into a trusted storefront where followers can browse, pay safely and track every order.",
+        body: "One link turns your social profile into a trusted storefront where followers can browse, pay and track every order.",
       },
     ],
     chat: {
       customer: "How much for this?",
       seller: "It is ready to order—here is the link.",
-      status: "Checkout protected",
+      status: "Order confirmed",
     },
   },
   buyer: {
@@ -58,9 +58,9 @@ export const marketingContent = {
         offset: 0,
       },
       {
-        id: "protected",
+        id: "tracked",
         title: "Buy with confidence.",
-        body: "Your money is held until the order arrives, and you can track it the whole way there.",
+        body: "Track your order the whole way there, and the seller is paid after it is delivered.",
         offset: 2,
       },
     ],
@@ -113,7 +113,7 @@ export const marketingContent = {
     ],
   },
   closing: {
-    statement: "Social shopping, protected from checkout to delivery.",
+    statement: "Social shopping, tracked from checkout to delivery.",
     imageAlt: "Three friends discovering products together on a mobile phone",
   },
   footer: {
@@ -154,11 +154,11 @@ export const marketingContent = {
         items: [
           {
             q: "How do I actually get paid?",
-            a: "Buyers pay at checkout through Paystack — card, bank transfer or USSD. The money is held safely while the order is on its way, then moves to your wallet once delivery is confirmed. You withdraw to your bank from your dashboard.",
+            a: "Buyers pay at checkout through Paystack — card, bank transfer or USSD. Your earnings are recorded against the order, become available once delivery is confirmed, and are paid to your bank account from your dashboard.",
           },
           {
             q: "What if something goes wrong with an order?",
-            a: "Payment stays in protected escrow until delivery is confirmed, so neither side is exposed while an order is in flight.",
+            a: "Every order is tracked end to end, and a seller’s earnings only become available once delivery is confirmed — so both sides can see where an order stands while it is in flight.",
           },
           {
             q: "Do I have to stop selling on Instagram or TikTok?",
@@ -175,8 +175,8 @@ export const marketingContent = {
         label: "Buyers",
         items: [
           {
-            q: "Is my money safe?",
-            a: "Your payment is held until your order is delivered. Until then it is not the seller's to keep.",
+            q: "How does paying work?",
+            a: "You pay at checkout through Paystack. Your order is tracked end to end, and the seller’s earnings only become available once delivery is confirmed.",
           },
           {
             q: "Can I track my delivery?",
@@ -194,7 +194,7 @@ export const marketingContent = {
         items: [
           {
             q: "What can I do on Vibaar today?",
-            a: "Share sellers and products you genuinely rate. Your recommendations send people to stores that can take the order safely.",
+            a: "Share sellers and products you genuinely rate. Your recommendations send people to stores that can take the order and track the delivery.",
           },
           {
             q: "Can I earn from recommendations?",
