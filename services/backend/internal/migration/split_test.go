@@ -94,27 +94,48 @@ SELECT 1;`,
 // Every shipped migration must survive the splitter, since a mangled statement
 // only shows up as a syntax error at deploy time.
 func TestEveryShippedMigrationSplitsCleanly(t *testing.T) {
-	entries, err := embeddedMigrations.ReadDir("sql")
-	if err != nil {
-		t.Fatalf("read sql dir: %v", err)
+	// Both phases, because the splitter is shared and a dollar-quoted body cut
+	// in half fails identically whichever directory it came from. `sql/pre` may
+	// be absent — `go:embed` omits an empty directory — which is not a failure.
+	//
+	// Directories and non-.sql files are skipped: the embed is recursive now, so
+	// `ReadDir("sql")` lists `pre` itself, and `sql/pre/README.md` is a real
+	// file. An earlier version of this test read every entry blindly and failed
+	// with "is a directory" the moment the pre phase was added — which is the
+	// test doing its job, but for the wrong reason.
+	var files []string
+	for _, dir := range []string{postMigrationDir, preMigrationDir} {
+		entries, err := embeddedMigrations.ReadDir(dir)
+		if err != nil {
+			if dir == preMigrationDir {
+				continue // ships empty
+			}
+			t.Fatalf("read %s: %v", dir, err)
+		}
+		for _, entry := range entries {
+			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".sql") {
+				continue
+			}
+			files = append(files, dir+"/"+entry.Name())
+		}
 	}
-	if len(entries) == 0 {
+	if len(files) == 0 {
 		t.Fatal("no migrations found; this test would pass vacuously")
 	}
 
-	for _, entry := range entries {
-		body, err := embeddedMigrations.ReadFile("sql/" + entry.Name())
+	for _, name := range files {
+		body, err := embeddedMigrations.ReadFile(name)
 		if err != nil {
-			t.Fatalf("read %s: %v", entry.Name(), err)
+			t.Fatalf("read %s: %v", name, err)
 		}
 		for i, stmt := range splitSQLStatements(string(body)) {
 			// An odd number of `$$` means a dollar-quoted body was cut in half.
 			if strings.Count(stmt, "$$")%2 != 0 {
 				t.Errorf("%s statement %d has an unbalanced dollar quote — it was "+
-					"split mid-body:\n%s", entry.Name(), i, stmt)
+					"split mid-body:\n%s", name, i, stmt)
 			}
 			if strings.Count(stmt, "'")%2 != 0 && !strings.Contains(stmt, "''") {
-				t.Errorf("%s statement %d has an unbalanced quote:\n%s", entry.Name(), i, stmt)
+				t.Errorf("%s statement %d has an unbalanced quote:\n%s", name, i, stmt)
 			}
 		}
 	}

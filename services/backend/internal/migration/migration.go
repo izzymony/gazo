@@ -68,6 +68,23 @@ func Migrate() {
 
 	tables := migrationTables
 
+	// PHASE 1 — versioned SQL that must run BEFORE AutoMigrate.
+	//
+	// Empty today. It exists because AutoMigrate cannot be trusted with a
+	// rename: it does `if !HasTable(x) { CreateTable(x) }`, so the first boot
+	// after a table name changes it creates the new name EMPTY and orphans the
+	// old one, silently. See internal/migration/sql/pre/README.md for why none
+	// of the obvious alternatives work.
+	//
+	// Halts the boot on failure, like phase 2: a half-applied structural change
+	// is a known-bad schema, and serving the app on one is worse than not
+	// starting.
+	if err := runPreMigrations(db); err != nil {
+		log.Fatalf("pre-automigrate migrations failed: %v", err)
+	}
+
+	// PHASE 2 — AutoMigrate owns table STRUCTURE.
+	//
 	// GORM's AutoMigrate returns on the FIRST table that errors, and the error
 	// used to be discarded here — so one drifted table silently skipped every
 	// model after it (notifications and 13 others never got migrated). Migrate
@@ -181,11 +198,14 @@ func Migrate() {
 	WHERE self_zones IS NULL;
 `)
 
-	// B9 — versioned, run-once migrations (goose) for the additive changes
+	// PHASE 3 — versioned, run-once migrations for the additive changes
 	// AutoMigrate can't express (functional/unique indexes, backfills, NOT NULL).
 	// Runs LAST — after AutoMigrate created the tables and the idempotent ad-hoc
 	// SQL above ran. A failure here means a known-bad/partial schema, so halt the
 	// boot rather than serve the app on it.
+	//
+	// Shares ONE `schema_migrations` ledger and one version sequence with phase
+	// 1, so a version number means the same thing whichever phase applied it.
 	if err := runVersionedMigrations(db); err != nil {
 		log.Fatalf("versioned migrations failed: %v", err)
 	}
