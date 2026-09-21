@@ -130,7 +130,7 @@ them as **build environment variables**; changing one needs a **rebuild**.
 
 | Var | Blocking | Format / example | Set at | Verify |
 |---|---|---|---|---|
-| `NEXT_PUBLIC_API_BASE_URL` | ✅ | `https://api.vibaar.com` | Cloudflare build | network tab hits api.vibaar.com |
+| `NEXT_PUBLIC_API_BASE_URL` | ✅ | `https://api.vibaar.com/api/v1` — **must include `/api/v1`** | Cloudflare build | network tab hits `api.vibaar.com/api/v1/…` |
 | `NEXT_PUBLIC_ORDER_ON_SUCCESS` | ✅ (decide) | `true` to use the order-on-success payment flow (the path fixed in Payment-G) | Cloudflare build | paid checkout creates the order |
 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` `NEXT_PUBLIC_GOOGLE_API_KEY` | ⚠ | Maps/Places key | Cloudflare build | address autocomplete works |
 | `NEXT_PUBLIC_SENTRY_DSN` | — | Sentry DSN | Cloudflare build | web errors in Sentry |
@@ -140,13 +140,32 @@ them as **build environment variables**; changing one needs a **rebuild**.
 
 | Var | Blocking | Format / example | Set at | Verify |
 |---|---|---|---|---|
-| `NEXT_PUBLIC_API_BASE_URL` | ✅ | `https://api.vibaar.com` | Cloudflare build | admin loads data |
-| `NEXT_PUBLIC_API_URL` | ✅ | **same value** as `NEXT_PUBLIC_API_BASE_URL` | Cloudflare build | admin login not "Network error" |
+| `NEXT_PUBLIC_API_BASE_URL` | ✅ | `https://api.vibaar.com/api/v1` — **versioned** | Cloudflare build | admin loads data |
+| `NEXT_PUBLIC_API_URL` | ✅ | `https://api.vibaar.com` — **bare origin, NO `/api/v1`** | Cloudflare build | admin login succeeds |
 | `NEXT_PUBLIC_SENTRY_DSN` | — | Sentry DSN | Cloudflare build | — |
 
-> ⚠ **Admin reads TWO API-URL vars** (`NEXT_PUBLIC_API_BASE_URL` **and**
-> `NEXT_PUBLIC_API_URL`). If they diverge, admin breaks — this was the earlier admin
-> "Network error". Set both to the same value until unified.
+> ⚠ **Admin reads TWO API-URL vars, and they take DIFFERENT forms.** This
+> instruction used to say "set both to the same value", which is what broke
+> admin login on staging:
+>
+> | Var | Form | Read by |
+> |---|---|---|
+> | `NEXT_PUBLIC_API_URL` | **bare origin** — `https://api.vibaar.com` | `lib/config.ts`, which appends `/api/v1` itself |
+> | `NEXT_PUBLIC_API_BASE_URL` | **versioned** — `https://api.vibaar.com/api/v1` | `lib/api-client.ts`, which uses it as-is |
+>
+> Setting both to the versioned value made `config.ts` produce
+> `https://api-staging.vibaar.com/api/v1/api/v1/admin/auth/login`, which 404s.
+> Setting both to the bare origin fails the other way: every `api-client`
+> request loses its prefix.
+>
+> Both readers now normalise through `lib/apiUrl.ts`, so **either form works
+> for admin** and the doubled prefix cannot be produced — pinned by
+> `src/test/apiUrl.config.test.ts`. The forms above remain the canonical
+> values; the normalisation is a safety net, not a licence to guess.
+>
+> **`apps/web` does NOT normalise.** `packages/api-client` uses
+> `NEXT_PUBLIC_API_BASE_URL` verbatim, so for web it **must** include
+> `/api/v1`.
 
 ---
 

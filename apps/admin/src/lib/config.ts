@@ -1,14 +1,20 @@
 // API Configuration
+import { API_VERSION, apiBase, apiOrigin } from './apiUrl';
+
 export const API_CONFIG = {
-  // Backend API Base URL
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8088',
-  
+  // Backend origin, WITHOUT the /api/vN suffix. Normalised, because this used
+  // to append the version to whatever NEXT_PUBLIC_API_URL contained — and the
+  // docs told operators to set it to the same (already versioned) value as
+  // NEXT_PUBLIC_API_BASE_URL, producing /api/v1/api/v1 and a 404 on login.
+  BASE_URL: apiOrigin(process.env.NEXT_PUBLIC_API_URL),
+
   // API Version
-  VERSION: 'v1',
-  
-  // Full API URL
+  VERSION: API_VERSION,
+
+  // Full API URL — the version appears exactly once, whichever form the
+  // environment supplied.
   get API_URL() {
-    return `${this.BASE_URL}/api/${this.VERSION}`;
+    return apiBase(process.env.NEXT_PUBLIC_API_URL);
   },
   
   // Admin endpoints

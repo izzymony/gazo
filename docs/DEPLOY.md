@@ -125,7 +125,13 @@ These are specific to what `apps/web` actually does. **None of this has been exe
 Most launch-day failures are here, not in the code.
 
 - **Backend CORS** (`internal/adapter/api/middleware/cors.go`): allow-list is `vibaar.com`, `www.vibaar.com`, `admin.vibaar.com` (+ localhost); production fallback origin is `vibaar.com`. Old Instashop origins are gone and a test asserts they stay gone.
-- **Frontend API URL:** `NEXT_PUBLIC_API_BASE_URL=https://api.vibaar.com/api/v1` in **both** Workers — at build time.
+- **Frontend API URL:** `NEXT_PUBLIC_API_BASE_URL=https://api.vibaar.com/api/v1`
+  in **both** Workers — at build time, and it **must** include `/api/v1`.
+  The admin Worker also needs `NEXT_PUBLIC_API_URL=https://api.vibaar.com` —
+  the **bare origin**, because `apps/admin/src/lib/config.ts` appends `/api/v1`
+  itself. The two vars take different forms; setting both to the versioned
+  value produces `/api/v1/api/v1` and 404s admin login. See
+  `docs/ENV-PREFLIGHT.md` §9.
 - **OAuth redirect URIs:** update Google / Instagram / TikTok consoles to the vibaar domains. A stale redirect URI fails only in production, only at login.
 - **Paystack webhook** → `https://api.vibaar.com/...`. Payment confirmation depends on it; test with Paystack's webhook replay before announcing.
 - **Shipbubble webhook** → same host. Note that **guest courier orders are deliberately gated off** (guests get self-delivery only) because the courier lifecycle is not guest-aware — see `GetShippingOptions`.

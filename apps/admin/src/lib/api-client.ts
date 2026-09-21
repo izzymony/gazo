@@ -1,3 +1,4 @@
+import { apiBase } from './apiUrl';
 /**
  * An HTTP failure that keeps what the server said.
  *
@@ -25,7 +26,10 @@ class ApiClient {
   private token: string | null = null;
 
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8088/api/v1';
+    // Normalised through the same helper as config.ts, so a bare origin here
+    // gains the /api/v1 prefix instead of silently 404ing every request, and a
+    // doubly versioned value cannot produce /api/v1/api/v1.
+    this.baseURL = apiBase(process.env.NEXT_PUBLIC_API_BASE_URL);
     
     if (typeof window !== 'undefined') {
       this.token = localStorage.getItem('admin_token');

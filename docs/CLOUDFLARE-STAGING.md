@@ -88,9 +88,11 @@ NEXT_PUBLIC_ENVIRONMENT=staging     # NOTE: web code does not read this today (n
 
 ### `apps/admin` (vibaar-admin-staging)
 ```
-NEXT_PUBLIC_API_URL=https://api-staging.vibaar.com/api/v1
-NEXT_PUBLIC_API_BASE_URL=https://api-staging.vibaar.com/api/v1
-NEXT_PUBLIC_ADMIN_API_URL=https://api-staging.vibaar.com/api/v1/admin
+# NOTE the two different forms — this is not a typo, and setting both to the
+# versioned value is what broke admin login (it produced /api/v1/api/v1).
+NEXT_PUBLIC_API_URL=https://api-staging.vibaar.com           # bare origin; config.ts appends /api/v1
+NEXT_PUBLIC_API_BASE_URL=https://api-staging.vibaar.com/api/v1   # versioned; api-client.ts uses as-is
+NEXT_PUBLIC_ADMIN_API_URL=https://api-staging.vibaar.com/api/v1/admin   # not read by any source file — dead config
 NEXT_PUBLIC_ADMIN_PORTAL_URL=https://admin-staging.vibaar.com
 NEXT_PUBLIC_MAIN_PLATFORM_URL=https://staging.vibaar.com
 NEXT_PUBLIC_ENVIRONMENT=staging
