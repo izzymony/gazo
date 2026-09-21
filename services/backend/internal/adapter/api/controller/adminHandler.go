@@ -2,12 +2,15 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/response"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/services"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 	"github.com/gin-gonic/gin"
@@ -101,10 +104,30 @@ func (s *AdminController) GetAllWithdrawalRequests(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 
-	resp, total, err := s.service.GetAllWithdrawalRequests(limit, page)
+	// The admin client has sent `status` all along and this handler ignored it,
+	// so every filter tab returned the same unfiltered page. Comma-separated,
+	// because one tab means several states ("needs attention") and its badge
+	// has to count exactly what clicking it returns.
+	statuses := parseStatusFilter(c.Query("status"))
+
+	resp, total, err := s.service.GetAllWithdrawalRequests(limit, page, statuses)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+
+	// Tallies for the whole table, NOT for this page — the admin UI used to
+	// count the rows it had just fetched, which made every badge wrong past the
+	// first page and zeroed the other tabs whenever a filter was active. A
+	// failure here must not fail the list, so it degrades to no counts.
+	counts, countErr := s.service.WithdrawalStatusCounts()
+	if countErr != nil {
+		logger.Error(fmt.Errorf("withdrawal status counts failed: %w", countErr))
+		counts = nil
+	}
+
+	if limit <= 0 {
+		limit = 10
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -113,7 +136,33 @@ func (s *AdminController) GetAllWithdrawalRequests(c *gin.Context) {
 		"limit":      limit,
 		"total":      total,
 		"totalPages": int(math.Ceil(float64(total) / float64(limit))),
+		"counts":     counts,
 	})
+}
+
+// parseStatusFilter turns the `status` query into a set of withdrawal states.
+//
+// Unknown values are dropped rather than passed to the database: a typo should
+// show an empty list for that filter, not silently widen to everything, and
+// nothing user-supplied reaches the query as a bare string.
+func parseStatusFilter(raw string) []string {
+	if strings.TrimSpace(raw) == "" {
+		return nil
+	}
+	seen := map[string]bool{}
+	var out []string
+	for _, part := range strings.Split(raw, ",") {
+		candidate := strings.ToLower(strings.TrimSpace(part))
+		if candidate == "" || seen[candidate] {
+			continue
+		}
+		if !domain.IsKnownWithdrawalStatus(domain.WithdrawalStatus(candidate)) {
+			continue
+		}
+		seen[candidate] = true
+		out = append(out, candidate)
+	}
+	return out
 }
 
 // GetDashboardStats returns the platform-wide summary for the admin dashboard +

@@ -43,12 +43,23 @@ func (r *WithdrawalRequestRepository) UpdateStatus(id, status, reason string) er
 		}).Error
 }
 
-func (r *WithdrawalRequestRepository) GetAll(limit, offset int) ([]domain.WithdrawalRequest, int64, error) {
+func (r *WithdrawalRequestRepository) GetAll(limit, offset int, statuses []string) ([]domain.WithdrawalRequest, int64, error) {
 	var requests []domain.WithdrawalRequest
 	var total int64
 
 	q := r.db.Model(&domain.WithdrawalRequest{})
 
+	// The admin client has always sent `status`, and the controller never read
+	// it — so every filter tab returned the same unfiltered page. A set rather
+	// than a single value, because one tab legitimately means several states
+	// ("needs attention" = failed, blocked, reversed, needs_review) and its
+	// badge has to count exactly what clicking it returns.
+	if len(statuses) > 0 {
+		q = q.Where("status IN ?", statuses)
+	}
+
+	// Counted with the same filter applied, or `total` describes a different
+	// set than the rows and the pager lies.
 	if err := q.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
@@ -70,4 +81,21 @@ func (r *WithdrawalRequestRepository) GetAll(limit, offset int) ([]domain.Withdr
 	}
 
 	return requests, total, nil
+}
+
+// CountsByStatus tallies every withdrawal state in one query.
+//
+// Unfiltered and unpaginated on purpose: these numbers drive the tab badges and
+// the "Awaiting Approval" total, and both must stay correct while the admin is
+// looking at page 3 of a filtered list.
+func (r *WithdrawalRequestRepository) CountsByStatus() ([]domain.WithdrawalStatusTally, error) {
+	var tallies []domain.WithdrawalStatusTally
+	err := r.db.Model(&domain.WithdrawalRequest{}).
+		Select("status, COUNT(*) AS count, COALESCE(SUM(amount), 0) AS amount").
+		Group("status").
+		Scan(&tallies).Error
+	if err != nil {
+		return nil, err
+	}
+	return tallies, nil
 }

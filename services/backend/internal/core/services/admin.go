@@ -203,9 +203,18 @@ func (s *AdminService) RejectWithdrawal(requestID, reason string) error {
 	return nil
 }
 
-func (s *AdminService) GetAllWithdrawalRequests(limit, page int) ([]domain.WithdrawalRequest, int64, error) {
+func (s *AdminService) GetAllWithdrawalRequests(limit, page int, statuses []string) ([]domain.WithdrawalRequest, int64, error) {
 	offset := (page - 1) * limit
-	return s.withdrawalRequestRepo.GetAll(limit, offset)
+	return s.withdrawalRequestRepo.GetAll(limit, offset, statuses)
+}
+
+// WithdrawalStatusCounts backs the admin's filter badges and money totals.
+//
+// Separate from the list because it must NOT share the list's filter or
+// pagination — the whole point is that the badges stay right while the admin is
+// looking at one filtered page.
+func (s *AdminService) WithdrawalStatusCounts() ([]domain.WithdrawalStatusTally, error) {
+	return s.withdrawalRequestRepo.CountsByStatus()
 }
 
 func (s *AdminService) GetWithdrawalRequestByID(id string) (*domain.WithdrawalRequest, error) {

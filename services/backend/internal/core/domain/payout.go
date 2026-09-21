@@ -203,3 +203,52 @@ func IsTerminal(s WithdrawalStatus) bool {
 func AwaitingProvider(s WithdrawalStatus) bool {
 	return s == WithdrawalProcessing || s == WithdrawalAwaitingOTP
 }
+
+// WithdrawalStatusTally is one row of "how many withdrawals are in this state,
+// and for how much money".
+//
+// Computed by a GROUP BY over the whole table, deliberately NOT from the page
+// the admin happens to be looking at. The admin UI used to count the 20 rows it
+// had just fetched, so every tab badge was wrong as soon as a 21st withdrawal
+// existed — and selecting any filter zeroed the other tabs, because the rows
+// they counted were no longer in the response.
+type WithdrawalStatusTally struct {
+	Status string  `json:"status"`
+	Count  int64   `json:"count"`
+	Amount float64 `json:"amount"`
+}
+
+// AllWithdrawalStatuses is every value the status column may legitimately hold,
+// including the two legacy spellings that predate migration 015.
+//
+// `pending` and `completed` stay in the set because rows with those values
+// still exist and an admin must be able to filter for them — `completed` in
+// particular marks payouts whose payment was never verified, which is exactly
+// the set someone reconciling against a bank statement needs to list.
+var AllWithdrawalStatuses = []WithdrawalStatus{
+	WithdrawalRequested,
+	WithdrawalProcessing,
+	WithdrawalAwaitingOTP,
+	WithdrawalPaid,
+	WithdrawalFailed,
+	WithdrawalBlocked,
+	WithdrawalReversed,
+	WithdrawalRejected,
+	WithdrawalNeedsReview,
+	WithdrawalLegacyPending,
+	WithdrawalLegacyCompleted,
+}
+
+// IsKnownWithdrawalStatus reports whether a string is a withdrawal status.
+//
+// Used to validate a client-supplied filter. An unrecognised value is dropped
+// by the caller rather than forwarded, so a typo yields an empty result for
+// that filter instead of silently widening to every row.
+func IsKnownWithdrawalStatus(s WithdrawalStatus) bool {
+	for _, known := range AllWithdrawalStatuses {
+		if s == known {
+			return true
+		}
+	}
+	return false
+}

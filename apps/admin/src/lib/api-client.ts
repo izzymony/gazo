@@ -315,6 +315,11 @@ class ApiClient {
       limit: number;
       total: number;
       totalPages: number;
+      // Whole-table tallies per status, independent of this request's filter
+      // and page — the admin badges used to count the fetched rows, which made
+      // them wrong past page one. Optional: absent on an older backend, and the
+      // UI then shows no badges rather than wrong ones.
+      counts?: { status: string; count: number; amount: number }[];
     }>(`/admin/get-withdrawal-requests?${params}`);
   }
 

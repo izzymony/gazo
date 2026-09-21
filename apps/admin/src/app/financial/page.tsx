@@ -1,5 +1,20 @@
 "use client";
 
+import {
+  AWAITING_APPROVAL,
+  IN_FLIGHT,
+  NEEDS_ATTENTION,
+  PAID,
+  WITHDRAWAL_FILTERS,
+  amountFor,
+  countFor,
+  isAwaitingApproval,
+  parseCounts,
+  totalAmount as tallyAmount,
+  totalCount as tallyCount,
+  type StatusTally,
+} from '@/lib/withdrawalStatus';
+
 import { useState, useEffect, useCallback } from "react";
 import AdminLayout from "@/components/layout/AdminLayout";
 import MetricCard from "@/components/common/MetricCard";
@@ -111,7 +126,9 @@ const WITHDRAWAL_STATUS: Record<string, { label: string; badge: string; tone: "w
  * a backend whose migration has not run yet. Gating the approve button on one
  * spelling is how it would silently become impossible to approve anything.
  */
-const isAwaitingApproval = (status: string) => status === "requested" || status === "pending";
+// Status groups, counting and filter-key construction all live in one module,
+// so a tab cannot count one set of statuses and fetch another.
+
 
 export default function FinancialPage() {
   const [selectedTab, setSelectedTab] = useState("withdrawals");
@@ -123,6 +140,9 @@ export default function FinancialPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  // Whole-table tallies from the API, so badges and money totals stay correct
+  // on page 3 of a filtered list.
+  const [statusTally, setStatusTally] = useState<StatusTally>({});
   const router = useRouter();
 
   const { getWithdrawals, approveWithdrawal, rejectWithdrawal } = useFinancial();
@@ -139,6 +159,12 @@ export default function FinancialPage() {
       setWithdrawals(Array.isArray(withdrawalData) ? withdrawalData : []);
       setTotalCount((response as any)?.total || withdrawalData.length || 0);
       setTotalPages((response as any)?.totalPages || 1);
+
+      // `counts` is a GROUP BY over every withdrawal, independent of this
+      // request's filter and page. Absent on an older backend, in which case
+      // the badges show nothing rather than something wrong.
+      const parsed = parseCounts(response?.counts);
+      if (parsed) setStatusTally(parsed);
     } catch (error) {
       console.error("Failed to fetch withdrawals:", error);
       toast.error("Failed to load withdrawal requests");
@@ -226,12 +252,16 @@ export default function FinancialPage() {
   });
 
   // Calculate counts for filter tabs
+  // Counts come from the server's GROUP BY over the whole table, never from
+  // the page in hand. Counting `withdrawals` was wrong twice over: it only saw
+  // the 20 rows just fetched, and with any filter active the other tabs
+  // counted rows that were no longer in the response, so they all read 0.
   const statusCounts = {
-    all: withdrawals.length,
-    requested: withdrawals.filter(w => isAwaitingApproval(w.status)).length,
-    processing: withdrawals.filter(w => w.status === "processing" || w.status === "awaiting_otp").length,
-    paid: withdrawals.filter(w => w.status === "paid" || w.status === "completed").length,
-    attention: withdrawals.filter(w => ["failed", "blocked", "reversed", "needs_review"].includes(w.status)).length,
+    all: tallyCount(statusTally),
+    requested: countFor(statusTally, AWAITING_APPROVAL),
+    processing: countFor(statusTally, IN_FLIGHT),
+    paid: countFor(statusTally, PAID),
+    attention: countFor(statusTally, NEEDS_ATTENTION),
   };
 
   // Action handlers
@@ -367,7 +397,7 @@ export default function FinancialPage() {
             />
             <MetricCard
               title="Awaiting Approval"
-              value={`₦${(withdrawals.filter(w => isAwaitingApproval(w.status)).reduce((sum, w) => sum + w.amount, 0) / 1000000).toFixed(1)}M`}
+              value={`₦${(amountFor(statusTally, AWAITING_APPROVAL) / 1000000).toFixed(1)}M`}
               change={`${statusCounts.requested} requests`}
               changeType="neutral"
               icon={Clock}
@@ -375,8 +405,8 @@ export default function FinancialPage() {
             />
             <MetricCard
               title="Total Withdrawals"
-              value={`${totalCount}`}
-              change={`₦${(withdrawals.reduce((sum, w) => sum + w.amount, 0) / 1000).toFixed(0)}K total`}
+              value={`${statusCounts.all}`}
+              change={`₦${(tallyAmount(statusTally) / 1000).toFixed(0)}K total`}
               changeType="neutral"
               icon={Banknote}
               iconColor="text-purple-500"
@@ -424,11 +454,15 @@ export default function FinancialPage() {
               {selectedTab === "withdrawals" && (
                 <FilterTabs
                   filters={[
-                    { key: "all", label: "All Requests", count: statusCounts.all },
-                    { key: "requested", label: "Awaiting Approval", count: statusCounts.requested },
-                    { key: "processing", label: "Sending", count: statusCounts.processing },
-                    { key: "paid", label: "Paid", count: statusCounts.paid },
-                    { key: "needs_review", label: "Needs Review", count: statusCounts.attention },
+                    // Each key IS the status set its badge counts — one array
+                    // builds both, so they cannot drift apart.
+                    ...WITHDRAWAL_FILTERS.map((f) => ({
+                      key: f.key,
+                      label: f.label,
+                      count: f.statuses.length === 0
+                        ? statusCounts.all
+                        : countFor(statusTally, f.statuses),
+                    })),
                   ]}
                   selectedFilter={selectedFilter}
                   onFilterChange={setSelectedFilter}
@@ -581,16 +615,20 @@ export default function FinancialPage() {
                                 )}
                               </button>
 
-                              {/* Secondary Action: Reject (only for pending) */}
+                              {/* Secondary Action: Reject — same gate as Approve.
+                                  This was still on the literal 'pending', which
+                                  migration 015 renamed to 'requested', so reject
+                                  was permanently disabled for every real
+                                  withdrawal while the backend accepted it. */}
                               <button
                                 onClick={() => handleRejectWithdrawal(withdrawal)}
                                 className={`w-8 h-8 flex items-center justify-center rounded-full border transition-colors ${
-                                  withdrawal.status === 'pending' && !actionLoading
+                                  isAwaitingApproval(withdrawal.status) && !actionLoading
                                     ? 'border-red-200 text-red-600 hover:bg-red-50'
                                     : 'border-gray-200 text-gray-400 cursor-not-allowed'
                                 }`}
-                                title="Reject Withdrawal"
-                                disabled={withdrawal.status !== 'pending' || !!actionLoading}
+                                title="Reject withdrawal and return the funds to the seller's balance"
+                                disabled={!isAwaitingApproval(withdrawal.status) || !!actionLoading}
                               >
                                 <XCircle className="h-4 w-4" />
                               </button>
