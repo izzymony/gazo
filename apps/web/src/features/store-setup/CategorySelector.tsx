@@ -313,9 +313,20 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
               )}
             </div>
             
-            {/* Select Button - Only show for product mode */}
-            {mode === 'product' && (
-              <Button className="max-w-full" onClick={handleCategoryConfirm} type="button">
+            {/* Select Button - Only show for product mode.
+                Hidden when there is nothing to select. On an unseeded
+                environment this rendered as a second full-width primary button
+                under "Retry", looking live while doing nothing: confirming
+                requires both ids and neither can exist. A dead control beside a
+                real one makes the seller think the failure is theirs.
+                Disabled when a category is chosen but its sub-category is not,
+                which is the other state where confirming silently does nothing. */}
+            {mode === 'product' && !taxonomyUnavailable && (
+              <Button
+                className="max-w-full"
+                onClick={handleCategoryConfirm}
+                disabled={!selectedOriginalCategory?.id || !selectedSubcategory?.id}
+                type="button">
                 Select category
               </Button>
             )}
