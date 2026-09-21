@@ -51,6 +51,27 @@ func CheckoutMaxNGN() float64 {
 	return parsePositiveFloat("CHECKOUT_MAX_NGN", 1_000_000)
 }
 
+// ShippingQuoteTTL is how long a shipping price quote stays valid (G12).
+//
+// Launch default 24h, permissive on purpose: the point of binding a quote is to
+// stop it pricing a different product, address or buyer, and a short expiry
+// would add checkout friction without adding much safety. Unset, unparseable or
+// negative falls back to the default; an explicit 0 means "expires
+// immediately", which is only useful in a test.
+func ShippingQuoteTTL() time.Duration {
+	const fallbackMinutes = 24 * 60
+
+	raw := strings.TrimSpace(os.Getenv("SHIPPING_QUOTE_TTL_MINUTES"))
+	if raw == "" {
+		return fallbackMinutes * time.Minute
+	}
+	minutes, err := strconv.ParseFloat(raw, 64)
+	if err != nil || minutes < 0 {
+		return fallbackMinutes * time.Minute
+	}
+	return time.Duration(minutes * float64(time.Minute))
+}
+
 // EarningsReleaseDelay is how long after a confirmed delivery a seller's
 // earnings become available for payout (D1).
 //

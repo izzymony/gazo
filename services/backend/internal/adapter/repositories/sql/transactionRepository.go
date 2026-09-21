@@ -127,6 +127,28 @@ func (repo *TransactionRepository) SetStatus(id, status string, isGuest bool) er
 	return repo.db.Table(tableName).Where("id = ?", id).Update("status", status).Error
 }
 
+// SetProviderFee records the provider's collection fee for a settled charge,
+// in integer kobo.
+//
+// Writes only that column, and only where it is still NULL. Verify is called
+// from the webhook, the client callback and the reconcile cron, so the same fee
+// arrives several times; a guarded UPDATE keeps the first recorded value rather
+// than rewriting it on every replay.
+//
+// The guard is `IS NULL`, NOT `IS NULL OR = 0`. A recorded zero is a real
+// answer — Paystack charged nothing — and treating it as "not yet recorded"
+// would leave the row permanently open to being overwritten by a later,
+// different value, which is the opposite of what an idempotent write is for.
+func (repo *TransactionRepository) SetProviderFee(id string, feeKobo int64, isGuest bool) error {
+	tableName := "transactions"
+	if isGuest {
+		tableName += "_guest"
+	}
+	return repo.db.Table(tableName).
+		Where("id = ? AND provider_fee_kobo IS NULL", id).
+		Update("provider_fee_kobo", feeKobo).Error
+}
+
 // ExpireIfPending flips a still-pending transaction to expired in one
 // conditional UPDATE, so the pending-GC backstop never clobbers a status that a
 // concurrent verify just settled (success/failed).

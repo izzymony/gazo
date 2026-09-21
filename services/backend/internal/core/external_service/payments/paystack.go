@@ -67,8 +67,16 @@ type VerifyPaystackResponse struct {
 		Currency        string      `json:"currency"`
 		IPAddress       string      `json:"ip_address"`
 		Metadata        interface{} `json:"metadata"`
-		Fees            interface{} `json:"fees"`
-		Customer        struct {
+		// Paystack's collection fee for this charge, in kobo. A POINTER because
+		// the field is absent or null on some responses, and `int64` would then
+		// silently read as a genuine zero fee.
+		//
+		// It used to be `interface{}` and was parsed and discarded, so the
+		// gateway cost of every charge Vibaar has ever taken is unrecorded. It
+		// is persisted on the transaction now; `payment_fee_allocation` on the
+		// allocation record reads it later.
+		Fees     *int64 `json:"fees"`
+		Customer struct {
 			ID           int64       `json:"id"`
 			FirstName    *string     `json:"first_name"`
 			LastName     *string     `json:"last_name"`
@@ -98,14 +106,46 @@ type InitiateResponse struct {
 
 var banks []Bank
 
-func (p Paystack) Initiate(email, ref string, amount int32, redirectURL string) (*PaystackInitiateResponse, error) {
+// maxInitiateKobo is a PROVIDER safety limit, not a business rule: ₦100,000,000
+// expressed in kobo.
+//
+// It is deliberately separate from CHECKOUT_MAX_NGN. That variable is product
+// policy and an operator can raise it; this one protects the arithmetic and the
+// wire format, and nothing in the environment can switch it off. If the two ever
+// disagree, the smaller wins, which is the safe direction.
+const maxInitiateKobo int64 = 100_000_000 * 100
+
+// Initiate opens a Paystack transaction for amountKobo, in integer kobo.
+//
+// The amount is kobo — and int64 — because the previous signature took `int32`
+// naira and sent `amount * 100`, which was wrong twice over:
+//
+//   - Every caller had to round to whole naira to fit the type
+//     (`int32(math.Round(input.Amount))`), so a cart totalling ₦8,450.50 was
+//     charged ₦8,451 or ₦8,450. Kobo were lost at the call site, before this
+//     function ever saw them.
+//   - `amount * 100` in int32 OVERFLOWS above ₦21,474,836 — silently, and
+//     into a negative number, which Paystack would have rejected with a
+//     message about the amount rather than about the type.
+//
+// Callers now convert once, with helper.ToKobo, which rounds rather than
+// truncating.
+func (p Paystack) Initiate(email, ref string, amountKobo int64, redirectURL string) (*PaystackInitiateResponse, error) {
+	if amountKobo <= 0 {
+		return nil, fmt.Errorf("invalid charge amount: %d kobo", amountKobo)
+	}
+	if amountKobo > maxInitiateKobo {
+		return nil, fmt.Errorf("charge amount %d kobo exceeds the provider limit of %d kobo",
+			amountKobo, maxInitiateKobo)
+	}
+
 	// createTransaction initiates a payment transaction on Paystack.
 	url := fmt.Sprintf("%s/transaction/initialize", p.url)
 
 	// Prepare the payload for creating a transaction.
 	payload := map[string]interface{}{
 		"email":        email,
-		"amount":       amount * 100,
+		"amount":       amountKobo,
 		"reference":    ref,
 		"callback_url": redirectURL, // Redirect here after payment
 		"currency":     "NGN",

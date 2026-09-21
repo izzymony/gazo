@@ -257,14 +257,14 @@ func (s *ShippingService) GetShippingOptions(request requests.ShippingOptionRequ
 		if selfOpt == nil {
 			return nil, fmt.Errorf("this seller has no delivery option for your address yet — please sign in to use a courier")
 		}
-		return s.shippingRepo.CreateShippingRates([]domain.ShippingOption{*selfOpt}, isGuest)
+		return s.persistQuotes([]domain.ShippingOption{*selfOpt}, request, userId, isGuest)
 	}
 
 	if !partnerEnabled {
 		if selfOpt == nil {
 			return nil, fmt.Errorf("this seller has no delivery option for your address yet")
 		}
-		return s.shippingRepo.CreateShippingRates([]domain.ShippingOption{*selfOpt}, isGuest)
+		return s.persistQuotes([]domain.ShippingOption{*selfOpt}, request, userId, isGuest)
 	}
 
 	courierOptions, cerr := s.fetchCourierOptions(product, business, request, userId, isGuest)
@@ -274,12 +274,36 @@ func (s *ShippingService) GetShippingOptions(request requests.ShippingOptionRequ
 		if selfOpt == nil {
 			return nil, fmt.Errorf("this seller has no delivery option for your address yet")
 		}
-		return s.shippingRepo.CreateShippingRates([]domain.ShippingOption{*selfOpt}, isGuest)
+		return s.persistQuotes([]domain.ShippingOption{*selfOpt}, request, userId, isGuest)
 	}
 
 	options := courierOptions
 	if selfOpt != nil {
 		options = append(options, *selfOpt)
+	}
+	return s.persistQuotes(options, request, userId, isGuest)
+}
+
+// persistQuotes stamps every option with what it is a quote FOR, then saves it.
+//
+// One funnel, deliberately. GetShippingOptions has four returns that persist
+// options — guest, partner-disabled, courier-outage degradation, and the normal
+// path — and stamping at each of them is how one gets missed. It already holds
+// everything the binding needs: the buyer, the product and the address.
+func (s *ShippingService) persistQuotes(
+	options []domain.ShippingOption,
+	request requests.ShippingOptionRequest,
+	userId string,
+	isGuest bool,
+) ([]domain.ShippingOption, error) {
+	fingerprint := domain.QuoteFingerprint(request.Street, request.Town, request.State, request.Country)
+	expiresAt := time.Now().Add(helper.ShippingQuoteTTL())
+
+	for i := range options {
+		options[i].UserID = userId
+		options[i].ProductID = request.ProductId
+		options[i].AddressFingerprint = fingerprint
+		options[i].ExpiresAt = &expiresAt
 	}
 	return s.shippingRepo.CreateShippingRates(options, isGuest)
 }

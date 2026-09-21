@@ -79,6 +79,7 @@ never to `0`.
 | `EARNINGS_RELEASE_DELAY_HOURS` | — | — | `24` (default). Hours after a **confirmed delivery** before earnings become available for payout. Fractional accepted (`0.5`). Unset/garbage/negative → 24. An explicit `0` releases immediately | Render | a delivered item stays in clearing until the window elapses |
 | `PAYOUT_MIN_NGN` | — | — | `1000` (default). Smallest payout a seller may request, in naira. Unset/garbage/negative → 1000. An explicit `0` disables the minimum | Render | a ₦500 request is refused with "minimum payout is ₦1,000.00" |
 | `CHECKOUT_MAX_NGN` | — | — | `1000000` (default). Largest order total accepted for collection, in naira | Render | an order above it is refused before Paystack is called |
+| `SHIPPING_QUOTE_TTL_MINUTES` | — | — | `1440` (default, 24h). How long a shipping PRICE QUOTE stays valid. A quote is also bound to one buyer, one product and one address, and those checks are not configurable | Render | a stale quote is refused at checkout with "please reselect delivery" |
 | `KYC_WITHDRAWAL_GATE_NGN` | — | — | `100000` (default) — see §5 | Render | withdrawal gate fires at threshold |
 
 > ⚠ **These bounds are not the safety guards.** Positivity, whole-kobo

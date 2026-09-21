@@ -66,6 +66,32 @@ func (o *OrderService) ValidateOrder(input requests.Order, userId string, isGues
 	}
 	order := domain.Order{}
 
+	// G29 — the destination address, loaded and CHECKED.
+	//
+	// ValidateOrder never looked at shipping_profile_id at all: `helper.Copy`
+	// carried it into the order and nothing verified it existed, let alone that
+	// it belonged to the buyer. Any profile id was accepted.
+	//
+	// It is also what G12's quote check needs — a quote is bound to the address
+	// it was priced for, so the address has to be known here — which is why the
+	// two land together rather than as two passes over the same lookup.
+	shippingProfile, err := o.shippingRepo.FindShippingProfile(input.ShippingProfileID, isGuest)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("invalid delivery address")
+		}
+		return nil, fmt.Errorf("something went wrong")
+	}
+	if shippingProfile == nil {
+		return nil, fmt.Errorf("invalid delivery address")
+	}
+	if shippingProfile.UserID != userId {
+		return nil, fmt.Errorf("invalid delivery address")
+	}
+	destination := domain.QuoteFingerprint(
+		shippingProfile.Street, shippingProfile.Town, shippingProfile.State, shippingProfile.Country)
+	now := time.Now()
+
 	var shippingPrice float64
 
 	for _, item := range input.Items {
@@ -92,6 +118,12 @@ func (o *OrderService) ValidateOrder(input requests.Order, userId string, isGues
 		}
 		if shippingOption == nil {
 			return nil, fmt.Errorf("shipping option not found")
+		}
+		// G12: the id existing is not enough. A quote prices ONE product, for
+		// ONE buyer, to ONE address, for a limited time — checked here because
+		// this is the moment the price is accepted into the order total.
+		if err := shippingOption.IsQuoteFor(userId, item.ProductID, destination, now); err != nil {
+			return nil, err
 		}
 		price, err := shippingOption.ParsePrice()
 		if err != nil {
@@ -141,12 +173,28 @@ func (o *OrderService) ValidateOrder(input requests.Order, userId string, isGues
 		totalPrice += product.Price * float64(item.Quantity)
 	}
 
-	if totalPrice != input.SubTotal {
+	// G13: compare in integer kobo, not with float equality.
+	//
+	// These are `float64` sums over columns declared `decimal` with no enforced
+	// scale, and `!=` on binary floating point rejects arithmetic that is
+	// correct to the kobo: 0.1 + 0.2 is not 0.3. The check keeps every bit of
+	// its strictness — it simply stops depending on the binary representation of
+	// a decimal amount. helper.ToKobo rounds to the nearest kobo, which is the
+	// smallest unit any of this money can actually be paid in.
+	if helper.ToKobo(totalPrice) != helper.ToKobo(input.SubTotal) {
 		return nil, fmt.Errorf("mis-match sub total price")
 	}
 
-	if totalPrice+shippingPrice != input.Total {
+	if helper.ToKobo(totalPrice+shippingPrice) != helper.ToKobo(input.Total) {
 		return nil, fmt.Errorf("mis-match total price")
+	}
+
+	// G7: the server-side ceiling. CHECKOUT_MAX_NGN is product policy and an
+	// operator can raise it; the payments client enforces its own kobo limit
+	// independently, so this cannot be configured into an overflow.
+	if maximum := helper.CheckoutMaxNGN(); maximum > 0 && input.Total > maximum {
+		return nil, fmt.Errorf("order total %s exceeds the maximum of %s",
+			FormatNaira(input.Total), FormatNaira(maximum))
 	}
 
 	helper.Copy(input, &order)
