@@ -340,7 +340,6 @@ func (s *ShippingService) fetchCourierOptions(product *domain.Product, business 
 	// First, try to get external_category_id directly from product
 	if product.ExternalCategoryId != "" {
 		externalCategoryId = product.ExternalCategoryId
-		fmt.Printf("🔥 SHIPPING DEBUG: Using product external_category_id: %s\n", externalCategoryId)
 	} else {
 		// Use smart category selection based on category, subcategory, and product dimensions
 		categoryName := product.Category.Name
@@ -350,22 +349,21 @@ func (s *ShippingService) fetchCourierOptions(product *domain.Product, business 
 		}
 
 		externalCategoryId = s.getSmartShipbubbleCategoryId(categoryName, subcategoryName, productWeight, productLength, productWidth, productHeight)
-		fmt.Printf("🔥 SHIPPING DEBUG: Smart selected external_category_id: %s for %s -> %s (weight: %.2f kg)\n",
-			externalCategoryId, categoryName, subcategoryName, productWeight)
+		// The provider category id is a correlation value and is kept; the
+		// category and subcategory NAMES it was selected from are not needed.
+		logger.Info(fmt.Sprintf("selected shipbubble category external_category_id=%s", externalCategoryId))
 	}
 
 	// Get the external category mapping
 	externalCategory, err := s.shippingRepo.FindExternalCategoryById(externalCategoryId)
 	if err != nil {
-		fmt.Printf("🔥 SHIPPING DEBUG: FindExternalCategoryById error for ID '%s': %v\n", externalCategoryId, err)
+		logger.Error(fmt.Sprintf("external category %s not readable: %v", externalCategoryId, err))
 		return nil, fmt.Errorf("something went wrong")
 	}
 
-	fmt.Println("externalCategory; ", externalCategory.ProviderId)
-
 	categoryId, err := strconv.Atoi(externalCategory.ProviderId)
 	if err != nil {
-		fmt.Printf("something went wrong: %v", err)
+		logger.Error(fmt.Sprintf("shipping options: %v", err))
 		return nil, fmt.Errorf("something went wrong")
 	}
 
@@ -381,7 +379,7 @@ func (s *ShippingService) fetchCourierOptions(product *domain.Product, business 
 		// completes their store address at setup.
 		if os.Getenv("ENV") == "local" && os.Getenv("ENABLE_MOCK_SERVICES") == "true" {
 			senderAddressCode = 123456789
-			fmt.Printf("🔥 SHIPPING DEBUG: [mock] business has no Shipbubble address code, using mock: %d\n", senderAddressCode)
+			logger.Info("using the mock sender address code (local mock mode)")
 		} else {
 			return nil, fmt.Errorf("store shipping address is not set up; please complete your store address")
 		}
@@ -391,7 +389,7 @@ func (s *ShippingService) fetchCourierOptions(product *domain.Product, business 
 		"id": userId,
 	}, isGuest)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		fmt.Printf("something went wrong: %v", err)
+		logger.Error(fmt.Sprintf("shipping options: %v", err))
 		return nil, fmt.Errorf("something went wrong")
 	}
 
@@ -558,31 +556,26 @@ func (s *ShippingService) buildSelfOption(business domain.Business, request requ
 }
 
 func (s *ShippingService) CreateShipment(orderId string, isGuest bool) error {
-	fmt.Printf("DEBUG CreateShipment: Starting for orderId=%s, isGuest=%v\n", orderId, isGuest)
 
 	item, err := s.orderRepo.GetOneOrderItem(map[string]interface{}{
 		"id": orderId,
 	}, isGuest)
 	if err != nil {
-		fmt.Printf("DEBUG CreateShipment: Error getting order item for orderId=%s, err=%v\n", orderId, err)
+		logger.Error(fmt.Sprintf("create shipment: order item %s not readable: %v", orderId, err))
 		return fmt.Errorf("failed to get order item: %v", err)
 	}
 	if item == nil {
-		fmt.Printf("DEBUG CreateShipment: Order item is nil for orderId=%s\n", orderId)
 		return errors.New("order not found")
 	}
-	fmt.Printf("DEBUG CreateShipment: Found order item with ShippingOptionID=%s\n", item.ShippingOptionID)
 
 	shippingOption, err := s.shippingRepo.GetOneShippingRate(map[string]interface{}{"id": item.ShippingOptionID}, isGuest)
 	if err != nil {
-		fmt.Printf("DEBUG CreateShipment: Error getting shipping option for ID=%s, err=%v\n", item.ShippingOptionID, err)
+		logger.Error(fmt.Sprintf("create shipment: shipping option %s not readable: %v", item.ShippingOptionID, err))
 		return err
 	}
-	fmt.Printf("DEBUG CreateShipment: Found shipping option with ProviderID=%s\n", shippingOption.ProviderID)
-	fmt.Printf("DEBUG CreateShipment: ProviderData length=%d\n", len(shippingOption.ProviderData))
 
 	if len(shippingOption.ProviderData) == 0 {
-		fmt.Printf("DEBUG CreateShipment: ProviderData is empty!\n")
+		logger.Error(fmt.Sprintf("shipping option %s has no provider data", shippingOption.ID))
 		return errors.New("shipping option has no provider data")
 	}
 
@@ -625,11 +618,11 @@ func (s *ShippingService) CreateShipment(orderId string, isGuest bool) error {
 	courierIdInterface, courierIdExists := shippingOption.ProviderData[0]["courier_id"]
 
 	if !serviceCodeExists {
-		fmt.Printf("DEBUG CreateShipment: service_code not found in ProviderData[0]\n")
+		logger.Error(fmt.Sprintf("shipping option %s is missing service_code", shippingOption.ID))
 		return errors.New("service_code not found in shipping option")
 	}
 	if !courierIdExists {
-		fmt.Printf("DEBUG CreateShipment: courier_id not found in ProviderData[0]\n")
+		logger.Error(fmt.Sprintf("shipping option %s is missing courier_id", shippingOption.ID))
 		return errors.New("courier_id not found in shipping option")
 	}
 
@@ -637,11 +630,13 @@ func (s *ShippingService) CreateShipment(orderId string, isGuest bool) error {
 	courierID, courierIdOk := courierIdInterface.(string)
 
 	if !serviceCodeOk {
-		fmt.Printf("DEBUG CreateShipment: service_code is not a string: %+v (type: %T)\n", serviceCodeInterface, serviceCodeInterface)
+		logger.Error(fmt.Sprintf("shipping option %s has a non-string service_code (%T)",
+			shippingOption.ID, serviceCodeInterface))
 		return errors.New("service_code is not a string")
 	}
 	if !courierIdOk {
-		fmt.Printf("DEBUG CreateShipment: courier_id is not a string: %+v (type: %T)\n", courierIdInterface, courierIdInterface)
+		logger.Error(fmt.Sprintf("shipping option %s has a non-string courier_id (%T)",
+			shippingOption.ID, courierIdInterface))
 		return errors.New("courier_id is not a string")
 	}
 
@@ -653,15 +648,16 @@ func (s *ShippingService) CreateShipment(orderId string, isGuest bool) error {
 		}
 	}
 
-	fmt.Printf("DEBUG CreateShipment: About to call Shipbubble API with RequestToken=%s, ServiceCode=%s, CourierID=%s, IsMock=%v\n",
-		requestToken, serviceCode, courierID, isMock)
+	// The request token is a PROVIDER CREDENTIAL for this quote — it is what
+	// CreateShipment authenticates the booking with. It was printed in full,
+	// alongside the courier and service codes.
+	logger.Info(fmt.Sprintf("creating shipment shipping_option_id=%s mock=%t", shippingOption.ID, isMock))
 
 	var shipmentProviderID string
 	var shipmentProviderData domain.MapArray
 
 	// Handle mock shipments differently
 	if isMock {
-		fmt.Println("DEBUG CreateShipment: Processing mock shipment")
 		// Get order and shipping profile for ship_to information
 		order, _ := s.orderRepo.GetOneOrder(map[string]interface{}{
 			"id": item.OrderID,
@@ -736,11 +732,9 @@ func (s *ShippingService) CreateShipment(orderId string, isGuest bool) error {
 			CourierID:    courierID,
 		})
 		if err != nil {
-			fmt.Printf("DEBUG CreateShipment: Shipbubble API call failed with error: %v\n", err)
-			fmt.Println("error creating shipBubbleShipment; ", err)
+			logger.Error(fmt.Sprintf("create shipment failed for shipping option %s: %v", shippingOption.ID, err))
 			return err
 		}
-		fmt.Printf("DEBUG CreateShipment: Shipbubble API call successful, response status=%s\n", shipBubbleShipment.Status)
 		if shipBubbleShipment.Status == "failed" {
 			return errors.New("error creating shipping")
 		}
@@ -887,13 +881,11 @@ func (s *ShippingService) getProductWeight(product *domain.Product) float64 {
 
 	// 3. Subcategory default weight
 	if product.SubCategory.DefaultWeight > 0 {
-		fmt.Printf("🔥 SHIPPING DEBUG: Using subcategory default weight: %.2f kg\n", product.SubCategory.DefaultWeight)
 		return product.SubCategory.DefaultWeight
 	}
 
 	// 4. Category-based default weight
 	defaultWeight := s.getCategoryDefaultWeight(product.Category.Name)
-	fmt.Printf("🔥 SHIPPING DEBUG: Using category default weight: %.2f kg\n", defaultWeight)
 	return defaultWeight
 }
 
@@ -910,13 +902,11 @@ func (s *ShippingService) getProductLength(product *domain.Product) float64 {
 
 	// 3. Subcategory default length
 	if product.SubCategory.DefaultLength > 0 {
-		fmt.Printf("🔥 SHIPPING DEBUG: Using subcategory default length: %.2f cm\n", product.SubCategory.DefaultLength)
 		return product.SubCategory.DefaultLength
 	}
 
 	// 4. Category-based default length
 	defaultLength := s.getCategoryDefaultLength(product.Category.Name)
-	fmt.Printf("🔥 SHIPPING DEBUG: Using category default length: %.2f cm\n", defaultLength)
 	return defaultLength
 }
 
@@ -933,13 +923,11 @@ func (s *ShippingService) getProductWidth(product *domain.Product) float64 {
 
 	// 3. Subcategory default width
 	if product.SubCategory.DefaultWidth > 0 {
-		fmt.Printf("🔥 SHIPPING DEBUG: Using subcategory default width: %.2f cm\n", product.SubCategory.DefaultWidth)
 		return product.SubCategory.DefaultWidth
 	}
 
 	// 4. Category-based default width
 	defaultWidth := s.getCategoryDefaultWidth(product.Category.Name)
-	fmt.Printf("🔥 SHIPPING DEBUG: Using category default width: %.2f cm\n", defaultWidth)
 	return defaultWidth
 }
 
@@ -956,13 +944,11 @@ func (s *ShippingService) getProductHeight(product *domain.Product) float64 {
 
 	// 3. Subcategory default height
 	if product.SubCategory.DefaultHeight > 0 {
-		fmt.Printf("🔥 SHIPPING DEBUG: Using subcategory default height: %.2f cm\n", product.SubCategory.DefaultHeight)
 		return product.SubCategory.DefaultHeight
 	}
 
 	// 4. Category-based default height
 	defaultHeight := s.getCategoryDefaultHeight(product.Category.Name)
-	fmt.Printf("🔥 SHIPPING DEBUG: Using category default height: %.2f cm\n", defaultHeight)
 	return defaultHeight
 }
 
@@ -1074,6 +1060,8 @@ func (s *ShippingService) ValidateBusinessAddress(ownerFirstName, ownerLastName,
 		return 0, fmt.Errorf("address validation failed: %w", err)
 	}
 
-	fmt.Printf("🔥 SHIPBUBBLE DEBUG: Business address validated successfully. Address code: %d\n", shipbubbleData.AddressCode)
+	// The address code is a provider correlation id, not content — but this
+	// print sat next to the validated address and is redundant with the
+	// client's own one-line success log.
 	return shipbubbleData.AddressCode, nil
 }

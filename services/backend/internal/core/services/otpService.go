@@ -54,7 +54,9 @@ func (s *OTPService) Save(input domain.OTP) (interface{}, error) {
 		} else {
 			_, err := s.Update(otp.ID, domain.OTP{Status: "EXPIRED"})
 			if err != nil {
-				log.Println(helper.ToJsonString(map[string]interface{}{"service": otp, "error": err}))
+				// Was the whole OTP record serialised to JSON — code, identifier
+				// and expiry — alongside the error.
+				log.Printf("otp delivery failed: %v", err)
 			}
 		}
 	}
@@ -65,7 +67,9 @@ func (s *OTPService) Save(input domain.OTP) (interface{}, error) {
 		return nil, err
 	}
 	
-	log.Printf("OTP Debug - Identifier: %s, Found: %t, RequestType: %s", input.Identifier, found, input.RequestType)
+	// The identifier is an email or a phone number. Whether a user was found
+	// and which flow ran are the parts that aid debugging.
+	log.Printf("otp request: user_found=%t request_type=%s", found, input.RequestType)
 	
 	// Allow OTP generation for new users during registration (auth request type)
 	// For other request types (forgot_password, change_password), user must exist

@@ -201,7 +201,10 @@ func (p Paystack) Verify(reference string) (*VerifyPaystackResponse, error) {
 		return nil, err
 	}
 
-	log.Println("paystack-verification", verifyResponse)
+	// Was the entire verify response: the customer's email and phone, the
+	// authorization object, the amount and the gateway metadata.
+	log.Printf("paystack verify: status=%q reference_present=%t",
+		verifyResponse.Data.Status, verifyResponse.Data.Reference != "")
 
 	if !verifyResponse.Status {
 		return nil, fmt.Errorf("failed to verify transaction: %s", verifyResponse.Message)

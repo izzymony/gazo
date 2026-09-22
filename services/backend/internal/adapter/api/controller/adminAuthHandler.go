@@ -84,7 +84,9 @@ func (a *AdminAuthController) AdminLogin(c *gin.Context) {
 		"user_agent": userAgent,
 	}, "success")
 
-	logger.Info("Admin authenticated successfully: " + req.Email)
+	// The admin id is the identity worth recording; the email is a contact
+	// detail, and login logs are among the most widely read.
+	logger.Info("admin authenticated successfully")
 	c.JSON(http.StatusOK, response.NewCustomResponse(authResponse, nil))
 }
 
@@ -166,7 +168,7 @@ func (a *AdminAuthController) RefreshToken(c *gin.Context) {
 		"user_agent": c.GetHeader("User-Agent"),
 	}, "success")
 
-	logger.Info("Admin token refreshed successfully: " + adminEmail.(string))
+	logger.Info("admin token refreshed successfully")
 	c.JSON(http.StatusOK, response.NewCustomResponse(authResponse, nil))
 }
 

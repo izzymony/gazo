@@ -176,7 +176,7 @@ func SeedRealisticData() error {
 	if err := db.Create(&adminUser).Error; err != nil {
 		log.Printf("Admin user already exists: %v", err)
 	} else {
-		log.Printf("✅ Created admin user: %s", adminUser.Email)
+		log.Printf("✅ Created admin user id=%s", adminUser.ID)
 	}
 
 	log.Println("✅ Realistic data seeding completed!")

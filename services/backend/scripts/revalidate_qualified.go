@@ -168,7 +168,7 @@ func main() {
 		}
 
 		if resp.StatusCode != 200 {
-			log.Printf("  ❌ API returned status %d: %s\n", resp.StatusCode, string(body))
+			log.Printf("  ❌ API returned status %d (body withheld: it echoes the submitted address)", resp.StatusCode)
 			failed++
 			continue
 		}
