@@ -15,6 +15,8 @@
     "cf:build": "node ../../scripts/assert-no-dev-server.mjs 3001 \"admin dev server\" && opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion",
     "cf:preview": "node ../../scripts/assert-no-dev-server.mjs 3001 \"admin dev server\" && opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion && opennextjs-cloudflare preview",
     "cf:deploy": "node ../../scripts/assert-no-dev-server.mjs 3001 \"admin dev server\" && opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion && opennextjs-cloudflare deploy",
+    "cf:build:production": "node ../../scripts/assert-no-dev-server.mjs 3001 \"admin dev server\" && opennextjs-cloudflare build --config wrangler.production.jsonc --dangerouslyUseUnsupportedNextVersion",
+    "cf:deploy:production": "node ../../scripts/assert-no-dev-server.mjs 3001 \"admin dev server\" && opennextjs-cloudflare build --config wrangler.production.jsonc --dangerouslyUseUnsupportedNextVersion && opennextjs-cloudflare deploy --config wrangler.production.jsonc",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",

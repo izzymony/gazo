@@ -2,13 +2,28 @@
 
 Deploys `apps/web` and `apps/admin` to Cloudflare Workers as **two separate staging
 Workers**, via [`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare) (not
-`next-on-pages` — see [DEPLOY.md §3.1](./DEPLOY.md)). Production is a *separate* pair
-of Workers with production domains/env — never one Worker that switches.
+`next-on-pages` — see [DEPLOY.md §3.1](./DEPLOY.md)).
 
-| App | Worker name | Domain | Backend it calls |
-|---|---|---|---|
-| `apps/web` | `vibaar-web-staging` | `staging.vibaar.com` | `https://api-staging.vibaar.com/api/v1` |
-| `apps/admin` | `vibaar-admin-staging` | `admin-staging.vibaar.com` | `https://api-staging.vibaar.com/api/v1` |
+> **This document is staging only, and staging is permanent** — it keeps
+> deploying from the **`staging`** branch after production exists. Production is
+> a *separate* pair of Workers, on separate domains, calling a separate API
+> backed by a separate database, built from **`main`** with its own config files
+> (`wrangler.production.jsonc`) and its own `cf:*:production` scripts. Nothing is
+> shared, and no Worker switches environment at runtime.
+> **Production commands and build variables live in
+> [DEPLOY.md §8](./DEPLOY.md)** — do not adapt the staging values below.
+
+| App | Worker name | Domain | Wrangler config | Backend it calls |
+|---|---|---|---|---|
+| `apps/web` | `vibaar-web-staging` | `staging.vibaar.com` | `wrangler.jsonc` | `https://api-staging.vibaar.com/api/v1` |
+| `apps/admin` | `vibaar-admin-staging` | `admin-staging.vibaar.com` | `wrangler.jsonc` | `https://api-staging.vibaar.com/api/v1` |
+
+Their production counterparts, for contrast:
+
+| App | Worker name | Domain | Wrangler config | Backend it calls |
+|---|---|---|---|---|
+| `apps/web` | `vibaar-web` | `vibaar.com`, `www.vibaar.com` | `wrangler.production.jsonc` | `https://api.vibaar.com/api/v1` |
+| `apps/admin` | `vibaar-admin` | `admin.vibaar.com` | `wrangler.production.jsonc` | `https://api.vibaar.com/api/v1` |
 
 Staging backend is already live: `https://api-staging.vibaar.com/api/v1/healthcheck`.
 
@@ -63,15 +78,19 @@ Connect the `Tinovalabs/vibaar` repo, one Worker per app:
 
 **B. Manual CLI from a clone** (needs the token or `wrangler login`):
 ```bash
-# from repo root, env vars from §3 exported (they must be present AT BUILD time):
+# on the `staging` branch; env vars from §3 exported (present AT BUILD time):
 CLOUDFLARE_API_TOKEN=… CLOUDFLARE_ACCOUNT_ID=… pnpm -C apps/web cf:deploy
 CLOUDFLARE_API_TOKEN=… CLOUDFLARE_ACCOUNT_ID=… pnpm -C apps/admin cf:deploy
 ```
+These are the **staging** scripts and they use `wrangler.jsonc`. The production
+pair is `cf:deploy:production` on `main` — see [DEPLOY.md §8.2](./DEPLOY.md).
 Then attach the custom domains in the dashboard (§1.3).
 
 ---
 
 ## 3. Staging build environment variables
+
+> Staging values. The production set is [DEPLOY.md §8.3](./DEPLOY.md).
 
 `NEXT_PUBLIC_*` are **inlined at build time** — they must be set when the build runs
 (dashboard Build vars for method A, or exported before `cf:deploy` for method B), not

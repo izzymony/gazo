@@ -13,6 +13,8 @@
     "cf:build": "CF_BUILD=1 node scripts/playground-guard.mjs run -- opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion",
     "cf:preview": "CF_BUILD=1 node scripts/playground-guard.mjs run -- opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion && opennextjs-cloudflare preview",
     "cf:deploy": "CF_BUILD=1 node scripts/playground-guard.mjs run -- opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion && opennextjs-cloudflare deploy",
+    "cf:build:production": "CF_BUILD=1 node scripts/playground-guard.mjs run -- opennextjs-cloudflare build --config wrangler.production.jsonc --dangerouslyUseUnsupportedNextVersion",
+    "cf:deploy:production": "CF_BUILD=1 node scripts/playground-guard.mjs run -- opennextjs-cloudflare build --config wrangler.production.jsonc --dangerouslyUseUnsupportedNextVersion && opennextjs-cloudflare deploy --config wrangler.production.jsonc",
     "drift": "node scripts/design-drift.mjs",
     "drift:check": "node scripts/design-drift.mjs --check",
     "drift:baseline": "node scripts/design-drift.mjs --update-baseline",
