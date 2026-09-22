@@ -1,23 +1,19 @@
 import React from "react";
+import BuyerShell from "@/features/buyer-shell/BuyerShell";
 
 /**
  * Buyer route-group frame.
  *
- * PageShell owns its own header/scroll/footer, but it needs a height-bounded,
- * positioned parent for that to work: `main`'s `overflow-y-auto` only engages
- * when `h-full` resolves against a fixed height, and the absolute mobile header
- * positions against the nearest positioned ancestor. The seller side gets this
- * from the dashboard layout; buyer pages had nothing, so the whole document
- * scrolled and sticky headers/tabs + fixed floating nav all broke.
+ * Everything structural lives in `BuyerShell` — the height-bounded positioned
+ * container `PageShell` needs, and the single mount point for buyer navigation.
+ * Pages render their content and nothing else; none of them decides whether
+ * navigation exists.
  *
- * This is the buyer parallel of that frame: one `h-dvh` positioned container.
+ * Modal slots are declared per SEGMENT (see cart/layout.tsx and
+ * profile/shipping-address/layout.tsx), not here. A slot at this group root is
+ * an ancestor of all 26 buyer routes, which is what made it attractive for
+ * checkout's four entry points — and Next's router crashed on it.
  */
-export default function BuyerLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="relative h-dvh w-full overflow-hidden">{children}</div>
-  );
+export default function BuyerLayout({ children }: { children: React.ReactNode }) {
+  return <BuyerShell>{children}</BuyerShell>;
 }

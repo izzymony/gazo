@@ -1,9 +1,35 @@
+import { apiBase } from './apiUrl';
+/**
+ * An HTTP failure that keeps what the server said.
+ *
+ * `message` is the server's own text when it sent any, so existing callers
+ * reading `error.message` show something useful without changing. `status` and
+ * `payload` are there for the cases that need to branch — a 503 from a disabled
+ * subsystem is not the same thing as a 400.
+ */
+export class ApiError extends Error {
+  readonly status: number;
+  readonly payload: Record<string, unknown>;
+  readonly reason?: string;
+
+  constructor(message: string, status: number, payload: Record<string, unknown> = {}) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.payload = payload;
+    this.reason = typeof payload.reason === 'string' ? payload.reason : undefined;
+  }
+}
+
 class ApiClient {
   private baseURL: string;
   private token: string | null = null;
 
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8088/api/v1';
+    // Normalised through the same helper as config.ts, so a bare origin here
+    // gains the /api/v1 prefix instead of silently 404ing every request, and a
+    // doubly versioned value cannot produce /api/v1/api/v1.
+    this.baseURL = apiBase(process.env.NEXT_PUBLIC_API_BASE_URL);
     
     if (typeof window !== 'undefined') {
       this.token = localStorage.getItem('admin_token');
@@ -57,7 +83,25 @@ class ApiClient {
             window.location.href = '/auth/login';
           }
         }
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // The server's explanation used to be thrown away here, so every
+        // failure in the admin app read "HTTP error! status: 400" — including
+        // ones written for the admin, like a withdrawal that could not be
+        // approved because payouts are switched off. The body is parsed when
+        // there is one, and the status is carried so callers can tell "this
+        // request was wrong" from "the platform cannot do this right now".
+        let payload: Record<string, unknown> = {};
+        try {
+          payload = await response.json();
+        } catch {
+          // Not JSON, or empty. The status is still meaningful.
+        }
+        const detail =
+          typeof payload.error === 'string'
+            ? payload.error
+            : typeof payload.message === 'string'
+              ? payload.message
+              : `HTTP error! status: ${response.status}`;
+        throw new ApiError(detail, response.status, payload);
       }
 
       return await response.json();
@@ -271,6 +315,11 @@ class ApiClient {
       limit: number;
       total: number;
       totalPages: number;
+      // Whole-table tallies per status, independent of this request's filter
+      // and page — the admin badges used to count the fetched rows, which made
+      // them wrong past page one. Optional: absent on an older backend, and the
+      // UI then shows no badges rather than wrong ones.
+      counts?: { status: string; count: number; amount: number }[];
     }>(`/admin/get-withdrawal-requests?${params}`);
   }
 

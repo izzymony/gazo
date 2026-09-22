@@ -29,7 +29,7 @@ const Step3ReadyToSell = ({ formik }: Step3Props) => {
                 <H1 className="text-h1 text-start">
                     Ready to Sell!
                 </H1>
-                <p className="text-body mt-3 text-ink-40 text-start">
+                <p className="text-body mt-3 text-foreground-muted text-start">
                     Almost there! Just a few final touches 🎯
                 </p>
 
@@ -45,7 +45,7 @@ const Step3ReadyToSell = ({ formik }: Step3Props) => {
                         error={formik.errors.inventoryStocks as string}
                     />
                     {isStockAutoCalculated && (
-                        <div className="text-blue-600 text-body-sm mt-1">
+                        <div className="text-info-foreground text-body-sm mt-1">
                             ✓ Auto-calculated from {formik.values?.variations?.length || 0} variant combinations
                         </div>
                     )}

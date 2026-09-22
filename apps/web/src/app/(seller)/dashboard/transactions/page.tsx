@@ -2,7 +2,7 @@
 "use client";
 
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Section from "@vibaar/ui/common/Section";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import FilterBar from "@vibaar/ui/common/FilterBar";
@@ -36,9 +36,8 @@ export default function Page() {
     <PageShell
       header={
         <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="Transaction history"
+          onBack={() => router.back()}
+          title="Transaction history"
         />
       }>
       {transactions.length > 0 ? (

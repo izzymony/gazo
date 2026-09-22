@@ -110,7 +110,7 @@ export default function UserDetailView({ userId }: UserDetailViewProps) {
                 />
               ) : (
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand to-brandLight flex items-center justify-center">
-                  <span className="text-white font-medium text-lg">
+                  <span className="text-brandInk font-medium text-lg">
                     {getUserInitials(user.firstname, user.lastname)}
                   </span>
                 </div>

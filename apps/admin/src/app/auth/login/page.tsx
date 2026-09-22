@@ -92,7 +92,7 @@ export default function LoginPage() {
             <div className="mb-4">
               <Logo width={180} height={32} className="mx-auto" />
             </div>
-            <H2 className="text-base font-semibold text-brand text-center">
+            <H2 className="text-base font-semibold text-brandDeep text-center">
               Admin Portal
             </H2>
           </div>
@@ -153,13 +153,13 @@ export default function LoginPage() {
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
                     disabled={isLoading}
-                    className="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand focus:ring-offset-0 disabled:opacity-50"
+                    className="h-4 w-4 rounded border-gray-300 text-brandDeep focus:ring-brandDeep focus:ring-offset-0 disabled:opacity-50"
                   />
                   <label htmlFor="remember" className="ml-3 text-sm font-medium text-gray-600">
                     Remember me (90 days)
                   </label>
                 </div>
-                <a href="#" className="text-sm text-brand hover:text-brandDark font-medium transition-colors">
+                <a href="#" className="text-sm text-brandDeep hover:text-brandDark font-medium transition-colors">
                   Forgot password?
                 </a>
               </div>
@@ -168,7 +168,7 @@ export default function LoginPage() {
               {isLoading && (
                 <div className="flex items-center justify-center py-2">
                   <div className="flex items-center space-x-2 text-gray-600">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-brand"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-brandDeep"></div>
                     <span className="text-sm">Authenticating...</span>
                   </div>
                 </div>
@@ -191,7 +191,7 @@ export default function LoginPage() {
             <form onSubmit={handleMFASubmit} className="space-y-6">
               <div className="text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-brand/20 to-brandLight/20 rounded-xl mb-4">
-                  <Shield className="h-8 w-8 text-brand" />
+                  <Shield className="h-8 w-8 text-brandDeep" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 mb-2">
                   Two-Factor Authentication
@@ -244,8 +244,8 @@ export default function LoginPage() {
           {/* Security Notice */}
           <div className="mt-8 pt-6 border-t border-gray-200">
             <div className="flex items-center justify-center mb-2">
-              <Shield className="h-4 w-4 text-brand mr-2" />
-              <span className="text-xs font-semibold text-brand">Secure Admin Portal</span>
+              <Shield className="h-4 w-4 text-brandDeep mr-2" />
+              <span className="text-xs font-semibold text-brandDeep">Secure Admin Portal</span>
             </div>
             <p className="text-xs text-center text-gray-500 leading-relaxed">
               This is a secure Vibaar administrative portal. All activities are logged and monitored.

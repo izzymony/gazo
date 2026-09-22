@@ -1,5 +1,6 @@
 import React from "react";
 import { cn } from "@vibaar/utils";
+import { peerFocusRing } from "../styles";
 
 interface Option {
   label: string;
@@ -9,6 +10,8 @@ interface Option {
 }
 
 interface RadioGroupProps {
+  /** Accessible name for the group as a whole. */
+  label?: string;
   options: Option[];
   name: string;
   selectedValue: string | null;
@@ -23,7 +26,7 @@ const Indicator = ({ selected }: { selected: boolean }) => (
   <div
     className={cn(
       "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors",
-      selected ? "border-brand" : "border-ink-30"
+      selected ? "border-brandDeep" : "border-outline-emphasis"
     )}>
     {selected && <div className="w-2.5 h-2.5 rounded-full bg-brand" />}
   </div>
@@ -36,6 +39,7 @@ const Indicator = ({ selected }: { selected: boolean }) => (
  */
 const RadioGroup: React.FC<RadioGroupProps> = ({
   options,
+  label,
   name,
   selectedValue,
   onChange,
@@ -44,15 +48,15 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 }) => {
   if (orientation === "column") {
     return (
-      <div className={cn("flex flex-col gap-4", className)}>
+      <div role="radiogroup" aria-label={label} className={cn("flex flex-col gap-4", className)}>
         {options.map((option) => (
           <label
             key={option.value}
             className={cn(
               "flex justify-between items-center p-3 border rounded-field cursor-pointer transition-colors",
               selectedValue === option.value
-                ? "border-brand bg-brand/5"
-                : "border-ink-10"
+                ? "border-brandDeep bg-brand/5"
+                : "border-outline"
             )}>
             <div className="flex items-center gap-4">
               <input
@@ -61,22 +65,24 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
                 value={option.value}
                 checked={selectedValue === option.value}
                 onChange={(e) => onChange(e.target.value)}
-                className="hidden"
+                className="sr-only peer"
               />
-              <Indicator selected={selectedValue === option.value} />
+              <span className={`${peerFocusRing} rounded-full`}>
+                <Indicator selected={selectedValue === option.value} />
+              </span>
               <div className="flex flex-col">
-                <p className="font-normal text-body text-ink-90">
+                <p className="font-normal text-body text-foreground-primary">
                   {option.label}
                 </p>
                 {option.days && (
-                  <p className="text-caption text-ink-60 font-normal">
+                  <p className="text-caption text-foreground-secondary font-normal">
                     {option.days}
                   </p>
                 )}
               </div>
             </div>
             {option.price && (
-              <p className="font-medium text-body text-ink-90">
+              <p className="font-medium text-body text-foreground-primary">
                 {option.price}
               </p>
             )}
@@ -87,7 +93,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
   }
 
   return (
-    <div className={cn("flex gap-2 items-center w-full", className)}>
+    <div role="radiogroup" aria-label={label} className={cn("flex gap-2 items-center w-full", className)}>
       {options.map((option) => (
         <label
           key={option.value}
@@ -98,10 +104,12 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
             value={option.value}
             checked={selectedValue === option.value}
             onChange={(e) => onChange(e.target.value)}
-            className="hidden"
+            className="sr-only peer"
           />
-          <Indicator selected={selectedValue === option.value} />
-          <span className="text-body text-ink-90">{option.label}</span>
+          <span className={`${peerFocusRing} rounded-full`}>
+                <Indicator selected={selectedValue === option.value} />
+              </span>
+          <span className="text-body text-foreground-primary">{option.label}</span>
         </label>
       ))}
     </div>

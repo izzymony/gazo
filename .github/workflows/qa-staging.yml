@@ -1,0 +1,86 @@
+name: QA (staging)
+
+# Manual dispatch ONLY, on purpose.
+#
+# The `staging` Environment holding QA_SELLER_* has to exist before this can do
+# anything, and a schedule that fires before the secrets are added just produces
+# red runs nobody trusts. Enable the triggers below once a manual run is green.
+#
+# Deliberately NOT triggered on push: Cloudflare and Render deploy
+# asynchronously, so a push-triggered run races the deployment and tests the
+# OLD build. Run this after a deployment completes, not after a commit lands.
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "Which suite to run"
+        type: choice
+        options: [smoke, core, both]
+        default: smoke
+      seed:
+        description: "Re-seed before running (core needs a seeded environment)"
+        type: boolean
+        default: false
+  # schedule:
+  #   - cron: "0 3 * * *"   # core nightly — enable after the Environment exists
+
+# One QA run at a time. Core mutates a single shared seller, cart and product
+# fixture on staging; two overlapping runs corrupt each other's data rather than
+# failing honestly.
+concurrency:
+  group: qa-staging
+  cancel-in-progress: false
+
+jobs:
+  qa:
+    name: QA against staging
+    runs-on: ubuntu-latest
+    # Supplies QA_SELLER_EMAIL / QA_SELLER_PASSWORD. Create it in
+    # Settings → Environments → "staging".
+    environment: staging
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+
+      # Smoke needs no credentials at all — that is the point of it.
+      - name: Smoke
+        if: inputs.suite == 'smoke' || inputs.suite == 'both'
+        run: pnpm qa:smoke
+
+      - name: Seed
+        if: inputs.seed && (inputs.suite == 'core' || inputs.suite == 'both')
+        run: pnpm qa:seed
+        env:
+          QA_SELLER_EMAIL: ${{ secrets.QA_SELLER_EMAIL }}
+          QA_SELLER_PASSWORD: ${{ secrets.QA_SELLER_PASSWORD }}
+
+      # Core FAILS without credentials rather than skipping, so a missing secret
+      # shows up as a red run instead of a green one that tested nothing.
+      - name: Core
+        if: inputs.suite == 'core' || inputs.suite == 'both'
+        run: pnpm qa:core
+        env:
+          QA_SELLER_EMAIL: ${{ secrets.QA_SELLER_EMAIL }}
+          QA_SELLER_PASSWORD: ${{ secrets.QA_SELLER_PASSWORD }}
+
+      # Both directories: playwright-report/ is the HTML report, test-results/
+      # holds the traces and failure screenshots that actually explain a failure.
+      - name: Upload report and traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-staging-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+          if-no-files-found: ignore

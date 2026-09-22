@@ -57,9 +57,9 @@ export default function Button({
 
   // Color variants - maintaining exact brand colors and styles
   const variantClasses = {
-    filled: "bg-brand text-white hover:bg-red-600 active:bg-red-700",
-    bordered: "border border-brand text-brand bg-white hover:bg-red-50 active:bg-red-100",
-    ghost: "text-brand bg-transparent hover:bg-red-50 active:bg-red-100",
+    filled: "bg-brand text-brandInk hover:bg-red-600 active:bg-red-700",
+    bordered: "border border-brandDeep text-brandDeep bg-white hover:bg-red-50 active:bg-red-100",
+    ghost: "text-brandDeep bg-transparent hover:bg-red-50 active:bg-red-100",
     filter: "bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300"
   };
 
@@ -73,7 +73,7 @@ export default function Button({
 
   // Apply brand shadow only to filled variant when not disabled
   const buttonStyle = {
-    boxShadow: variant === "filled" && !isDisabled ? '4px 8px 24px 0px #FE2C5533' : undefined,
+    boxShadow: variant === "filled" && !isDisabled ? '4px 8px 24px 0px rgba(20, 19, 14, 0.18)' : undefined,
     WebkitTapHighlightColor: 'transparent',
     userSelect: 'none' as const,
     WebkitUserSelect: 'none' as const,

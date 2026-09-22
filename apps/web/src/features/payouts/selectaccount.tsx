@@ -4,8 +4,7 @@
 import useBusinessStore from "@/store/businessStore";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import { useRouter } from "next/navigation";
-import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import ResponsiveRouteDialog from "@vibaar/ui/common/ResponsiveRouteDialog";
 import Section from "@vibaar/ui/common/Section";
 import Button from "@vibaar/ui/common/Button";
 import { Bank, ChevronRight } from "@vibaar/ui/icons";
@@ -30,7 +29,7 @@ export const BankCard = ({
   bankname: string;
   id: string;
 }) => (
-  <div
+  <button type="button"
     onClick={() =>
       action({
         accountname: accountname,
@@ -39,30 +38,46 @@ export const BankCard = ({
         id: id,
       })
     }
-    className="justify-between items-center flex gap-4 border border-ink-10 rounded-field py-3 ps-3 pe-3">
-    <div className="w-10 h-10 rounded-field bg-white border border-ink-10 flex items-center justify-center shrink-0">
-      <Bank size={22} className="text-ink-90" />
+    className="text-left justify-between items-center flex gap-4 border border-outline rounded-field py-3 ps-3 pe-3">
+    <div className="w-10 h-10 rounded-field bg-surface border border-outline flex items-center justify-center shrink-0">
+      <Bank size={22} className="text-foreground-primary" />
     </div>
     <div className="flex-1">
       <div className="flex gap-2 items-center">
-        <p className="text-body text-ink-90 font-medium">
+        <p className="text-body text-foreground-primary font-medium">
           {bankname.slice(0, 3) || "ACC"}-Ending in {"  "}
           {accountnumber.slice(-4)}
         </p>
         {isDefault && (
-          <span className="rounded-pill bg-brand/10 text-brand text-caption font-medium px-2 py-0.5">
+          <span className="rounded-pill bg-brand/10 text-brandDeep text-caption font-medium px-2 py-0.5">
             Default
           </span>
         )}
       </div>
-      <p className="text-caption text-ink-60 font-normal">
+      <p className="text-caption text-foreground-secondary font-normal">
         {accountname || "acc"}
       </p>
     </div>
-    <ChevronRight size={20} className="text-ink-90 shrink-0" />
-  </div>
+    <ChevronRight size={20} className="text-foreground-primary shrink-0" />
+  </button>
 );
 
+/**
+ * Dialog family 1 — choosing which account a withdrawal lands in.
+ *
+ * The one family with NO route of its own: it is a state inside
+ * /dashboard/payouts/withdraw, so there is nothing to intercept and nothing to
+ * paste into a URL bar. It reuses `ResponsiveRouteDialog` anyway, because the
+ * presentation requirement is identical — a full screen on a phone, a bounded
+ * panel over the page at lg — and `onClose` is the only thing that differs: a
+ * state change here, `router.back()` on the five route-backed families.
+ *
+ * It used to REPLACE the withdraw screen entirely, as a sibling `PageShell` in
+ * the same state machine. On a phone that reads the same; on a desktop it meant
+ * the amount you had just typed vanished behind a second full page to answer one
+ * question. The withdraw screen now stays mounted underneath, which also means
+ * the entered amount is visibly preserved rather than merely retained in state.
+ */
 export default function SelectAccount({
   action,
   goBack,
@@ -80,12 +95,9 @@ export default function SelectAccount({
   const router = useRouter();
 
   return (
-    <PageShell
-      header={
-        <Header showBack onBackClick={goBack} customText="Select account" />
-      }>
+    <ResponsiveRouteDialog title="Select account" onClose={goBack} size="md">
       <Section>
-        <p className="text-ink-90 font-medium text-h1">
+        <p className="text-foreground-primary font-medium text-h1">
           Which account would you like to withdraw to?
         </p>
       </Section>
@@ -120,6 +132,6 @@ export default function SelectAccount({
           </div>
         )}
       </Section>
-    </PageShell>
+    </ResponsiveRouteDialog>
   );
 }

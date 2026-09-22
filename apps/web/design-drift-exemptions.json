@@ -1,0 +1,35 @@
+{
+  "_comment": [
+    "Documented exemptions for the design-drift audit (scripts/design-drift.mjs).",
+    "An exemption is a claim that a value CANNOT be a design token, not that",
+    "swapping it is inconvenient. Every entry carries a reason. Anything not",
+    "listed here counts toward the ratcheted baseline.",
+    "",
+    "allowedHex: colours owned by a third party. A social platform's brand",
+    "colour is fixed by that platform — tokenising it would be wrong, because a",
+    "vibaar rebrand must NOT change Instagram's pink.",
+    "",
+    "files: per-path category exemptions, for surfaces where a category is",
+    "structurally unavoidable (e.g. hand-drawn marketing illustration SVGs)."
+  ],
+
+  "allowedHex": {
+    "#FFDD55": "Instagram brand gradient stop",
+    "#FFCC00": "Instagram brand gradient stop",
+    "#FF543E": "Instagram brand gradient stop",
+    "#C837AB": "Instagram brand gradient stop",
+    "#6600FF": "Instagram brand gradient stop",
+    "#FF004F": "TikTok brand red",
+    "#00F2EA": "TikTok brand cyan",
+    "#25D366": "WhatsApp brand green",
+    "#3771C8": "Telegram brand blue"
+  },
+
+  "files": [
+    {
+      "path": "apps/web/src/features/addresses/ShippingProfileScreen.tsx",
+      "categories": ["native-button"],
+      "reason": "The shipping-profile row is a selectable card that ALSO carries a dropdown menu. `SelectableCard` renders the whole card as a button, so using it here would nest the menu's button inside it, which is invalid HTML. The row's selectable region is therefore a bare `<button>`: it is a real button with `aria-pressed`, replacing a `div onClick` that was not focusable and ignored Enter and Space. Reverting to a primitive means restructuring the row so the menu sits outside the card, which is a visual change to a checkout surface and belongs in its own reviewed pass."
+    }
+  ]
+}

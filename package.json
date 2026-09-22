@@ -9,11 +9,20 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "turbo run lint",
+    "lint": "turbo run lint && node scripts/check-copy-claims.mjs",
     "type-check": "turbo run type-check",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "ui:adoption": "node scripts/check-ui-adoption.cjs",
+    "qa": "playwright test --config=tests/qa/playwright.config.mjs",
+    "qa:staging": "playwright test --config=tests/qa/playwright.config.mjs",
+    "qa:smoke": "playwright test --config=tests/qa/playwright.config.mjs --project=smoke --project=smoke-mobile",
+    "qa:core": "playwright test --config=tests/qa/playwright.config.mjs --project=core",
+    "qa:seed": "node scripts/qa/seed-staging.mjs",
+    "copy:claims": "node scripts/check-copy-claims.mjs",
+    "copy:claims:self-test": "node scripts/check-copy-claims.mjs --self-test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "turbo": "^2.3.3"
   },
   "pnpm": {

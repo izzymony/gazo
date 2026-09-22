@@ -549,7 +549,7 @@ export default function SystemSettingsPage() {
                   onClick={() => setActiveTab(tab.key)}
                   className={`w-full flex items-center px-4 py-3 rounded-xl text-left transition-colors ${
                     activeTab === tab.key
-                      ? "bg-brand text-white shadow-soft"
+                      ? "bg-brand text-brandInk shadow-soft"
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >

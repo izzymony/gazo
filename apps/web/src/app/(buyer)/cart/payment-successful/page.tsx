@@ -2,7 +2,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import { useRouter, useSearchParams } from "next/navigation";
 import useOrderStore from "@/store/orderStore";
 import { formatCurrency } from "@/lib/utils";
@@ -91,14 +91,6 @@ const PaymentSucceful = () => {
     // Use order_id if available, otherwise try to get order by reference
     const orderIdToUse = orderId || reference;
     
-    console.log("Payment Success Page Debug:", {
-      orderId,
-      reference,
-      orderIdToUse,
-      user: !!user,
-      guestId,
-      order: order
-    });
     
     if (orderIdToUse) {
       // Check if orderIdToUse looks like an invoice (short alphanumeric) vs UUID (long with dashes)
@@ -106,17 +98,13 @@ const PaymentSucceful = () => {
       
       if (isInvoiceFormat) {
         // If it's an invoice format (from payment redirect), always use public endpoint
-        console.log("Using public endpoint for invoice format:", orderIdToUse);
         getOrderByIdPublic(orderIdToUse);
       } else if (user) {
-        console.log("Fetching order for user:", orderIdToUse);
         getOrderById(orderIdToUse);
       } else if (guestId) {
-        console.log("Fetching order for guest:", guestId, orderIdToUse);
         getGuestOrdersById(guestId as string, orderIdToUse);
       } else {
         // Fallback to public endpoint
-        console.log("No user/guest context, using public order fetch:", orderIdToUse);
         getOrderByIdPublic(orderIdToUse);
       }
     }
@@ -146,24 +134,24 @@ const PaymentSucceful = () => {
   if (paymentStatus === "failed") {
     return (
       <PageShell
-        header={<Header showBack onBackClick={() => router.back()} />}>
+        header={<Header onBack={() => router.back()} />}>
         <div className="w-full flex flex-col items-center text-center">
           <div className="w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center mb-6 mt-10">
-            <span className="text-brand text-h1 font-semibold">!</span>
+            <span className="text-brandDeep text-h1 font-semibold">!</span>
           </div>
           <p className="text-h1 font-medium mb-2">Payment not confirmed</p>
-          <p className="text-ink-60 text-body font-normal mb-1 max-w-[320px]">
+          <p className="text-foreground-secondary text-body font-normal mb-1 max-w-[320px]">
             We couldn&apos;t confirm your payment. If your account was charged it may
             take a moment to reflect — please check your orders before paying again.
           </p>
           <button
             onClick={() => router.push("/orders")}
-            className="text-brand border border-brand w-full max-w-[320px] rounded-full px-10 py-2 font-medium mx-auto block mt-8">
+            className="text-brandDeep border border-brandDeep w-full max-w-[320px] rounded-full px-10 py-2 font-medium mx-auto block mt-8 lg:w-fit lg:min-w-action lg:ml-auto lg:mr-0">
             View my orders
           </button>
           <button
             onClick={() => router.push("/cart")}
-            className="text-white bg-brand w-full max-w-[320px] rounded-full px-10 py-2 font-medium mx-auto block mt-3">
+            className="text-brandInk bg-brand w-full max-w-[320px] rounded-full px-10 py-2 font-medium mx-auto block mt-3 lg:w-fit lg:min-w-action lg:ml-auto lg:mr-0">
             Back to cart
           </button>
         </div>
@@ -173,7 +161,7 @@ const PaymentSucceful = () => {
 
   return (
     <PageShell
-      header={<Header showBack onBackClick={() => router.back()} />}>
+      header={<Header onBack={() => router.back()} />}>
       <div className="w-full">
         <div className="w-full flex justify-center items-center mb-6">
           <svg
@@ -183,8 +171,8 @@ const PaymentSucceful = () => {
             fill="none"
             xmlns="http://www.w3.org/2000/svg">
             <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
+              fillRule="evenodd"
+              clipRule="evenodd"
               d="M51.5314 68.1673C66.259 68.1673 78.1981 56.2282 78.1981 41.5007C78.1981 26.7731 66.259 14.834 51.5314 14.834C36.8038 14.834 24.8647 26.7731 24.8647 41.5007C24.8647 56.2282 36.8038 68.1673 51.5314 68.1673ZM66.3548 34.8347C67.0916 34.0118 67.0217 32.7474 66.1988 32.0106C65.3759 31.2738 64.1115 31.3437 63.3747 32.1666L54.3902 42.2017C52.5697 44.2352 51.3437 45.5974 50.2955 46.4784C49.2969 47.3177 48.7104 47.5007 48.1981 47.5007C47.6857 47.5007 47.0992 47.3177 46.1007 46.4784C45.0525 45.5974 43.8265 44.2352 42.0059 42.2017L39.6881 39.6129C38.9514 38.79 37.687 38.7201 36.864 39.4569C36.0411 40.1937 35.9712 41.4581 36.708 42.281L39.1248 44.9805C40.8204 46.8745 42.2347 48.4543 43.527 49.5405C44.8941 50.6895 46.3685 51.5007 48.1981 51.5007C50.0276 51.5007 51.5021 50.6895 52.8691 49.5405C54.1614 48.4543 55.5757 46.8745 57.2713 44.9805L66.3548 34.8347Z"
               fill="#06C270"
             />
@@ -206,19 +194,19 @@ const PaymentSucceful = () => {
           <p className="text-h1 font-medium mb-2 text-center">
             Payment successful!
           </p>
-          <p className="text-ink-60 text-center text-body font-normal mb-1">
+          <p className="text-foreground-secondary text-center text-body font-normal mb-1">
             Your payment has been successfully confirmed.
           </p>
-          <p className="text-ink-60 text-center text-body font-normal mb-8">
+          <p className="text-foreground-secondary text-center text-body font-normal mb-8">
             Thank you for shopping on Vibaar.
           </p>
         </div>
-        <div className="border border-brand bg-brand/10 rounded-field p-3 space-y-3 text-body-sm font-medium mb-2 mt-10">
+        <div className="border border-brandDeep bg-brand/10 rounded-field p-3 space-y-3 text-body-sm font-medium mb-2 mt-10">
           <div className="flex justify-between font-medium">
-            <div className="text-ink-60 flex-1">Order ID:</div> {order?.order?.invoice || "Loading..."}
+            <div className="text-foreground-secondary flex-1">Order ID:</div> {order?.order?.invoice || "Loading..."}
           </div>
           <div className="flex justify-between">
-            <div className="text-ink-60">Total paid :</div>{" "}
+            <div className="text-foreground-secondary">Total paid :</div>{" "}
             {formatCurrency(
               order?.order?.total && order.order.total > 0 ? 
                 order.order.total : 
@@ -226,11 +214,11 @@ const PaymentSucceful = () => {
             )}
           </div>
           <div className="flex justify-between">
-            <div className="text-ink-60">Payment via :</div>{" "}
+            <div className="text-foreground-secondary">Payment via :</div>{" "}
             Paystack
           </div>
           <div className="flex justify-between items-start">
-            <div className="text-ink-60 flex-shrink-0 mr-2">Shipping to:</div>
+            <div className="text-foreground-secondary flex-shrink-0 mr-2">Shipping to:</div>
             <div className="text-right text-body-sm flex-1 max-w-[200px]">
               <div className="break-words overflow-hidden" style={{
                 display: '-webkit-box',
@@ -248,7 +236,7 @@ const PaymentSucceful = () => {
             </div>
           </div>
           <div className="flex justify-between">
-            <div className="text-ink-60">Estimated delivery:</div>{" "}
+            <div className="text-foreground-secondary">Estimated delivery:</div>{" "}
             7–10 business days
           </div>
         </div>
@@ -257,10 +245,10 @@ const PaymentSucceful = () => {
             <p className="text-h1 font-medium mb-2 text-center">
               Track your Order
             </p>
-            <p className="text-ink-60 text-center text-body font-normal mb-1">
+            <p className="text-foreground-secondary text-center text-body font-normal mb-1">
               Complete account setup to
             </p>
-            <p className="text-ink-60 text-center text-body font-normal mb-8">
+            <p className="text-foreground-secondary text-center text-body font-normal mb-8">
               manage and track your order
             </p>
             <Image
@@ -290,7 +278,7 @@ const PaymentSucceful = () => {
                   router.replace(`/signin?${signinParams.toString()}`);
                 }
           }
-          className="text-white bg-brand w-full rounded-full px-10 md:px-24 py-2 font-medium mx-auto block mt-6">
+          className="text-brandInk bg-brand w-full rounded-full px-10 md:px-24 py-2 font-medium mx-auto block mt-6 lg:w-fit lg:min-w-action lg:ml-auto lg:mr-0">
           {user ? "View order details" : "Sign in"}
         </button>
       </div>

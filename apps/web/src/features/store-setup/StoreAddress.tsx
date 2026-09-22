@@ -67,7 +67,7 @@ const ModalHead = ({
   type: "country" | "category" | "bank";
 }) => (
   <div className="w-full flex flex-col items-center space-y-4">
-    <p className="text-ink-90 text-body-lg font-medium ">
+    <p className="text-foreground-primary text-body-lg font-medium ">
       Select a{" "}
       {type === "country"
         ? "country"
@@ -106,8 +106,8 @@ const CountryComponent = ({
     onClick={click}
     className={
       selectedCountry.name === item.name
-        ? "flex text-body font-normal items-center relative text-ink-90 px-1 py-2 rounded-field bg-brand/10 border-brand border justify-between"
-        : "flex text-body font-normal relative items-center text-ink-90 px-1 py-2 rounded-field justify-between"
+        ? "flex text-body font-normal items-center relative text-foreground-primary px-1 py-2 rounded-field bg-brand/10 border-brandDeep border justify-between"
+        : "flex text-body font-normal relative items-center text-foreground-primary px-1 py-2 rounded-field justify-between"
     }>
     <div className="flex gap-1 items-center">
       {type === "category" ? (
@@ -148,9 +148,9 @@ const CategoryComponent = ({
   setSelect: (val: string[]) => void;
 }) => {
   return (
-    <div className="w-full p-2 bg-white border-b ">
+    <div className="w-full p-2 bg-surface border-b ">
       {/* Main Category */}
-      <div
+      <button type="button"
         onClick={() => {
           if (select.includes(item.name)) {
             setSelect(select.filter((it) => it !== item.name));
@@ -159,14 +159,14 @@ const CategoryComponent = ({
           }
           setSelected(item);
         }}
-        className="flex cursor-pointer text-body font-normal relative items-center text-ink-90 px-2 py-2 rounded-field">
+        className="text-left w-full flex cursor-pointer text-body font-normal relative items-center text-foreground-primary px-2 py-2 rounded-field">
         {item.name}
 
         <span
-          className="absolute z-[999] right-4 top-[50%] transform -translate-y-1/2 cursor-pointer text-ink-40">
+          className="absolute z-[999] right-4 top-[50%] transform -translate-y-1/2 cursor-pointer text-foreground-muted">
           <BiChevronDown size={25} />
         </span>
-      </div>
+      </button>
 
       {/* Subcategories (Expandable) */}
       {select.includes(item.name) && item.sub_categories && (
@@ -177,8 +177,8 @@ const CategoryComponent = ({
               onClick={() => setSubSelected(sub)}
               className={
                 subSelected.name === sub.name
-                  ? "flex text-body font-normal items-center relative text-ink-90 px-4 py-3 justify-between rounded-field bg-brand/10 border-brand border"
-                  : "flex text-body font-normal relative items-center justify-between text-ink-90 px-4 py-3 rounded-field"
+                  ? "flex text-body font-normal items-center relative text-foreground-primary px-4 py-3 justify-between rounded-field bg-brand/10 border-brandDeep border"
+                  : "flex text-body font-normal relative items-center justify-between text-foreground-primary px-4 py-3 rounded-field"
               }>
               {`${sub.name}`}
 
@@ -206,13 +206,13 @@ const BasicCategoryComponent = ({
   setSelected: (val: BasicCategory) => void;
 }) => {
   return (
-    <div className="w-full p-2 bg-white border-b ">
+    <div className="w-full p-2 bg-surface border-b ">
       <div
         onClick={() => setSelected(item)}
         className={
           selected.id === item.id
-            ? "flex cursor-pointer text-body font-normal items-center relative text-ink-90 px-2 py-2 rounded-field bg-brand/10 border-brand border"
-            : "flex cursor-pointer text-body font-normal relative items-center text-ink-90 px-2 py-2 rounded-field"
+            ? "flex cursor-pointer text-body font-normal items-center relative text-foreground-primary px-2 py-2 rounded-field bg-brand/10 border-brandDeep border"
+            : "flex cursor-pointer text-body font-normal relative items-center text-foreground-primary px-2 py-2 rounded-field"
         }>
         <span className="text-xl mr-3">{item.icon}</span>
         {item.name}

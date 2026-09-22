@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import Button from "@vibaar/ui/common/Button";
 import Section from "@vibaar/ui/common/Section";
-import Card from "@vibaar/ui/common/Card";
+import Surface from "@vibaar/ui/common/Surface";
 import Switch from "@vibaar/ui/common/Switch";
 import InputField from "@vibaar/ui/common/InputField";
 import Dialog from "@vibaar/ui/common/Dialog";
@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import useBusinessStore from "@/store/businessStore";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import Badge from "@vibaar/ui/common/Badge";
 
 type ZoneKey = "local" | "interstate" | "international";
 // A zone's stored shape (maps 1:1 onto backend ZoneRate). "Configured" is
@@ -48,8 +49,8 @@ const serialize = (z: Zones, partner: boolean) => JSON.stringify({ z, partner })
 // A quiet leading icon in a rounded container, shared by every row so the
 // screen reads as one system.
 const RowIcon = ({ icon: Icon }: { icon: typeof DeliveryTruck }) => (
-  <div className="shrink-0 w-9 h-9 rounded-field bg-ink-3 flex items-center justify-center">
-    <Icon size={18} className="text-ink-60" />
+  <div className="shrink-0 w-9 h-9 rounded-field bg-surface-subtle flex items-center justify-center">
+    <Icon size={18} className="text-foreground-secondary" />
   </div>
 );
 
@@ -95,8 +96,8 @@ const EtaPresets = ({
             className={cn(
               "h-9 px-3 rounded-full border text-body-sm transition-colors",
               selected
-                ? "border-brand bg-brand/5 text-brand font-medium"
-                : "border-ink-10 text-ink-60"
+                ? "border-brandDeep bg-brand/5 text-brandDeep font-medium"
+                : "border-outline text-foreground-secondary"
             )}>
             {preset}
           </button>
@@ -106,6 +107,11 @@ const EtaPresets = ({
   );
 };
 
+/**
+ * Coverage marker. Its private ok/off/warn vocabulary and colour table — one of
+ * which (`bg-orange-50 text-orange-600`) was raw palette and below the contrast
+ * bar — are gone; it now names a shared tone and lets `Badge` render it.
+ */
 const CovPill = ({
   label,
   tone,
@@ -113,15 +119,11 @@ const CovPill = ({
   label: string;
   tone: "ok" | "off" | "warn";
 }) => (
-  <span
-    className={cn(
-      "text-caption font-medium px-2.5 py-1 rounded-full shrink-0",
-      tone === "ok" && "bg-green-50 text-green-700",
-      tone === "off" && "bg-ink-3 text-ink-60",
-      tone === "warn" && "bg-orange-50 text-orange-600"
-    )}>
+  <Badge
+    tone={tone === "ok" ? "success" : tone === "warn" ? "orange" : "neutral"}
+    className="shrink-0 font-medium">
     {label}
-  </span>
+  </Badge>
 );
 
 // The outcome, up top: what checkout will actually offer, derived from the SAME
@@ -151,16 +153,16 @@ const CoverageStrip = ({
   const intlCovered = intlSelf || partnerEnabled;
 
   return (
-    <Card>
+    <Surface>
       <div className="flex items-center gap-2 mb-1">
-        <DeliveryTruck size={18} className="text-ink-90" />
-        <p className="text-body font-medium text-ink-90">Where buyers can order</p>
+        <DeliveryTruck size={18} className="text-foreground-primary" />
+        <p className="text-body font-medium text-foreground-primary">Where buyers can order</p>
       </div>
-      <div className="divide-y divide-ink-5">
+      <div className="divide-y divide-outline-subtle">
         <div className="flex items-center justify-between gap-3 py-2">
           <div className="min-w-0">
-            <p className="text-body-sm text-ink-90">In {sellerState}</p>
-            {localOk && <p className="text-caption text-ink-40">{via(true)}</p>}
+            <p className="text-body-sm text-foreground-primary">In {sellerState}</p>
+            {localOk && <p className="text-caption text-foreground-muted">{via(true)}</p>}
           </div>
           {localOk ? (
             <CovPill label="Covered" tone="ok" />
@@ -170,9 +172,9 @@ const CoverageStrip = ({
         </div>
         <div className="flex items-center justify-between gap-3 py-2">
           <div className="min-w-0">
-            <p className="text-body-sm text-ink-90">Other states</p>
+            <p className="text-body-sm text-foreground-primary">Other states</p>
             {interCovered && (
-              <p className="text-caption text-ink-40">{via(interSelf)}</p>
+              <p className="text-caption text-foreground-muted">{via(interSelf)}</p>
             )}
           </div>
           {interCovered ? (
@@ -183,9 +185,9 @@ const CoverageStrip = ({
         </div>
         <div className="flex items-center justify-between gap-3 py-2">
           <div className="min-w-0">
-            <p className="text-body-sm text-ink-90">International</p>
+            <p className="text-body-sm text-foreground-primary">International</p>
             {intlCovered && (
-              <p className="text-caption text-ink-40">{via(intlSelf)}</p>
+              <p className="text-caption text-foreground-muted">{via(intlSelf)}</p>
             )}
           </div>
           {intlCovered ? (
@@ -196,7 +198,7 @@ const CoverageStrip = ({
         </div>
       </div>
       {!interCovered && (
-        <div className="mt-3 flex items-start gap-2 bg-orange-50 text-orange-600 rounded-field px-3 py-2">
+        <div className="mt-3 flex items-start gap-2 bg-hue-orange-surface text-hue-orange-foreground rounded-field px-3 py-2">
           <AiOutlineInfoCircle size={15} className="mt-0.5 shrink-0" />
           <p className="text-caption">
             Buyers outside {sellerState} can&apos;t check out — turn on courier
@@ -204,7 +206,7 @@ const CoverageStrip = ({
           </p>
         </div>
       )}
-    </Card>
+    </Surface>
   );
 };
 
@@ -256,32 +258,32 @@ const ZoneRow = ({
           className="flex-1 min-w-0 flex items-center gap-3 text-left">
           <RowIcon icon={Icon} />
           <div className="flex-1 min-w-0">
-            <p className="text-body font-medium text-ink-90 truncate">{title}</p>
+            <p className="text-body font-medium text-foreground-primary truncate">{title}</p>
             <p
               className={cn(
                 "text-body-sm mt-0.5",
-                configured ? "text-ink-60" : "text-ink-40"
+                configured ? "text-foreground-secondary" : "text-foreground-muted"
               )}>
               {summary}
             </p>
           </div>
           {required && (
-            <span className="text-caption text-ink-40 shrink-0">Required</span>
+            <span className="text-caption text-foreground-muted shrink-0">Required</span>
           )}
           {!required && !configured && (
-            <span className="text-body-sm font-medium text-brand shrink-0 flex items-center gap-0.5">
+            <span className="text-body-sm font-medium text-brandDeep shrink-0 flex items-center gap-0.5">
               Set up
               <ChevronRight size={16} />
             </span>
           )}
           {(required || configured) && (
-            <ChevronRight size={18} className="text-ink-20 shrink-0" />
+            <ChevronRight size={18} className="text-foreground-disabled shrink-0" />
           )}
         </button>
         {!required && configured && (
           <Switch
             name={`${zoneKey}_enabled`}
-            ariaLabel={`Offer ${title}`}
+            aria-label={`Offer ${title}`}
             checked={state.enabled}
             onChange={onToggle}
           />
@@ -289,8 +291,8 @@ const ZoneRow = ({
       </div>
 
       {expanded && (
-        <div className="mt-4 pt-4 border-t border-dashed border-ink-10">
-          <p className="text-caption text-ink-60 mb-1.5">Delivery rate</p>
+        <div className="mt-4 pt-4 border-t border-dashed border-outline">
+          <p className="text-caption text-foreground-secondary mb-1.5">Delivery rate</p>
           <InputField
             type="text"
             inputMode="numeric"
@@ -300,7 +302,7 @@ const ZoneRow = ({
             placeholder="0"
             showNairaSymbol
           />
-          <p className="text-caption text-ink-60 mb-2 mt-4">Delivery time</p>
+          <p className="text-caption text-foreground-secondary mb-2 mt-4">Delivery time</p>
           <EtaPresets
             value={draft?.eta ?? ""}
             onChange={onDraftEta}
@@ -314,7 +316,7 @@ const ZoneRow = ({
               <button
                 type="button"
                 onClick={onRemove}
-                className="text-body-sm text-ink-40 shrink-0">
+                className="text-body-sm text-foreground-muted shrink-0">
                 Remove
               </button>
             )}
@@ -486,23 +488,26 @@ const Page = () => {
 
   return (
     <PageShell
-      header={
-        <Header showBack onBackClick={handleBack} customText="Shipping Method" />
-      }
-      footerAction={
-        <div className="w-full">
-          {dirty && (
-            <p className="text-caption text-orange-600 text-center mb-2 flex items-center justify-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 inline-block" />
-              Unsaved changes
-            </p>
-          )}
-          <Button onClick={handleSave} loading={isLoading} disabled={!dirty}>
+      pageHeader={{
+        onBack: handleBack,
+        title: "Shipping Method",
+        // The dirty notice moves to the band's `status` slot. Its own classes are
+        // carried over verbatim except `mb-2`, which the band now owns — and
+        // which was never the operative gap anyway: it collapsed against the
+        // button's larger `mt-4`, so the visible 16px is unchanged.
+        status: dirty ? (
+          <p className="text-caption text-hue-orange-foreground text-center flex items-center justify-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-hue-orange-foreground inline-block" />
+            Unsaved changes
+          </p>
+        ) : undefined,
+        actions: (
+          <PageActionButton onClick={handleSave} loading={isLoading} disabled={!dirty}>
             {dirty ? "Save changes" : "Saved"}
-          </Button>
-        </div>
-      }>
-      <p className="text-body-sm text-ink-60">
+          </PageActionButton>
+        ),
+      }}>
+      <p className="text-body-sm text-foreground-secondary">
         Set how you deliver. Buyers see the right option at checkout based on where
         they are.
       </p>
@@ -514,8 +519,8 @@ const Page = () => {
       />
 
       <Section title="Your delivery">
-        <Card>
-          <div className="divide-y divide-ink-5">
+        <Surface>
+          <div className="divide-y divide-outline-subtle">
             {ZONE_META.map((m) => (
               <ZoneRow
                 key={m.key}
@@ -535,27 +540,27 @@ const Page = () => {
               />
             ))}
           </div>
-        </Card>
+        </Surface>
       </Section>
 
       <Section title="Courier partners">
-        <Card>
+        <Surface>
           <div className="flex items-center gap-3">
             <RowIcon icon={DeliveryTruck} />
             <div className="flex-1 min-w-0">
-              <p className="text-body font-medium text-ink-90">Courier partners</p>
-              <p className="text-body-sm text-ink-60">
+              <p className="text-body font-medium text-foreground-primary">Courier partners</p>
+              <p className="text-body-sm text-foreground-secondary">
                 Live, tracked courier rates, quoted per address
               </p>
             </div>
             <Switch
               name="partner_enabled"
-              ariaLabel="Offer courier partners"
+              aria-label="Offer courier partners"
               checked={partnerEnabled}
               onChange={(e) => setPartnerEnabled(e.target.checked)}
             />
           </div>
-        </Card>
+        </Surface>
       </Section>
 
       <Dialog
@@ -564,8 +569,8 @@ const Page = () => {
         ariaLabel="Discard changes">
         <div className="space-y-4">
           <div>
-            <p className="text-h2 font-medium text-ink-90">Discard changes?</p>
-            <p className="text-body-sm text-ink-60 mt-1">
+            <p className="text-h2 font-medium text-foreground-primary">Discard changes?</p>
+            <p className="text-body-sm text-foreground-secondary mt-1">
               You&apos;ll lose the delivery details you just edited.
             </p>
           </div>

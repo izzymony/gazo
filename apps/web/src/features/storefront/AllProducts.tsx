@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import React from "react";
-import { FaPlus, Heart, ShoppingCartAdd, FaStar } from "@vibaar/ui/icons";
+import { FaPlus } from "@vibaar/ui/icons";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import EmptyState from "@vibaar/ui/common/EmptyState";
@@ -9,13 +9,15 @@ import Button from "@vibaar/ui/common/Button";
 import Loader from "@vibaar/ui/common/Loader";
 import useProductStore from "@/store/productStore";
 import useOrderStore from "@/store/orderStore";
-import { formatCurrency, getMobileCompatibleImageUrl } from "@/lib/utils";
+import { getMobileCompatibleImageUrl, PRODUCT_IMAGE_FALLBACK } from "@/lib/utils";
 import { buildSimpleCartItem, productHasVariants, trackSimpleAddToCart } from "@/lib/cart";
 import { ProductData } from "@/lib/types";
 import useBusinessStore, { BusinessProduct } from "@/store/businessStore";
 import { productPath } from "@/lib/urlHelpers";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { useRoutePrefetch } from "@/hooks/useRoutePrefetch";
+import Spinner from "@vibaar/ui/common/Spinner";
+import ProductCard from "./ProductCard";
 
 export const truncateTextByLength = (
   text: string | undefined,
@@ -27,10 +29,8 @@ export const truncateTextByLength = (
 };
 
 interface Props {
-  isSeller?: {
-    seller?: boolean;
-    pro?: boolean;
-  };
+  /** The owner viewing their own catalogue, vs a shopper on a storefront. */
+  isOwnerView?: boolean;
   filter?: string;
   searchValue?: string;
   sortToggle?: boolean;
@@ -38,7 +38,7 @@ interface Props {
 }
 
 const AllProducts = ({
-  isSeller,
+  isOwnerView,
   filter,
   searchValue,
   sortToggle,
@@ -156,11 +156,11 @@ const AllProducts = ({
               ? "Your store is ready. Add your first product to start selling."
               : "This store has not listed any product yet."
           }>
-          {isSeller?.seller && (
+          {isOwnerView && (
             <Button
               variant="filled"
               onClick={() => router.push("/dashboard/catalog/product/create")}
-              className="max-w-[max-content] !mt-2">
+              className="max-w-max mt-2">
               <FaPlus className="mr-2" />
               {isNewStore ? "Add first product" : "Add a product to store"}
             </Button>
@@ -184,61 +184,30 @@ const AllProducts = ({
                 ? `/dashboard/catalog/product/${item.id}`
                 : productPath(stor, item);
               return (
-                <div key={index} className="cursor-pointer group">
-                  <div
-                    className="gap-2 items-center flex flex-col transition-transform hover:scale-[1.02]"
-                    onClick={() => handleProductClick(item)}
-                    onMouseEnter={() => prefetch(href)}
-                    onTouchStart={() => prefetch(href)}>
-                    <div className="relative w-full aspect-square rounded-field lg:rounded-card overflow-hidden">
-                      <img
-                        src={
-                          item?.image
-                            ? getMobileCompatibleImageUrl(item?.image[0])
-                            : "/PRODUCT IMAGE (2).png"
-                        }
-                        alt={item?.title || ""}
-                        className="w-full h-full object-cover shadow-sm group-hover:shadow-md transition-shadow"
-                      />
-                      <button
-                        aria-label="Add to wishlist"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleLikeClick(item.id + "");
-                        }}
-                        className="absolute top-1 right-2 h-9 w-9 flex justify-center items-center rounded-full bg-black/15 backdrop-blur-sm">
-                        <Heart
-                          size={20}
-                          className={spotlighted ? "text-brand" : "text-white"}
-                        />
-                      </button>
-                      <button
-                        aria-label="Add to cart"
-                        onClick={(e) => handleAddToCart(e, item)}
-                        className="absolute bottom-2 right-2 h-9 w-9 flex justify-center items-center rounded-full bg-white/20 backdrop-blur-sm">
-                        <ShoppingCartAdd size={20} className="text-brand" />
-                      </button>
-                    </div>
-
-                    <div className="w-full">
-                      <p className="text-caption w-full line-clamp-1 font-medium">
-                        {item?.title}
-                      </p>
-                      <p className="text-caption text-ink-40 font-medium line-through">
-                        {formatCurrency(item?.old_price ? +item.old_price : 0)}
-                      </p>
-                      <div className="flex justify-between">
-                        <p className="text-caption font-medium">
-                          {formatCurrency(item?.price ? +item.price : 0)}
-                        </p>
-                        <div className="flex gap-1 items-center">
-                          <FaStar size={12} className="text-warning" />
-                          <p className="text-caption text-ink-40">{rate}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <ProductCard
+                  key={item.id ?? index}
+                  href={href}
+                  title={item?.title || ""}
+                  imageSrc={
+                    item?.image
+                      ? getMobileCompatibleImageUrl(item?.image[0])
+                      : PRODUCT_IMAGE_FALLBACK
+                  }
+                  price={item?.price ? +item.price : 0}
+                  oldPrice={item?.old_price ? +item.old_price : undefined}
+                  rating={rate}
+                  saved={spotlighted}
+                  // Shopper actions, on the shopper's surface only. These were
+                  // passed unconditionally, so a seller looking at their own
+                  // storefront was offered "Add … to wishlist" and "Add … to
+                  // cart" on their own products. The owner's action on a
+                  // product is to open it — Edit and Share live there.
+                  onSave={isDashboard ? undefined : () => handleLikeClick(item.id + "")}
+                  onAddToCart={
+                    isDashboard ? undefined : (event) => handleAddToCart(event, item)
+                  }
+                  onPrefetch={() => prefetch(href)}
+                />
               );
             }
           )}
@@ -249,7 +218,7 @@ const AllProducts = ({
           ref={sentinelRef}
           className="flex h-12 w-full items-center justify-center">
           {productsLoadingMore && (
-            <span className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-transparent" />
+            <Spinner className="text-foreground-muted" />
           )}
         </div>
       )}

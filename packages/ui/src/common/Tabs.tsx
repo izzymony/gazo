@@ -1,17 +1,49 @@
-import React, { useState } from "react";
+"use client";
+
+import React, { useId, useState } from "react";
 import { cn } from "@vibaar/utils";
+import {
+  focusRing,
+  listContentGap,
+  tabBar,
+  tabBarItem,
+  tabBarItemActive,
+  tabBarItemIdle,
+} from "../styles";
 
 interface TabsProps {
   tabs: string[];
   tabContents: React.ReactNode[];
   onTabChange?: (activeIndex: number) => void;
+  /**
+   * A row that belongs to the tab bar rather than to any one panel — a filter
+   * strip, a date range. It sticks WITH the tab bar rather than under it.
+   */
   generalContent?: React.ReactNode;
   tabClass?: string;
   /** Pixel offset for the sticky tab bar — e.g. to sit below a collapsing
    *  header. Applied as an inline `top` so it beats the default `top-0`. */
   stickyTop?: number;
+  /**
+   * Whether the bar pins to the top of the scroll container. Default true.
+   *
+   * Turn it OFF where something else is already pinned above it. A screen with
+   * two stacked fixed bars reads as clutter, and if the upper one has rounded
+   * bottom corners (the storefront header does) a square bar beneath it leaves
+   * a notch of page background showing at each end where the curve pulls away.
+   */
+  sticky?: boolean;
 }
 
+/**
+ * Tabs — one selected panel from a labelled set.
+ *
+ * The tab pattern is a contract, not just styling: without role="tablist" /
+ * role="tab" / aria-selected a screen reader hears a row of unlabelled buttons
+ * and cannot tell which one is active or that a panel belongs to it. This had
+ * none of that — selection existed only as a border colour. The roles, the
+ * selected state and the tab↔panel link are wired here; nothing visual changed.
+ */
 const Tabs: React.FC<TabsProps> = ({
   tabs,
   tabContents,
@@ -19,8 +51,12 @@ const Tabs: React.FC<TabsProps> = ({
   generalContent,
   tabClass,
   stickyTop,
+  sticky = true,
 }) => {
   const [activeTab, setActiveTab] = useState(0);
+  const baseId = useId();
+  const tabId = (i: number) => `${baseId}-tab-${i}`;
+  const panelId = (i: number) => `${baseId}-panel-${i}`;
 
   const handleTabClick = (index: number) => {
     setActiveTab(index);
@@ -29,32 +65,65 @@ const Tabs: React.FC<TabsProps> = ({
 
   return (
     <div className="w-full">
-      {/* Tab bar — sticks within PageShell's scroll; inherits its horizontal padding */}
+      {/* The tab bar and its general row stick TOGETHER, as one block.
+          `generalContent` used to render below, inside a wrapper only as tall as
+          itself — and a sticky element cannot travel past its own containing
+          block, so a sticky filter row there stuck for zero pixels and simply
+          scrolled away while the tabs stayed. Grouping them makes the offsets
+          compose: the caller gives one `stickyTop` and the whole block honours
+          it. */}
       <div
-        style={stickyTop !== undefined ? { top: stickyTop } : undefined}
-        className={cn(
-          "flex justify-between lg:justify-center sticky top-0 z-sticky bg-white",
-          tabClass
-        )}>
-        {tabs.map((tab, index) => (
-          <button
-            key={index}
-            onClick={() => handleTabClick(index)}
-            className={cn(
-              "w-full lg:w-auto text-center py-2 md:py-3 px-4 md:px-6 lg:px-8 border-b-2 text-body md:text-body-lg transition-all",
-              activeTab === index
-                ? "border-ink-90 text-ink-90 font-medium"
-                : "border-transparent text-ink-30 font-normal hover:text-ink-60 hover:border-ink-20"
-            )}>
-            {tab}
-          </button>
-        ))}
+        style={sticky && stickyTop !== undefined ? { top: stickyTop } : undefined}
+        className={cn("bg-surface", sticky && "sticky top-0 z-sticky")}>
+        <div
+          role="tablist"
+          className={cn(
+            tabBar,
+            tabClass
+          )}>
+        {tabs.map((tab, index) => {
+          const selected = activeTab === index;
+          return (
+            <button
+              key={index}
+              type="button"
+              role="tab"
+              id={tabId(index)}
+              aria-selected={selected}
+              aria-controls={panelId(index)}
+              // Roving tabindex: the tablist is one stop, arrows move within it.
+              tabIndex={selected ? 0 : -1}
+              onClick={() => handleTabClick(index)}
+              onKeyDown={(event) => {
+                const delta = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+                if (!delta) return;
+                event.preventDefault();
+                handleTabClick((index + delta + tabs.length) % tabs.length);
+              }}
+              className={cn(
+                tabBarItem,
+                focusRing,
+                selected
+                  ? tabBarItemActive
+                  : tabBarItemIdle
+              )}>
+              {tab}
+            </button>
+          );
+        })}
+        </div>
+        {generalContent}
       </div>
 
-      {/* Content — one 16px gap below the tab bar; optional filter row above it */}
-      <div className="mt-4">
-        {generalContent && <div className="mb-4">{generalContent}</div>}
-        {tabContents[activeTab]}
+      {/* Panel. With a control row above it the gap is `listContentGap`, which
+          pairs with that row's own `py-2` for 16px — the same 16px a page
+          without tabs puts between its controls and its list. Without a control
+          row the bar's own padding is the only thing above, so the gap is the
+          full 16px here. */}
+      <div className={generalContent ? listContentGap : "mt-4"}>
+        <div role="tabpanel" id={panelId(activeTab)} aria-labelledby={tabId(activeTab)} tabIndex={0}>
+          {tabContents[activeTab]}
+        </div>
       </div>
     </div>
   );

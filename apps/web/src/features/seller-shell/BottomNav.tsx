@@ -1,45 +1,21 @@
 "use client";
 import React, { memo, useState, useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import {
-  Home,
-  Package,
-  Store,
-  Analytics,
-  Settings,
-  IconProps,
-} from "@vibaar/ui/icons";
+import { usePathname } from "next/navigation";
+import NavGlyph from "@vibaar/ui/common/NavGlyph";
+import NavItem from "@vibaar/ui/common/NavItem";
+import { SELLER_NAV, activeSellerNav } from "./sellerNav";
 
-type NavLink = {
-  Icon: React.ComponentType<IconProps>;
-  route: string;
-  title: string;
-};
-
-const navLinks: NavLink[] = [
-  { Icon: Home, route: "/dashboard", title: "Home" },
-  { Icon: Package, route: "/dashboard/orders", title: "Orders" },
-  { Icon: Store, route: "/dashboard/catalog", title: "Catalog" },
-  { Icon: Analytics, route: "/dashboard/analytics", title: "Analytics" },
-  { Icon: Settings, route: "/dashboard/settings", title: "Settings" },
-];
-
-// Helper function for exact path matching
-const getActiveNavItem = (pathName: string) => {
-  // Exact path matching with priority order
-  if (pathName === "/dashboard/analytics") return "Analytics";
-  if (pathName.startsWith("/dashboard/settings") || pathName.startsWith("/dashboard/storefront")) return "Settings";
-  if (pathName === "/dashboard/orders" || pathName.startsWith("/dashboard/orders/")) return "Orders";
-  if (pathName.startsWith("/dashboard/catalog")) return "Catalog";
-  if (pathName === "/dashboard") return "Home";
-
-  return null;
-};
-
+/**
+ * The seller dashboard's mobile bar.
+ *
+ * Its destinations and its active-path matcher now come from `sellerNav`,
+ * shared with DesktopNav rather than copied into it, and each entry is a
+ * `NavItem` — so they are links: middle-clickable, openable in a new tab, and
+ * carrying `aria-current` rather than signalling the active tab by colour only.
+ */
 const BottomNav = memo(() => {
   const pathName = usePathname();
-  const router = useRouter();
-  const activeNavItem = getActiveNavItem(pathName);
+  const activeNavItem = activeSellerNav(pathName);
   const [loadingRoute, setLoadingRoute] = useState<string | null>(null);
 
   // Clear the tab spinner as soon as the destination route actually lands.
@@ -49,55 +25,44 @@ const BottomNav = memo(() => {
     setLoadingRoute(null);
   }, [pathName]);
 
-  const handleNavClick = (route: string) => {
-    if (pathName === route || loadingRoute) return;
-
-    setLoadingRoute(route);
-    router.push(route);
-  };
-
-  // Loading reflects real navigation only — the tapped tab, until its route lands.
-  const isNavItemLoading = (route: string) => loadingRoute === route;
-
   return (
-    <div className="absolute bottom-0 h-[60px] right-0 left-0 w-full flex justify-between items-center border-t-[0.5px] bg-white border-t-ink-10 lg:hidden">
-      {navLinks.map(({ title, Icon, route }) => {
+    // IN FLOW, inside the dashboard frame's column — not fixed and not absolute.
+    //
+    // Absolute was the original bug: the bar resolved against a positioned
+    // ancestor that was also the scroll container, whose padding box is the full
+    // scrollable height, so it sat at the bottom of all the content and scrolled
+    // away. Fixed cured that but paid for it — a viewport-pinned bar overlays the
+    // page, so its 60px had to be subtracted by hand everywhere else, and the
+    // same magic number ended up written in four places (the layout's `mb`, a
+    // sheet's `mb`, and two different guesses at how high a floating button must
+    // sit). The frame is a column now: this bar is its second row, so the page
+    // box is already the right height and nothing has to know how tall we are.
+    //
+    // `pb-safe` clears the iOS home indicator (the utility itself is defined in
+    // the design-tokens preset — it was being written before it existed), and
+    // `box-content` keeps that padding OUTSIDE the 60px so the tabs themselves
+    // stay 60px tall on a notched phone instead of being squeezed by it.
+    <div className="z-sticky box-content flex h-[60px] w-full shrink-0 items-center justify-between border-t-[0.5px] border-t-outline bg-surface pb-safe lg:hidden">
+      {SELLER_NAV.map(({ title, Icon, Solid, route }) => {
         const isActive = activeNavItem === title;
-        const isLoading = isNavItemLoading(route);
-
         return (
-          <button
+          <NavItem
             key={title}
-            onClick={() => handleNavClick(route)}
-            disabled={isLoading || (loadingRoute !== null && !isActive)}
-            className={`flex-1 h-full flex flex-col justify-center items-center gap-1 text-caption font-medium transition-colors disabled:opacity-50 ${
-              isActive ? "text-brand" : "text-ink-40"
-            }`}>
-            {isLoading ? (
-              <svg
-                className="animate-spin h-[22px] w-[22px]"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24">
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-            ) : (
-              <Icon size={22} />
-            )}
-            <p>{title}</p>
-          </button>
+            href={route}
+            icon={<NavGlyph active={isActive} icon={Icon} size={22} solid={Solid} />}
+            label={title}
+            showLabel
+            active={isActive}
+            loading={loadingRoute === route}
+            spinnerSize={22}
+            // While one tab is navigating, the others are inert — but the
+            // active tab stays usable so you are never trapped.
+            disabled={loadingRoute !== null && !isActive && loadingRoute !== route}
+            onNavigate={() => {
+              if (pathName !== route) setLoadingRoute(route);
+            }}
+            className="flex-1 h-full"
+          />
         );
       })}
     </div>

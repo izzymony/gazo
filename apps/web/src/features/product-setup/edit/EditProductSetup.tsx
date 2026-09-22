@@ -4,17 +4,23 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { BiChevronDown, BiChevronUp, BsThreeDots, X, Plus, CircleCheck } from "@vibaar/ui/icons";
 import Image from "next/image";
 import { toast } from "sonner";
+import { isTaxonomyId } from "@/hooks/useCategories";
+import { useProductImagePreparation } from "@/features/product-setup/lib/useProductImagePreparation";
+import {
+    ProductImagePreparationProvider,
+    useIsPreparingProductImages,
+} from "@/features/product-setup/lib/ProductImagePreparation";
 
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import Loader from "@vibaar/ui/common/Loader";
-import Button from "@vibaar/ui/common/Button";
+import DisclosureButton from "@vibaar/ui/common/DisclosureButton";
 import Switch from "@vibaar/ui/common/Switch";
 import useAuthStore from "@/store/authStore";
 import useBusinessStore from "@/store/businessStore";
@@ -62,11 +68,9 @@ interface EditProductSetupProps {
 const reconstructVariationsFromCombinations = (combinations: any[]): Variation[] => {
     const variationMap = new Map<string, Set<string>>();
 
-    console.log('🔧 Input combinations for reconstruction:', combinations);
 
     combinations.forEach((combo) => {
         if (combo.combination_key) {
-            console.log('🔧 Processing combination_key:', combo.combination_key);
 
             // Handle both formats: "White-Small" (hyphen) and "Black / L / Cotton" (slash with spaces)
             let parts: string[] = [];
@@ -81,7 +85,6 @@ const reconstructVariationsFromCombinations = (combinations: any[]): Variation[]
                 parts = [combo.combination_key];
             }
 
-            console.log('🔧 Split parts:', parts);
 
             parts.forEach((value, index) => {
                 const trimmedValue = value.trim();
@@ -108,7 +111,6 @@ const reconstructVariationsFromCombinations = (combinations: any[]): Variation[]
         values: Array.from(valuesSet).sort()
     }));
 
-    console.log('🔧 Final reconstructed variations:', reconstructedVariations);
     return reconstructedVariations;
 };
 
@@ -147,12 +149,30 @@ const validationSchema = Yup.object({
 });
 
 export default function EditProductSetup({ productId }: EditProductSetupProps) {
+    // Every product image picker below reports here, so Update can wait for
+    // preparation happening in the variants editor as well as in this gallery.
+    return (
+        <ProductImagePreparationProvider>
+            <EditProductSetupInner productId={productId} />
+        </ProductImagePreparationProvider>
+    );
+}
+
+function EditProductSetupInner({ productId }: EditProductSetupProps) {
     const router = useRouter();
     const { user } = useAuthStore();
     const { store } = useBusinessStore();
     const { getProductByIds, updateProduct, setProduct, isLoading } = useProductStore();
 
     const [isLoadingProduct, setIsLoadingProduct] = useState(true);
+    const { prepare } = useProductImagePreparation();
+    // Includes variant-image pickers deep in the variants editor, not just this
+    // screen's own gallery.
+    const preparingImages = useIsPreparingProductImages();
+    // Submit handlers close over the render they were created in; a ref is what
+    // makes the guard see the current value rather than a stale `false`.
+    const preparingRef = useRef(preparingImages);
+    preparingRef.current = preparingImages;
     const [productData, setProductData] = useState<any>(null);
     const [images, setImages] = useState<ImageProps[]>([]);
     const [variations, setVariations] = useState<Variation[]>([{ option: "size", name: "Size", values: [] }]);
@@ -177,28 +197,36 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
         }));
     };
 
-    // Horizontal scroll image handlers
-    const handleAddImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // NEWLY PICKED photos only. Images already on the product arrive as
+    // Cloudinary URLs in the same `{base64}` slot and are never touched here —
+    // this handler only ever sees a `File`, so a stored URL cannot be decoded,
+    // re-encoded, or inflated into a data URL on the next save.
+    const handleAddImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
-        if (files && formik?.values) {
-            const currentImages = formik.values.images || [];
-            const newImages = Array.from(files).map((file, index) => {
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        resolve({
-                            base64: reader.result as string,
-                            name: `image${currentImages.length + index + 1}`,
-                            toggle: true
-                        });
-                    };
-                    reader.readAsDataURL(file);
-                });
-            });
-            Promise.all(newImages).then((images) => {
-                formik.setFieldValue("images", [...currentImages, ...images]);
-            });
-        }
+        if (!files || !formik?.values) return;
+
+        const prepared = await prepare(files);
+        event.target.value = "";
+        if (!prepared || prepared.length === 0) return;
+
+        // Merge against the LATEST value, not one captured before the await.
+        // Preparation takes 1-3s, and a gallery read before it and written after
+        // it silently resurrects an image deleted in between, or undoes a
+        // reorder. `setValues` takes an updater; `setFieldValue` does not.
+        formik.setValues((prev: typeof formik.values) => {
+            const existing = prev.images || [];
+            return {
+                ...prev,
+                images: [
+                    ...existing,
+                    ...prepared.map((image, index) => ({
+                        base64: image.dataUrl,
+                        name: `image${existing.length + index + 1}`,
+                        toggle: true,
+                    })),
+                ],
+            };
+        });
     };
 
     const handleDeleteImage = (index: number) => {
@@ -271,8 +299,14 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
         },
         validationSchema,
         onSubmit: async (values) => {
-            console.log('Form submitted with values:', values);
-            console.log('Images to update:', images);
+            // The form is `onSubmit={formik.handleSubmit}`, so Enter in any field
+            // submits it — the disabled Update button never covered that path.
+            // Submitting mid-preparation would save the product WITHOUT the photo
+            // the seller just chose, silently.
+            if (preparingRef.current) {
+                toast.error("Still preparing your image. Try again in a moment.");
+                return;
+            }
 
             if (!productId) {
                 console.error("No product ID provided");
@@ -287,13 +321,21 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     categoryName = cat.name || cat.description || 'Electronics';
                 }
 
+                // Same contract as create: a real taxonomy id or no request at all.
+                const categoryIdForUpdate = selectedCategory?.categoryId || values.categoryId || "";
+                const subCategoryIdForUpdate = selectedCategory?.subCategoryId || values.subCategoryId || "";
+                if (!isTaxonomyId(categoryIdForUpdate) || !isTaxonomyId(subCategoryIdForUpdate)) {
+                    toast.error("Choose a product category before updating.");
+                    return;
+                }
+
                 // Convert to backend expected format - ensure all required fields are present and valid
                 const productPayload = {
                     title: values.title || "Untitled Product",
                     description: values.description || "",
                     slug: (values.title || "untitled").toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
-                    category_id: selectedCategory?.categoryId || values.categoryId || "",
-                    sub_category_id: selectedCategory?.subCategoryId || values.subCategoryId || "",
+                    category_id: categoryIdForUpdate,
+                    sub_category_id: subCategoryIdForUpdate,
                     // Simplify image handling - only include valid base64 strings
                     image: (() => {
                         const imageArray = values.images && values.images.length > 0
@@ -324,40 +366,27 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     // variant_combinations removed - backend calculates combinations on-demand from variants
                 };
 
-                console.log('💰 Price debugging:', {
-                    'values.price': values.price,
-                    'values.comparePrice': values.comparePrice,
-                    'payload.price.price': productPayload.price.price,
-                    'payload.price.old_price': productPayload.price.old_price
-                });
-                console.log('📦 Sending update payload:', JSON.stringify(productPayload, null, 2));
-                console.log('💰 Variant pricing debug:', {
-                    'variantDetails.length': variantDetails.length,
-                    'customPricingExamples': variantDetails.filter(v => v.price).slice(0, 3),
-                });
-                console.log('📊 Variant details for debugging:', {
-                    'isVariable': isVariable,
-                    'values.variants': values.variants,
-                    'local.variations': variations,
-                    'variantDetails': variantDetails,
-                    'payload.variants': productPayload.variants,
-                });
-                console.log('Product ID:', productId);
 
                 // The updateProduct now automatically handles state synchronization
                 let updatedProduct;
+                // The fallback below re-READS the product; a successful read says
+                // nothing about whether the WRITE landed. Without this flag the
+                // catch fell through to toast.success, so a failed save was
+                // announced as "Product updated successfully!" next to the real
+                // error toast the store had already raised.
+                let updateSucceeded = false;
                 try {
                     updatedProduct = await updateProduct(productId, productPayload as unknown as Parameters<typeof updateProduct>[1]);
-                    console.log('✅ Product updated successfully via store! Staying on edit page.');
+                    updateSucceeded = true;
                 } catch (updateError) {
                     console.warn('⚠️ Store update failed, trying fallback refresh...', updateError);
 
-                    // Fallback: Manual refresh if store update fails
+                    // Fallback: re-sync local state to what the server actually
+                    // holds. Recovery only — it must not mark the write verified.
                     try {
                         updatedProduct = await getProductByIds(productId);
                         if (updatedProduct) {
                             setProduct(updatedProduct); // Manual store sync
-                            console.log('✅ Fallback refresh successful');
                         }
                     } catch (fallbackError) {
                         console.error('❌ Both update and fallback failed:', fallbackError);
@@ -367,19 +396,17 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
 
                 // Update local component state with the returned data
                 if (updatedProduct) {
-                    console.log('✅ Updating local state with product data:', {
-                        'variant_combinations.length': updatedProduct.variant_combinations?.length,
-                        'firstCombosWithPricing': updatedProduct.variant_combinations?.filter((c: any) => c.price).slice(0, 3),
-                        'variations': updatedProduct.variations,
-                        'is_combination': updatedProduct.is_combination
-                    });
                     setProductData(updatedProduct);
-                    console.log('✅ Local component state updated with synchronized data');
                 } else {
                     console.error('❌ No product data received after update');
                 }
 
-                toast.success('Product updated successfully!');
+                // Only on a confirmed write. The store already raised the error
+                // toast (handleAxiosError) before re-throwing, so a failure is
+                // reported exactly once and this stays silent.
+                if (updateSucceeded) {
+                    toast.success('Product updated successfully!');
+                }
             } catch (error) {
                 console.error("❌ Error updating product:", error);
                 // Stay on page so user can fix the issue and try again
@@ -393,42 +420,15 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
         const fetchProduct = async () => {
             try {
                 setIsLoadingProduct(true);
-                console.log('🔍 Fetching product with ID:', productId);
 
-                // Try to fetch real product data first
-                let product;
-                try {
-                    product = await getProductByIds(productId);
-                    console.log('🔍 Fetched real product data:', product);
-                    console.log('🏷️ Product tags field:', product?.tag);
-                    console.log('🏷️ Product tags field (alternative):', product?.tags);
-                } catch (error) {
-                    console.error('🔍 Failed to fetch product data:', error);
-                    console.error('🔍 Attempting to use mock/fallback data');
-                    // Fallback to test data if API fails - Use data that matches what user sees
-                    product = {
-                        id: productId,
-                        title: "Local Image",
-                        description: "Hello",
-                        category: "Fashion",
-                        category_id: "9aebee99-0435-4ca1-bf82-7657bd35691a",
-                        sub_category_id: "f6e81ad4-d74f-45e0-a4f4-ba6ad0c91ce8",
-                        collection: "",
-                        price: 1333,
-                        stock: 1, // Match product list display
-                        compare_price: 0,
-                        weight: 0,
-                        brand: "",
-                        tag: [], // Backend uses 'tag' not 'tags'
-                        image: ["https://picsum.photos/400/400"], // Use 'image' field like backend
-                        images: ["https://picsum.photos/400/400"],
-                        variations: [],
-                        variants: [],
-                        is_variable: false,
-                    };
-                }
+                // A failed fetch used to be answered with a hardcoded mock product
+                // — title "Local Image", price 1333, a picsum photo, and two
+                // category uuids that no longer exist in the database. The seller
+                // was then editing a fabrication of someone else's test data over
+                // the top of their real product, and Update would have written it
+                // back. Fail loudly and leave the product alone.
+                const product = await getProductByIds(productId);
 
-                console.log('🔍 Using test product data:', product);
                 setProductData(product);
 
                 // Convert product images to expected format
@@ -438,7 +438,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     toggle: true,
                 })) || [];
 
-                console.log('🔍 Product images converted:', productImages);
                 setImages(productImages);
 
                 // Determine if product is variable based on is_combination flag from backend
@@ -450,8 +449,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                 let finalVariations = [];
 
                 if (product.variants && product.variants.length > 0) {
-                    console.log('✅ Loading variations with custom properties from variants');
-                    console.log('🔍 Raw variants from backend:', product.variants);
                     finalVariations = product.variants.map((variant: any) => ({
                         option: variant.name?.toLowerCase() || 'variant',
                         name: variant.name || 'Variant',
@@ -462,12 +459,9 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                         stockValues: variant.stock_values || {},
                         imageValues: variant.image_values || {}
                     }));
-                    console.log('📦 Processed variations with custom properties:', finalVariations);
                 } else if (product.variations && product.variations.length > 0) {
-                    console.log('📋 Loading basic variations from variations field');
                     finalVariations = product.variations;
                 } else if (product.variant_combinations && product.variant_combinations.length > 0) {
-                    console.log('🔧 Reconstructing variations from variant_combinations');
                     finalVariations = reconstructVariationsFromCombinations(product.variant_combinations);
                 }
 
@@ -475,31 +469,22 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
 
                 // Load existing variant combinations with stock data
                 if (product.variant_combinations && product.variant_combinations.length > 0) {
-                    console.log('🔍 Loading variant combinations data:', product.variant_combinations.slice(0, 3));
                     const existingVariantDetails = product.variant_combinations.map((combo: any) => ({
                         combination: combo.combination_key,
                         price: combo.price,
                         stock: combo.stock || 0
                     }));
-                    console.log('✅ Reconstructed variantDetails:', existingVariantDetails.slice(0, 3));
                     setVariantDetails(existingVariantDetails);
                 } else {
-                    console.log('⚠️ No variant_combinations found, falling back to variants:', product.variants);
                     setVariantDetails(product.variants || []);
                 }
 
                 // Set category if available
-                console.log('🔍 Product category data:', {
-                    category_id: product.category_id,
-                    sub_category_id: product.sub_category_id,
-                    category: product.category
-                });
                 if (product.category_id && product.sub_category_id) {
                     const categoryData = {
                         categoryId: product.category_id,
                         subCategoryId: product.sub_category_id
                     };
-                    console.log('🔍 Setting selected category:', categoryData);
                     setSelectedCategory(categoryData);
 
                     // Also update formik immediately 
@@ -509,7 +494,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                         formik.setFieldValue('subCategoryId', product.sub_category_id);
                     }, 100);
                 } else {
-                    console.log('🔍 Category data incomplete, not setting selectedCategory');
                 }
 
                 // Update formik values - ensure category is a string
@@ -518,13 +502,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     : (product.category || "Electronics");
 
                 // Debug price structure
-                console.log('🏷️ Product price data:', {
-                    price: product.price,
-                    compare_price: product.compare_price,
-                    original_price: product.original_price,
-                    old_price: product.old_price,
-                    fullProduct: product
-                });
 
                 // Handle price structure - backend might return nested price object
                 let currentPrice = 0;
@@ -550,15 +527,10 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     imageValues: v.imageValues || {}
                 }));
 
-                console.log('📝 Setting formik values with tags:', {
-                    'product.tag': product.tag,
-                    'Array.isArray(product.tag)': Array.isArray(product.tag)
-                });
 
                 // Backend returns 'tag' field (not 'tags')
                 const productTags = Array.isArray(product.tag) ? product.tag : [];
 
-                console.log('📝 Final tags to set in formik:', productTags);
 
                 formik.setValues({
                     title: product.title || "",
@@ -579,7 +551,13 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     isVariable: isProductVariable,
                 });
             } catch (error) {
-                console.error("🔍 Error fetching product:", error);
+                // Previously this only logged, and the mock fallback above meant the
+                // form still rendered — seeded with fabricated data. With the mock
+                // gone, an unhandled failure would render an EMPTY form that Update
+                // would happily write over the real product. Leave instead.
+                console.error("Error fetching product:", error);
+                toast.error("Couldn't load that product. Try again.");
+                router.back();
             } finally {
                 setIsLoadingProduct(false);
             }
@@ -614,10 +592,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                 const hasChanged = JSON.stringify(currentVariants) !== JSON.stringify(formikVariants);
 
                 if (hasChanged) {
-                    console.log('🔄 Syncing variations to formik.values.variants:', {
-                        variations: variations,
-                        formikVariants: formikVariants
-                    });
                     formik.setFieldValue('variants', formikVariants);
                 }
             }
@@ -630,60 +604,68 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
 
     return (
         <PageShell
-            header={
-                <Header
-                    showBack
-                    customText="Edit Product"
-                    onBackClick={() => router.back()}
-                />
-            }
             contentClassName="px-0"
-            footerAction={
-                <div className="flex gap-3">
-                    <Button
-                        variant="bordered"
-                        onClick={() => router.back()}
-                        className="flex-1 !mt-0">
-                        Cancel
-                    </Button>
-                    <Button
-                        variant="filled"
-                        onClick={() => {
-                            if (Object.keys(formik.errors).length > 0) {
-                                const firstError = Object.values(formik.errors)[0];
-                                if (firstError) {
-                                    toast.error(`Please fix: ${firstError}`);
+            pageHeader={{
+                onBack: () => router.back(),
+                title: "Edit Product",
+                // The group keeps its own flex row at lg rather than dissolving
+                // into the band's action cell with `lg:contents`. Measured
+                // reason: the cell is `items-center`, and `bordered` is 2px
+                // taller than `filled` (its border is outside the padding box),
+                // so the two buttons rendered 46px and 44px with mismatched
+                // baselines. Its own row stretches them to a common 46px, which
+                // is also exactly what mobile has always done.
+                actions: (
+                    <div className="flex gap-3">
+                        <PageActionButton
+                            kind="secondary"
+                            onClick={() => router.back()}
+                            className="flex-1 mt-0 lg:flex-none">
+                            Cancel
+                        </PageActionButton>
+                        <PageActionButton
+                            onClick={() => {
+                                if (Object.keys(formik.errors).length > 0) {
+                                    const firstError = Object.values(formik.errors)[0];
+                                    if (firstError) {
+                                        toast.error(`Please fix: ${firstError}`);
+                                    }
+                                    return;
                                 }
-                                return;
-                            }
-                            formik.handleSubmit();
-                        }}
-                        loading={isLoading}
-                        className="flex-1 !mt-0"
-                        type="button">
-                        {isLoading ? "Updating..." : "Update Product"}
-                    </Button>
-                </div>
-            }>
-            <div className="bg-ink-3 min-h-full">
+                                formik.handleSubmit();
+                            }}
+                            loading={isLoading}
+                            disabled={preparingImages}
+                            className="flex-1 mt-0 lg:flex-none"
+                            type="button">
+                            {preparingImages
+                                ? "Preparing image…"
+                                : isLoading
+                                    ? "Updating..."
+                                    : "Update Product"}
+                        </PageActionButton>
+                    </div>
+                ),
+            }}>
+            <div className="bg-surface-subtle min-h-full">
                 <form onSubmit={formik.handleSubmit} className="pb-4">
                     {/* Product Images & Basic Info */}
-                    <div className="bg-white mb-4 shadow-card">
-                        <button
-                            type="button"
-                            onClick={() => toggleSection('basic')}
-                            className="w-full p-4 flex items-center justify-between border-b border-ink-5 hover:bg-ink-3"
-                        >
+                    <div className="bg-surface mb-4 shadow-card">
+                        <DisclosureButton
+                                expanded={expandedSections.basic}
+                                onClick={() => toggleSection('basic')}
+                                className="w-full p-4 flex items-center justify-between border-b border-outline-subtle hover:bg-surface-subtle"
+                            >
                             <div className="text-left">
-                                <h2 className="text-h2 font-medium text-ink-90">Basic Information</h2>
-                                <p className="text-body text-ink-60">Images, title, and pricing</p>
+                                <h2 className="text-h2 font-medium text-foreground-primary">Basic Information</h2>
+                                <p className="text-body text-foreground-secondary">Images, title, and pricing</p>
                             </div>
                             {expandedSections.basic ? (
-                                <BiChevronUp className="h-5 w-5 text-ink-40" />
+                                <BiChevronUp className="h-5 w-5 text-foreground-muted" />
                             ) : (
-                                <BiChevronDown className="h-5 w-5 text-ink-40" />
+                                <BiChevronDown className="h-5 w-5 text-foreground-muted" />
                             )}
-                        </button>
+                        </DisclosureButton>
                         {expandedSections.basic && (
                             <div className="p-4">
                                 {/* Product Images Section - Horizontal Scroll Layout */}
@@ -698,10 +680,10 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                                         key={`${image.name}-${index}`}
                                                         className={`relative flex-shrink-0 w-24 h-24 rounded-card overflow-hidden border cursor-move transition-all duration-200 ${
                                                             dragOverIndex === index
-                                                                ? "border-brand border-dashed"
+                                                                ? "border-brandDeep border-dashed"
                                                                 : draggedIndex === index
-                                                                ? "border-brand opacity-50"
-                                                                : "border-ink-10"
+                                                                ? "border-brandDeep opacity-50"
+                                                                : "border-outline"
                                                         }`}
                                                         draggable
                                                         onDragStart={() => handleDragStart(index)}
@@ -728,10 +710,10 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                                                     handleDeleteImage(index);
                                                                     setSelectedImageIndex(null);
                                                                 }}
-                                                                className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-md hover:shadow-lg transition-shadow"
+                                                                className="absolute top-1 right-1 bg-surface rounded-full p-1 shadow-md hover:shadow-lg transition-shadow"
                                                                 aria-label="Delete image"
                                                             >
-                                                                <X className="h-3 w-3 text-ink-60" />
+                                                                <X className="h-3 w-3 text-foreground-secondary" />
                                                             </button>
                                                         )}
                                                     </div>
@@ -742,33 +724,49 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
 
                                     {/* Add Image Button */}
                                     <div className="w-full">
-                                        <label className="block w-full bg-ink-3 px-4 py-4 font-medium rounded-card text-body text-brand border-2 border-dashed border-ink-10 hover:border-brand transition-colors cursor-pointer group">
+                                        <label
+                                            aria-busy={preparingImages}
+                                            className={`block w-full bg-surface-subtle px-4 py-4 font-medium rounded-card text-body text-brandDeep border-2 border-dashed border-outline transition-colors group ${
+                                                preparingImages
+                                                    ? "cursor-wait opacity-70"
+                                                    : "hover:border-brandDeep cursor-pointer"
+                                            }`}>
                                             <div className="flex items-center justify-center gap-2">
                                                 <input
                                                     type="file"
                                                     accept="image/*"
                                                     multiple
+                                                    disabled={preparingImages}
                                                     className="hidden"
                                                     onChange={handleAddImage}
                                                 />
-                                                <Plus className="h-5 w-5 text-brand group-hover:scale-110 transition-transform" />
-                                                <span>Add image</span>
+                                                {preparingImages ? (
+                                                    <>
+                                                        <Loader variant="inline" />
+                                                        <span>Preparing image…</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Plus className="h-5 w-5 text-brandDeep group-hover:scale-110 transition-transform" />
+                                                        <span>Add image</span>
+                                                    </>
+                                                )}
                                             </div>
                                         </label>
                                     </div>
 
                                     {/* Image Counter */}
                                     {formik.values?.images && formik.values.images.length > 0 && (
-                                        <div className="mt-2 text-body text-ink-50 text-center">
+                                        <div className="mt-2 text-body text-foreground-muted text-center">
                                             {formik.values.images.length} image{formik.values.images.length !== 1 ? 's' : ''} added
-                                            <span className="ml-2 text-body-sm text-ink-40">
+                                            <span className="ml-2 text-body-sm text-foreground-muted">
                                                 • Drag to reorder
                                             </span>
                                         </div>
                                     )}
 
                                     {formik.errors.images && (
-                                        <div className="text-red-500 text-body mt-2">
+                                        <div className="text-error-foreground text-body mt-2">
                                             {formik.errors.images as string}
                                         </div>
                                     )}
@@ -818,14 +816,14 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                     {/* Discount Indicator */}
                                     {formik.values?.price && formik.values?.comparePrice &&
                                      Number(formik.values.comparePrice) > Number(formik.values.price) && (
-                                        <div className="bg-green-50 border border-green-200 rounded-card p-3">
+                                        <div className="bg-success-surface border border-success-border rounded-card p-3">
                                             <div className="flex items-center gap-2">
-                                                <CircleCheck size={16} className="text-green-600" />
-                                                <span className="text-body font-medium text-green-700">
+                                                <CircleCheck size={16} className="text-success-foreground" />
+                                                <span className="text-body font-medium text-success-foreground">
                                                     {Math.round(((Number(formik.values.comparePrice) - Number(formik.values.price)) / Number(formik.values.comparePrice)) * 100)}% discount
                                                 </span>
                                             </div>
-                                            <p className="text-body-sm text-green-600 mt-1">
+                                            <p className="text-body-sm text-success-foreground mt-1">
                                                 Customers love discounts! This will help your product stand out.
                                             </p>
                                         </div>
@@ -836,22 +834,22 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     </div>
 
                     {/* Product Details */}
-                    <div className="bg-white mb-4 shadow-card">
-                        <button
-                            type="button"
-                            onClick={() => toggleSection('details')}
-                            className="w-full p-4 flex items-center justify-between border-b border-ink-5 hover:bg-ink-3"
-                        >
+                    <div className="bg-surface mb-4 shadow-card">
+                        <DisclosureButton
+                                expanded={expandedSections.details}
+                                onClick={() => toggleSection('details')}
+                                className="w-full p-4 flex items-center justify-between border-b border-outline-subtle hover:bg-surface-subtle"
+                            >
                             <div className="text-left">
-                                <h2 className="text-h2 font-medium text-ink-90">Product Details</h2>
-                                <p className="text-body text-ink-60">Description, category, and collections</p>
+                                <h2 className="text-h2 font-medium text-foreground-primary">Product Details</h2>
+                                <p className="text-body text-foreground-secondary">Description, category, and collections</p>
                             </div>
                             {expandedSections.details ? (
-                                <BiChevronUp className="h-5 w-5 text-ink-40" />
+                                <BiChevronUp className="h-5 w-5 text-foreground-muted" />
                             ) : (
-                                <BiChevronDown className="h-5 w-5 text-ink-40" />
+                                <BiChevronDown className="h-5 w-5 text-foreground-muted" />
                             )}
-                        </button>
+                        </DisclosureButton>
                         {expandedSections.details && (
                             <div className="p-4">
                                 {/* Product Description */}
@@ -874,7 +872,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                         selectedCategory={selectedCategory ?? undefined}
                                         onCategorySelect={(category) => {
                                             if (typeof category === 'object') {
-                                                console.log('🔍 Edit - Category selected:', category);
                                                 setSelectedCategory(category);
                                                 // Also set in formik for validation and submission
                                                 formik.setFieldValue('categoryId', category.categoryId);
@@ -893,22 +890,22 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                     </div>
 
                     {/* Inventory & Variations */}
-                    <div className="bg-white mb-4 shadow-card">
-                        <button
-                            type="button"
+                    <div className="bg-surface mb-4 shadow-card">
+                        <DisclosureButton
+                            expanded={expandedSections.inventory}
                             onClick={() => toggleSection('inventory')}
-                            className="w-full p-4 flex items-center justify-between border-b border-ink-5 hover:bg-ink-3"
+                            className="w-full p-4 flex items-center justify-between border-b border-outline-subtle hover:bg-surface-subtle"
                         >
                             <div className="text-left">
-                                <h2 className="text-h2 font-medium text-ink-90">Inventory & Variations</h2>
-                                <p className="text-body text-ink-60">Stock management and product options</p>
+                                <h2 className="text-h2 font-medium text-foreground-primary">Inventory & Variations</h2>
+                                <p className="text-body text-foreground-secondary">Stock management and product options</p>
                             </div>
                             {expandedSections.inventory ? (
-                                <BiChevronUp className="h-5 w-5 text-ink-40" />
+                                <BiChevronUp className="h-5 w-5 text-foreground-muted" />
                             ) : (
-                                <BiChevronDown className="h-5 w-5 text-ink-40" />
+                                <BiChevronDown className="h-5 w-5 text-foreground-muted" />
                             )}
-                        </button>
+                        </DisclosureButton>
                         {expandedSections.inventory && (
                             <div className="p-4">
                                 {/* Inventory Stocks */}
@@ -923,7 +920,7 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                         disabled={isVariable && variations.length > 0}
                                     />
                                     {isVariable && variations.length > 0 && variantDetails.length > 0 && (
-                                        <div className="text-blue-600 text-body mt-1">
+                                        <div className="text-info-foreground text-body mt-1">
                                             ✓ Auto-calculated from {variantDetails.length} variant combinations
                                         </div>
                                     )}
@@ -937,7 +934,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                         setIsVariable(value);
                                         if (!value) {
                                             // Clear all variant state when disabling - including formik values
-                                            console.log('🧹 Clearing all variant state when disabling');
                                             setVariations([{ option: "size", name: "Size", values: [] }]);
                                             setVariantDetails([]);
                                             // ARCHITECTURAL FIX: Clear single source of truth (variants only)
@@ -951,12 +947,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                     existingVariations={variations}
                                     existingVariantDetails={variantDetails}
                                     onVariationsUpdate={(updatedVariations, updatedVariantDetails) => {
-                                        console.log('📝 Updating parent state with:', {
-                                            updatedVariations,
-                                            'updatedVariantDetails.length': updatedVariantDetails.length,
-                                            'customPricingCount': updatedVariantDetails.filter(v => v.price).length,
-                                            'examplePricing': updatedVariantDetails.filter(v => v.price).slice(0, 2)
-                                        });
                                         setVariations(updatedVariations);
                                         setVariantDetails(updatedVariantDetails);
 
@@ -965,7 +955,6 @@ export default function EditProductSetup({ productId }: EditProductSetupProps) {
                                         const hasVariants = updatedVariations.length > 0 &&
                                                           updatedVariations.some(v => v.values && v.values.length > 0);
                                         if (hasVariants && !isVariable) {
-                                            console.log('🔄 Template applied: Auto-enabling variable product mode');
                                             setIsVariable(true);
                                         }
                                     }}

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { FormikProps } from "formik";
 import { ImageProps, VariantDetail, Variation } from "@/lib/types";
 import useBusinessStore from "@/store/businessStore";
+import Badge from "@vibaar/ui/common/Badge";
 
 interface CollectionComponentProps {
   // Receives Formik instances of different value shapes across the product-setup
@@ -124,22 +125,24 @@ export default function CollectionComponent({
   return (
     <div className="flex flex-col w-full">
       <div className="flex flex-col space-y-2">
-        <div className="relative flex flex-col space-y-1 border border-ink-20 rounded-field p-3 font-medium text-body">
+        <div className="relative flex flex-col space-y-1 border border-outline-strong rounded-field p-3 font-medium text-body">
           <label htmlFor={"collection"}>Product Collections</label>
 
           <div className="flex items-center flex-wrap gap-2">
             {formik.values.tags?.map((collection: string, index: number) => (
-              <span
+              <Badge
                 key={index}
-                className="bg-ink-10 flex flex-row items-center gap-2 text-ink-60 text-body-sm px-4 rounded-full space-x-2">
+                size="md"
+                className="gap-2 pe-2">
                 {collection}
                 <button
                   type="button"
                   onClick={() => handleRemoveCollection(collection)}
-                  className="text-caption flex items-center focus:outline-none h-2">
+                  aria-label={`Remove ${collection}`}
+                  className="text-caption flex items-center h-2 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40 focus-visible:ring-offset-1">
                   ✕
                 </button>
-              </span>
+              </Badge>
             ))}
           </div>
 
@@ -155,23 +158,23 @@ export default function CollectionComponent({
                 onKeyDown={handleKeyCollectionPress}
                 onFocus={handleInputFocus}
                 onBlur={handleKeyCollectionBlur}
-                className="relative text-caption bg-transparent placeholder:text-ink-60 font-bold focus:ring-0 focus:ring-ink-20 focus:outline-none w-full"
+                className="relative text-caption bg-transparent placeholder:text-foreground-secondary font-bold focus:ring-0 focus:ring-outline-strong focus:outline-none w-full"
               />
 
               {/* Suggestions Dropdown */}
               {showSuggestions && filteredTags.length > 0 && (
                 <div
                   ref={dropdownRef}
-                  className="absolute top-full left-0 right-0 z-dropdown mt-1 bg-white border border-ink-10 rounded-card shadow-lg max-h-40 overflow-y-auto"
+                  className="absolute top-full left-0 right-0 z-dropdown mt-1 bg-surface border border-outline rounded-card shadow-lg max-h-40 overflow-y-auto"
                 >
                   {filteredTags.slice(0, 10).map((tag, index) => (
                     <button
                       key={index}
                       type="button"
                       onClick={() => handleSuggestionClick(tag)}
-                      className="w-full text-left px-3 py-2 text-body-sm hover:bg-ink-3 transition-colors border-b border-ink-5 last:border-b-0"
+                      className="w-full text-left px-3 py-2 text-body-sm hover:bg-surface-subtle transition-colors border-b border-outline-subtle last:border-b-0"
                     >
-                      <span className="font-medium text-ink-70">{tag}</span>
+                      <span className="font-medium text-foreground-secondary">{tag}</span>
                     </button>
                   ))}
                 </div>
@@ -182,7 +185,7 @@ export default function CollectionComponent({
             <button
               type="button"
               onClick={handleAddCollection}
-              className="px-3 py-1 bg-brand text-white text-body-sm rounded-field shrink-0">
+              className="px-3 py-1 bg-brand text-brandInk text-body-sm rounded-field shrink-0">
               Add
             </button>
           </div>

@@ -61,20 +61,20 @@ const ProfileSetup = ({
       <H1 className="text-h1 leading-[24px] text-start">
         Complete profile setup
       </H1>
-      <p className="text-body mt-3 tracking-[0.5px] leading-[20px] text-ink-40 text-start">
+      <p className="text-body mt-3 tracking-[0.5px] leading-[20px] text-foreground-muted text-start">
         {isGuestPrefill 
           ? "Review and complete your profile details. Some fields are prefilled from your order." 
           : "Enter your personal details"}
       </p>
 
       {isGuestPrefill && (
-        <div className="bg-info/10 border border-info/20 rounded-field p-3 mt-4">
+        <div className="bg-info-surface border border-info-border rounded-field p-3 mt-4">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <AiOutlineInfoCircle size={16} className="text-info" />
+              <AiOutlineInfoCircle size={16} className="text-info-foreground" />
             </div>
             <div className="ml-3">
-              <p className="text-body-sm text-info">
+              <p className="text-body-sm text-info-foreground">
                 Name and phone prefilled from your delivery info
               </p>
             </div>
@@ -88,7 +88,6 @@ const ProfileSetup = ({
           name="fullName"
           value={profileData?.fullName}
           onChange={(e) => {
-            console.log("🔄 fullName onChange triggered:", e.target.value);
             handleInputChange(e);
           }}
           placeholder="Full name"
@@ -112,7 +111,6 @@ const ProfileSetup = ({
             name="user_name"
             value={profileData?.user_name}
             onChange={(e) => {
-              console.log("🔄 user_name onChange triggered:", e.target.value);
               handleInputChange(e);
             }}
             placeholder="Username"
@@ -143,7 +141,7 @@ const ProfileSetup = ({
 
         {/* Referral ID Input - Optional */}
         <div className="mt-2">
-          <p className="text-body-sm text-ink-40 mb-2">Referral ID (optional)</p>
+          <p className="text-body-sm text-foreground-muted mb-2">Referral ID (optional)</p>
           <div style={{ position: 'relative', width: '100%' }}>
             <span
               style={{
@@ -181,21 +179,21 @@ const ProfileSetup = ({
                 }}
               >
                 {referralValid ? (
-                  <CircleCheck size={20} className="text-success-strong" />
+                  <CircleCheck size={20} className="text-success-foreground" />
                 ) : (
-                  <X size={20} className="text-red" />
+                  <X size={20} className="text-error-foreground" />
                 )}
               </div>
             )}
           </div>
           {/* Referrer name display */}
           {referralValid && referrerName && (
-            <p className="text-body-sm text-success-strong mt-1">
+            <p className="text-body-sm text-success-foreground mt-1">
               Referred by {referrerName} - You&apos;ll both earn rewards on your first order!
             </p>
           )}
           {referralValid === false && profileData?.referral_username && (
-            <p className="text-body-sm text-red mt-1">
+            <p className="text-body-sm text-error-foreground mt-1">
               Username not found
             </p>
           )}

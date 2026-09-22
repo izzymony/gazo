@@ -7,6 +7,7 @@ interface EmptyStateProps {
   icon?: React.ReactNode;
   title?: string;
   subtitle?: string;
+  /** Call to action. EmptyState provides the spacing above it. */
   children?: React.ReactNode;
 }
 
@@ -20,19 +21,24 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   return (
     <div className="flex flex-col items-center justify-center text-center px-8">
       {icon ? (
-        <div className="w-20 h-20 mb-4 rounded-full bg-ink-3 flex items-center justify-center text-ink-40">
+        <div className="w-20 h-20 mb-4 rounded-full bg-surface-subtle flex items-center justify-center text-foreground-muted">
           {icon}
         </div>
       ) : (
         <img src={image} alt="Empty state" className="w-28 h-28 mb-4" />
       )}
-      <p className="text-sm font-medium text-ink-60">{title}</p>
+      <p className="text-body-sm font-medium text-foreground-secondary">{title}</p>
       {subtitle && (
-        <p className="text-ink-40 font-normal text-caption  w-[80%] mt-2">
+        <p className="text-foreground-muted font-normal text-caption  w-[80%] mt-2">
           {subtitle}
         </p>
       )}
-      {children}
+      {/* EmptyState owns the gap before its call to action. It used to render
+          children bare, so the CTA's own `mt-4` — which Button only applies at
+          fullWidth — was silently doing the spacing. That is why six call sites
+          could not use `fullWidth={false}` without the button jumping up into
+          the subtitle, and reached for !important instead. */}
+      {children && <div className="mt-4">{children}</div>}
     </div>
   );
 };

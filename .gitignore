@@ -49,3 +49,27 @@ pg_dump*.sql
 !services/backend/migrations/**/*.sql
 !services/backend/internal/migration/sql/*.sql
 !services/backend/scripts/*.sql
+
+# local-only design-system playground — NEVER committed, NEVER deployed.
+# The route lives inside apps/web so it renders through the real Tailwind
+# preset, globals.css tokens and @vibaar/ui components (a separate Storybook
+# app would drift from what actually ships). apps/web/scripts/playground-guard.mjs
+# parks it out of the tree for every build, asserts the output is clean, and
+# CI asserts nothing under it is ever tracked. Ignore the WHOLE directory, not
+# just the route file: a narrower rule would let a new fixture or helper beside
+# it become trackable, which is the exact failure this guards against.
+apps/web/src/app/(dev)/
+apps/web/.playground-parked/
+
+# drift audit report — regenerated on every run, never committed (the reviewed
+# BASELINE at apps/web/design-drift-baseline.json is what is version-controlled)
+apps/web/.drift/
+
+# isolated verification build output (see NEXT_DIST_DIR in apps/web/next.config.mjs)
+apps/web/.next-verify/
+
+# Playwright QA artefacts — traces and screenshots of failed runs, regenerated
+# every run and often large.
+/test-results/
+/playwright-report/
+/blob-report/

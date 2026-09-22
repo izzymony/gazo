@@ -12,6 +12,7 @@
         ]
       }
     ],
+    "react/no-unknown-property": ["error", { "ignore": ["jsx", "global"] }],
     "no-restricted-syntax": [
       "error",
       {
@@ -31,6 +32,14 @@
         "message": "Arbitrary radius (rounded-[Npx]) is banned — use rounded-field/card/pill or a Tailwind-named radius (rounded, -lg, -xl, -2xl, -3xl)."
       }
     ],
+    // Sensitive context (user objects, phone/email, order and payment ids) was
+    // being logged from 21 files. `compiler.removeConsole` already strips these
+    // from production and staging BUILDS, so nothing leaked to a deployed
+    // console — but they still run in local development, which is exactly where
+    // real provider keys and real accounts get exercised. This stops new ones at
+    // authoring time. warn/error stay allowed: they are the deliberate failure
+    // paths, and Sentry is what carries them in production.
+    "no-console": ["error", { "allow": ["warn", "error"] }],
     "max-lines": ["warn", { "max": 400, "skipBlankLines": true, "skipComments": true }],
     "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/no-explicit-any": "warn",

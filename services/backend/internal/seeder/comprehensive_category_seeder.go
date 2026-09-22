@@ -1,6 +1,7 @@
 package seeder
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -29,6 +30,13 @@ type SubcategoryData struct {
 }
 
 // SeedComprehensiveCategories seeds all 13 main categories with 44 subcategories
+// NOTE: the product taxonomy is now owned by migration 014, which the deployment
+// applies exactly once per database (internal/migration/sql/014_seed_product_taxonomy.sql).
+// This function remains for LOCAL work and manual recovery, and the two must
+// describe the same taxonomy: 014 was generated from this data and from the
+// production dump, which agreed on all 13 categories, all 52 sub-categories and
+// every shipping dimension. If you change the taxonomy here, add a new migration
+// — editing 014 will not re-run on a database that has already applied it.
 func SeedComprehensiveCategories(db *gorm.DB) error {
 	log.Println("🌱 Starting comprehensive category seeding...")
 
@@ -556,12 +564,23 @@ func SeedComprehensiveCategories(db *gorm.DB) error {
 		},
 	}
 
+	// External (Shipbubble) categories FIRST. `createOrUpdateCategory` resolves
+	// each category's `external_category_id` by looking one up by provider id, so
+	// creating them after the loop meant every lookup missed on a fresh database:
+	// all 13 categories were saved with an empty linkage, and only a SECOND run
+	// repaired them. Proven on a scratch database — run 1 linked 0/13, run 2
+	// linked 13/13. Staging and any future production bootstrap are exactly that
+	// fresh-database case.
+	if err := seedShipbubbleCategories(db); err != nil {
+		return fmt.Errorf("failed to seed external categories: %v", err)
+	}
+
 	// Create or update categories and subcategories
 	for _, categoryData := range categories {
 		category, err := createOrUpdateCategory(db, categoryData)
 		if err != nil {
-			log.Printf("❌ Failed to create/update category '%s': %v", categoryData.Name, err)
-			continue
+			// `continue` here is what let a half-seeded taxonomy report success.
+			return fmt.Errorf("category %q: %v", categoryData.Name, err)
 		}
 
 		log.Printf("✅ Created/updated category: %s (ID: %s)", category.Name, category.ID)
@@ -570,18 +589,10 @@ func SeedComprehensiveCategories(db *gorm.DB) error {
 		for _, subcatData := range categoryData.Subcategories {
 			subcat, err := createOrUpdateSubcategory(db, subcatData, category.ID)
 			if err != nil {
-				log.Printf("❌ Failed to create/update subcategory '%s': %v", subcatData.Name, err)
-				continue
+				return fmt.Errorf("subcategory %q under %q: %v", subcatData.Name, categoryData.Name, err)
 			}
 			log.Printf("   ✅ Created/updated subcategory: %s (ID: %s)", subcat.Name, subcat.ID)
 		}
-	}
-
-	// Update external categories with new Shipbubble mappings
-	err := seedShipbubbleCategories(db)
-	if err != nil {
-		log.Printf("❌ Failed to seed Shipbubble categories: %v", err)
-		return err
 	}
 
 	log.Println("🎉 Comprehensive category seeding completed successfully!")
@@ -594,7 +605,7 @@ func findExternalCategoryUUIDByProviderId(db *gorm.DB, providerId string) (strin
 	var externalCategory domain.ExternalCategory
 	err := db.Where("provider_id = ?", providerId).First(&externalCategory).Error
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// If not found, return empty string (will be handled by caller)
 			return "", nil
 		}
@@ -609,18 +620,28 @@ func createOrUpdateCategory(db *gorm.DB, categoryData CategoryData) (*domain.Cat
 
 	// Lookup the proper UUID from external_categories table
 	// ShipbubbleCategoryId contains the provider_id, but we need the UUID
+	// A category with no external linkage is not a lesser category, it is a broken
+	// one: `shippingService` falls back to guessing a Shipbubble category from the
+	// name and the parcel dimensions, so the rates are wrong rather than absent
+	// and nothing surfaces it. This used to log a warning and save "" — and it did
+	// not even log, because the lookup returned ("", nil) when the row was missing.
+	// Seeding must fail loudly instead of leaving that behind.
 	externalCategoryUUID, err := findExternalCategoryUUIDByProviderId(db, categoryData.ShipbubbleCategoryId)
 	if err != nil {
-		log.Printf("⚠️  Warning: Could not lookup external category UUID for provider_id %s: %v", categoryData.ShipbubbleCategoryId, err)
-		// Continue without external category ID
-		externalCategoryUUID = ""
+		return nil, fmt.Errorf("looking up external category for %q (provider id %s): %v",
+			categoryData.Name, categoryData.ShipbubbleCategoryId, err)
+	}
+	if externalCategoryUUID == "" {
+		return nil, fmt.Errorf(
+			"no external category with provider id %s for category %q — seedShipbubbleCategories must run first",
+			categoryData.ShipbubbleCategoryId, categoryData.Name)
 	}
 
 	var category domain.Category
 	err = db.Where("name = ? OR slug = ?", categoryData.Name, slug).First(&category).Error
 
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// Create new category
 			category = domain.Category{
 				Name:               categoryData.Name,
@@ -660,7 +681,7 @@ func createOrUpdateSubcategory(db *gorm.DB, subcatData SubcategoryData, category
 	err := db.Where("name = ? AND category_id = ?", subcatData.Name, categoryId).First(&subcategory).Error
 	
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// Create new subcategory
 			subcategory = domain.SubCategory{
 				Name:          subcatData.Name,
@@ -721,25 +742,20 @@ func seedShipbubbleCategories(db *gorm.DB) error {
 		err := db.Where("provider_id = ? AND provider = ?", extCategory.ProviderId, "shipbubble").First(&existing).Error
 		
 		if err != nil {
-			if err == gorm.ErrRecordNotFound {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
 				// Create new external category
-				err = db.Create(&extCategory).Error
-				if err != nil {
-					log.Printf("❌ Failed to create external category '%s': %v", extCategory.Name, err)
-					continue
+				if err := db.Create(&extCategory).Error; err != nil {
+					return fmt.Errorf("failed to create external category %q: %v", extCategory.Name, err)
 				}
 				log.Printf("✅ Created external category: %s (ID: %s)", extCategory.Name, extCategory.ProviderId)
 			} else {
-				log.Printf("❌ Database error for external category '%s': %v", extCategory.Name, err)
-				continue
+				return fmt.Errorf("database error for external category %q: %v", extCategory.Name, err)
 			}
 		} else {
 			// Update existing external category
 			existing.Name = extCategory.Name
-			err = db.Save(&existing).Error
-			if err != nil {
-				log.Printf("❌ Failed to update external category '%s': %v", extCategory.Name, err)
-				continue
+			if err := db.Save(&existing).Error; err != nil {
+				return fmt.Errorf("failed to update external category %q: %v", extCategory.Name, err)
 			}
 			log.Printf("✅ Updated external category: %s (ID: %s)", existing.Name, existing.ProviderId)
 		}

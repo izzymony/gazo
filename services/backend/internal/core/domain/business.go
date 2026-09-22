@@ -23,7 +23,7 @@ type ZoneRate struct {
 type SelfZones struct {
 	Local         ZoneRate `json:"local"`
 	Interstate    ZoneRate `json:"interstate"`
-	International  ZoneRate `json:"international"`
+	International ZoneRate `json:"international"`
 }
 
 // Value implements driver.Valuer so SelfZones persists as JSON.
@@ -58,21 +58,21 @@ func (z *SelfZones) Scan(value interface{}) error {
 
 type Business struct {
 	Model
-	UserID             string                      `json:"user_id"`
-	Name               string                      `json:"name" gorm:"index;unique"`
-	Tag                string                      `json:"tag"`
-	Phone              string                      `json:"phone" gorm:"index"`
-	Email              string                      `json:"email" gorm:"index"`
-	Category           string                      `json:"category"`
-	Logo               string                      `json:"logo"`
-	
+	UserID   string `json:"user_id"`
+	Name     string `json:"name" gorm:"index;unique"`
+	Tag      string `json:"tag"`
+	Phone    string `json:"phone" gorm:"index"`
+	Email    string `json:"email" gorm:"index"`
+	Category string `json:"category"`
+	Logo     string `json:"logo"`
+
 	// Social Media Profiles
-	InstagramProfile   *string                     `json:"instagram_profile"`
-	TiktokProfile      *string                     `json:"tiktok_profile"`
-	FacebookProfile    *string                     `json:"facebook_profile"`
-	WhatsappProfile    *string                     `json:"whatsapp_profile"`
-	XProfile          *string                     `json:"x_profile"`
-	
+	InstagramProfile *string `json:"instagram_profile"`
+	TiktokProfile    *string `json:"tiktok_profile"`
+	FacebookProfile  *string `json:"facebook_profile"`
+	WhatsappProfile  *string `json:"whatsapp_profile"`
+	XProfile         *string `json:"x_profile"`
+
 	Address            *BusinessAddress            `json:"address" gorm:"foreignKey:BusinessID"`
 	BusinessSetting    *BusinessSetting            `json:"business_setting" gorm:"foreignKey:BusinessID"`
 	BankAccountDetails []BusinessBankAccountDetail `json:"bank_account_details" gorm:"foreignKey:BusinessID"`
@@ -92,10 +92,28 @@ type BusinessBankAccountDetail struct {
 	Bank          string   `json:"bank"`
 	AccountNumber string   `json:"account_number"`
 	AccountName   string   `json:"account_name"`
-	BankCode      int      `json:"bank_code"`
+	// A STRING, and that is load-bearing. Paystack bank codes are strings with
+	// meaning in their leading characters: 52 of 284 NGN codes begin with a
+	// zero (Access 044, First Bank 011, UBA 033, Zenith 057, GTBank 058) and 10
+	// are not numeric at all (035A, MFB50094, FC40163, D53). As an integer this
+	// column silently rewrote "044" to 44 and could not hold the others.
+	//
+	// Measured against Paystack: bank_code "44" is refused with "Bank is
+	// invalid"; "044" creates the recipient. So the int form made it impossible
+	// to pay a seller at most of Nigeria's largest banks.
+	BankCode      string   `json:"bank_code"`
 	BusinessID    string   `json:"business_id" gorm:"index"`
 	IsDefault     bool     `json:"is_default"`
 	Metadata      MapArray `json:"metadata" gorm:"type:jsonb"`
+
+	// Paystack's transfer recipient for this account, created once and reused.
+	//
+	// Promoted out of the `Metadata` jsonb blob the orphaned transfer code was
+	// writing it into. It is looked up on every payout and must be uniquely
+	// attributable to one account — neither is true of a key inside a jsonb
+	// array. The old metadata key is still read as a fallback so codes cached
+	// before this change are not re-created.
+	PaystackRecipientCode string `json:"paystack_recipient_code" gorm:"index"`
 }
 
 type BusinessAddress struct {

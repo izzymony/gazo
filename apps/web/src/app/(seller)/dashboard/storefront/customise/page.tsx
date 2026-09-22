@@ -2,7 +2,7 @@
 
 import { ColoredPattern } from "@/features/seller-dashboard/coloredpattern";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import Button from "@vibaar/ui/common/Button";
 import Section from "@vibaar/ui/common/Section";
 import useBusinessStore from "@/store/businessStore";
@@ -143,7 +143,7 @@ const Page: React.FC = () => {
               alt="Upload icon"
               width={0}
               height={0}
-              className="absolute inset-0 m-auto text-ink-40 cursor-pointer w-auto"
+              className="absolute inset-0 m-auto text-foreground-muted cursor-pointer w-auto"
               onClick={() => document.getElementById("imageInput")?.click()}
             />
           </div>
@@ -155,7 +155,7 @@ const Page: React.FC = () => {
             onChange={handleImageChange}
             aria-label="Upload background image"
           />
-          <p className="text-center text-ink-40 text-body-sm font-normal mt-6">
+          <p className="text-center text-foreground-muted text-body-sm font-normal mt-6">
             Tap to upload a background image
           </p>
         </div>
@@ -165,29 +165,26 @@ const Page: React.FC = () => {
 
   return (
     <PageShell
-      header={
-        <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="Appearance"
-        />
-      }
-      footerAction={
-        <Button type="button" onClick={handleSave} loading={isLoading}>
-          Save
-        </Button>
-      }>
+      pageHeader={{
+        onBack: () => router.back(),
+        title: "Appearance",
+        actions: (
+          <PageActionButton type="button" onClick={handleSave} loading={isLoading}>
+            Save
+          </PageActionButton>
+        ),
+      }}>
       <Section title="Background style">
         <div className="w-full">
           {/* Tab Headers */}
-          <div className="flex bg-ink-5 rounded-field px-1 py-1">
+          <div className="flex bg-surface-muted rounded-field px-1 py-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex flex-row gap-2 items-center justify-center flex-1 text-center text-body-sm rounded-field py-2 px-4 transition-colors ${activeTab === tab.id
-                  ? "bg-white text-ink-90"
-                  : "text-ink-40"
+                  ? "bg-surface text-foreground-primary"
+                  : "text-foreground-muted"
                   }`}>
                 {tab.label}
               </button>
@@ -195,7 +192,7 @@ const Page: React.FC = () => {
           </div>
 
           {/* Tab Content */}
-          <div className="py-4 w-full bg-white">{tabs[activeTab].content}</div>
+          <div className="py-4 w-full bg-surface">{tabs[activeTab].content}</div>
         </div>
       </Section>
     </PageShell>

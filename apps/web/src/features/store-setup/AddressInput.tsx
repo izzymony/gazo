@@ -43,23 +43,23 @@ const AddressInput = ({
       <div className="space-y-4">
         {/* Country - Fixed to Nigeria, no dropdown */}
         <div>
-          <label className="block text-body font-medium text-ink-70 mb-2">
+          <label className="block text-body font-medium text-foreground-secondary mb-2">
             Country
           </label>
           <div className={`flex relative w-full px-4 h-[52px] rounded-field border ${
-            error.country ? "border-red" : "border-ink-20"
-          } justify-between items-center text-body text-ink-90 font-medium bg-ink-3`}>
+            error.country ? "border-error-border" : "border-outline-strong"
+          } justify-between items-center text-body text-foreground-primary font-medium bg-surface-subtle`}>
             <div className="flex items-center">
               <span className="mr-3">🇳🇬</span>
               <p>Nigeria</p>
             </div>
           </div>
-          {error.country && <p className="text-red text-body-sm mt-1">{error.country}</p>}
+          {error.country && <p className="text-error-foreground text-body-sm mt-1">{error.country}</p>}
         </div>
 
         {/* State/Province */}
         <div>
-          <label className="block text-body font-medium text-ink-70 mb-2">
+          <label className="block text-body font-medium text-foreground-secondary mb-2">
             State/Province
           </label>
           <InputField
@@ -74,21 +74,21 @@ const AddressInput = ({
 
         {/* Store Address - Opens location modal on click */}
         <div>
-          <label className="block text-body font-medium text-ink-70 mb-2">
+          <label className="block text-body font-medium text-foreground-secondary mb-2">
             Store Address
           </label>
-          <div 
+          <button type="button" 
             onClick={openLocationModal}
-            className={`flex relative w-full px-4 h-[52px] rounded-field border ${
-              error.address ? "border-red" : "border-ink-20"
+            className={`text-left w-full flex relative w-full px-4 h-[52px] rounded-field border ${
+              error.address ? "border-error-border" : "border-outline-strong"
             } focus-within:ring-1 focus-within:ring-black justify-between items-center text-body font-medium cursor-pointer`}
           >
-            <p className={data.address ? "text-ink-90" : "text-ink-50"}>
+            <p className={data.address ? "text-foreground-primary" : "text-foreground-muted"}>
               {data.address || "Search for store address"}
             </p>
-            <FaLocationDot size={20} className="text-ink-40" />
-          </div>
-          {error.address && <p className="text-red text-body-sm mt-1">{error.address}</p>}
+            <FaLocationDot size={20} className="text-foreground-muted" />
+          </button>
+          {error.address && <p className="text-error-foreground text-body-sm mt-1">{error.address}</p>}
         </div>
       </div>
 

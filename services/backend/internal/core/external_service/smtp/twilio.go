@@ -70,7 +70,7 @@ func (s *TwilioService) SendOTP(to, otp, channel, templateId string) error {
 }
 
 func (s *TwilioService) SendEmailOTP(to, otp, templateId string) error {
-	fmt.Println("sending mail otp")
+	logger.Info("sending mail otp")
 	form := url.Values{}
 	form.Set("Channel", "email")
 	if templateId != "" {
@@ -98,12 +98,11 @@ func (s *TwilioService) SendEmailOTP(to, otp, templateId string) error {
 		return fmt.Errorf("request failed: %w", err)
 	}
 	defer resp.Body.Close()
-	bodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
+	// The body is drained so the connection can be reused, and DISCARDED: it
+	// was previously printed in full on the OTP-delivery path.
+	if _, err := io.Copy(io.Discard, resp.Body); err != nil {
 		return fmt.Errorf("failed to read response body: %w", err)
 	}
-	bodyString := string(bodyBytes)
-	fmt.Println("Response Body2:", bodyString)
 	if resp.StatusCode >= 300 {
 		return fmt.Errorf("twilio API returned status: %s", resp.Status)
 	}
@@ -111,7 +110,7 @@ func (s *TwilioService) SendEmailOTP(to, otp, templateId string) error {
 }
 
 func (s *TwilioService) SendWhatsAppOTP(to, code string) error {
-	fmt.Println("sending whatsapp otp")
+	logger.Info("sending whatsapp otp")
 	twilioURL := fmt.Sprintf("https://api.twilio.com/2010-04-01/Accounts/%s/Messages.json", s.AccountSID)
 
 	contentVars := fmt.Sprintf(`{"1":"%s"}`, code)
@@ -142,7 +141,7 @@ func (s *TwilioService) SendWhatsAppOTP(to, code string) error {
 	if err != nil {
 		return fmt.Errorf("failed to read response body: %w", err)
 	}
-	fmt.Println("bodyBytes; ", string(bodyBytes))
+	// Was the provider response body on an OTP-delivery call.
 	var response TwilioMessageResponse
 	if err := json.Unmarshal(bodyBytes, &response); err != nil {
 		return fmt.Errorf("error parsing transfer response: %w", err)
@@ -189,7 +188,7 @@ func (s *TwilioService) SendSMSOTP(to, code string) error {
 	if err != nil {
 		return fmt.Errorf("failed to read response body: %w", err)
 	}
-	fmt.Println("bodyBytes; ", string(bodyBytes))
+	// Was the provider response body on an OTP-delivery call.
 
 	var response TwilioMessageResponse
 	if err := json.Unmarshal(bodyBytes, &response); err != nil {

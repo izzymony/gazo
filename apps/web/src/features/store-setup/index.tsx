@@ -7,9 +7,9 @@ import StoreDetails from "./StoreDetails";
 import { useEffect, useState } from "react";
 import useBusinessStore from "@/store/businessStore";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
+import StepNavigation from "@vibaar/ui/common/StepNavigation";
 import Image from "next/image";
-import Button from "@vibaar/ui/common/Button";
 import { ChevronRight } from "@vibaar/ui/icons";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -150,7 +150,6 @@ const CreateStore = () => {
           };
         }
 
-        console.log("🔍 Sending business payload:", logoFile ? "FormData with logo" : "JSON without logo");
 
         // Track final step completion
         trackSellerStoreStep(2, 'store_address', {
@@ -166,7 +165,6 @@ const CreateStore = () => {
             const onboardingDuration = endTiming('seller_onboarding');
             trackSellerSignup(store?.id || formik.values.tag, formik.values.name);
             if (onboardingDuration) {
-              console.log(`Seller onboarding completed in ${onboardingDuration}s`);
             }
 
             // Store creation success flags
@@ -256,7 +254,7 @@ const CreateStore = () => {
     // Success screen — store created
     <PageShell
       footerAction={
-        <Button
+        <PageActionButton
           onClick={() => {
             localStorage.setItem('newStoreCreated', 'true');
             localStorage.setItem('newStoreName', myStore?.name || '');
@@ -265,7 +263,7 @@ const CreateStore = () => {
           }}>
           Go to Dashboard
           <ChevronRight size={20} className="text-white" />
-        </Button>
+        </PageActionButton>
       }>
       <div className="flex flex-col items-center text-center pt-8">
         <Image
@@ -279,9 +277,9 @@ const CreateStore = () => {
         <p className="font-medium text-display tracking-wide mb-2">
           Your store is ready!
         </p>
-        <p className="text-ink-60 text-body px-6 font-medium mt-2">
-          Welcome to <span className="text-brand">Vibaar</span>{" "}
-          <span className="font-semibold text-ink-90">@{myStore?.name + " "}</span>{" "}
+        <p className="text-foreground-secondary text-body px-6 font-medium mt-2">
+          Welcome to <span className="text-brandDeep">Vibaar</span>{" "}
+          <span className="font-semibold text-foreground-primary">@{myStore?.name + " "}</span>{" "}
           <br />
           Millions of social shoppers are already waiting, Now publish your first
           product to start selling...
@@ -290,24 +288,19 @@ const CreateStore = () => {
     </PageShell>
   ) : (
     <PageShell
-      header={
-        <Header
-          showBack
-          showStepNavigation
-          step={step}
-          totalSteps={2}
-          customText={`${step === 1
-            ? "Enter your store details"
-            : step === 2 && "Store address"
-            } `}
-          onBackClick={handleBack}
-        />
-      }
-      footerAction={
-        <Button onClick={handleNextStep} loading={isLoading}>
-          {step === 2 ? "Finish setup" : "Continue"}
-        </Button>
-      }>
+      pageHeader={{
+        onBack: handleBack,
+        title: `${step === 1
+          ? "Enter your store details"
+          : step === 2 && "Store address"
+          } `,
+        progress: <StepNavigation step={step} totalSteps={2} />,
+        actions: (
+          <PageActionButton onClick={handleNextStep} loading={isLoading}>
+            {step === 2 ? "Finish setup" : "Continue"}
+          </PageActionButton>
+        ),
+      }}>
       <div className="flex flex-col w-full pt-4">
         {step === 1 && (
           <StoreDetails

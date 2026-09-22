@@ -13,7 +13,7 @@ const Review = () => {
         <Tabs
           tabs={tabs}
           tabContents={tabContents}
-          tabClass="!justify-center"
+          tabClass="justify-center"
         />
       </div>
     </div>

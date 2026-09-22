@@ -1,7 +1,10 @@
+"use client";
+
 import React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vibaar/utils";
-import { IconProps } from "../icons";
+import { focusRing } from "../styles";
+import type { IconProps } from "../icons";
 
 // Icon-button system — the single primitive for "an icon in a tappable container".
 // Standardises touch-target size, icon scale, radius, and hover/active states so
@@ -10,16 +13,33 @@ import { IconProps } from "../icons";
 //   variant — plain (dark icon on light) · muted (secondary dark) · onDark (white
 //             icon on hero/colored bg) · filled (brand pill) · soft (brand tint pill)
 //   size    — sm 32px · md 36px (default, meets 36px touch min) · lg 44px
-const iconButtonVariants = cva(
-  "inline-flex items-center justify-center shrink-0 rounded-full transition-colors duration-200 disabled:opacity-50 disabled:pointer-events-none touch-manipulation cursor-pointer",
+/**
+ * Exported because the same treatment is sometimes needed on an element that
+ * must NOT be a button. A control that changes the URL is a link — it has to be
+ * middle-clickable, openable in a new tab, and copyable — so it cannot use this
+ * component, but it should still look identical rather than restate the classes
+ * and drift from them.
+ */
+export const iconButtonVariants = cva(
+  cn(
+    "inline-flex items-center justify-center shrink-0 rounded-full transition-colors duration-200 disabled:opacity-50 disabled:pointer-events-none touch-manipulation cursor-pointer",
+    focusRing
+  ),
   {
     variants: {
       variant: {
-        plain: "text-ink-90 hover:bg-ink-5 active:bg-ink-10",
-        muted: "text-ink-60 hover:bg-ink-5 active:bg-ink-10",
-        onDark: "text-white hover:bg-white/10 active:bg-white/20",
-        filled: "bg-brand text-white hover:bg-brandHover active:bg-brandHover",
-        soft: "bg-brand/10 text-brand hover:bg-brand/20",
+        plain: "text-foreground-primary hover:bg-surface-muted active:bg-surface-strong",
+        muted: "text-foreground-secondary hover:bg-surface-muted active:bg-surface-strong",
+        onDark: "text-white hover:bg-surface/10 active:bg-surface/20",
+        // Chrome sitting ON a photograph — a wishlist heart on a product image,
+        // a close control over a full-bleed viewer. It carries its own scrim
+        // because the image underneath is not a known colour.
+        overlay:
+          "bg-overlay/15 text-white backdrop-blur-sm hover:bg-overlay/30 active:bg-overlay/40",
+        // On a brand-yellow surface. White here is 1.28:1 — invisible.
+        onBrand: "text-brandInk hover:bg-brandInk/10 active:bg-brandInk/20",
+        filled: "bg-brand text-brandInk hover:bg-brandHover active:bg-brandHover",
+        soft: "bg-brand/10 text-brandDeep hover:bg-brand/20",
       },
       size: {
         sm: "h-8 w-8",
@@ -37,12 +57,18 @@ const ICON_SIZE: Record<NonNullable<VariantProps<typeof iconButtonVariants>["siz
   lg: 24,
 };
 
-type IconButtonProps = {
+/**
+ * Native <button> attributes are spread onto the element, matching Button, so
+ * aria-*, id, form, data-* and the rest work without enumeration.
+ */
+type IconButtonProps = Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  "className" | "type" | "disabled" | "aria-label"
+> & {
   /** Icon component from `../icons`. */
   icon: React.ComponentType<IconProps>;
   /** Accessible name — required since the button has no visible text. */
   label: string;
-  onClick?: () => void;
   className?: string;
   iconClassName?: string;
   /** Override the size-derived icon dimension when a design needs it. */
@@ -51,26 +77,38 @@ type IconButtonProps = {
   type?: "button" | "submit" | "reset";
 } & VariantProps<typeof iconButtonVariants>;
 
-export default function IconButton({
-  icon: Icon,
-  label,
-  onClick,
-  className = "",
-  iconClassName,
-  iconSize,
-  disabled = false,
-  type = "button",
-  variant = "plain",
-  size = "md",
-}: IconButtonProps) {
+const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(function IconButton(
+  {
+    icon: Icon,
+    label,
+    className = "",
+    iconClassName,
+    iconSize,
+    disabled = false,
+    type = "button",
+    variant = "plain",
+    size = "md",
+    // Pulled out of `rest` because it collides with a value this component
+    // controls; `rest` is spread first so the controlled values win.
+    style,
+    ...rest
+  },
+  ref
+) {
   return (
     <button
+      {...rest}
+      ref={ref}
       type={type}
-      onClick={onClick}
       disabled={disabled}
+      // `label` is the whole point of this primitive: an icon-only control with
+      // no accessible name is unusable, so it is required and not overridable.
       aria-label={label}
-      className={cn(iconButtonVariants({ variant, size }), className)}>
+      className={cn(iconButtonVariants({ variant, size }), className)}
+      style={style}>
       <Icon size={iconSize ?? ICON_SIZE[size ?? "md"]} className={iconClassName} />
     </button>
   );
-}
+});
+
+export default IconButton;

@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import Button from "@vibaar/ui/common/Button";
 import FilterBar from "@vibaar/ui/common/FilterBar";
@@ -15,6 +15,8 @@ import {
   type AppNotification,
 } from "@/hooks/useNotifications";
 import { iconFor, formatTime } from "@/features/notifications/notificationDisplay";
+import List from "@vibaar/ui/common/List";
+import Loader from "@vibaar/ui/common/Loader";
 
 // Side-appropriate filter pills. Notification.Type is coarse (order / promo /
 // system_alert), so each side maps those three to labels that fit that mode.
@@ -83,7 +85,10 @@ export default function NotificationFeed({ side }: { side: "buyer" | "seller" })
 
   return (
     <PageShell
-      header={<Header showBack customText="Notifications" onBackClick={() => router.back()} />}
+      header={<Header
+                onBack={() => router.back()}
+                title="Notifications"
+              />}
     >
       <div className="flex flex-col w-full h-full relative">
         <div className="w-full">
@@ -109,30 +114,30 @@ export default function NotificationFeed({ side }: { side: "buyer" | "seller" })
                 title="Sign in to see your notifications"
                 subtitle="Your orders, payments and updates appear here once you sign in."
               >
-                <div className="mt-6 w-full max-w-[220px]">
+                <div className="w-full max-w-[220px]">
                   <Button onClick={() => router.push("/signin")}>Sign in</Button>
                 </div>
               </EmptyState>
             </div>
           ) : isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red" />
-              <p className="ml-3 text-ink-60">Loading...</p>
-            </div>
+            <Loader variant="inline" text="Loading..." className="py-12" />
           ) : (
             <div className="flex flex-col mt-2 pb-24">
               {filtered.length > 0 ? (
-                filtered.map((n) => (
-                  <ActivityItem
-                    key={n.id}
-                    icon={iconFor(n)}
-                    title={n.title}
-                    message={n.message}
-                    time={formatTime(n.createdAt)}
-                    unread={!n.isRead}
-                    onClick={() => handleClick(n)}
-                  />
-                ))
+                <List label="Notifications" className="divide-y-0">
+                  {filtered.map((n) => (
+                    <ActivityItem
+                      key={n.id}
+                      asListItem
+                      icon={iconFor(n)}
+                      title={n.title}
+                      message={n.message}
+                      time={formatTime(n.createdAt)}
+                      unread={!n.isRead}
+                      onClick={() => handleClick(n)}
+                    />
+                  ))}
+                </List>
               ) : (
                 <div className="py-12">
                   <EmptyState

@@ -102,7 +102,35 @@ export const handleAxiosError = (error: unknown): void => {
 
   if (error instanceof AxiosError) {
     const err = error as AxiosError<ErrorResponse>; // Use the defined error response type
-    errorMessage = err.response?.data?.error || "Network error";
+    // "Network error" used to be the fallback for EVERY axios failure whose body
+    // lacked an `error` field — a 401, a 500, a 404, an empty body — so the one
+    // message the user ever saw said nothing about what happened and sent
+    // everyone hunting their wifi. A network error is specifically the case
+    // where no response came back at all.
+    if (!err.response) {
+      errorMessage =
+        err.code === "ECONNABORTED"
+          ? "That took too long. Try again."
+          : "Can't reach the server. Check your connection.";
+    } else {
+      const status = err.response.status;
+      errorMessage =
+        err.response.data?.error ||
+        (status === 401
+          ? "Your session has expired. Please sign in again."
+          : status === 403
+            ? "You don't have access to that."
+            : status === 404
+              ? "We couldn't find that."
+              : status >= 500
+                ? "Something went wrong on our end. Try again shortly."
+                : "That didn't work. Try again.");
+    }
+    // The path is what makes a report actionable; it never reaches the toast.
+    console.error(
+      `API ${err.response?.status ?? err.code ?? "no response"} ${err.config?.method?.toUpperCase() ?? ""} ${err.config?.url ?? ""}`,
+      err.response?.data
+    );
   } else if (error instanceof Error) {
     // Handle regular Error objects
     errorMessage = error.message || "An error occurred";
@@ -337,6 +365,16 @@ export const formatTrendForNigerianMarket = (
     showArrow: true
   };
 };
+
+/**
+ * What to show when a product has no photo.
+ *
+ * Several places fell back to `""`, and an empty `src` makes the browser draw
+ * its BROKEN-IMAGE icon — so a product without a picture looked like a product
+ * whose picture had failed to load. The literal path was also copied into six
+ * files, one of them with different capitalisation.
+ */
+export const PRODUCT_IMAGE_FALLBACK = "/images/product-placeholder.svg";
 
 // Utility function to transform image URLs for mobile compatibility
 export const getMobileCompatibleImageUrl = (imageUrl: string): string => {

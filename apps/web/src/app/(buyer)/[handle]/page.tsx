@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
 import { serverFetch } from "@/lib/api/serverFetch";
+import { parseStoreHandle } from "@/lib/urlHelpers";
 
 interface StoreMeta {
   id?: string;
@@ -10,13 +11,6 @@ interface StoreMeta {
   tag?: string;
   description?: string;
   logo?: string;
-}
-
-// STOREFRONT-URL-REWORK Rev 2 — a store lives at /@{handle}. The captured param
-// includes the leading '@'; a top-level path WITHOUT it is not a store.
-function parseHandle(param: string): string | null {
-  const h = decodeURIComponent(param).toLowerCase();
-  return h.startsWith("@") ? h.slice(1) : null;
 }
 
 // Cached so generateMetadata + the page resolve the store once per request.
@@ -50,7 +44,7 @@ export async function generateMetadata({
 }: {
   params: { handle: string };
 }): Promise<Metadata> {
-  const handle = parseHandle(params.handle);
+  const handle = parseStoreHandle(params.handle);
   if (!handle) return { title: "Vibaar" };
   const store = await resolveStore(handle);
   const name = store?.name || handle;
@@ -70,7 +64,7 @@ export async function generateMetadata({
 }
 
 export default async function Page({ params }: { params: { handle: string } }) {
-  const handle = parseHandle(params.handle);
+  const handle = parseStoreHandle(params.handle);
   if (!handle) notFound(); // top-level path without '@' is not a store
   const store = await resolveStore(handle);
   if (!store?.tag) notFound(); // real 404 for an unknown store

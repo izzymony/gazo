@@ -2,9 +2,13 @@
 module.exports = {
   darkMode: ["class"],
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    // ONE glob for the whole source tree rather than a list of the directories
+    // that happen to hold components. In web, the enumerated form silently
+    // purged the address picker's hover states because `src/hooks` was never
+    // listed. Nothing catches that — tsc, lint and the build all pass and the
+    // classes are simply absent. `./src/pages` here has not existed since the
+    // App Router move.
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     container: {
@@ -17,16 +21,20 @@ module.exports = {
     extend: {
       colors: {
         // Vibaar brand colors — keep in sync with apps/web --brand-rgb
-        brand: "#FE2C55",  // Primary brand red
-        brandDark: "#E21145",  // Darker red for hover states
-        brandLight: "#FF6B8A",  // Light red for backgrounds
+        brand: "#FFE500",       // Primary brand yellow
+        brandDark: "#E6CE00",   // Darker yellow for hover states
+        brandLight: "#FFF7B2",  // Light yellow for backgrounds
+        // Brand yellow carries BLACK, never white (white-on-brand = 1.28:1).
+        brandInk: "#14130E",    // foreground ON a brand surface — 16.5:1
+        brandDeep: "#7A5E00",   // brand AS text on white — 6.1:1
         
         // Admin Portal Specific Colors
         adminPrimary: "#1E40AF",  // Professional blue for admin
         adminSecondary: "#7C3AED",  // Purple accent
         adminSuccess: "#10B981",  // Green for success states
         adminWarning: "#F59E0B",  // Orange for warnings
-        adminError: "#EF4444",  // Red for errors (matches brand)
+        adminError: "#DC2626",  // Red for errors — 4.8:1 with white (was #EF4444, 3.8:1)
+        adminErrorDark: "#B91C1C",  // Hover/pressed for danger actions
         adminInfo: "#3B82F6",  // Blue for information
         
         // Additional utility colors
@@ -133,8 +141,18 @@ module.exports = {
         "slide-in-from-bottom": "slide-in-from-bottom 0.3s ease-out",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        // Was ["Inter", …] — Inter was never actually loaded, so admin silently
+        // fell back to system-ui. Now on Outfit, the one brand family.
+        sans: ["var(--font-outfit)", "Outfit", "system-ui", "sans-serif"],
+        display: ["var(--font-outfit)", "Outfit", "system-ui", "sans-serif"],
+        body: ["var(--font-outfit)", "Outfit", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
+      },
+      fontWeight: {
+        normal: "450",
+        medium: "500",
+        semibold: "600",
+        bold: "700",
       },
       fontSize: {
         "2xs": ["0.625rem", { lineHeight: "0.75rem" }],

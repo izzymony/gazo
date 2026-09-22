@@ -3,13 +3,13 @@
 
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import Section from "@vibaar/ui/common/Section";
-import Button from "@vibaar/ui/common/Button";
 import useBusinessStore from "@/store/businessStore";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { Bank, BsThreeDots } from "@vibaar/ui/icons";
+import Badge from "@vibaar/ui/common/Badge";
 
 const AccountCard = ({
   accountname,
@@ -33,59 +33,57 @@ const AccountCard = ({
   onSetDefault: () => void;
 }) => {
   return (
-    <div className="relative justify-between items-center flex gap-4 border border-ink-10 rounded-card py-3 px-2">
-      <div className="w-10 h-10 rounded-field bg-white border border-ink-10 flex items-center justify-center shrink-0">
-        <Bank size={22} className="text-ink-90" />
+    <div className="relative justify-between items-center flex gap-4 border border-outline rounded-card py-3 px-2">
+      <div className="w-10 h-10 rounded-field bg-surface border border-outline flex items-center justify-center shrink-0">
+        <Bank size={22} className="text-foreground-primary" />
       </div>
       <div className="flex-1">
         <div className="flex gap-2 items-center">
-          <p className="text-body text-ink-90 font-medium">
+          <p className="text-body text-foreground-primary font-medium">
             {`${bankname}-Ending in ${accountnumber.slice(-4)}`}
           </p>
           {defaults && (
-            <span className="rounded-pill bg-brand/10 text-brand text-caption font-medium px-2 py-0.5">
-              Default
-            </span>
+            <Badge tone="brand">Default</Badge>
           )}
         </div>
-        <p className="text-body text-ink-60 font-normal">
+        <p className="text-body text-foreground-secondary font-normal">
           {accountname}
         </p>
       </div>
-      <div
+      <button type="button" aria-label="More options"
         data-dropdown-trigger
-        className={`w-9 h-9 flex items-center justify-center cursor-pointer ${show === id ? "bg-ink-20 rounded-full " : ""}`}
+        className={`text-left w-9 h-9 flex items-center justify-center cursor-pointer ${show === id ? "bg-surface-strong rounded-full " : ""}`}
         onClick={(e) => {
           e.stopPropagation();
           setShow(show === id ? "" : id);
         }}>
         <BsThreeDots
           size={20}
-          className={show === id ? "text-brand" : "text-ink-90"}
+          className={show === id ? "text-brandDeep" : "text-foreground-primary"}
         />
-      </div>
+      </button>
       {show === id && (
-        <div data-dropdown-menu className="absolute rounded-field bg-white right-3 -bottom-20 border p-3 gap-3 flex flex-col shadow-md z-10">
+        <div data-dropdown-menu className="absolute rounded-field bg-surface right-3 -bottom-20 border p-3 gap-3 flex flex-col shadow-md z-10">
           {!defaults && (
-            <p
-              className="text-body text-ink-60 font-medium cursor-pointer hover:text-ink-90"
+            <button type="button"
+              className="text-left text-body text-foreground-secondary font-medium cursor-pointer hover:text-foreground-primary"
               onClick={(e) => {
                 e.stopPropagation();
                 onSetDefault();
                 setShow("");
               }}>
               Set as default
-            </p>
+            </button>
           )}
-          <p
-            className="text-body text-brand font-medium cursor-pointer hover:opacity-80"
+          <button type="button"
+            className="text-left text-body text-brandDeep font-medium cursor-pointer hover:opacity-80"
             onClick={(e) => {
               e.stopPropagation();
               onDelete();
               setShow("");
             }}>
             Delete
-          </p>
+          </button>
         </div>
       )}
     </div>
@@ -126,16 +124,15 @@ export default function PayoutView() {
 
   return (
     <PageShell
-      header={
-        <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="Payout Accounts"
-        />
-      }
-      footerAction={
-        <Button onClick={() => router.push("/dashboard/payouts/addaccount")}>Add account</Button>
-      }>
+      pageHeader={{
+        onBack: () => router.back(),
+        title: "Payout Accounts",
+        actions: (
+          <PageActionButton onClick={() => router.push("/dashboard/payouts/addaccount")}>
+            Add account
+          </PageActionButton>
+        ),
+      }}>
       <Section>
         {bankAccounts.length > 0 ? (
           bankAccounts.map((it, index) => (

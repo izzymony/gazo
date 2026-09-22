@@ -35,6 +35,8 @@ import {
   Search01Icon,
   StarIcon,
   InstagramIcon,
+  Facebook01Icon,
+  WhatsappIcon,
   Location01Icon,
   TiktokIcon,
   NewTwitterIcon,
@@ -106,13 +108,10 @@ export const Copy = make(Copy01Icon);
 export const Heart = make(FavouriteIcon);
 /* Filled heart — the free HugeIcons set is outline-only (FavouriteIcon), so this
    solid glyph backs the "liked" state. Color via className (e.g. text-brand). */
-export const HeartFilled = ({
-  size = 20,
-  className = "",
-}: {
-  size?: number;
-  className?: string;
-}) => (
+// Typed as IconProps like every generated icon, so it is interchangeable with
+// them — `icon={liked ? HeartFilled : Heart}` on a component expecting an icon
+// would not typecheck while this declared a narrower `size?: number`.
+export const HeartFilled = ({ size = 20, className = "", ...rest }: IconProps) => (
   <svg
     width={size}
     height={size}
@@ -120,10 +119,12 @@ export const HeartFilled = ({
     fill="currentColor"
     xmlns="http://www.w3.org/2000/svg"
     className={className}
-    aria-hidden="true">
+    aria-hidden="true"
+    {...(rest as React.SVGProps<SVGSVGElement>)}>
     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
   </svg>
 );
+HeartFilled.displayName = "Icon";
 export const Move = make(Move01Icon);
 export const Plus = make(PlusSignIcon);
 export const Minus = make(MinusSignIcon);
@@ -132,6 +133,51 @@ export const ShoppingBag = make(ShoppingBag02Icon);
 /* Cart (view/nav) vs cart-add (the "add this item to cart" action) — distinct
    from ShoppingBag, which is for order/shop/purchase semantics, not the cart. */
 export const ShoppingCart = make(ShoppingCart02Icon);
+/*
+ * Filled companions for the two nav glyphs whose outlines do not close.
+ *
+ * The free HugeIcons set is 14,716 icons and 8 filled ones, none of them a
+ * nav glyph, so a selected tab cannot simply swap to a solid variant. Filling
+ * a stroke glyph generically works for a closed silhouette (Home, User,
+ * Store, Analytics, Settings) but not for these two: the cart basket is
+ * bounded by three separate open paths and the package body by one, so the
+ * fill closes them along a straight chord and leaves a diagonal wedge across
+ * the shape. These trace the same geometry as closed silhouettes.
+ *
+ * Both draw in `currentColor`, so the caller's colour token drives them, and
+ * both carry the stroke the generic fill layer uses — without it the solid
+ * sits a hairline inside the outline instead of under it. Keep in step with
+ * ShoppingCart02Icon / PackageIcon if the icon set is upgraded.
+ */
+const solidGlyph = (paths: readonly string[]) => {
+  const Glyph = ({ size = 24, className = "" }: { size?: number; className?: string }) => (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="currentColor"
+      height={size}
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2.6}
+      viewBox="0 0 24 24"
+      width={size}
+      xmlns="http://www.w3.org/2000/svg">
+      {paths.map((d) => (
+        <path d={d} key={d} />
+      ))}
+    </svg>
+  );
+  Glyph.displayName = "SolidGlyph";
+  return Glyph;
+};
+
+/** Basket and wheels as closed shapes; the handle and rail stay to the outline. */
+export const ShoppingCartSolid = solidGlyph([
+  "M6 6H21L20.3635 11.7289C20.0611 14.45 19.4486 15.046 16.7201 15.2733L8 16Z",
+  "M6 18a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z",
+  "M17 18a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z",
+]);
 export const ShoppingCartAdd = make(ShoppingCartAdd02Icon);
 export const X = make(Cancel01Icon);
 
@@ -148,6 +194,8 @@ export const FaHeart = make(FavouriteIcon);
 export const FaPlus = make(PlusSignIcon);
 export const FaStar = make(StarIcon);
 export const FaInstagram = make(InstagramIcon);
+export const FaFacebook = make(Facebook01Icon);
+export const FaWhatsapp = make(WhatsappIcon);
 export const FaLocationDot = make(Location01Icon);
 export const FaTiktok = make(TiktokIcon);
 export const FaXTwitter = make(NewTwitterIcon);
@@ -217,6 +265,11 @@ export const Settings = make(Settings01Icon);
 export const Clock = make(Clock01Icon);
 export const Wallet = make(Wallet01Icon);
 export const Package = make(PackageIcon);
+/** The box body closed against the underside of its lid, plus the lid itself. */
+export const PackageSolid = solidGlyph([
+  "M3 7v10.1613C3 18.5438 4.94564 19.3657 8.83693 21.0095C10.4002 21.6698 11.1818 22 12 22C12.8182 22 13.5998 21.6698 15.1631 21.0095C19.0544 19.3657 21 18.5438 21 17.1613V7L12 11.3548Z",
+  "M8.32592 9.69138L5.40472 8.27785C3.80157 7.5021 3 7.11423 3 6.5C3 5.88577 3.80157 5.4979 5.40472 4.72215L8.32592 3.30862C10.1288 2.43621 11.0303 2 12 2C12.9697 2 13.8712 2.4362 15.6741 3.30862L18.5953 4.72215C20.1984 5.4979 21 5.88577 21 6.5C21 7.11423 20.1984 7.5021 18.5953 8.27785L15.6741 9.69138C13.8712 10.5638 12.9697 11 12 11C11.0303 11 10.1288 10.5638 8.32592 9.69138Z",
+]);
 
 /* --- bottom nav / tab bar (systemisation) --- */
 export const Home = make(Home01Icon);

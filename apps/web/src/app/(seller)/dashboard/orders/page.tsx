@@ -4,19 +4,21 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import DataSort from "@/features/seller-dashboard/datasort";
+import { listBlockGap } from "@vibaar/ui/styles";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Button from "@vibaar/ui/common/Button";
 import { IoCubeOutline, DeliveryTruck } from "@vibaar/ui/icons";
 import { useRouter } from "next/navigation";
 import useOrderStore from "@/store/orderStore";
 import useBusinessStore from "@/store/businessStore";
-import { formatCurrency, formatDate, getMobileCompatibleImageUrl } from "@/lib/utils";
+import { formatCurrency, formatDate } from "@/lib/utils";
+import ProductImage from "@/design-system/common/ProductImage";
 import useAuthStore from "@/store/authStore";
 import { OrderDatas } from "@/lib/order";
 import useShippingStore from "@/store/shippingStore";
 import useProductStore from "@/store/productStore";
-import StatusBadge from "@/features/seller-dashboard/StatusBadge";
+import StatusBadge from "@/features/orders/StatusBadge";
 import { deriveSellerStatus } from "@/features/orders/orderStatus";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 
@@ -60,35 +62,34 @@ const OrderComp = ({
         router.push(`orders/${order?.id}`);
       }}>
       <div className="flex justify-between gap-2">
-        <img
-          src={product?.image ? getMobileCompatibleImageUrl(product?.image[0]) : ""}
-          alt="Product"
-          className="object-cover h-10 w-10 rounded-field border border-ink-20"
+        <ProductImage
+          src={product?.image}
+          className="h-10 w-10 rounded-field border border-outline-strong"
         />
         <div className="w-[100%]">
           <div className="flex items-center gap-3">
-            <span className="text-body font-medium text-ink-90 truncate max-w-[180px]" title={order?.order?.invoice}>
+            <span className="text-body font-medium text-foreground-primary truncate max-w-[180px]" title={order?.order?.invoice}>
               #{order?.order?.invoice}
             </span>
-            <div className=" font-medium text-ink-90 bg-ink-3 flex gap-2 items-center p-1 px-2 rounded-field">
+            <div className=" font-medium text-foreground-primary bg-surface-subtle flex gap-2 items-center p-1 px-2 rounded-field">
               <p className="flex items-center text-caption">
                 {order?.quantity}
               </p>{" "}
-              <IoCubeOutline size={20} className="text-ink-90" />
+              <IoCubeOutline size={20} className="text-foreground-primary" />
             </div>
-            <p className="text-caption font-medium text-ink-40">
+            <p className="text-caption font-medium text-foreground-muted">
               {order?.created_at && formatDate(new Date(order?.created_at))}
             </p>
-            <p className="ml-auto font-medium text-ink-90 text-body">
+            <p className="ml-auto font-medium text-foreground-primary text-body">
               {formatCurrency(order?.price)}
             </p>
           </div>
-          <div className="text-body-sm text-ink-90">
+          <div className="text-body-sm text-foreground-primary">
             {product ? `${product.category?.name}...` : ""}
           </div>
 
           <div className="flex justify-between w-full mt-1">
-            <div className="font-medium text-ink-60 text-body-sm">
+            <div className="font-medium text-foreground-secondary text-body-sm">
               @{product ? `${product.title?.slice(0, 10)}...` : ""}
             </div>
             {order?.seller_activity && (
@@ -114,7 +115,7 @@ const OrderComp = ({
                 }
               }}>
               Mark as ready for shipping
-              <DeliveryTruck size={16} className="text-brand" />
+              <DeliveryTruck size={16} className="text-brandDeep" />
             </Button>
           )}
           {showSelfCta && (
@@ -123,7 +124,7 @@ const OrderComp = ({
               size="sm"
               onClick={() => router.push(`orders/${order?.id}`)}>
               Mark out for delivery
-              <DeliveryTruck size={16} className="text-brand" />
+              <DeliveryTruck size={16} className="text-brandDeep" />
             </Button>
           )}
         </div>
@@ -171,18 +172,23 @@ const Page = () => {
     <PageShell
       header={
         <Header
-          showMenu
-          customText="Orders"
+          title="Orders"
         />
       }>
-      <DataSort
-        sortOrder={sortOrder}
-        onSortToggle={handleSortToggle}
-        onSortOrderChange={setSortOrder}
-        searchValue={searchValue}
-        onSearchChange={handleSearchChange}
-      />
-      <div className="space-y-6">
+      {/* No tab bar here, so the control row sits straight under the header —
+          but it is still one block with the list it controls, at the same
+          `listBlockGap` the tabbed pages get from Tabs. Left as two separate
+          PageShell blocks it inherited the 24px between-block rhythm, so this
+          screen's controls sat further from their list than the catalog's. */}
+      <div className={listBlockGap}>
+        <DataSort
+          sortOrder={sortOrder}
+          onSortToggle={handleSortToggle}
+          onSortOrderChange={setSortOrder}
+          searchValue={searchValue}
+          onSearchChange={handleSearchChange}
+        />
+        <div className="space-y-6">
         {newOrders.length > 0 ? (
           newOrders.map((businessOrder, index) => (
             <OrderComp
@@ -201,7 +207,8 @@ const Page = () => {
             title="No orders yet"
             subtitle="Any order for products from your store will appear here."
           />
-        )}
+          )}
+        </div>
       </div>
     </PageShell>
   );

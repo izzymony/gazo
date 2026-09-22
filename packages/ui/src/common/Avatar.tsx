@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { cn } from "@vibaar/utils";
 
 export interface AvatarProps {
   src?: string | null;
@@ -99,9 +100,11 @@ const Avatar = ({
   if (src && src.trim() !== "" && !imageError) {
     return (
       <div
-        className={`relative overflow-hidden rounded-full ${
-          clickable ? "cursor-pointer" : ""
-        } ${className}`}
+        className={cn(
+          "relative overflow-hidden rounded-full",
+          clickable && "cursor-pointer",
+          className
+        )}
         onClick={onClick}
         style={{ width: size, height: size }}
       >
@@ -125,16 +128,19 @@ const Avatar = ({
 
   return (
     <div
-      className={`flex items-center justify-center rounded-full bg-gradient-to-br ${colorFor(
-        displayName
-      )} text-white font-semibold ${clickable ? "cursor-pointer" : ""} ${className}`}
+      className={cn(
+        "flex items-center justify-center rounded-full bg-gradient-to-br text-white font-semibold",
+        colorFor(displayName),
+        clickable && "cursor-pointer",
+        className
+      )}
       style={{ width: size, height: size, fontSize: size * 0.4 }}
       onClick={onClick}
     >
       {initials}
       {editable && (
         <div className="flex items-center justify-center">
-          <div className="w-full h-[100px] inset-0 absolute bg-opacity-10 hover:bg-opacity-1 transition-all duration-200 flex items-center justify-center rounded-full">
+          <div className="w-full h-[100px] inset-0 absolute bg-opacity-10 transition-all duration-200 flex items-center justify-center rounded-full">
             <CameraGlyph className="w-10 h-10 p-2 bg-black text-white opacity-50 hover:opacity-100 rounded-full" />
           </div>
         </div>

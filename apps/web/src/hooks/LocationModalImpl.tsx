@@ -21,6 +21,7 @@ export default function LocationModal({
   callback,
   location,
   setAddress,
+  inline = false,
 }: {
   isLocationModalOpen: boolean;
   closeLocationModal: () => void;
@@ -29,6 +30,9 @@ export default function LocationModal({
   callback?: (val: any) => Promise<void>;
   location: any;
   setAddress?: (val: string) => void;
+  /** Render the picker body in place instead of in a bottom sheet — for a
+   *  caller that is already inside a dialog and must not nest one. */
+  inline?: boolean;
 }) {
   const [search, setSeacrh] = useState("");
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -41,16 +45,13 @@ export default function LocationModal({
       script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`;
       script.async = true;
       script.onload = () => {
-        console.log('✅ Google Maps API loaded successfully');
         setIsGoogleLoaded(true);
       };
       script.onerror = (error) => {
         console.error('❌ Failed to load Google Maps:', error);
-        console.log('📍 Google Maps API key:', process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ? 'Present' : 'Missing');
       };
       document.head.appendChild(script);
     } else if (window.google) {
-      console.log('✅ Google Maps already loaded');
       setIsGoogleLoaded(true);
     }
   }, []);
@@ -63,7 +64,6 @@ export default function LocationModal({
       }
 
       try {
-        console.log('🔍 Getting suggestions for:', search);
         const autocompleteService = new window.google.maps.places.AutocompleteService();
 
         autocompleteService.getPlacePredictions(
@@ -73,7 +73,6 @@ export default function LocationModal({
             types: ['establishment', 'geocode']
           },
           (predictions: any[], status: any) => {
-            console.log('📍 Google Maps status:', status, 'Predictions:', predictions?.length || 0);
             if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
               // Map to format similar to original structure
               const mappedSuggestions = predictions.map((prediction) => ({
@@ -81,10 +80,8 @@ export default function LocationModal({
                 name: prediction.description,
                 structured_formatting: prediction.structured_formatting
               }));
-              console.log('✅ Mapped suggestions:', mappedSuggestions.length);
               setSuggestions(mappedSuggestions);
             } else {
-              console.log('⚠️ No suggestions or API error:', status);
               setSuggestions([]);
             }
           }
@@ -99,7 +96,6 @@ export default function LocationModal({
 
   const retrieveLocation = useCallback(
     async function getLocation(placeId: string) {
-      console.log("🗺️ retrieveLocation called with placeId:", placeId);
       closeLocationModal();
       setSeacrh("");
 
@@ -138,12 +134,9 @@ export default function LocationModal({
                 address_components: place.address_components
               };
 
-              console.log("🔥 About to call callback with locationData:", locationData);
               if (callback) {
-                console.log("🔥 Calling callback function");
                 callback(locationData);
               } else {
-                console.log("🔥 No callback provided");
               }
               setLocation(locationData);
               if (setAddress) {
@@ -170,28 +163,25 @@ export default function LocationModal({
     }
   }, [search, upDateSuggestions]);
 
-  return (
-    <BottomModal isOpen={isLocationModalOpen} onClose={closeLocationModal}>
+  const body = (
       <div>
         <h2 className="text-base font-medium text-center mb-4">
           Choose a location
         </h2>
 
         {/* Clean input styling - no border conflicts */}
-        <div className="bg-gray-50 rounded-xl px-4 py-3 flex items-center space-x-3 mb-6">
-          <CiSearch className="text-gray-400 text-xl" />
+        <div className="bg-surface-subtle rounded-xl px-4 py-3 flex items-center space-x-3 mb-6">
+          <CiSearch className="text-foreground-disabled text-xl" />
           <input
             type="text"
             placeholder="Search address or enter manually"
-            className="flex-1 bg-transparent outline-none text-gray-900 placeholder-gray-500"
+            className="flex-1 bg-transparent outline-none text-foreground-primary placeholder-gray-500"
             value={search}
             onChange={(e: any) => setSeacrh(e.currentTarget.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && search.trim()) {
                 e.preventDefault();
-                console.log('⌨️ Enter pressed with search:', search.trim());
                 if (setAddress) {
-                  console.log('📝 Setting address from Enter key:', search.trim());
                   setAddress(search.trim());
                 }
                 if (callback) {
@@ -225,49 +215,46 @@ export default function LocationModal({
         {/* Results */}
         <div className="space-y-2">
           {!isGoogleLoaded ? (
-            <div className="text-center text-gray-500 py-4">
+            <div className="text-center text-foreground-muted py-4">
               <div>Loading Google Maps...</div>
-              <div className="text-xs mt-2 text-gray-400">
+              <div className="text-xs mt-2 text-foreground-disabled">
                 API Key: {process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ? '✅ Present' : '❌ Missing'}
               </div>
             </div>
           ) : suggestions.length > 0 ? (
             suggestions.map((item: { place_id: string; name: string }) => (
-              <div
+              <button type="button"
                 key={item.place_id}
                 onClick={() => retrieveLocation(item.place_id)}
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                className="text-left w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-surface-subtle cursor-pointer border-b border-outline-subtle last:border-b-0"
               >
                 <img
                   className="w-5 h-5 object-cover flex-shrink-0"
                   src={"/images/location.png"}
                   alt="Location"
                 />
-                <span className="flex-1 text-gray-900 text-sm">
+                <span className="flex-1 text-foreground-primary text-sm">
                   {item.name}
                 </span>
-              </div>
+              </button>
             ))
           ) : search.length > 0 ? (
             <>
               {suggestions.length === 0 && (
-                <div className="text-center text-gray-500 py-2">
+                <div className="text-center text-foreground-muted py-2">
                   No locations found from Google Maps
                 </div>
               )}
               {/* Manual entry option - always show when user has typed something */}
-              <div
+              <button type="button"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('🔧 Manual entry clicked:', search.trim());
                   if (search.trim()) {
                     if (setAddress) {
-                      console.log('📝 Setting address:', search.trim());
                       setAddress(search.trim());
                     }
                     if (callback) {
-                      console.log('🔥 Calling callback with manual entry');
                       const manualLocationData = {
                         properties: {
                           full_address: search.trim(),
@@ -291,24 +278,38 @@ export default function LocationModal({
                     setSeacrh("");
                   }
                 }}
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-50 cursor-pointer border border-blue-200 bg-blue-50 mt-2 active:bg-blue-100"
+                className="text-left flex items-center space-x-3 p-3 rounded-lg hover:bg-info-surface cursor-pointer border border-info-border bg-info-surface mt-2 active:bg-info-border"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M21 10C21 17 12 23 12 23S3 17 3 10C3 5.02944 7.02944 1 12 1C16.9706 1 21 5.02944 21 10Z" fill="#3B82F6"/>
                   <circle cx="12" cy="10" r="3" fill="white"/>
                 </svg>
                 <div className="flex-1">
-                  <span className="text-blue-800 text-sm font-medium">Use: "{search}"</span>
+                  <span className="text-info-foreground text-sm font-medium">Use: "{search}"</span>
                 </div>
-              </div>
+              </button>
             </>
           ) : (
-            <div className="text-center text-gray-400 py-4">
+            <div className="text-center text-foreground-disabled py-4">
               Type to search for locations...
             </div>
           )}
         </div>
       </div>
+  );
+
+  // INLINE, for a picker that is already inside a dialog.
+  //
+  // Stacking this sheet on top of a dialog panel is a nested dialog: two focus
+  // traps, two Escape handlers, and a backdrop over a backdrop. The address
+  // dialogs therefore render the picker as a STEP in their own panel instead,
+  // and this is the same body without the sheet around it — not a second
+  // implementation of location search.
+  if (inline) return isLocationModalOpen ? body : null;
+
+  return (
+    <BottomModal isOpen={isLocationModalOpen} onClose={closeLocationModal}>
+      {body}
     </BottomModal>
   );
 }

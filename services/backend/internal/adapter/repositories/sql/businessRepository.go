@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 
@@ -259,38 +260,35 @@ func (repo *BusinessRepository) CountByTag(tag string, excludeID string) (int64,
 }
 
 func (repo *BusinessRepository) Create(data *domain.Business) (domain.Business, error) {
-	tx := repo.db.Begin()
-
-	if err := tx.Create(data).Error; err != nil {
-		tx.Rollback()
-		return *data, err
-	}
-
-	var existingWallet domain.Wallet
-	err := tx.Where("business_id = ? AND user_id = ?", data.ID, data.UserID).First(&existingWallet).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			wallet := domain.Wallet{
-				UserID:           data.UserID,
-				BusinessID:       data.ID,
-				AvailableBalance: 0,
-				ClearingBalance:  0,
-				OrdersInProgress: 0,
-				Status:           "active",
-			}
-
-			if err := tx.Create(&wallet).Error; err != nil {
-				tx.Rollback()
-				return *data, fmt.Errorf("failed to create wallet: %v", err)
-			}
-		} else {
-			tx.Rollback()
-			return *data, fmt.Errorf("failed to check wallet existence: %v", err)
+	err := database.WithTransaction(repo.db, "create_business", func(tx *gorm.DB) error {
+		if err := tx.Create(data).Error; err != nil {
+			return err
 		}
-	}
 
-	if err := tx.Commit().Error; err != nil {
-		return *data, fmt.Errorf("failed to commit transaction: %v", err)
+		var existingWallet domain.Wallet
+		err := tx.Where("business_id = ? AND user_id = ?", data.ID, data.UserID).First(&existingWallet).Error
+		if err == nil {
+			return nil
+		}
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return fmt.Errorf("failed to check wallet existence: %v", err)
+		}
+
+		wallet := domain.Wallet{
+			UserID:           data.UserID,
+			BusinessID:       data.ID,
+			AvailableBalance: 0,
+			ClearingBalance:  0,
+			OrdersInProgress: 0,
+			Status:           "active",
+		}
+		if err := tx.Create(&wallet).Error; err != nil {
+			return fmt.Errorf("failed to create wallet: %v", err)
+		}
+		return nil
+	})
+	if err != nil {
+		return *data, err
 	}
 
 	return *data, nil
@@ -394,30 +392,27 @@ func (repo *BusinessRepository) AddRecentlyViewedBusinesses(inputs []*domain.Rec
 		tableName += "_guest"
 	}
 
-	tx := repo.db.Table(tableName).Begin()
+	return database.WithTransaction(repo.db.Table(tableName), "add_recently_viewed_businesses",
+		func(tx *gorm.DB) error {
+			for _, input := range inputs {
+				var existing domain.RecentlyViewedBusiness
 
-	for _, input := range inputs {
-		var existing domain.RecentlyViewedBusiness
-
-		err := tx.Where("business_id = ? AND user_id = ?", input.BusinessID, input.UserID).First(&existing).Error
-		if err == nil {
-			if err := tx.Model(&existing).UpdateColumn("updated_at", time.Now()).Error; err != nil {
-				tx.Rollback()
-				return err
+				err := tx.Where("business_id = ? AND user_id = ?", input.BusinessID, input.UserID).First(&existing).Error
+				switch {
+				case err == nil:
+					if err := tx.Model(&existing).UpdateColumn("updated_at", time.Now()).Error; err != nil {
+						return err
+					}
+				case errors.Is(err, gorm.ErrRecordNotFound):
+					if err := tx.Create(input).Error; err != nil {
+						return err
+					}
+				default:
+					return err
+				}
 			}
-		} else if errors.Is(err, gorm.ErrRecordNotFound) {
-			if err := tx.Create(input).Error; err != nil {
-				tx.Rollback()
-				return err
-			}
-		} else {
-			tx.Rollback()
-			return err
-		}
-	}
-
-	tx.Commit()
-	return nil
+			return nil
+		})
 }
 
 func (repo *BusinessRepository) GetAllRecentlyViewedBusinesses(params map[string]interface{}, isGuest bool, page, limit int) ([]domain.RecentlyViewedBusiness, int64, error) {
@@ -514,7 +509,7 @@ func (repo *BusinessRepository) GetCustomerAnalytics(businessId string, date tim
 		return nil, errors.New("invalid business ID")
 	}
 
-	err := repo.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(repo.db, "get_customer_analytics", func(tx *gorm.DB) error {
 		var newCustomers, returningCustomers, activeCustomers, inactiveCustomers int64
 		var totalRevenue float64
 		var totalCustomers int64
@@ -655,7 +650,7 @@ func (repo *BusinessRepository) GetDashboardAnalytics(businessId string) (*domai
 
 	yesterday := today.AddDate(0, 0, -1)
 
-	err := repo.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(repo.db, "get_dashboard_analytics", func(tx *gorm.DB) error {
 		// store visitors - today only
 		var storeVisitors int64
 		if err := tx.Table("recently_viewed_businesses").
@@ -800,7 +795,7 @@ func (repo *BusinessRepository) GetSalesAnalytics(businessId string, date time.T
 		return nil, errors.New("invalid business ID")
 	}
 
-	err := repo.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(repo.db, "get_sales_analytics", func(tx *gorm.DB) error {
 		// store visitors
 		var storeVisitors int64
 		if err := tx.Table("recently_viewed_businesses").
@@ -1056,8 +1051,17 @@ func (repo *BusinessRepository) UpdateAccountDetails(id string, data domain.Busi
 			"bank":           data.Bank,
 			"account_number": data.AccountNumber,
 			"account_name":   data.AccountName,
-			"bank_id":        data.BankCode,
-			"is_default":     data.IsDefault,
+			// `bank_id` — there is no such column, only `bank_code`. Postgres
+			// rejected the whole statement, so EVERY edit of a payout bank
+			// account failed with "something went wrong" while the seller was
+			// looking at correct details. Verified against the live schema.
+			"bank_code":  data.BankCode,
+			"is_default": data.IsDefault,
+			// Changing the account invalidates the cached Paystack recipient:
+			// it still points at the OLD bank account, so reusing it would pay
+			// the previous destination. Cleared here, in the same statement as
+			// the change, and re-registered by the caller.
+			"paystack_recipient_code": "",
 		}).Error
 }
 

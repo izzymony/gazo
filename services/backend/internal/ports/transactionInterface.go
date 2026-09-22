@@ -11,6 +11,7 @@ type TransactionRepoInterface interface {
 	GetOne(param map[string]interface{}, isGuest bool) (*domain.Transaction, error)
 	ClaimPending(id string, isGuest bool) (bool, error)
 	SetStatus(id, status string, isGuest bool) error
+	SetProviderFee(id string, feeKobo int64, isGuest bool) error
 	ExpireIfPending(id string, isGuest bool) error
 	// RW1 rewards-credit reservation lifecycle (idempotent claims).
 	ClaimReservationRelease(id string, isGuest bool) (bool, error)

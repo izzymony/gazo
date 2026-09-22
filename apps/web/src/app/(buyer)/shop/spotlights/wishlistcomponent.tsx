@@ -46,45 +46,45 @@ export default function WishlistComponent({
     <div
       className={
         base
-          ? "cursor-pointer relative min-w-[148px] p-2 rounded-card backdrop-blur-sm bg-white/10 shadow-md"
+          ? "cursor-pointer relative min-w-[148px] p-2 rounded-card backdrop-blur-sm bg-surface/10 shadow-md"
           : "cursor-pointer relative min-w-[148px] p-2 rounded-card"
       }
       onClick={handleProductClick}>
       <img
-        src={item?.image ? getMobileCompatibleImageUrl(item?.image[0]) : "/PRODUCT IMAGE (2).png"}
+        src={item?.image ? getMobileCompatibleImageUrl(item?.image[0]) : "/images/product-placeholder.svg"}
         alt={item.title ?? ""}
         className="w-full h-[160px] object-cover rounded-card border"
         width={140}
         height={160}
       />
-      <div
-        className={`absolute top-5 right-5 cursor-pointer`}
+      <button type="button" aria-label="Add to wishlist"
+        className={`text-left absolute top-5 right-5 cursor-pointer`}
         onClick={(e) => {
           e.stopPropagation();
           handleLikeClick(index);
         }}>
         {liked ? (
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-black/15">
-            <HeartFilled size={14} className="text-brand" />
+            <HeartFilled size={14} className="text-brandDeep" />
           </span>
         ) : (
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-black/15">
             <MdFavoriteBorder size={14} className="text-white" />
           </span>
         )}
-      </div>
-      <div
+      </button>
+      <button type="button" aria-label="Add to cart"
         onClick={handleAddToCart}
-        className="absolute bottom-[70px] right-5 cursor-pointer">
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20">
-          <ShoppingCartAdd size={18} className="text-brand" />
+        className="text-left absolute bottom-[70px] right-5 cursor-pointer">
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-surface/20">
+          <ShoppingCartAdd size={18} className="text-brandDeep" />
         </span>
-      </div>
+      </button>
       <p
         className={
           base
             ? "text-caption w-full font-medium mt-1 line-clamp-1 text-white"
-            : "text-caption w-full font-medium mt-1 line-clamp-1 text-ink-90"
+            : "text-caption w-full font-medium mt-1 line-clamp-1 text-foreground-primary"
         }>
         {item.title}
       </p>
@@ -96,7 +96,7 @@ export default function WishlistComponent({
           className={
             base
               ? "text-body-sm text-white font-medium"
-              : "text-body-sm text-ink-90 font-medium"
+              : "text-body-sm text-foreground-primary font-medium"
           }>
           ₦{item?.price?.toLocaleString()}
         </p>
@@ -104,14 +104,14 @@ export default function WishlistComponent({
           {base ? (
             <FaStar size={13} className="text-white" />
           ) : (
-            <FaStar size={14} className="text-ink-90" />
+            <FaStar size={14} className="text-foreground-primary" />
           )}
 
           <p
             className={
               base
                 ? "text-caption text-white/60 font-normal"
-                : "text-caption text-ink-60 font-normal"
+                : "text-caption text-foreground-secondary font-normal"
             }>
             {item.rating || 0}
           </p>

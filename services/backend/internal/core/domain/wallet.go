@@ -29,4 +29,17 @@ type WalletTransaction struct {
 	Metadata          MapArray `json:"metadata" gorm:"type:jsonb"`
 	From              string   `json:"from"`
 	To                string   `json:"to"`
+
+	// The money split, recorded per entry rather than derived later.
+	//
+	// Deriving a historical seller payout from whatever the commission rate
+	// happens to be at read time silently rewrites history the first time the
+	// rate changes. Storing it means a statement printed in a year still shows
+	// what was actually agreed. Launch is 0% commission, so today
+	// PlatformFee is 0 and SellerNet equals GrossAmount — the fields exist so
+	// that introducing a fee is a change to one calculation, not a backfill of
+	// records whose true value is no longer knowable.
+	GrossAmount float64 `json:"gross_amount"`
+	PlatformFee float64 `json:"platform_fee"`
+	SellerNet   float64 `json:"seller_net"`
 }

@@ -1,5 +1,8 @@
 "use client";
 
+import { cn } from "@vibaar/utils";
+import { focusRing } from "../../styles";
+
 import dynamic from "next/dynamic";
 
 // Lazy-load: ExpandableIconMenu pulls in framer-motion, and this menu lives in
@@ -40,21 +43,28 @@ const KebabMenu = ({ isOpen, setIsOpen, store }: KebabMenuProps) => (
         x: store?.x_profile || ""
       }}
     />
-    <div onClick={() => setIsOpen(!isOpen)}>
+    {/* Was a <div onClick>: not focusable, no role, and ignoring Enter and
+        Space — so the storefront overflow menu was mouse-only. It also
+        declared no expanded state, unlike DropdownMenu which does the same job
+        with full semantics. */}
+    <button
+      type="button"
+      onClick={() => setIsOpen(!isOpen)}
+      aria-label={isOpen ? "Close store menu" : "Open store menu"}
+      aria-haspopup="menu"
+      aria-expanded={isOpen}
+      className={cn("rounded-full", focusRing)}>
       <svg
         width="36"
         height="37"
         viewBox="0 0 36 37"
         fill="none"
         xmlns="http://www.w3.org/2000/svg">
-        <rect
-          y="0.320312"
-          width="36"
-          height="36"
-          rx="18"
-          fill="black"
-          fillOpacity="0.03"
-        />
+        {/* No plate. A 36px `rx=18` black-3% circle used to be drawn behind the
+            dots, permanently — so on the storefront hero this control wore a
+            faint ring that its sibling BackButton did not, and the pair read as
+            two different kinds of button. Hover and focus states belong to the
+            control, not to the artwork. */}
         <mask
           id="mask0_7046_239079"
           maskUnits="userSpaceOnUse"
@@ -62,13 +72,9 @@ const KebabMenu = ({ isOpen, setIsOpen, store }: KebabMenuProps) => (
           y="8"
           width="20"
           height="21">
-          <rect
-            x="8"
-            y="8.32031"
-            width="20"
-            height="20"
-            fill="#D9D9D9"
-          />
+          {/* Luminance mask — see BackButton. `currentColor` inherited the dark
+              header text colour and hid the dots. */}
+          <rect x="8" y="8.32031" width="20" height="20" fill="white" />
         </mask>
         <g mask="url(#mask0_7046_239079)">
           <path
@@ -77,7 +83,7 @@ const KebabMenu = ({ isOpen, setIsOpen, store }: KebabMenuProps) => (
           />
         </g>
       </svg>
-    </div>
+    </button>
   </div>
 );
 

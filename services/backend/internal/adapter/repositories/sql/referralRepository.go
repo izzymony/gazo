@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 
 	"gorm.io/gorm"
@@ -511,7 +512,7 @@ func (repo *ReferralRepository) GetUserCreditDetails(userID string) (*domain.Use
 
 // ManualCreditAdjustment performs a manual credit adjustment (admin operation)
 func (repo *ReferralRepository) ManualCreditAdjustment(userID string, amount float64, creditType, description string) error {
-	return repo.db.Transaction(func(tx *gorm.DB) error {
+	return database.WithTransaction(repo.db, "manual_credit_adjustment", func(tx *gorm.DB) error {
 		// Update the appropriate credit field
 		var updateField string
 		if creditType == "shopping" || creditType == domain.CreditTypeSignupBonus {
@@ -553,7 +554,7 @@ func (repo *ReferralRepository) ManualCreditAdjustment(userID string, amount flo
 
 // DeductCredits deducts credits from a user (shopping first, then withdrawable)
 func (repo *ReferralRepository) DeductCredits(userID string, amount float64, orderID string) error {
-	return repo.db.Transaction(func(tx *gorm.DB) error {
+	return database.WithTransaction(repo.db, "deduct_credits", func(tx *gorm.DB) error {
 		// Get current credits
 		var user domain.User
 		if err := tx.Select("shopping_credit", "withdrawable_credit").Where("id = ?", userID).First(&user).Error; err != nil {

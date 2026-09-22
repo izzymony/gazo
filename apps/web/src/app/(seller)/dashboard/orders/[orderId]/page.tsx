@@ -3,9 +3,13 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
+import OrderLineItem from "@/features/orders/OrderLineItem";
+import DetailRow from "@vibaar/ui/common/DetailRow";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
+import { Emergency } from "@vibaar/ui/svg";
 import Button from "@vibaar/ui/common/Button";
 import Dialog from "@vibaar/ui/common/Dialog";
 import InputField from "@vibaar/ui/common/InputField";
@@ -29,15 +33,16 @@ import { OrderDatas } from "@/lib/order";
 import { formatTimeAgos, formatTimestamp } from "@/lib/converter";
 import { Client } from "@/lib/client";
 import UserProfileImage from "@vibaar/ui/common/UserProfileImage";
+import { supportWhatsAppUrl } from "@/lib/support";
 
 const ActivityTop = ({ title, date }: { title: string; date: string }) => {
   return (
     <div className="flex gap-3">
       <OrderStatusIcon status={title} />
       <div className="flex flex-col justify-between">
-        <p className="text-ink-60 font-normal text-caption">Status:</p>
-        <p className="text-ink-90 font-medium text-h2">{title}</p>
-        <p className="text-ink-60 font-normal text-caption">
+        <p className="text-foreground-secondary font-normal text-caption">Status:</p>
+        <p className="text-foreground-primary font-medium text-h2">{title}</p>
+        <p className="text-foreground-secondary font-normal text-caption">
           {formatTimestamp(date)}
         </p>
       </div>
@@ -62,23 +67,23 @@ const ActivityText = ({
         <p
           className={`text-body-sm font-medium ${show
             ? `${title.toLowerCase() === "order delivered"
-              ? "text-green"
-              : "text-brand"
+              ? "text-success-foreground"
+              : "text-brandDeep"
             }`
-            : "text-ink-60"
+            : "text-foreground-secondary"
             }`}>
           {title}
         </p>
-        <p className="text-caption font-normal text-ink-40">
+        <p className="text-caption font-normal text-foreground-muted">
           {formatTimeAgos(time)}
         </p>
       </div>
-      <p className="text-caption font-normal text-ink-40">{details}</p>
+      <p className="text-caption font-normal text-foreground-muted">{details}</p>
     </div>
   );
 };
 
-const Check = () => <CircleCheck size={16} className="text-ink-30" />;
+const Check = () => <CircleCheck size={16} className="text-foreground-disabled" />;
 
 const Indicators = ({ show = false }: { show: boolean }) => {
   return (
@@ -86,12 +91,12 @@ const Indicators = ({ show = false }: { show: boolean }) => {
       <div
         className={
           !show
-            ? "h-[10px] border border-ink-20"
-            : "h-[10px] border border-brand"
+            ? "h-[10px] border border-outline-strong"
+            : "h-[10px] border border-brandDeep"
         }
       />
       {show ? (
-        <div className="w-4 h-4 rounded-full border border-brand bg-brand/10 flex justify-center items-center">
+        <div className="w-4 h-4 rounded-full border border-brandDeep bg-brand/10 flex justify-center items-center">
           <div className="w-[10px] h-[10px] bg-brand rounded-full" />
         </div>
       ) : (
@@ -99,7 +104,7 @@ const Indicators = ({ show = false }: { show: boolean }) => {
           <Check />
         </div>
       )}
-      <div className="flex-1 border border-ink-20" />
+      <div className="flex-1 border border-outline-strong" />
     </div>
   );
 };
@@ -124,46 +129,6 @@ const ActivityCard = ({
   );
 };
 
-const ItemCard = ({
-  name,
-  quantity,
-  image,
-  price
-}: {
-  name: string;
-  quantity: number;
-  image?: string;
-  price: number;
-}) => {
-  return (
-    <div className="w-full flex space-x-3 border-ink-10 border rounded-field p-2">
-      <img
-        src={image || "/PRODUCT IMAGE (2).png"}
-        className="w-[60px] h-[60px] object-cover rounded-field border border-ink-10"
-        alt={name}
-      />
-      <div className="flex-1 flex-col flex justify-between">
-        <p className="text-ink-90 font-normal text-body-sm">{name}</p>
-        <div className="flex text-ink-60 text-body-sm font-medium space-x-4">
-          <p>{formatCurrency(price)}</p>
-          <p className="text-ink-90">x {quantity}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Sales = ({ item1, item2 }: { item1: string; item2: number }) => {
-  return (
-    <div className="flex justify-between items-center">
-      <p className="text-ink-60 text-body-sm font-normal">{item1}</p>
-      <p className="text-ink-90 text-body-sm font-medium">
-        {formatCurrency(item2)}
-      </p>
-    </div>
-  );
-};
-
 const Cards = ({ order, buyerInfo }: { order: OrderDatas; buyerInfo?: {user_name?: string; email?: string; profile_image?: string; firstname?: string; lastname?: string; isGuest?: boolean} | null }) => {
   const { products } = useProductStore();
 
@@ -173,31 +138,28 @@ const Cards = ({ order, buyerInfo }: { order: OrderDatas; buyerInfo?: {user_name
   return (
     <div className="mt-6 space-y-3">
       <div>
-        <div className="flex gap-2 items-center text-body font-medium text-ink-90">
-          <IoCubeOutline size={20} className="text-ink-90" />
+        <div className="flex gap-2 items-center text-body font-medium text-foreground-primary">
+          <IoCubeOutline size={20} className="text-foreground-primary" />
           items ({order.quantity})
         </div>
       </div>
       <div className="gap-3">
-        <ItemCard
+        <OrderLineItem bordered
           name={product?.title || "Product Name"}
           quantity={order.quantity}
           image={product?.image?.[0] || ""}
           price={order.price}
         />
       </div>
-      <div className="border border-ink-10 rounded-card p-3 gap-2 flex flex-col">
-        <Sales
-          item1={`Subtotal: ${order.quantity} items`}
-          item2={order.order?.sub_total || (order.price * order.quantity)}
+      <div className="border border-outline rounded-card p-3 gap-2 flex flex-col">
+        <DetailRow
+          label={`Subtotal: ${order.quantity} items`}
+          value={formatCurrency(order.order?.sub_total || (order.price * order.quantity))}
         />
-        <Sales
-          item1="Discount:"
-          item2={
+        <DetailRow label="Discount:" value={formatCurrency(
             product?.original_price ? (+product.original_price - order.price) * order.quantity : 0
-          }
-        />
-        <Sales item1="Total:" item2={order.order?.total || (order.price * order.quantity)}/>
+          )} />
+        <DetailRow label={"Total:"} value={formatCurrency(order.order?.total || (order.price * order.quantity))} />
         <div className="flex items-center justify-between w-full py-0">
           <div className="flex gap-2 items-center">
             <UserProfileImage
@@ -208,15 +170,17 @@ const Cards = ({ order, buyerInfo }: { order: OrderDatas; buyerInfo?: {user_name
               size={20}
               className=""
             />
-            <p className="text-body-sm font-medium text-ink-90">
+            <p className="text-body-sm font-medium text-foreground-primary">
               {buyerInfo?.isGuest ? buyerInfo?.user_name : `@${buyerInfo?.user_name || "customer"}`}
             </p>
           </div>
-          <button
-            type="button"
-            className="border border-brand text-brand rounded-full py-1 px-2 text-caption font-medium">
+          {/* Chat has no "start a thread with this buyer" API yet, so this
+              opens the inbox, where the order's thread lives if one exists. */}
+          <Link
+            href="/dashboard/inbox"
+            className="border border-brandDeep text-brandDeep rounded-full py-1 px-2 text-caption font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40">
             Send a message
-          </button>
+          </Link>
         </div>
       </div>
     </div>
@@ -225,7 +189,7 @@ const Cards = ({ order, buyerInfo }: { order: OrderDatas; buyerInfo?: {user_name
 
 const ProgressBar = ({ pick }: { pick: number }) => {
   return (
-    <div className="w-full bg-ink-10 rounded-full h-1 my-3 flex justify-between overflow-hidden">
+    <div className="w-full bg-surface-strong rounded-full h-1 my-3 flex justify-between overflow-hidden">
       {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
         <div
           key={item}
@@ -430,28 +394,35 @@ const Order = ({ params }: { params: { orderId: string } }) => {
 
   return (
     <PageShell
-      header={
-        <Header
-          showBack
-          customText={`Order #${newOrder?.order?.invoice}`}
-          onBackClick={() => router.push("/dashboard/orders")}
-          showEmer
-        />
-      }
-      footerAction={
-        canConfirmDelivered ? (
-          <Button
+      pageHeader={{
+        onBack: () => router.push("/dashboard/orders"),
+        title: `Order #${newOrder?.order?.invoice}`,
+        // The support link stays in `trailing` — it is header chrome, not the
+        // flow action, and at lg it sits at the right edge of the title column,
+        // immediately left of the action cell.
+        trailing: (
+          <a
+            href={supportWhatsAppUrl(`Hi, I need help with order #${newOrder?.order?.invoice ?? ""}`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Get help with this order"
+            className="inline-flex items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40">
+            <Emergency />
+          </a>
+        ),
+        actions: canConfirmDelivered ? (
+          <PageActionButton
             onClick={handleMarkDelivered}
             loading={isMarkingReady}
             loadingText="Updating...">
             Mark as delivered
-          </Button>
+          </PageActionButton>
         ) : canDispatch ? (
-          <Button onClick={() => setDispatchOpen(true)}>
+          <PageActionButton onClick={() => setDispatchOpen(true)}>
             Mark out for delivery
-          </Button>
+          </PageActionButton>
         ) : showReadyButton ? (
-          <Button
+          <PageActionButton
             onClick={async () => {
               if (newOrder?.id && !isMarkingReady) {
                 setIsMarkingReady(true);
@@ -470,16 +441,16 @@ const Order = ({ params }: { params: { orderId: string } }) => {
             loading={isMarkingReady}
             loadingText="Updating...">
             Order is ready for pickup
-          </Button>
-        ) : undefined
-      }>
+          </PageActionButton>
+        ) : undefined,
+      }}>
         <div className="w-full">
           {/* Status of rider */}
           <div
             className={
               status
-                ? "relative border border-ink-10 rounded-card px-4 pb-3 pt-4 gap-3 w-full"
-                : "relative border border-ink-10 rounded-card px-4 pb-3 pt-4 gap-3 h-[204px] w-full overflow-hidden"
+                ? "relative border border-outline rounded-card px-4 pb-3 pt-4 gap-3 w-full"
+                : "relative border border-outline rounded-card px-4 pb-3 pt-4 gap-3 h-[204px] w-full overflow-hidden"
             }>
             <div className="w-full">
               <ActivityTop
@@ -505,21 +476,21 @@ const Order = ({ params }: { params: { orderId: string } }) => {
                 ))}
             </div>
             {status ? (
-              <div
+              <button type="button"
                 onClick={() => setStatus(!status)}
-                className="flex justify-center items-center mt-2 text-brand font-medium text-body-sm">
+                className="text-left flex justify-center items-center mt-2 text-brandDeep font-medium text-body-sm">
                 Collapse timeline{" "}
                 <ChevronUp size={16} />
-              </div>
+              </button>
             ) : (
               <>
                 <div className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-white via-white to-transparent" />
-                <div
+                <button type="button"
                   onClick={() => setStatus(!status)}
-                  className="flex justify-center items-center text-brand font-medium text-body-sm w-full absolute bottom-3 left-0 right-0 h-[40px]">
+                  className="text-left flex justify-center items-center text-brandDeep font-medium text-body-sm w-full absolute bottom-3 left-0 right-0 h-[40px]">
                   View full timeline{" "}
                   <ChevronDown size={16} />
-                </div>
+                </button>
               </>
             )}
           </div>
@@ -542,20 +513,20 @@ const Order = ({ params }: { params: { orderId: string } }) => {
           <div className="flex flex-col gap-3 pt-4 pb-6">
             <div className="flex items-start gap-2">
               <div className="mt-1">
-                <FaLocationDot size={20} className="text-ink-90" />
+                <FaLocationDot size={20} className="text-foreground-primary" />
               </div>
               <div className="flex flex-col">
-                <p className="font-normal text-caption text-ink-60">
+                <p className="font-normal text-caption text-foreground-secondary">
                   shipping to
                 </p>
-                <p className="font-medium text-ink-90 text-body-sm">
+                <p className="font-medium text-foreground-primary text-body-sm">
                   {newOrder?.shipment?.provider_data?.[0]?.ship_to?.name
                     ? `${newOrder.shipment.provider_data[0].ship_to.name}`
                     : newOrder?.order?.shipping_profile?.shipping_user
                     ? `${newOrder.order.shipping_profile.shipping_user.firstname} ${newOrder.order.shipping_profile.shipping_user.lastname}`
                     : "Customer"}
                 </p>
-                <p className="font-medium text-ink-90 text-body-sm">
+                <p className="font-medium text-foreground-primary text-body-sm">
                   {newOrder?.shipment?.provider_data?.[0]?.ship_to?.address
                     ? `${newOrder.shipment.provider_data[0].ship_to.address}`
                     : newOrder?.order?.shipping_profile
@@ -565,10 +536,10 @@ const Order = ({ params }: { params: { orderId: string } }) => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Calendar size={20} className="text-ink-90 flex-shrink-0" />
+              <Calendar size={20} className="text-foreground-primary flex-shrink-0" />
 
               <div className="flex flex-col">
-                <p className="font-normal text-caption  text-ink-60">
+                <p className="font-normal text-caption  text-foreground-secondary">
                   Estimated delivery:
                 </p>
                 <p className="font-medium text-body-sm">
@@ -578,10 +549,10 @@ const Order = ({ params }: { params: { orderId: string } }) => {
             </div>
 
             <div className="flex items-center gap-2">
-              <DeliveryTruck size={20} className="text-ink-90 flex-shrink-0" />
+              <DeliveryTruck size={20} className="text-foreground-primary flex-shrink-0" />
 
               <div className="flex flex-col">
-                <p className="font-normal text-caption  text-ink-60">
+                <p className="font-normal text-caption  text-foreground-secondary">
                   Shipping method:
                 </p>
                 <p className="font-medium text-body-sm">
@@ -592,22 +563,22 @@ const Order = ({ params }: { params: { orderId: string } }) => {
           </div>
 
           <div className="flex flex-col gap-3 py-4">
-            <p className="text-ink-60 text-body-sm">
+            <p className="text-foreground-secondary text-body-sm">
               Order ID:{" "}
-              <span className="font-medium text-ink-90">
+              <span className="font-medium text-foreground-primary">
                 {newOrder?.order.invoice}
               </span>{" "}
             </p>
-            <p className="text-ink-60 text-body-sm">
+            <p className="text-foreground-secondary text-body-sm">
               Date placed:{" "}
-              <span className="font-medium text-ink-90">
+              <span className="font-medium text-foreground-primary">
                 {newOrder?.created_at &&
                   formatDate(new Date(newOrder?.created_at))}
               </span>{" "}
             </p>
-            <p className="text-ink-60 text-body-sm">
+            <p className="text-foreground-secondary text-body-sm">
               payment method:{" "}
-              <span className="font-medium text-ink-90">
+              <span className="font-medium text-foreground-primary">
                 Credit card via Paystack
               </span>{" "}
             </p>
@@ -621,17 +592,17 @@ const Order = ({ params }: { params: { orderId: string } }) => {
           ariaLabel="Mark out for delivery">
           <div className="space-y-4">
             <div>
-              <p className="text-h2 font-medium text-ink-90">
+              <p className="text-h2 font-medium text-foreground-primary">
                 {isOutForDelivery ? "Edit delivery contact" : "Out for delivery"}
               </p>
-              <p className="text-body-sm text-ink-60 mt-1">
+              <p className="text-body-sm text-foreground-secondary mt-1">
                 Add a dispatch contact so the buyer can reach whoever is
                 delivering. Optional, but it builds trust.
               </p>
             </div>
             <div className="space-y-3">
               <div>
-                <label className="text-caption text-ink-60 mb-1.5 block">
+                <label className="text-caption text-foreground-secondary mb-1.5 block">
                   Dispatch name
                 </label>
                 <InputField
@@ -645,7 +616,7 @@ const Order = ({ params }: { params: { orderId: string } }) => {
                 />
               </div>
               <div>
-                <label className="text-caption text-ink-60 mb-1.5 block">
+                <label className="text-caption text-foreground-secondary mb-1.5 block">
                   Phone number
                 </label>
                 <InputField
@@ -660,7 +631,7 @@ const Order = ({ params }: { params: { orderId: string } }) => {
                 />
               </div>
               <div>
-                <label className="text-caption text-ink-60 mb-1.5 block">
+                <label className="text-caption text-foreground-secondary mb-1.5 block">
                   Note (optional)
                 </label>
                 <InputField

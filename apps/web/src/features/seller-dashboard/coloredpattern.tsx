@@ -61,11 +61,11 @@ export const ColoredPattern = ({
       {/* Pattern Preview Boxes */}
       <div className="flex gap-2 overflow-x-auto whitespace-nowrap px-4 py-2">
         {patterns.map((pattern, index) => (
-          <div
+          <button type="button"
             key={index}
-            className={`w-[128px] h-[75px] rounded-card p-2 flex-shrink-0 relative border border-ink-10 cursor-pointer  ${
+            className={`text-left w-[128px] h-[75px] rounded-card p-2 flex-shrink-0 relative border border-outline cursor-pointer  ${
               index === selectedPattern
-                ? "ring-2 ring-offset-2 ring-ink-90"
+                ? "ring-2 ring-offset-2 ring-outline-contrast"
                 : ""
             }`}
             style={{
@@ -81,26 +81,26 @@ export const ColoredPattern = ({
             role="button"
             tabIndex={0}
             aria-label={`Select pattern ${index + 1}`}
-            title={`Click to select pattern ${index + 1}`}></div>
+            title={`Click to select pattern ${index + 1}`}></button>
         ))}
       </div>
 
       {/* Brand Color Header */}
       <p className="mt-4 font-medium text-body mb-2">Brand Color </p>
-      <p className="font-normal text-caption text-ink-60">
+      <p className="font-normal text-caption text-foreground-secondary">
         Pick a color or pattern, or enter a custom color code
       </p>
 
       {/* Selected Color Section */}
-      <div className="border border-ink-20 rounded-card px-3 py-3 mt-4">
+      <div className="border border-outline-strong rounded-card px-3 py-3 mt-4">
         <div className="flex items-center gap-2">
           <div
-            className="w-10 h-10 rounded-field border border-ink-10"
+            className="w-10 h-10 rounded-field border border-outline"
             style={{ backgroundColor: selectedColor }}
             title="Selected Color"></div>
           <div className="flex flex-col">
-            <p className="text-caption text-ink-60">Enter color code</p>
-            <p className="text-body font-medium text-ink-90">{selectedColor}</p>
+            <p className="text-caption text-foreground-secondary">Enter color code</p>
+            <p className="text-body font-medium text-foreground-primary">{selectedColor}</p>
           </div>
         </div>
 
@@ -109,10 +109,10 @@ export const ColoredPattern = ({
           {colors.map((color) => (
             <div
               key={color}
-              className={`w-10 h-10 rounded-field border border-ink-10 cursor-pointer
+              className={`w-10 h-10 rounded-field border border-outline cursor-pointer
                                 ${
                                   color === selectedColor
-                                    ? "ring-2 ring-offset-2 ring-ink-90"
+                                    ? "ring-2 ring-offset-2 ring-outline-contrast"
                                     : ""
                                 }`}
               style={{ backgroundColor: color }}

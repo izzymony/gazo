@@ -23,6 +23,18 @@ import createQuotaSafeStorage from "@/utils/quotaSafeStorage";
 // server-paginated + server-ranked, each carrying a small preview strip + exact
 // product count. Replaces the old /shop broad-pull (250 products + 500 stores)
 // + client-side grouping.
+export interface ShopVendorPreview {
+  id: string;
+  public_id: string;
+  slug: string;
+  title: string;
+  image?: string[];
+  price: number;
+  old_price: number;
+  /** Review scores only — the card shows their average. */
+  rates: number[];
+}
+
 export interface ShopVendor {
   id: string;
   name: string;
@@ -40,7 +52,10 @@ export interface ShopVendor {
     };
   };
   product_count: number;
-  preview_products: ProductData[];
+  // A PROJECTION, not a product. The feed sends only what a vendor card draws;
+  // typing it as ProductData invited exactly the mistake that made this payload
+  // 7.8MB — reading fields off it that the card never shows.
+  preview_products: ShopVendorPreview[];
 }
 
 // 2-column grid; keep the page (and thus the backend's per-vendor preview
@@ -292,7 +307,23 @@ interface BusinessState {
     payload: FormData,
     callback?: () => void
   ) => Promise<void>;
+  /**
+   * The AUTHENTICATED USER'S OWN business — the owner slot. Written only by the
+   * owner paths (getMe -> hydrateFromBusiness, getAuthenticatedUserStore).
+   */
   store: StoreData | null;
+  /**
+   * The vendor currently BEING VIEWED — the public slot. Written only by the
+   * paths that resolve a vendor from a URL or the marketplace (fetchStoreByTag,
+   * setStore(data, true)).
+   *
+   * These two must never be written together. They were: hydrateFromBusiness
+   * assigned the signed-in seller's business to BOTH, and it runs on every load
+   * with a token. Since the buyer product/storefront pages read this slot for
+   * the vendor name, logo, "About this vendor" and the delivery origin, a
+   * signed-in seller browsing someone else's product saw THEIR OWN store and
+   * their own saved address.
+   */
   stor: StoreData | null;
   storeMetrics: BusinessStatsResponse | null;
   stores: StoreData[];
@@ -500,7 +531,11 @@ export interface BankData {
   bank: string;
   account_number: string;
   account_name: string;
-  bank_code: number;
+  // A string, because leading zeros are part of the code. Paystack refuses
+  // bank_code "44" with "Bank is invalid" and accepts "044" — and 52 of 284
+  // NGN codes start with a zero, including Access, GTBank, UBA, Zenith and
+  // First Bank. Ten codes are not numeric at all (035A, MFB50094, D53).
+  bank_code: string;
   is_default: boolean;
 }
 
@@ -515,7 +550,7 @@ export interface BankAccount {
   bank: string;
   account_number: string;
   account_name: string;
-  bank_code: number;
+  bank_code: string;
   business_id: string;
   is_default: boolean;
   metadata: BankAccountMetadata[];
@@ -554,6 +589,35 @@ export interface WalletAnalytics {
   orders_in_progress: number;
   total_earnings: number;
   total_withdrawn: number;
+  /**
+   * Hours after a confirmed delivery before earnings become available for
+   * payout. Served by `/wallet/get-wallet-balances` from the same policy the
+   * release job enforces (`EARNINGS_RELEASE_DELAY_HOURS`, 24 at launch).
+   *
+   * Read from the API rather than written here on purpose. The gate threshold
+   * is already duplicated in five places across the backend and this bundle,
+   * so changing it desynchronises every message about it from what is actually
+   * enforced — silently. One number, one source.
+   *
+   * Optional because an older backend will not send it; use
+   * `releaseDelayHours()` below rather than reading it directly.
+   */
+  release_delay_hours?: number;
+}
+
+/**
+ * The release delay in whole hours, with the launch default as a fallback.
+ *
+ * Falls back rather than hiding the sentence: a seller seeing "24 hours" when
+ * the policy is 48 is a smaller problem than a screen that cannot say when
+ * their money arrives. A wrong number here is visible; silence is not.
+ */
+export function releaseDelayHours(analytics: WalletAnalytics): number {
+  const hours = analytics.release_delay_hours;
+  if (typeof hours !== "number" || !Number.isFinite(hours) || hours < 0) {
+    return 24;
+  }
+  return Math.round(hours);
 }
 
 interface UpdateThemeProps {
@@ -825,7 +889,6 @@ const useBusinessStore = create<BusinessState>()(
           })) as AxiosResponse;
 
           const products = response.data.data.data || [];
-          console.log(`📦 fetchBusinessProduct: Fetched ${products.length} products from page ${pageNumber}`);
 
           // For pagination, we need to work with the paginatedFetcher pattern
           // Just return the data - paginatedFetcher will call setBusinessProducts
@@ -844,24 +907,50 @@ const useBusinessStore = create<BusinessState>()(
         set({ businessProduct: data }),
 
       createBank: async (val: BankData) => {
-        //(val);
         set({ isLoading: true, error: null });
+        // Set once the guard below has already told the user why it failed, so
+        // the catch can report anything else (a non-axios error included)
+        // without producing a second toast for the same failure.
+        let reported = false;
         try {
           const response = (await Client({
             path: "/business/add-bank-account",
             method: "POST",
             data: val,
           })) as AxiosResponse;
-          //(response.data);
-          if (response.data.message) {
-            //(response.data);
-            toast.success("Bank added successfully");
-          } else {
-            toast.error("Failed to create bank");
+
+          // AddBankAccount answers every failure with a non-2xx + {error}, which
+          // axios rejects — so reaching here already means success. The guard is
+          // defensive only, and must NOT be the old `if (response.data.message)`:
+          // that treated any non-empty message as success, "invalid account"
+          // included. Note the success string is "Bank account added
+          // successfully", not the "successful" that response.NewCustomResponse
+          // emits elsewhere, so don't unify these two checks.
+          const ok =
+            response.status >= 200 &&
+            response.status < 300 &&
+            !response.data?.error;
+          if (!ok) {
+            const message =
+              response.data?.error ||
+              response.data?.message ||
+              "Failed to create bank";
+            toast.error(message);
+            reported = true;
+            // Throw rather than fall through: the caller navigates to the
+            // payouts list on resolve, so returning normally here announced a
+            // bank account that was never added.
+            throw new Error(message);
           }
+          toast.success("Bank added successfully");
         } catch (error) {
           const err = error as AxiosError<{ error: string }>;
           set({ error: err.message });
+          // This catch was silent — a failed add showed the user nothing at all.
+          if (!reported) {
+            toast.error(err.response?.data?.error || "Failed to create bank");
+          }
+          throw error;
         } finally {
           set({ isLoading: false });
         }
@@ -1121,6 +1210,8 @@ const useBusinessStore = create<BusinessState>()(
       },
       createDiscount: async (data: CreateCoupon) => {
         set({ isLoading: true, error: null });
+        // See createBank: guards the user against two toasts for one failure.
+        let reported = false;
         //("data is ", data);
         try {
           const response = (await Client({
@@ -1129,17 +1220,30 @@ const useBusinessStore = create<BusinessState>()(
             data: data,
           })) as AxiosResponse;
 
-          if (response.data.message === "successful") {
-            toast.success("Coupon created discount.");
-          } else {
-            toast.error("Failed to create discount.");
+          // "successful" is what response.NewCustomResponse emits, so this
+          // literal is right for THIS endpoint (createBank's differs).
+          if (response.data.message !== "successful") {
+            const message =
+              response.data?.error ||
+              response.data?.message ||
+              "Failed to create discount.";
+            toast.error(message);
+            reported = true;
+            // Throw rather than fall through: the caller router.back()s on
+            // resolve, so a failed create used to close the form and discard
+            // everything the user had typed.
+            throw new Error(message);
           }
+          toast.success("Coupon created discount.");
         } catch (error) {
           const err = error as AxiosError<{ error: string }>;
           set({ error: err.message });
-          toast.error(
-            err.response?.data?.error || "Failed to create doscount."
-          );
+          // Skip when the guard above already reported it, so the user sees one
+          // message rather than two.
+          if (!reported) {
+            toast.error(err.response?.data?.error || "Failed to create discount.");
+          }
+          throw error;
         } finally {
           set({ isLoading: false });
         }
@@ -1213,12 +1317,14 @@ const useBusinessStore = create<BusinessState>()(
 
       // Set the current store data
       setStore: (data: StoreData, isMarketplace = true) => {
-        // For marketplace views, only update stor (viewing store)
-        // For seller views, update both store and stor
+        // The two slots are exclusive: `stor` is the vendor being viewed,
+        // `store` is the signed-in user's own business. Writing both (as the
+        // owner branch used to) is what let a seller's store masquerade as the
+        // vendor on someone else's product page.
         if (isMarketplace) {
           set({ stor: data });
         } else {
-          set({ store: data, stor: data });
+          set({ store: data });
         }
       },
       setStoreMetrics: (data: BusinessStatsResponse) =>
@@ -1344,7 +1450,6 @@ const useBusinessStore = create<BusinessState>()(
 
             // CRITICAL FIX: Update user business data directly from creation response
             // This avoids timing issues with the separate /business API endpoint for fresh accounts
-            console.log("🔄 Updating user business data directly from creation response...");
 
             // Use dynamic import to avoid circular dependencies
             const authStore = (await import("@/store/authStore")).default;
@@ -1352,11 +1457,6 @@ const useBusinessStore = create<BusinessState>()(
 
             if (currentUser && data) {
               // Update user state with the newly created business data directly
-              console.log("✅ Updating user business state directly:", {
-                businessId: data.id,
-                businessName: data.name,
-                businessTag: data.tag
-              });
 
               // Use the setUser method to update the user with business data
               const updatedUser = {
@@ -1379,11 +1479,9 @@ const useBusinessStore = create<BusinessState>()(
               // Update the auth store with the new business data using set method
               authStore.setState({ user: updatedUser });
 
-              console.log("✅ User business data updated successfully from creation response");
 
               // Call success callback immediately since we have the data
               if (callback) {
-                console.log("✅ Store creation complete, triggering navigation...");
                 callback();
               }
 
@@ -1732,14 +1830,12 @@ const useBusinessStore = create<BusinessState>()(
 
         set({ isLoading: true, error: null });
         try {
-          console.log("🔍 getStoreById: Looking for business ID:", id);
           
           // First try to find the business in the existing stores list
           const currentStores = get().stores;
           let targetBusiness = currentStores.find((business: any) => business.id === id);
           
           if (!targetBusiness) {
-            console.log("🔍 Business not found in current stores, fetching fresh data...");
             // If not found, fetch fresh business data
             const response = (await Client({
               path: `/businesses`,
@@ -1756,13 +1852,6 @@ const useBusinessStore = create<BusinessState>()(
             }
           }
 
-          console.log("✅ Found business:", {
-            id: targetBusiness.id,
-            name: targetBusiness.name,
-            hasLogo: !!targetBusiness.logo,
-            hasAddress: !!targetBusiness.address,
-            addressLine: targetBusiness.address?.address_line
-          });
 
           set({ store: targetBusiness });
           set({
@@ -1813,11 +1902,12 @@ const useBusinessStore = create<BusinessState>()(
       // with no store) clears the store rather than erroring.
       hydrateFromBusiness: (business) => {
         if (!business) {
-          set({ stor: null, store: null });
+          // Clears the OWNER slot only. `stor` holds whichever vendor is being
+          // viewed and has nothing to do with who is signed in.
+          set({ store: null });
           return;
         }
         set({
-          stor: business,
           store: business,
           theme: {
             backgroundColor:
@@ -1874,7 +1964,6 @@ const useBusinessStore = create<BusinessState>()(
 
           toast.success("Store updated successfully");
           if (response.data.data?.logo) {
-            console.log("✅ Logo updated:", response.data.data.logo);
           }
           set({ store: response.data.data });
           set({
@@ -1891,6 +1980,15 @@ const useBusinessStore = create<BusinessState>()(
               pattern: "/pattern1.svg",
             },
           });
+
+          // Success path ONLY. This used to sit in `finally`, which runs after a
+          // failure too — so callers that navigate or refetch in the callback
+          // did it on a save that never landed: the store-address screen
+          // router.back()'d as if saved, and the details screen refetched over
+          // the failed edit, silently reverting what the user typed.
+          if (callback) {
+            callback();
+          }
         } catch (error) {
           const err = error as AxiosError<{ error: string }>;
           set({ error: err.message });
@@ -1899,9 +1997,6 @@ const useBusinessStore = create<BusinessState>()(
           toast.error(errorMessage);
         } finally {
           set({ isLoading: false });
-          if (callback) {
-            callback();
-          }
         }
       },
 

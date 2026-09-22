@@ -4,8 +4,9 @@ import Button from "@vibaar/ui/common/Button";
 import InputField from "@vibaar/ui/common/InputField";
 import Dialog from "@vibaar/ui/common/Dialog";
 import { BiChevronDown, X } from "@vibaar/ui/icons";
-import { categories as productCategories, storeCategories, getCategoryEmoji } from "@/lib/category";
+import { storeCategories, getCategoryEmoji } from "@/lib/category";
 import { useCategories } from "@/hooks/useCategories";
+import Loader from "@vibaar/ui/common/Loader";
 
 interface CategorySelectorProps {
   mode: 'store' | 'product';
@@ -25,8 +26,20 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
   // Fetch real categories from backend for product mode
   const { categories: backendCategories, loading: categoriesLoading, error: categoriesError } = useCategories();
 
-  // Use appropriate categories based on mode
-  const categoriesToUse = mode === 'store' ? storeCategories : (backendCategories.length > 0 ? backendCategories : productCategories);
+  // Product mode uses the BACKEND taxonomy only. It used to fall back to the
+  // hardcoded product taxonomy whenever the backend list came back empty —
+  // and that list carries ids "1".."13" with no ids on its subcategories at all,
+  // so the picker happily submitted `category_id:"9"` and the API answered
+  // "category not found". An empty taxonomy is a failure to surface, not a list
+  // to shop from. `storeCategories` is a different, name-keyed contract and is
+  // unaffected.
+  const categoriesToUse = mode === 'store' ? storeCategories : backendCategories;
+
+  // Product mode with nothing to choose from. Distinguished from loading and
+  // from an outright fetch error because it looks like neither: the request
+  // succeeds and returns nothing.
+  const taxonomyUnavailable =
+    mode === 'product' && !categoriesLoading && !categoriesError && backendCategories.length === 0;
   
   // Filter categories based on search term
   const filteredCategories = categoriesToUse.filter((item: any) =>
@@ -47,11 +60,14 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
         setShowModal(false);
       }
     } else {
-      // Product mode: return category and subcategory IDs
-      if (selectedOriginalCategory?.id) {
-        const categoryId = selectedOriginalCategory.id;
-        const subCategoryId = selectedSubcategory?.id || "";
-        onCategorySelect({ categoryId, subCategoryId });
+      // Product mode: BOTH ids, or nothing. Confirming with an empty
+      // sub-category id used to be allowed, and the publish handler then
+      // substituted a hardcoded fallback uuid that no longer exists.
+      if (selectedOriginalCategory?.id && selectedSubcategory?.id) {
+        onCategorySelect({
+          categoryId: selectedOriginalCategory.id,
+          subCategoryId: selectedSubcategory.id,
+        });
         setShowModal(false);
       }
     }
@@ -67,8 +83,6 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
   };
 
 
-  console.log('🔍 CategorySelector - selectedCategory prop:', selectedCategory);
-  console.log('🔍 CategorySelector - mode:', mode);
   
   // Get display text for product mode
   const getDisplayText = () => {
@@ -76,38 +90,20 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
       return (typeof selectedCategory === "string" ? selectedCategory : "") || "Select store category";
     } else {
       // Product mode - show "Parent Category > Sub Category" format
-      if (typeof selectedCategory === 'object' && selectedCategory?.subCategoryId) {
-        // First try backend categories, then fallback to hardcoded ones
-        let category = backendCategories.find(cat => cat.id === selectedCategory.categoryId);
-        if (!category) {
-          category = productCategories.find(
-            cat => cat.id === selectedCategory.categoryId
-          ) as unknown as (typeof backendCategories)[number];
-        }
-        
-        if (category) {
-          // Find subcategory by ID or name
-          let subcategory;
-          if (selectedSubcategory && selectedSubcategory.name) {
-            subcategory = selectedSubcategory;
-          } else {
-            // Try backend subcategories first
-            if (category.sub_categories) {
-              subcategory = category.sub_categories.find(sub => 
-                sub.name === selectedCategory.subCategoryId || sub.id === selectedCategory.subCategoryId
-              );
-            }
-            // Fallback to hardcoded subcategories
-            if (!subcategory && (category as any).subcategories) {
-              subcategory = (category as any).subcategories.find((sub: any) => 
-                sub.name === selectedCategory.subCategoryId || sub.id === selectedCategory.subCategoryId
-              );
-            }
-          }
-          
-          if (subcategory) {
-            return `${category.name} > ${subcategory.name}`;
-          }
+      // Resolve BY ID, against the backend taxonomy, or not at all. This
+      // resolver used to accept `sub.name === subCategoryId` and to fall back to
+      // the hardcoded list, so a selection holding `{categoryId:"9",
+      // subCategoryId:"Auto Accessories"}` rendered as a perfectly ordinary
+      // "Auto & Accessories > Auto Accessories". The label vouched for ids the
+      // API would reject, which is why this shipped unnoticed: the only visible
+      // symptom was the failure at the very end.
+      if (typeof selectedCategory === 'object' && selectedCategory?.categoryId && selectedCategory?.subCategoryId) {
+        const category = backendCategories.find(cat => cat.id === selectedCategory.categoryId);
+        const subcategory = category?.sub_categories?.find(
+          sub => sub.id === selectedCategory.subCategoryId
+        );
+        if (category && subcategory) {
+          return `${category.name} > ${subcategory.name}`;
         }
       }
       return "Select product category";
@@ -134,28 +130,28 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
           setShowModal(true);
         }}
         className={`flex flex-col relative w-full px-3 h-[52px] rounded-field border ${
-          error ? "border-red focus-within:ring-[red]" : "border-ink-20 focus-within:ring-black"
+          error ? "border-error-border focus-within:ring-error-foreground" : "border-outline-strong focus-within:ring-black"
         } focus-within:ring-1 cursor-pointer`}>
         
         {/* Floating label */}
         <label className={`absolute transition-all duration-200 ease-in-out pointer-events-none
           ${selectedCategory 
-            ? "text-caption font-medium text-ink-20 top-[8px] left-3"
-            : "text-body text-ink-60 top-1/2 transform -translate-y-1/2 left-3"
+            ? "text-caption font-medium text-foreground-disabled top-[8px] left-3"
+            : "text-body text-foreground-secondary top-1/2 transform -translate-y-1/2 left-3"
           }`}>
           {mode === 'product' ? 'Product category' : 'Store category'}
         </label>
         
         {/* Selected value or empty space */}
         <div className="flex items-center justify-between w-full h-full">
-          <p className={`text-body font-medium ${selectedCategory ? "text-ink-90 mt-[18px]" : "text-transparent"}`}>
+          <p className={`text-body font-medium ${selectedCategory ? "text-foreground-primary mt-[18px]" : "text-transparent"}`}>
             {selectedCategory ? displayText : ''}
           </p>
           <BiChevronDown size={20} className="absolute right-3 top-1/2 transform -translate-y-1/2" />
         </div>
       </div>
 
-      {error && <small className="text-brand">{error}</small>}
+      {error && <small className="text-brandDeep">{error}</small>}
 
       {/* Category Selection Modal - Responsive Design */}
       {showModal && (
@@ -169,15 +165,15 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
             {/* Close button - positioned absolutely, hidden on mobile */}
             <button
               onClick={() => setShowModal(false)}
-              className="hidden md:flex absolute top-3 right-3 md:top-4 md:right-4 lg:top-5 lg:right-5 w-8 h-8 items-center justify-center rounded-full hover:bg-ink-5 transition-colors z-10"
+              className="hidden md:flex absolute top-3 right-3 md:top-4 md:right-4 lg:top-5 lg:right-5 w-8 h-8 items-center justify-center rounded-full hover:bg-surface-muted transition-colors z-10"
               aria-label="Close modal"
             >
-              <X size={20} className="text-ink-60" />
+              <X size={20} className="text-foreground-secondary" />
             </button>
 
             {/* Modal Header with handle and search */}
             <div className="w-full flex flex-col items-center">
-              <p className="text-ink-90 text-body-lg font-medium mb-4">
+              <p className="text-foreground-primary text-body-lg font-medium mb-4">
                 Select a category
               </p>
               <InputField
@@ -192,36 +188,44 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
             
             {/* Loading state */}
             {mode === 'product' && categoriesLoading && (
-              <div className="p-4 text-center">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-ink-90 mx-auto"></div>
-                <p className="text-ink-50 mt-2">Loading categories...</p>
-              </div>
+              <Loader variant="inline" text="Loading categories..." className="p-4" />
             )}
             
             {/* Error state */}
             {mode === 'product' && categoriesError && (
               <div className="p-4 text-center">
-                <p className="text-red">{categoriesError}</p>
+                <p className="text-error-foreground">{categoriesError}</p>
                 <Button onClick={() => window.location.reload()} className="mt-2">Retry</Button>
               </div>
             )}
             
+            {/* Loaded, no error, and nothing came back. The API answers 200 with
+                the `data` key omitted when the table is empty, so this is
+                indistinguishable from success to the fetch layer — it has to be
+                caught here, or the seller picks from a list that cannot be saved. */}
+            {taxonomyUnavailable && (
+              <div className="p-4 text-center">
+                <p className="text-body text-foreground-primary">Categories aren&apos;t available right now</p>
+                <p className="text-body-sm text-foreground-secondary mt-1">
+                  You can&apos;t publish a product without one. Try again in a moment.
+                </p>
+                <Button onClick={() => window.location.reload()} className="mt-3">Retry</Button>
+              </div>
+            )}
+
             {/* Category List */}
             <div className="max-h-[438px] overflow-y-scroll scrollbar-hide">
               {/* Render categories based on mode */}
-              {!categoriesLoading && !categoriesError && filteredCategories && filteredCategories.length > 0 ? (
+              {!categoriesLoading && !categoriesError && !taxonomyUnavailable && filteredCategories && filteredCategories.length > 0 ? (
                 filteredCategories.map((category: any) => (
-                  <div key={category.id} className="w-full p-2 bg-white">
+                  <div key={category.id} className="w-full p-2 bg-surface">
                     {/* Main Category */}
                     <div
                       onClick={() => {
                         if (mode === 'store') {
                           // For store mode: select and close after a brief delay to show selection
                           setSelectedOriginalCategory(category);
-                          console.log('🔍 CategorySelector - Selecting store category:', category.name);
-                          console.log('🔍 CategorySelector - onCategorySelect callback:', onCategorySelect);
                           setTimeout(() => {
-                            console.log('🔍 CategorySelector - Calling onCategorySelect with:', category.name);
                             onCategorySelect(category.name);
                             setShowModal(false);
                           }, 200); // Brief delay to show selection
@@ -232,8 +236,8 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
                       }}
                       className={
                         (mode === 'store' && selectedOriginalCategory?.id === category.id)
-                          ? "flex cursor-pointer text-body font-normal items-center relative text-ink-90 px-2 py-2 rounded-field bg-brand/10 border-brand border justify-between"
-                          : "flex cursor-pointer text-body font-normal relative items-center text-ink-90 px-2 py-2 rounded-field justify-between"
+                          ? "flex cursor-pointer text-body font-normal items-center relative text-foreground-primary px-2 py-2 rounded-field bg-brand/10 border-brandDeep border justify-between"
+                          : "flex cursor-pointer text-body font-normal relative items-center text-foreground-primary px-2 py-2 rounded-field justify-between"
                       }>
                       <div className="flex gap-1 items-center">
                         <span className="text-xl mr-3">{category.emoji || getCategoryEmoji(category.name)}</span>
@@ -269,17 +273,19 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
                               setSelectedOriginalCategory(category);
                               // Auto-close modal after selecting subcategory
                               setTimeout(() => {
-                                const categoryId = category.id;
-                                const subCategoryId = sub.id || sub.name; // Use name as ID if no ID exists
-                                console.log('🔍 CategorySelector - Selecting subcategory:', { categoryId, subCategoryId, subcategoryName: sub.name });
-                                onCategorySelect({ categoryId, subCategoryId });
+                                // `sub.id || sub.name` used to live here, which is
+                                // how the display name "Auto Accessories" ended up
+                                // on the wire as an id. A row with no id is not
+                                // selectable; the guard above makes it inert.
+                                if (!category.id || !sub.id) return;
+                                onCategorySelect({ categoryId: category.id, subCategoryId: sub.id });
                                 setShowModal(false);
                               }, 200);
                             }}
                             className={`cursor-pointer text-body font-normal px-2 py-2 rounded-[4px] flex items-center justify-between ${
                               selectedSubcategory?.name === sub.name
-                                ? "bg-brand/10 border-brand border text-brand"
-                                : "text-ink-70 hover:bg-ink-5"
+                                ? "bg-brand/10 border-brandDeep border text-brandDeep"
+                                : "text-foreground-secondary hover:bg-surface-muted"
                             }`}>
                             <div className="flex items-center">
                               <span className="text-h2 mr-2">{sub.emoji || getCategoryEmoji(sub.name)}</span>
@@ -297,16 +303,30 @@ const CategorySelector = ({ mode, selectedCategory, onCategorySelect, error }: C
                     )}
                   </div>
                 ))
-              ) : (
-                <div className="p-4 text-center text-ink-50">
+              ) : taxonomyUnavailable ? null : (
+                // Reachable now that product mode no longer falls back to a
+                // hardcoded list: this is the "your search matched nothing" case.
+                // The unavailable-taxonomy case has its own message above.
+                <div className="p-4 text-center text-foreground-muted">
                   No categories available
                 </div>
               )}
             </div>
             
-            {/* Select Button - Only show for product mode */}
-            {mode === 'product' && (
-              <Button className="max-w-full" onClick={handleCategoryConfirm} type="button">
+            {/* Select Button - Only show for product mode.
+                Hidden when there is nothing to select. On an unseeded
+                environment this rendered as a second full-width primary button
+                under "Retry", looking live while doing nothing: confirming
+                requires both ids and neither can exist. A dead control beside a
+                real one makes the seller think the failure is theirs.
+                Disabled when a category is chosen but its sub-category is not,
+                which is the other state where confirming silently does nothing. */}
+            {mode === 'product' && !taxonomyUnavailable && (
+              <Button
+                className="max-w-full"
+                onClick={handleCategoryConfirm}
+                disabled={!selectedOriginalCategory?.id || !selectedSubcategory?.id}
+                type="button">
                 Select category
               </Button>
             )}

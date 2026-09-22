@@ -5,7 +5,7 @@ import React from "react";
 import { CustomerRanking } from "@/store/businessStore";
 import { formatNigerianCurrency, formatTimeAgo } from "@/lib/utils";
 import UserProfileImage from "@vibaar/ui/common/UserProfileImage";
-import StatusBadge from "@/features/seller-dashboard/StatusBadge";
+import StatusBadge from "@/features/orders/StatusBadge";
 
 /**
  * Shared customer-ranking row. Consolidates the two former copies (the live
@@ -28,21 +28,21 @@ const CustomerComp: React.FC<{ customer: CustomerRanking }> = ({ customer }) => 
         </div>
         <div className="w-[60%]">
           <div className="flex items-center space-x-3">
-            <p className="text-body-sm font-medium text-ink-90">
+            <p className="text-body-sm font-medium text-foreground-primary">
               {customer.firstname} {customer.lastname}
             </p>
             <StatusBadge status={customer.is_new ? "New" : "Returning"} />
           </div>
-          <p className="text-caption text-ink-40">{customer.state}</p>
+          <p className="text-caption text-foreground-muted">{customer.state}</p>
         </div>
         <div className="w-[20%]">
-          <p className="text-body font-medium text-ink-90">
+          <p className="text-body font-medium text-foreground-primary">
             ₦{formatNigerianCurrency(customer.total_spent)}
           </p>
-          <p className="text-caption text-ink-40">Spent</p>
+          <p className="text-caption text-foreground-muted">Spent</p>
         </div>
       </div>
-      <div className="ml-[55px] text-ink-40 font-medium text-caption space-x-3">
+      <div className="ml-[55px] text-foreground-muted font-medium text-caption space-x-3">
         <span>Orders:{formatNigerianCurrency(customer.total_orders)}</span>
         <span>Last purchase: {formatTimeAgo(customer.last_purchase)}</span>
       </div>

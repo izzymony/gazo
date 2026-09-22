@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import Button from "@vibaar/ui/common/Button";
 import { Heart, CircleCheck, ChevronRight } from "@vibaar/ui/icons";
 import useBusinessStore from "@/store/businessStore";
 import useOnboardingStore, {
@@ -70,29 +71,29 @@ export default function DashboardWelcome() {
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
-        className="bg-white border border-ink-10 rounded-xl p-4 shadow-sm"
+        className="bg-surface border border-outline rounded-card p-4 shadow-card"
       >
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#FFEAEE] flex items-center justify-center flex-shrink-0">
-            <Heart size={20} className="text-brand" />
+          <div className="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center flex-shrink-0">
+            <Heart size={20} className="text-brandDeep" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-body text-ink-90 mb-1">
+            <h3 className="font-medium text-body text-foreground-primary mb-1">
               Welcome, {store?.name || "there"}!
             </h3>
-            <p className="text-body-sm text-ink-60 leading-relaxed mb-3">
+            <p className="text-body-sm text-foreground-secondary leading-relaxed mb-3">
               You&apos;re {stepsRemaining} step{stepsRemaining !== 1 ? "s" : ""} away
               from your first customer. Add a product to get started!
             </p>
-            <button
+            <Button
+              size="sm"
+              variant="filled"
               onClick={() => router.push("/dashboard/catalog/product/create/manual/new")}
-              className="bg-brand text-white text-body-sm font-semibold px-4 py-2.5 rounded-full min-h-[40px] w-full touch-manipulation flex items-center justify-center gap-1"
-              style={{ boxShadow: '4px 8px 24px 0px rgb(var(--brand-rgb) / 0.2)' }}
-            >
+              className="shadow-pop">
               Add Your First Product
-              <ChevronRight size={16} strokeWidth={2} />
-            </button>
-            <p className="text-caption text-ink-40 mt-2.5">
+              <ChevronRight size={16} strokeWidth={2} aria-hidden="true" />
+            </Button>
+            <p className="text-caption text-foreground-muted mt-2.5">
               💡 Stores with 3+ products get 3x more views
             </p>
           </div>
@@ -107,46 +108,47 @@ export default function DashboardWelcome() {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="bg-white border border-ink-10 rounded-xl p-4 shadow-sm"
+      className="bg-surface border border-outline rounded-card p-4 shadow-card"
     >
       <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-full bg-[#E8FFF3] flex items-center justify-center flex-shrink-0">
-          <CircleCheck size={20} className="text-[#06C270]" />
+        <div className="w-10 h-10 rounded-full bg-success-surface flex items-center justify-center flex-shrink-0">
+          <CircleCheck size={20} className="text-success-foreground" />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-body text-ink-90 mb-1">
+          <h3 className="font-medium text-body text-foreground-primary mb-1">
             Your store is live!
           </h3>
-          <p className="text-body-sm text-ink-60 leading-relaxed mb-3">
+          <p className="text-body-sm text-foreground-secondary leading-relaxed mb-3">
             Share your store link to get your first customer. Vendors who share
             get their first sale within a week.
           </p>
           {percent < 100 && (
             <div className="flex items-center gap-2 mb-3">
-              <div className="flex-1 h-1.5 bg-ink-10 rounded-full overflow-hidden">
+              <div className="flex-1 h-1.5 bg-surface-strong rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[#06C270] rounded-full transition-all duration-500"
+                  className="h-full bg-success-foreground rounded-full transition-all duration-500"
                   style={{ width: `${percent}%` }}
                 />
               </div>
-              <span className="text-caption font-semibold text-[#06C270]">{percent}%</span>
+              <span className="text-caption font-semibold text-success-foreground">{percent}%</span>
             </div>
           )}
           <div className="flex gap-2">
-            <button
+            <Button
+              size="sm"
+              variant="filled"
               onClick={handleShareStore}
-              className="flex-1 bg-brand text-white text-body-sm font-semibold px-4 py-2.5 rounded-full min-h-[40px] touch-manipulation flex items-center justify-center gap-1"
-              style={{ boxShadow: '4px 8px 24px 0px rgb(var(--brand-rgb) / 0.2)' }}
-            >
-              Share Store
-              <ChevronRight size={16} strokeWidth={2} />
-            </button>
-            <button
+              className="flex-1 shadow-pop">
+              Share store
+              <ChevronRight size={16} strokeWidth={2} aria-hidden="true" />
+            </Button>
+            <Button
+              size="sm"
+              variant="bordered"
               onClick={() => router.push("/dashboard/catalog/product/create/manual/new")}
-              className="px-4 py-2.5 rounded-full min-h-[40px] border border-brand text-brand text-body-sm font-medium touch-manipulation"
-            >
-              Add Products
-            </button>
+              className="w-auto">
+              Add products
+            </Button>
           </div>
         </div>
       </div>

@@ -34,7 +34,7 @@ export default function ChatThread({
   return (
     <div className="flex flex-col gap-3">
       {conversation.order_item && (
-        <div className="flex items-center gap-3 p-2 bg-ink-3 rounded-field sticky top-0 z-sticky">
+        <div className="flex items-center gap-3 p-2 bg-surface-subtle rounded-field sticky top-0 z-sticky">
           <img
             src={
               conversation.order_item.image
@@ -45,11 +45,11 @@ export default function ChatThread({
             className="w-10 h-10 rounded-field object-cover flex-shrink-0"
           />
           <div className="min-w-0">
-            <p className="text-body-sm font-medium text-ink-90 line-clamp-1">
+            <p className="text-body-sm font-medium text-foreground-primary line-clamp-1">
               {conversation.order_item.title}
             </p>
             {conversation.order_item.variant && (
-              <p className="text-caption text-ink-60 line-clamp-1">
+              <p className="text-caption text-foreground-secondary line-clamp-1">
                 {conversation.order_item.variant}
               </p>
             )}
@@ -69,7 +69,7 @@ export default function ChatThread({
               <div
                 className={cn(
                   "max-w-[75%] rounded-card p-3 text-body break-words",
-                  mine ? "bg-brand text-white" : "bg-ink-3 text-ink-90"
+                  mine ? "bg-brand text-brandInk" : "bg-surface-subtle text-foreground-primary"
                 )}>
                 {m.content}
               </div>

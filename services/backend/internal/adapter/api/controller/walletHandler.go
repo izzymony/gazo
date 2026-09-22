@@ -8,6 +8,7 @@ import (
 
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/response"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/services"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
@@ -39,13 +40,35 @@ func (s *WalletController) GetWalletBalances(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	c.JSON(http.StatusOK, walletBalancesResponse(wallet))
+}
+
+// walletBalancesResponse builds the balances payload.
+//
+// Extracted from the handler so it can be tested without a router or a
+// database: the interesting part is not the HTTP plumbing, it is that
+// release_delay_hours reports the SAME policy the release cron enforces.
+//
+// That field exists so the seller-facing copy does not hardcode "24 hours".
+// This project already has one constant duplicated across five places
+// (KYC_WITHDRAWAL_GATE_NGN — the crons, the web pre-check and the notification
+// copy each carry their own literal, so changing the env var desynchronises
+// enforcement from every message about it). Shipping a second copy of
+// EARNINGS_RELEASE_DELAY_HOURS into the web bundle would repeat that exactly,
+// and the failure is silent: the policy changes, the screen keeps promising the
+// old one.
+func walletBalancesResponse(wallet *domain.Wallet) gin.H {
+	return gin.H{
 		"available_balance":  wallet.AvailableBalance,
 		"clearing_balance":   wallet.ClearingBalance,
 		"orders_in_progress": wallet.OrdersInProgress,
 		"total_earnings":     wallet.TotalEarnings,
 		"total_withdrawn":    wallet.TotalWithdrawn,
-	})
+		// D1: hours after a CONFIRMED DELIVERY before earnings become available
+		// for payout. Read from the same helper the cron reads, so the number on
+		// the screen cannot drift from the number that moves the money.
+		"release_delay_hours": helper.EarningsReleaseDelay().Hours(),
+	}
 }
 
 func (s *WalletController) GetWalletTransactions(c *gin.Context) {

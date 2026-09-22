@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import useBusinessStore from "@/store/businessStore";
+import useBusinessStore, { releaseDelayHours } from "@/store/businessStore";
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Section from "@vibaar/ui/common/Section";
 import Button from "@vibaar/ui/common/Button";
 import BottomModal from "@vibaar/ui/common/BottomModal";
 import { ChevronRight, Shield } from "@vibaar/ui/icons";
+import Link from "next/link";
 
 // KYC1 withdrawal gate: pre-check to surface the verify CTA early. The BACKEND is
 // authoritative (KYC_WITHDRAWAL_GATE_NGN, default 100000) — RequestWithdrawal
@@ -32,6 +33,7 @@ export default function Withdraw({
 }) {
   const { walletAnalytics, bankAccounts, singleStore } = useBusinessStore();
   const balance = walletAnalytics.available_balance;
+  const delayHours = releaseDelayHours(walletAnalytics);
   const hasAccount = bankAccounts && bankAccounts.length > 0 && data.accountnumber;
   const checker = balance < +amount;
   const buttonActivator = hasAccount && +amount > 0 && +amount <= balance;
@@ -47,13 +49,18 @@ export default function Withdraw({
     <PageShell
       header={
         <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="Withdraw Funds"
+          onBack={() => router.back()}
+          title="Request payout"
         />
       }
       footerAction={
         <Button
+          // The button's only content is a chevron, so it had no accessible
+          // name at all — a screen reader announced "button" for the control
+          // that commits a withdrawal (WCAG 4.1.2). The label is added rather
+          // than the glyph replaced, so the visual geometry is untouched at
+          // every width.
+          aria-label="Continue"
           onClick={
             gated
               ? () => setShowGate(true)
@@ -62,59 +69,57 @@ export default function Withdraw({
               : () => {}
           }
           className={gated || buttonActivator ? "" : "opacity-50"}>
-          <ChevronRight size={20} className="text-white" />
+          <ChevronRight size={20} className="text-white" aria-hidden="true" />
         </Button>
       }>
       <Section>
         <div className="flex items-center justify-between">
           <div className="flex gap-4">
-            <p className="text-ink-90 font-bold text-body">To :</p>
+            <p className="text-foreground-primary font-bold text-body">To :</p>
             {hasAccount ? (
               <div>
-                <p className="text-ink-90 font-bold text-body">
+                <p className="text-foreground-primary font-bold text-body">
                   {data.bankname.slice(0, 3) || "ACC"}-Ending in {"  "}
                   {data.accountnumber.slice(-4)}
                 </p>
-                <p className="text-ink-60 text-body font-normal">
+                <p className="text-foreground-secondary text-body font-normal">
                   {data.accountname || "Account Name"}
                 </p>
               </div>
             ) : (
-              <div
-                onClick={() => router.push("/dashboard/payouts/addaccount")}
-                className="cursor-pointer">
-                <p className="text-brand font-medium text-body">
+              <Link href={"/dashboard/payouts/addaccount"} className="cursor-pointer">
+                <p className="text-brandDeep font-medium text-body">
                   + Add bank account
                 </p>
-                <p className="text-ink-60 text-body-sm font-normal">
-                  Add a bank account to withdraw
+                <p className="text-foreground-secondary text-body-sm font-normal">
+                  Add a bank account to be paid into
                 </p>
-              </div>
+              </Link>
             )}
           </div>
           {hasAccount && (
-            <p
+            <button type="button"
               onClick={() => action("selectaccount")}
-              className="text-brand text-body font-medium">
+              className="text-left text-brandDeep text-body font-medium">
               Change
-            </p>
+            </button>
           )}
         </div>
       </Section>
 
       {gated && (
         <Section>
-          <div className="rounded-card border border-brand/30 bg-brand/5 p-3">
-            <p className="text-body-sm font-medium text-ink-90">
-              Verify your identity to withdraw
+          <div className="rounded-card border border-brandDeep/30 bg-brand/5 p-3">
+            <p className="text-body-sm font-medium text-foreground-primary">
+              Verify your identity to request a payout
             </p>
-            <p className="text-caption text-ink-60">
+            <p className="text-caption text-foreground-secondary">
               You&apos;ve earned over ₦{GATE_NGN.toLocaleString()}.{" "}
-              <span
-                className="cursor-pointer font-medium text-brand"
+              <button type="button"
+                className="text-left cursor-pointer font-medium text-brandDeep"
                 onClick={() => router.push("/verify")}>
                 Verify now
-              </span>
+              </button>
             </p>
           </div>
         </Section>
@@ -122,15 +127,15 @@ export default function Withdraw({
 
       {approaching && (
         <Section>
-          <div className="rounded-card border border-warning/30 bg-warning/10 p-3">
-            <p className="text-body-sm text-ink-90">
+          <div className="rounded-card border border-warning-border bg-warning-surface p-3">
+            <p className="text-body-sm text-foreground-primary">
               You&apos;re close to ₦{GATE_NGN.toLocaleString()} in sales —{" "}
-              <span
-                className="cursor-pointer font-medium text-brand"
+              <button type="button"
+                className="text-left cursor-pointer font-medium text-brandDeep"
                 onClick={() => router.push("/verify")}>
                 verify now
-              </span>{" "}
-              so withdrawals aren&apos;t held.
+              </button>{" "}
+              so your payout requests aren&apos;t blocked.
             </p>
           </div>
         </Section>
@@ -147,40 +152,52 @@ export default function Withdraw({
           onChange={(e) => setAmount(e.target.value)}
         />
         {checker && (
-          <p className="text-brand font-normal text-body w-[300px] text-center">
+          <p className="text-brandDeep font-normal text-body w-[300px] text-center">
             Amount entered is more than available balance
           </p>
         )}
       </div>
 
       <Section>
-        <p className="text-body font-bold text-ink-60">
+        <p className="text-body font-bold text-foreground-secondary">
           Available balance :{" "}
           <span
             className={
-              checker ? "text-brand inline-flex" : "text-green inline-flex"
+              checker ? "text-brandDeep inline-flex" : "text-success-foreground inline-flex"
             }>
             N {balance}
           </span>
+        </p>
+        {/* Two facts a seller had no way to learn from this screen: what makes
+            earnings eligible, and that submitting is a request rather than a
+            transfer. The first explains why the available balance is lower than
+            their sales; the second stops a normal review looking like a fault.
+            The hours come from the API, which serves the policy the release job
+            enforces — not a second copy of the number. */}
+        <p className="text-caption font-normal text-foreground-secondary">
+          Earnings become available to request {delayHours} hours after a delivery
+          is confirmed. We review each request before paying it to your bank.
         </p>
       </Section>
 
       <BottomModal isOpen={showGate} onClose={() => setShowGate(false)}>
         <div className="flex flex-col items-center gap-3 py-2 text-center">
           <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand/10">
-            <Shield size={32} className="text-brand" />
+            <Shield size={32} className="text-brandDeep" />
           </span>
-          <h2 className="text-body-lg font-medium text-ink-90">Verify to withdraw</h2>
-          <p className="max-w-[280px] text-body-sm text-ink-60">
+          <h2 className="text-body-lg font-medium text-foreground-primary">
+            Verify to request a payout
+          </h2>
+          <p className="max-w-[280px] text-body-sm text-foreground-secondary">
             You&apos;ve earned over ₦{GATE_NGN.toLocaleString()} — verify your
-            identity to unlock withdrawals. It takes about 2 minutes.
+            identity to request payouts. It takes about 2 minutes.
           </p>
           <Button onClick={() => router.push("/verify")} className="w-full">
             Verify now
           </Button>
           <button
             onClick={() => setShowGate(false)}
-            className="text-body-sm font-medium text-ink-60">
+            className="text-body-sm font-medium text-foreground-secondary">
             Later
           </button>
         </div>

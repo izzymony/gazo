@@ -65,7 +65,7 @@ interface AuthState {
   clearUserState: () => void;
   getUsers: () => void;
   logout: (router: () => void) => void;
-  updateUser: (userInfo?: User, callback?: () => void) => Promise<void>;
+  updateUser: (userInfo?: User | FormData, callback?: () => void) => Promise<void>;
   getUserById: (id?: string) => void;
   createShippingAddress: (
     addressPayload: {
@@ -176,7 +176,6 @@ const useAuthStore = create<AuthState>()(
         signupPayload: SignupData,
         callback?: (data: unknown) => void
       ) => {
-        console.log(signupPayload);
         set({ isLoading: true, error: null });
         try {
           const response = (await Client({
@@ -195,17 +194,8 @@ const useAuthStore = create<AuthState>()(
           if (response.status === 200) {
             const { token, access_token, data, refresh_token } = response.data.data;
             const authToken = access_token || token; // Handle both response formats
-            console.log("👤 User data structure:", {
-              fullUserData: data,
-              hasId: !!data?.id,
-              hasUserId: !!data?.user_id,
-              hasID: !!(data as Record<string, unknown>)?.ID,
-              allKeys: Object.keys(data || {}),
-              firstFiveValues: Object.entries(data || {}).slice(0, 5).map(([k, v]) => `${k}: ${v}`)
-            });
             
             // Set cookies with explicit options for immediate server availability
-            console.log("🍪 Setting cookies...");
             Cookies.set("accessToken", authToken, { 
               expires: 3, 
               sameSite: 'lax', 
@@ -226,12 +216,6 @@ const useAuthStore = create<AuthState>()(
             // Verify cookies were set immediately
             const verifyAccessToken = Cookies.get("accessToken");
             const verifyRefreshToken = Cookies.get("refreshToken");
-            console.log("🔍 Cookie verification immediately after setting:", {
-              accessTokenSet: !!verifyAccessToken,
-              refreshTokenSet: !!verifyRefreshToken,
-              accessTokenMatches: verifyAccessToken === authToken,
-              refreshTokenMatches: verifyRefreshToken === refresh_token
-            });
             set({ user: data, isAuthenticated: true, token: authToken });
 
             // W2.7: one deterministic /me call fills user + business (replaces
@@ -422,10 +406,15 @@ const useAuthStore = create<AuthState>()(
           
           // Update the user data in the store
           set({ user: response.data.data });
-          
-          // Don't show toast here if FormData, let the component handle it
-          if (!isFormData) {
-            toast.success("User Details updated successfully");
+
+          // SUCCESS ONLY. The callback is the caller's success path — it toasts
+          // and navigates away. It used to sit in `finally`, so a FAILED save
+          // still announced "Profile updated successfully!" and bounced the user
+          // back, while the error toast fired alongside it and nothing saved.
+          // The caller owns the success message, so the store no longer raises a
+          // second one of its own.
+          if (callback) {
+            callback();
           }
         } catch (error) {
           const err = error as AxiosError<{ error: string }>;
@@ -433,9 +422,6 @@ const useAuthStore = create<AuthState>()(
           toast.error(err.response?.data?.error || "Failed to update user");
         } finally {
           set({ isLoading: false });
-          if (callback) {
-            callback();
-          }
         }
       },
 
@@ -460,15 +446,18 @@ const useAuthStore = create<AuthState>()(
           // Do NOT overwrite `user` here: change-password returns no user object,
           // and clobbering it corrupts the session (the old code PUT to the wrong
           // endpoint, /users/recommendations, so the password never changed).
+
+          // Success only — same reason as updateUser above: from `finally` this
+          // ran the caller's success path even when the change had failed.
+          if (callback) {
+            callback();
+          }
         } catch (error) {
           const err = error as AxiosError<{ error: string }>;
           toast.error(err.response?.data?.error || "Failed to change password");
           set({ error: err.message });
         } finally {
           set({ isLoading: false });
-          if (callback) {
-            callback();
-          }
         }
       },
 
@@ -717,17 +706,20 @@ const useAuthStore = create<AuthState>()(
             data: addressPayload,
           })) as AxiosResponse<{ data: { message: string } }>;
 
-          toast.success("Shipping address updated successfully!");
+          // No toast here: the only caller (profile/shipping-address/edit)
+          // announces both outcomes itself, so toasting here showed the user
+          // TWO success messages for one save.
           if (callback) {
             callback();
           }
           return response.data;
         } catch (error) {
           const err = error as AxiosError<{ error: string }>;
-          toast.error(
-            err.response?.data?.error || "Failed to update shipping address"
-          );
           set({ error: err.message });
+          // Re-throw so the caller's catch actually runs. Swallowing here let
+          // `await updateShippingAddress(...)` resolve on failure, so the page
+          // toasted success and router.replace'd away from an unsaved edit.
+          throw error;
         } finally {
           set({ isLoading: false });
         }

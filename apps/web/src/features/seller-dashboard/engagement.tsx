@@ -165,21 +165,21 @@ const EngagementComp: React.FC<{ customer: CustomerData }> = ({ customer }) => {
 
         <div className="w-[60%]">
           <div className="flex items-center space-x-3">
-            <p className="text-body-sm font-medium text-ink-90">
+            <p className="text-body-sm font-medium text-foreground-primary">
               {customer.name}
             </p>
             <StatusBadge status={customer.status} />
           </div>
-          <p className="text-caption text-ink-40">{customer.location}</p>
+          <p className="text-caption text-foreground-muted">{customer.location}</p>
         </div>
         <div className="w-[20%]">
-          <p className="text-body font-medium text-ink-90">
+          <p className="text-body font-medium text-foreground-primary">
             ₦{customer.totalSpent}
           </p>
-          <p className="text-caption text-ink-40">Spent</p>
+          <p className="text-caption text-foreground-muted">Spent</p>
         </div>
       </div>
-      <div className="ml-[15%] text-ink-40 font-medium text-caption space-x-3">
+      <div className="ml-[15%] text-foreground-muted font-medium text-caption space-x-3">
         <span>Orders:{customer.numberOfOrders}</span>
         <span>Last purchase: {customer.lastPurchase}</span>
       </div>

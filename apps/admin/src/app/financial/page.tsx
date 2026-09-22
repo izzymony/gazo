@@ -1,5 +1,20 @@
 "use client";
 
+import {
+  AWAITING_APPROVAL,
+  IN_FLIGHT,
+  NEEDS_ATTENTION,
+  PAID,
+  WITHDRAWAL_FILTERS,
+  amountFor,
+  countFor,
+  isAwaitingApproval,
+  parseCounts,
+  totalAmount as tallyAmount,
+  totalCount as tallyCount,
+  type StatusTally,
+} from '@/lib/withdrawalStatus';
+
 import { useState, useEffect, useCallback } from "react";
 import AdminLayout from "@/components/layout/AdminLayout";
 import MetricCard from "@/components/common/MetricCard";
@@ -73,6 +88,48 @@ interface WithdrawalRequest {
   };
 }
 
+/**
+ * The withdrawal lifecycle, as the backend now reports it.
+ *
+ * Approval used to mean "an admin pressed a button and then made a bank
+ * transfer by hand", and this page said so — it told the admin to go and send
+ * the money. Approval now AUTHORISES a Paystack transfer, and a withdrawal
+ * becomes `paid` only when Paystack confirms it. Anyone transferring manually
+ * on top of that pays the seller twice.
+ *
+ * `pending`, `approved` and `completed` are the old vocabulary. `pending` was
+ * migrated to `requested`, and `completed` was deliberately NOT migrated —
+ * those rows record an approval whose payment nobody ever verified, so they are
+ * left distinguishable for reconciliation rather than relabelled `paid`. All
+ * three are still mapped here so historical rows render.
+ */
+const WITHDRAWAL_STATUS: Record<string, { label: string; badge: string; tone: "waiting" | "inFlight" | "done" | "bad" | "neutral" }> = {
+  requested:    { label: "Awaiting Approval", badge: "bg-yellow-100 text-yellow-800", tone: "waiting" },
+  processing:   { label: "Sending",           badge: "bg-blue-100 text-blue-800",     tone: "inFlight" },
+  awaiting_otp: { label: "Awaiting OTP",      badge: "bg-blue-100 text-blue-800",     tone: "inFlight" },
+  paid:         { label: "Paid",              badge: "bg-green-100 text-green-800",   tone: "done" },
+  failed:       { label: "Failed",            badge: "bg-red-100 text-red-800",       tone: "bad" },
+  blocked:      { label: "Blocked",           badge: "bg-red-100 text-red-800",       tone: "bad" },
+  reversed:     { label: "Returned by bank",  badge: "bg-red-100 text-red-800",       tone: "bad" },
+  rejected:     { label: "Rejected",          badge: "bg-red-100 text-red-800",       tone: "bad" },
+  needs_review: { label: "Needs Review",      badge: "bg-orange-100 text-orange-800", tone: "bad" },
+
+  // Legacy.
+  pending:      { label: "Awaiting Approval", badge: "bg-yellow-100 text-yellow-800", tone: "waiting" },
+  approved:     { label: "Approved (legacy)", badge: "bg-gray-100 text-gray-800",     tone: "neutral" },
+  completed:    { label: "Paid (unverified)", badge: "bg-gray-100 text-gray-800",     tone: "neutral" },
+  under_review: { label: "Under Review",      badge: "bg-blue-100 text-blue-800",     tone: "inFlight" },
+};
+
+/**
+ * `pending` is accepted alongside `requested` so the page keeps working against
+ * a backend whose migration has not run yet. Gating the approve button on one
+ * spelling is how it would silently become impossible to approve anything.
+ */
+// Status groups, counting and filter-key construction all live in one module,
+// so a tab cannot count one set of statuses and fetch another.
+
+
 export default function FinancialPage() {
   const [selectedTab, setSelectedTab] = useState("withdrawals");
   const [selectedFilter, setSelectedFilter] = useState("all");
@@ -83,6 +140,9 @@ export default function FinancialPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  // Whole-table tallies from the API, so badges and money totals stay correct
+  // on page 3 of a filtered list.
+  const [statusTally, setStatusTally] = useState<StatusTally>({});
   const router = useRouter();
 
   const { getWithdrawals, approveWithdrawal, rejectWithdrawal } = useFinancial();
@@ -99,6 +159,12 @@ export default function FinancialPage() {
       setWithdrawals(Array.isArray(withdrawalData) ? withdrawalData : []);
       setTotalCount((response as any)?.total || withdrawalData.length || 0);
       setTotalPages((response as any)?.totalPages || 1);
+
+      // `counts` is a GROUP BY over every withdrawal, independent of this
+      // request's filter and page. Absent on an older backend, in which case
+      // the badges show nothing rather than something wrong.
+      const parsed = parseCounts(response?.counts);
+      if (parsed) setStatusTally(parsed);
     } catch (error) {
       console.error("Failed to fetch withdrawals:", error);
       toast.error("Failed to load withdrawal requests");
@@ -123,57 +189,22 @@ export default function FinancialPage() {
     }
   };
 
-  const getWithdrawalStatusBadge = (status: string) => {
-    switch (status) {
-      case "completed":
-      case "approved":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "processing":
-      case "under_review":
-        return "bg-blue-100 text-blue-800";
-      case "rejected":
-      case "failed":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+  const getWithdrawalStatusBadge = (status: string) =>
+    WITHDRAWAL_STATUS[status]?.badge ?? "bg-gray-100 text-gray-800";
 
-  const getWithdrawalStatusText = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "Completed";
-      case "approved":
-        return "Approved";
-      case "pending":
-        return "Pending";
-      case "processing":
-        return "Processing";
-      case "under_review":
-        return "Under Review";
-      case "rejected":
-        return "Rejected";
-      case "failed":
-        return "Failed";
-      default:
-        return status;
-    }
-  };
+  const getWithdrawalStatusText = (status: string) =>
+    WITHDRAWAL_STATUS[status]?.label ?? status;
 
   const getWithdrawalStatusIcon = (status: string) => {
-    switch (status) {
-      case "completed":
-      case "approved":
+    const tone = WITHDRAWAL_STATUS[status]?.tone ?? "neutral";
+    switch (tone) {
+      case "done":
         return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case "pending":
+      case "waiting":
         return <Clock className="h-4 w-4 text-yellow-500" />;
-      case "processing":
-      case "under_review":
+      case "inFlight":
         return <AlertTriangle className="h-4 w-4 text-blue-500" />;
-      case "rejected":
-      case "failed":
+      case "bad":
         return <XCircle className="h-4 w-4 text-red-500" />;
       default:
         return <Clock className="h-4 w-4 text-gray-500" />;
@@ -221,11 +252,16 @@ export default function FinancialPage() {
   });
 
   // Calculate counts for filter tabs
+  // Counts come from the server's GROUP BY over the whole table, never from
+  // the page in hand. Counting `withdrawals` was wrong twice over: it only saw
+  // the 20 rows just fetched, and with any filter active the other tabs
+  // counted rows that were no longer in the response, so they all read 0.
   const statusCounts = {
-    all: withdrawals.length,
-    pending: withdrawals.filter(w => w.status === "pending").length,
-    processing: withdrawals.filter(w => w.status === "processing").length,
-    completed: withdrawals.filter(w => w.status === "completed" || w.status === "approved").length,
+    all: tallyCount(statusTally),
+    requested: countFor(statusTally, AWAITING_APPROVAL),
+    processing: countFor(statusTally, IN_FLIGHT),
+    paid: countFor(statusTally, PAID),
+    attention: countFor(statusTally, NEEDS_ATTENTION),
   };
 
   // Action handlers
@@ -233,7 +269,12 @@ export default function FinancialPage() {
     if (actionLoading) return;
 
     const confirmApprove = window.confirm(
-      `Are you sure you want to approve this withdrawal?\n\nAmount: ₦${withdrawal.amount.toLocaleString()}\nVendor: ${withdrawal.user?.business?.name || "Unknown"}\nBank: ${withdrawal.bank_account?.bank || "Unknown"}\nAccount: ${withdrawal.bank_account?.account_number || "Unknown"}`
+      `Approve this withdrawal and send the transfer?\n\n` +
+      `Amount: ₦${withdrawal.amount.toLocaleString()}\n` +
+      `Vendor: ${withdrawal.user?.business?.name || "Unknown"}\n` +
+      `Bank: ${withdrawal.bank_account?.bank || "Unknown"}\n` +
+      `Account: ${withdrawal.bank_account?.account_number || "Unknown"}\n\n` +
+      `Paystack sends this automatically. Do NOT also transfer it manually.`
     );
 
     if (!confirmApprove) return;
@@ -241,11 +282,21 @@ export default function FinancialPage() {
     setActionLoading(withdrawal.id);
     try {
       await approveWithdrawal(withdrawal.id);
-      toast.success(`Withdrawal approved! Please transfer ₦${withdrawal.amount.toLocaleString()} to ${withdrawal.bank_account?.account_name || "vendor"}`);
+      // This used to read "Please transfer ₦X to vendor" — an instruction to
+      // make the payment by hand, which was correct when nothing else did.
+      // It is now the instruction that pays a seller twice.
+      toast.success(`Transfer sent to Paystack. It will show as Paid once Paystack confirms — no manual transfer needed.`);
       fetchWithdrawals(); // Refresh data
     } catch (error: any) {
       console.error("Failed to approve withdrawal:", error);
-      toast.error(error?.message || "Failed to approve withdrawal");
+      // 503 means the platform cannot pay right now and NOTHING happened to
+      // this withdrawal — distinct from a rejected request, and the admin needs
+      // to know it is safe to try again later rather than chase the seller.
+      if (error?.status === 503 || error?.reason === "payouts_disabled") {
+        toast.error("Payouts are switched off, so nothing was approved. Try again once they are enabled.");
+      } else {
+        toast.error(error?.message || "Failed to approve withdrawal");
+      }
     } finally {
       setActionLoading(null);
     }
@@ -345,17 +396,17 @@ export default function FinancialPage() {
               iconColor="text-blue-500"
             />
             <MetricCard
-              title="Pending Withdrawals"
-              value={`₦${(withdrawals.filter(w => w.status === "pending").reduce((sum, w) => sum + w.amount, 0) / 1000000).toFixed(1)}M`}
-              change={`${statusCounts.pending} requests`}
+              title="Awaiting Approval"
+              value={`₦${(amountFor(statusTally, AWAITING_APPROVAL) / 1000000).toFixed(1)}M`}
+              change={`${statusCounts.requested} requests`}
               changeType="neutral"
               icon={Clock}
               iconColor="text-yellow-500"
             />
             <MetricCard
               title="Total Withdrawals"
-              value={`${totalCount}`}
-              change={`₦${(withdrawals.reduce((sum, w) => sum + w.amount, 0) / 1000).toFixed(0)}K total`}
+              value={`${statusCounts.all}`}
+              change={`₦${(tallyAmount(statusTally) / 1000).toFixed(0)}K total`}
               changeType="neutral"
               icon={Banknote}
               iconColor="text-purple-500"
@@ -403,10 +454,15 @@ export default function FinancialPage() {
               {selectedTab === "withdrawals" && (
                 <FilterTabs
                   filters={[
-                    { key: "all", label: "All Requests", count: statusCounts.all },
-                    { key: "pending", label: "Pending", count: statusCounts.pending },
-                    { key: "processing", label: "Processing", count: statusCounts.processing },
-                    { key: "completed", label: "Completed", count: statusCounts.completed },
+                    // Each key IS the status set its badge counts — one array
+                    // builds both, so they cannot drift apart.
+                    ...WITHDRAWAL_FILTERS.map((f) => ({
+                      key: f.key,
+                      label: f.label,
+                      count: f.statuses.length === 0
+                        ? statusCounts.all
+                        : countFor(statusTally, f.statuses),
+                    })),
                   ]}
                   selectedFilter={selectedFilter}
                   onFilterChange={setSelectedFilter}
@@ -545,12 +601,12 @@ export default function FinancialPage() {
                               <button
                                 onClick={() => handleApproveWithdrawal(withdrawal)}
                                 className={`w-8 h-8 flex items-center justify-center rounded-full border transition-colors ${
-                                  withdrawal.status === 'pending' && !actionLoading
+                                  isAwaitingApproval(withdrawal.status) && !actionLoading
                                     ? 'border-green-200 text-green-600 hover:bg-green-50'
                                     : 'border-gray-200 text-gray-400 cursor-not-allowed'
                                 }`}
-                                title="Approve Withdrawal"
-                                disabled={withdrawal.status !== 'pending' || !!actionLoading}
+                                title="Approve withdrawal and send the transfer"
+                                disabled={!isAwaitingApproval(withdrawal.status) || !!actionLoading}
                               >
                                 {actionLoading === withdrawal.id ? (
                                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -559,16 +615,20 @@ export default function FinancialPage() {
                                 )}
                               </button>
 
-                              {/* Secondary Action: Reject (only for pending) */}
+                              {/* Secondary Action: Reject — same gate as Approve.
+                                  This was still on the literal 'pending', which
+                                  migration 015 renamed to 'requested', so reject
+                                  was permanently disabled for every real
+                                  withdrawal while the backend accepted it. */}
                               <button
                                 onClick={() => handleRejectWithdrawal(withdrawal)}
                                 className={`w-8 h-8 flex items-center justify-center rounded-full border transition-colors ${
-                                  withdrawal.status === 'pending' && !actionLoading
+                                  isAwaitingApproval(withdrawal.status) && !actionLoading
                                     ? 'border-red-200 text-red-600 hover:bg-red-50'
                                     : 'border-gray-200 text-gray-400 cursor-not-allowed'
                                 }`}
-                                title="Reject Withdrawal"
-                                disabled={withdrawal.status !== 'pending' || !!actionLoading}
+                                title="Reject withdrawal and return the funds to the seller's balance"
+                                disabled={!isAwaitingApproval(withdrawal.status) || !!actionLoading}
                               >
                                 <XCircle className="h-4 w-4" />
                               </button>

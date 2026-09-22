@@ -6,13 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"math"
 	"time"
 
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
 	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/payments"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 
@@ -87,8 +87,26 @@ func (s *TransactionService) Initiate(input requests.InitiateTransaction, userId
 		return nil, errors.New("reference not found")
 	}
 
-	if order.Total != input.Amount {
+	// The legacy order-first path. Still the DEFAULT checkout: the web app only
+	// calls initiate-checkout when NEXT_PUBLIC_ORDER_ON_SUCCESS is set, so this
+	// is the live payment route in any environment without that flag. It
+	// therefore needs the same two protections as the order-on-success path,
+	// and had neither.
+	//
+	// G13: compare in integer kobo. Exact float equality on a `decimal` column
+	// with no enforced scale rejects an amount that is correct to the kobo,
+	// because the client's total and the stored total need not land on the same
+	// double.
+	if helper.ToKobo(order.Total) != helper.ToKobo(input.Amount) {
 		return nil, errors.New("invalid amount")
+	}
+
+	// G7: the server-side ceiling, applied at the payment boundary rather than
+	// only at order creation — the bound can change between the two, and this is
+	// the last point before money is requested.
+	if maximum := helper.CheckoutMaxNGN(); maximum > 0 && input.Amount > maximum {
+		return nil, fmt.Errorf("order total %s exceeds the maximum of %s",
+			FormatNaira(input.Amount), FormatNaira(maximum))
 	}
 
 	transaction, err := s.transactionRepo.Create(&domain.Transaction{
@@ -118,7 +136,7 @@ func (s *TransactionService) Initiate(input requests.InitiateTransaction, userId
 		return nil, errors.New("please provide a valid email")
 	}
 	// send transaction to paystack
-	paymentResponse, err := s.payments.Initiate(email, input.Invoice, int32(math.Round(input.Amount)), input.RedirectURL)
+	paymentResponse, err := s.payments.Initiate(email, input.Invoice, helper.ToKobo(input.Amount), input.RedirectURL)
 	if err != nil {
 		// s.transactionRepo.Delete(transaction.ID)
 		return nil, err
@@ -164,7 +182,20 @@ func (s *TransactionService) InitiateCheckout(input requests.InitiateCheckout, u
 		return nil, errors.New("please provide a valid email")
 	}
 
-	gross := math.Round(input.Total) // whole Naira; the value the seller fulfils
+	// The VALIDATED total, to the kobo — not `math.Round(input.Total)`.
+	//
+	// Rounding here silently changed what the buyer paid. A cart totalling
+	// ₦8,450.50 was charged ₦8,451 (or ₦8,450 on the other side of .5), so the
+	// buyer was billed up to 50 kobo more or less than the total the server had
+	// just validated against the product rows. It also made `order.Total` and
+	// the charge disagree, which is a reconciliation gap for every order with a
+	// non-whole total.
+	//
+	// `order.Total` rather than `input.Total` on purpose: ValidateOrder is what
+	// checked this figure against the product prices and the bound shipping
+	// quotes, in kobo. The charge must be the amount that passed validation, not
+	// the one the client sent.
+	gross := order.Total
 	creditIntent := 0.0
 	if !isGuest && order.CreditApplied > 0 {
 		creditIntent = order.CreditApplied // whole-Naira clamped in ValidateOrder
@@ -176,7 +207,7 @@ func (s *TransactionService) InitiateCheckout(input requests.InitiateCheckout, u
 	// the actual reserved credit); the payload keeps the gross order + the
 	// authoritative CreditApplied.
 	var transaction *domain.Transaction
-	txErr := s.db.Transaction(func(tx *gorm.DB) error {
+	txErr := database.WithTransaction(s.db, "initiate_checkout", func(tx *gorm.DB) error {
 		var sUsed, wUsed float64
 		if creditIntent > 0 {
 			refRepo := mysql_repo.NewReferralRepository(tx)
@@ -230,7 +261,7 @@ func (s *TransactionService) InitiateCheckout(input requests.InitiateCheckout, u
 	}
 
 	// Paystack — OUTSIDE any DB tx.
-	paymentResponse, err := s.payments.Initiate(email, order.Invoice, int32(transaction.Amount), input.RedirectURL)
+	paymentResponse, err := s.payments.Initiate(email, order.Invoice, helper.ToKobo(transaction.Amount), input.RedirectURL)
 	if err != nil {
 		// Synchronous release: refund the held credit immediately (new short tx) so
 		// the buyer's balance is restored now, not after the reconcile cron.
@@ -256,7 +287,7 @@ func (s *TransactionService) InitiateCheckout(input requests.InitiateCheckout, u
 // own short tx, so it is safe from the synchronous init-failure path, MarkFailed, and
 // the reconcile cron.
 func (s *TransactionService) releaseReservation(txnID string, isGuest bool) {
-	err := s.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(s.db, "release_reservation", func(tx *gorm.DB) error {
 		txTxnRepo := mysql_repo.NewTransactionRepository(tx)
 		won, cerr := txTxnRepo.ClaimReservationRelease(txnID, isGuest)
 		if cerr != nil {
@@ -360,11 +391,34 @@ func (s *TransactionService) Verify(input requests.VerifyTransaction, isGuest bo
 		// reserved credit), in kobo, before creating the order — guards against an
 		// amount that doesn't match what we asked to charge. On mismatch: create no
 		// order, release any held credit, and fail.
-		expectedKobo := int(math.Round(transaction.Amount)) * 100
-		if paymentResponse.Data.Amount != expectedKobo {
+		//
+		// Both sides of this comparison MUST come from helper.ToKobo. They used
+		// to be computed differently — `Initiate` sent
+		// `int32(math.Round(amount)) * 100` and this expected
+		// `int(math.Round(amount)) * 100` — which agreed only because both
+		// happened to round to whole naira first. Converting one to true kobo
+		// without the other makes every charge carrying kobo fail verification,
+		// which means a SUCCESSFUL payment creates no order. One function, both
+		// ends.
+		expectedKobo := helper.ToKobo(transaction.Amount)
+		if int64(paymentResponse.Data.Amount) != expectedKobo {
 			s.releaseReservation(transaction.ID, isGuest)
 			_ = s.transactionRepo.SetStatus(transaction.ID, string(helper.PaymentFailed), isGuest)
 			return nil, fmt.Errorf("payment amount mismatch")
+		}
+
+		// G21: record Paystack's collection fee for this charge.
+		//
+		// Best-effort and deliberately OUTSIDE the confirm transaction below: a
+		// missing fee is an accounting gap to reconcile later, whereas failing a
+		// payment Paystack has already taken over a bookkeeping field would be
+		// strictly worse. Nil means the response carried no fee — recorded as
+		// "unknown" by leaving the column alone, not as a genuine zero.
+		if paymentResponse.Data.Fees != nil {
+			if err := s.transactionRepo.SetProviderFee(transaction.ID, *paymentResponse.Data.Fees, isGuest); err != nil {
+				log.Printf("could not record the paystack collection fee for %s: %v",
+					transaction.ID, err)
+			}
 		}
 
 		// R6: run the confirm->credit sequence in ONE DB transaction so a mid-loop
@@ -373,7 +427,7 @@ func (s *TransactionService) Verify(input requests.VerifyTransaction, isGuest bo
 		// or a client retry re-processes cleanly. Paystack verify (above) and the
 		// best-effort notifications + referral (below) stay outside the tx.
 		var alreadyProcessed bool
-		txErr := s.db.Transaction(func(tx *gorm.DB) error {
+		txErr := database.WithTransaction(s.db, "verify", func(tx *gorm.DB) error {
 			txTxnRepo := mysql_repo.NewTransactionRepository(tx)
 			txOrderRepo := mysql_repo.NewOrderRepository(tx)
 			txProductRepo := mysql_repo.NewProductRepository(tx)

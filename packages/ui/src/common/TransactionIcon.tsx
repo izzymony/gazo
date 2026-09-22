@@ -29,8 +29,8 @@ const GLYPH: Record<string, Glyph> = {
 
 /** The glyph is coloured by money direction; the circle stays neutral. */
 const GLYPH_COLOR: Record<TxType, string> = {
-  credit: "text-green-700",
-  debit: "text-brand",
+  credit: "text-success-foreground",
+  debit: "text-brandDeep",
   pending: "text-yellow-600",
 };
 
@@ -47,7 +47,7 @@ interface TransactionIconProps {
  * TransactionIcon — the transaction badge (HugeIcons).
  *
  * Replaces the hand-rolled inline-SVG `SelectIcon`. Same construction as the
- * activity rows: a neutral `bg-ink-5` circle behind the glyph. The glyph itself
+ * activity rows: a neutral `bg-surface-muted` circle behind the glyph. The glyph itself
  * is coloured (by money direction); only the circle background is neutral.
  */
 export default function TransactionIcon({
@@ -61,11 +61,13 @@ export default function TransactionIcon({
   return (
     <div
       className={cn(
-        "rounded-full flex items-center justify-center flex-shrink-0 bg-ink-5",
+        "rounded-full flex items-center justify-center flex-shrink-0 bg-surface-muted",
         GLYPH_COLOR[type] ?? GLYPH_COLOR.pending,
         box
       )}>
-      <HugeiconsIcon icon={glyph} size={glyphPx} strokeWidth={2} />
+      <HugeiconsIcon icon={glyph} size={glyphPx} strokeWidth={2} aria-hidden="true" />
+      {/* Money direction was conveyed by glyph colour alone. */}
+      <span className="sr-only">{type === "credit" ? "Credit" : type === "debit" ? "Debit" : "Pending"}</span>
     </div>
   );
 }

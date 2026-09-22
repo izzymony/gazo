@@ -12,6 +12,8 @@ interface ActivityItemProps {
   /** Unread → bolder title + a dot on the badge. */
   unread?: boolean;
   onClick?: () => void;
+  /** Render as an <li> for use inside `List`. Passed through to ListItem. */
+  asListItem?: boolean;
 }
 
 /**
@@ -28,13 +30,15 @@ export default function ActivityItem({
   time,
   unread,
   onClick,
+  asListItem = false,
 }: ActivityItemProps) {
   return (
     <ListItem
+      asListItem={asListItem}
       onClick={onClick}
       showDot={unread}
       leading={
-        <div className="w-10 h-10 rounded-full bg-ink-5 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full bg-surface-muted flex items-center justify-center">
           <ActivityIcon type={icon} />
         </div>
       }
@@ -43,7 +47,7 @@ export default function ActivityItem({
       meta={time}
       trailing={
         <svg
-          className="w-4 h-4 text-ink-40 mt-0.5"
+          className="w-4 h-4 text-foreground-muted mt-0.5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24">

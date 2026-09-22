@@ -8,6 +8,18 @@ import (
 	"testing"
 )
 
+func stripLineComments(src string) string {
+	var out strings.Builder
+	for _, line := range strings.Split(src, "\n") {
+		if idx := strings.Index(line, "//"); idx >= 0 {
+			line = line[:idx]
+		}
+		out.WriteString(line)
+		out.WriteByte('\n')
+	}
+	return out.String()
+}
+
 func readServiceSource(t *testing.T, filename string) string {
 	t.Helper()
 	b, err := os.ReadFile(filename)
@@ -82,7 +94,15 @@ func TestMoneySafety_AdminCompletedMustClaimDeliveredBeforeMovingFunds(t *testin
 func TestMoneySafety_PaymentConfirmMustBeAtomicAcrossOrderAndWalletSideEffects(t *testing.T) {
 	verifyBody := sliceFunc(t, readServiceSource(t, "transactionService.go"), `func (s *TransactionService) Verify(input requests.VerifyTransaction, isGuest bool) (interface{}, error)`)
 
-	hasTransactionBoundary := strings.Contains(verifyBody, ".Transaction(") ||
+	// WithTransaction first: since the persistence-error boundary landed it is
+	// the ONLY sanctioned way to open a transaction, and a source guard that
+	// knows only the old spellings reports a correct refactor as a money-safety
+	// breach. This one did exactly that — it fired on
+	// `database.WithTransaction(s.db, "verify", ...)` while the boundary was
+	// intact — so the accepted set is kept in step with the rule the
+	// transaction guard in internal/database enforces.
+	hasTransactionBoundary := strings.Contains(verifyBody, "WithTransaction(") ||
+		strings.Contains(verifyBody, ".Transaction(") ||
 		strings.Contains(verifyBody, "Begin()") ||
 		strings.Contains(verifyBody, "BeginTx(")
 	if !hasTransactionBoundary {
@@ -98,5 +118,64 @@ func TestMoneySafety_GuestPaymentConfirmMustUpdateGuestOrderItems(t *testing.T) 
 	}
 	if !strings.Contains(verifyBody, "UpdateOrderItem(newUpdatedItem.ID, *newUpdatedItem, isGuest)") {
 		t.Fatalf("TransactionService.Verify must pass isGuest through when updating paid order items")
+	}
+}
+
+// P3/G7. Money-in must cross the Paystack boundary through helper.ToKobo at
+// EVERY point, and the initiate and verify sides must use the same conversion.
+//
+// This is a source assertion, in the same style as the transaction-boundary
+// check above, because the behavioural test cannot reach it. Mutation testing
+// showed why: reverting the call site to the old `int32(amount) * 100` leaves
+// the whole suite green, since today `gross` is rounded to whole naira
+// (transactionService.go) and for whole-naira amounts the two forms agree
+// exactly. The forms diverge only for amounts with kobo, or above the int32
+// ceiling of ₦21,474,836 — neither of which the current checkout can produce.
+//
+// So the defect is latent, and it becomes live the moment `gross` stops
+// rounding. A behavioural test would have to change that rounding to catch it,
+// which is a product change; pinning the conversion is the honest alternative.
+//
+// The initiate/verify pairing is the part that would actually break a
+// payment: if one side sends true kobo and the other expects
+// `round(naira) * 100`, a SUCCESSFUL charge fails verification and creates no
+// order.
+func TestMoneySafety_MoneyInConvertsThroughToKobo(t *testing.T) {
+	// Comments stripped: this test bans `int32(math.Round(` , and the code's own
+	// note explaining why that form was removed necessarily contains it. A check
+	// that reads prose as code fails on its own documentation.
+	src := stripLineComments(readServiceSource(t, "transactionService.go"))
+
+	initiateCalls := strings.Count(src, "s.payments.Initiate(")
+	if initiateCalls == 0 {
+		t.Fatal("no Initiate calls found; update this safety test to match the new payment flow")
+	}
+	if got := strings.Count(src, "helper.ToKobo("); got < initiateCalls+1 {
+		t.Errorf("found %d helper.ToKobo call(s) for %d Initiate call(s) plus the verify "+
+			"comparison — at least one money-in conversion is not going through ToKobo, "+
+			"so it either truncates kobo or overflows int32 above ₦21,474,836",
+			got, initiateCalls)
+	}
+
+	// The old forms, explicitly. `* 100` on a naira amount is the shape of the
+	// bug in both directions.
+	for _, banned := range []string{
+		"int32(math.Round(",
+		"int32(transaction.Amount)",
+		"int(math.Round(transaction.Amount)) * 100",
+	} {
+		if strings.Contains(src, banned) {
+			t.Errorf("transactionService.go still contains %q — money-in must convert with "+
+				"helper.ToKobo, which rounds to the kobo and cannot overflow", banned)
+		}
+	}
+
+	// And the two ends of the same charge must agree, by construction.
+	verifyBody := sliceFunc(t, src,
+		`func (s *TransactionService) Verify(input requests.VerifyTransaction, isGuest bool) (interface{}, error)`)
+	if !strings.Contains(verifyBody, "expectedKobo := helper.ToKobo(transaction.Amount)") {
+		t.Error("Verify does not derive the expected amount with helper.ToKobo; if the " +
+			"initiate and verify conversions differ, a successful charge fails " +
+			"verification and no order is created")
 	}
 }

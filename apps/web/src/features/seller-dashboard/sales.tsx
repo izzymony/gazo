@@ -15,21 +15,21 @@ const SalesComp: React.FC<{ sale: ProductRanking }> = ({ sale }) => {
         <img src={sale.image[0]} alt="product" className="w-10 h-10 rounded-field object-cover" />
         <div className="w-full">
           <div className="flex items-center w-full">
-            <p className="text-body-sm font-medium text-ink-90">{sale.title}</p>
-            <p className="ml-auto text-body font-medium text-ink-90">₦{formatNigerianCurrency(sale.total_sales || 0)}</p>
+            <p className="text-body-sm font-medium text-foreground-primary">{sale.title}</p>
+            <p className="ml-auto text-body font-medium text-foreground-primary">₦{formatNigerianCurrency(sale.total_sales || 0)}</p>
           </div>
-          <div className=" text-ink-40 font-medium text-caption space-x-3 flex items-center ">
+          <div className=" text-foreground-muted font-medium text-caption space-x-3 flex items-center ">
             <div>
-              Views: <span className="font-medium text-ink-90">{formatNigerianCurrency(sale.total_views)}</span>
+              Views: <span className="font-medium text-foreground-primary">{formatNigerianCurrency(sale.total_views)}</span>
             </div>
             <div>
-              Orders: <span className="font-medium text-ink-90">{formatNigerianCurrency(sale.total_orders)}</span>
+              Orders: <span className="font-medium text-foreground-primary">{formatNigerianCurrency(sale.total_orders)}</span>
             </div>
             <div>
-              Sales: <span className="font-medium text-ink-90">{formatNigerianCurrency(sale.total_sales)}</span>
+              Sales: <span className="font-medium text-foreground-primary">{formatNigerianCurrency(sale.total_sales)}</span>
             </div>
             <div>
-              Stock: <span className="font-medium text-ink-90">{formatNigerianCurrency(sale.stock)}</span>
+              Stock: <span className="font-medium text-foreground-primary">{formatNigerianCurrency(sale.stock)}</span>
             </div>
           </div>{" "}
         </div>

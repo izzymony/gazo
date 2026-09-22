@@ -6,7 +6,9 @@ import { useEffect, useState } from "react";
 import Otp from "./Otp";
 import H1 from "@vibaar/ui/common/Typography";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
+import BrandLogo from "@vibaar/ui/common/BrandLogo";
+import StepNavigation from "@vibaar/ui/common/StepNavigation";
 import Button from "@vibaar/ui/common/Button";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -134,14 +136,11 @@ export default function SocialAuth() {
           <PageShell
             header={
               <Header
-                showBack
-                showLogo
-                showStepNavigation
-                step={step}
-                totalSteps={2}
-                onBackClick={() => {
+                onBack={() => {
                   router.back()
                 }}
+                title={<BrandLogo />}
+                progress={<StepNavigation step={step} totalSteps={2} />}
               />
             }
             footerAction={
@@ -203,7 +202,7 @@ export default function SocialAuth() {
                       error={formik.errors.otp}
                       setFieldValue={formik.setFieldValue}
                     />
-                    <p className="text-body text-ink-60 font-normal text-start pt-8">
+                    <p className="text-body text-foreground-secondary font-normal text-start pt-8">
                       If you haven&apos;t received the mail try checking your <br /> spam folder or resending it.
                     </p>
                   </>

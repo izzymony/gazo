@@ -4,7 +4,7 @@ import InputField from '@vibaar/ui/common/InputField';
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import PageShell from '@vibaar/ui/PageShell';
-import Header from '@/design-system/common/Header';
+import PageActionButton from '@vibaar/ui/common/PageActionButton';
 import Button from '@vibaar/ui/common/Button';
 import Section from '@vibaar/ui/common/Section';
 import { Check } from '@vibaar/ui/icons';
@@ -70,18 +70,18 @@ const Page = () => {
 
     return (
         <PageShell
-          header={
-            <Header
-              showBack
-              onBackClick={() => router.back()}
-              customText="Store Address"
-            />
-          }
-          footerAction={
-            <Button type="submit" onClick={formik.handleSubmit} loading={isLoading}>
-              Save
-            </Button>
-          }
+          pageHeader={{
+            onBack: () => router.back(),
+            title: "Store Address",
+            actions: (
+              <PageActionButton
+                type="submit"
+                onClick={() => formik.handleSubmit()}
+                loading={isLoading}>
+                Save
+              </PageActionButton>
+            ),
+          }}
         >
 
             {/* Form fields */}
@@ -94,10 +94,10 @@ const Page = () => {
                             type="text"
                             value="Nigeria"
                             isReadonly={true}
-                            className="bg-ink-5"
+                            className="bg-surface-muted"
                         />
                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                            <div className="w-6 h-6 rounded-full bg-green flex items-center justify-center">
+                            <div className="w-6 h-6 rounded-full bg-success-foreground flex items-center justify-center">
                                 <Check size={16} className="text-white" />
                             </div>
                         </div>
@@ -110,18 +110,16 @@ const Page = () => {
                         onChange={formik.handleChange}
                         error={formik.errors.state}
                     />
-                    <div onClick={() => setIsLocationModalOpen(true)} className="cursor-pointer">
-                        <InputField
+                    <InputField
                             name="searchAddress"
                             placeholder="Tap to search address"
-                            type="text"
+                            type="drop"
                             value={formik.values.searchAddress}
                             onChange={formik.handleChange}
                             error={formik.errors.searchAddress}
-                            isReadonly={true}
-                            className="cursor-pointer"
+                            drops
+                            dropAction={() => setIsLocationModalOpen(true)}
                         />
-                    </div>
                 </Section>
             </form>
 

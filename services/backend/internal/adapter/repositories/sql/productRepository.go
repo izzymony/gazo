@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 
@@ -430,7 +431,7 @@ func (repo *ProductRepository) Find(id string) (domain.Product, error) {
 func (repo *ProductRepository) Create(data *domain.Product) (domain.Product, error) {
 	var createdProduct domain.Product
 
-	err := repo.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(repo.db, "create", func(tx *gorm.DB) error {
 		// 1. Extract variants before creating product
 		variants := data.Variants
 		data.Variants = nil
@@ -473,7 +474,7 @@ func (repo *ProductRepository) Create(data *domain.Product) (domain.Product, err
 func (repo *ProductRepository) Update(id string, data domain.Product) (*domain.Product, error) {
 	var updatedProduct domain.Product
 
-	err := repo.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(repo.db, "update", func(tx *gorm.DB) error {
 		// 1. Update main product fields
 		if err := tx.Model(&domain.Product{}).Where("id = ?", id).Updates(data).Error; err != nil {
 			return fmt.Errorf("failed to update product fields: %w", err)
@@ -594,14 +595,13 @@ func (repo *ProductRepository) AddProductWishlist(input *domain.ProductWishlist,
 		tableName += "_guest"
 	}
 
-	tx := repo.db.Table(tableName).Begin()
-
-	if err := tx.Create(&input).Error; err != nil {
-		tx.Rollback()
+	err := database.WithTransaction(repo.db.Table(tableName), "add_product_wishlist",
+		func(tx *gorm.DB) error {
+			return tx.Create(&input).Error
+		})
+	if err != nil {
 		return nil, err
 	}
-
-	tx.Commit()
 	return input, nil
 }
 
@@ -611,13 +611,10 @@ func (repo *ProductRepository) DeleteProductWishlist(id string, isGuest bool) er
 		tableName += "_guest"
 	}
 
-	tx := repo.db.Table(tableName).Begin()
-
-	if err := tx.Where("id = ?", id).Delete(&domain.ProductWishlist{}).Error; err != nil {
-		return err
-	}
-	tx.Commit()
-	return nil
+	return database.WithTransaction(repo.db.Table(tableName), "delete_product_wishlist",
+		func(tx *gorm.DB) error {
+			return tx.Where("id = ?", id).Delete(&domain.ProductWishlist{}).Error
+		})
 }
 
 func (repo *ProductRepository) AddRecentlyViewedProducts(inputs []*domain.RecentlyViewedProduct, isGuest bool) error {
@@ -626,34 +623,31 @@ func (repo *ProductRepository) AddRecentlyViewedProducts(inputs []*domain.Recent
 		tableName += "_guest"
 	}
 
-	tx := repo.db.Table(tableName).Begin()
+	return database.WithTransaction(repo.db.Table(tableName), "add_recently_viewed_products",
+		func(tx *gorm.DB) error {
+			for _, input := range inputs {
+				var existing domain.RecentlyViewedProduct
 
-	for _, input := range inputs {
-		var existing domain.RecentlyViewedProduct
-
-		err := tx.Where("product_id = ? AND user_id = ?", input.ProductID, input.UserID).First(&existing).Error
-		if err == nil {
-			if err := tx.Model(&existing).UpdateColumn("updated_at", time.Now()).Error; err != nil {
-				tx.Rollback()
-				return err
+				err := tx.Where("product_id = ? AND user_id = ?", input.ProductID, input.UserID).First(&existing).Error
+				switch {
+				case err == nil:
+					if err := tx.Model(&existing).UpdateColumn("updated_at", time.Now()).Error; err != nil {
+						return err
+					}
+				case errors.Is(err, gorm.ErrRecordNotFound):
+					if err := tx.Create(input).Error; err != nil {
+						return err
+					}
+				default:
+					return err
+				}
 			}
-		} else if errors.Is(err, gorm.ErrRecordNotFound) {
-			if err := tx.Create(input).Error; err != nil {
-				tx.Rollback()
-				return err
-			}
-		} else {
-			tx.Rollback()
-			return err
-		}
-	}
-
-	tx.Commit()
-	return nil
+			return nil
+		})
 }
 
 func (repo *ProductRepository) IncrementProductSales(productID string, incrementBy int) error {
-	err := repo.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(repo.db, "increment_product_sales", func(tx *gorm.DB) error {
 		var product domain.Product
 		if err := tx.First(&product, "id = ?", productID).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -680,7 +674,7 @@ func (repo *ProductRepository) IncrementProductSales(productID string, increment
 }
 
 func (repo *ProductRepository) DecrementProductStock(productID string, decrementBy int) error {
-	err := repo.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(repo.db, "decrement_product_stock", func(tx *gorm.DB) error {
 		var product domain.Product
 		if err := tx.First(&product, "id = ?", productID).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -707,7 +701,7 @@ func (repo *ProductRepository) DecrementProductStock(productID string, decrement
 }
 
 func (repo *ProductRepository) DeleteVariantsByProductID(productID string) error {
-	return repo.db.Transaction(func(tx *gorm.DB) error {
+	return database.WithTransaction(repo.db, "delete_variants_by_product_i_d", func(tx *gorm.DB) error {
 		// Variant combinations removed - backend calculates combinations on-demand from variants
 
 		// Delete variants

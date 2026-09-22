@@ -32,10 +32,12 @@ type WebhookService struct {
 	notificationService   *NotificationService
 	dispatcher            *NotificationDispatcher
 	productRepo           ports.ProductRepoIface
+	payoutService         *PayoutService
+	db                    *gorm.DB
 }
 
 func NewWebhookService(db *gorm.DB) *WebhookService {
-	return &WebhookService{
+	svc := &WebhookService{
 		transactionRepo:       mysql_repo.NewTransactionRepository(db),
 		TwilioCacheRepository: mysql_repo.NewTwilioCacheRepository(db),
 		orderRepo:             mysql_repo.NewOrderRepository(db),
@@ -49,7 +51,16 @@ func NewWebhookService(db *gorm.DB) *WebhookService {
 		notificationService:   NewNotificationService(db),
 		dispatcher:            NewNotificationDispatcher(db),
 		productRepo:           mysql_repo.NewProductRepository(db),
+		db:                    db,
 	}
+	// Payouts settle through the same service the admin action and the
+	// reconciler use, so a transfer is accounted for identically however the
+	// news arrives.
+	svc.payoutService = NewPayoutService(db, payments.NewPaystackPaymentService(db),
+		func(event, userID string, vars map[string]string) {
+			_ = svc.dispatcher.Emit(context.Background(), EmitInput{Event: event, UserID: userID, Vars: vars})
+		})
+	return svc
 }
 
 // productTitle resolves a product's title for notification copy; empty on miss.
@@ -73,9 +84,61 @@ func (s *WebhookService) PaystackWebhook(payload requests.PaystackWebhookRequest
 		// transaction as failed so the pending-GC doesn't re-sweep it. On the
 		// legacy order-first path the order simply stays un-credited.
 		return s.transactionService.MarkFailed(payload.Data.Reference)
+
+	case "transfer.success", "transfer.failed", "transfer.reversed":
+		// Seller payouts. These are the ONLY events that may mark a withdrawal
+		// paid — approval authorises a transfer, it does not complete one.
+		return s.handleTransferEvent(payload)
 	}
 
 	return nil
+}
+
+// handleTransferEvent settles a seller payout from a verified provider outcome.
+//
+// Idempotency is structural rather than remembered: no event id is stored or
+// trusted. `Finalize` performs a guarded UPDATE on the expected current status,
+// so a redelivered event finds zero rows and returns without touching money,
+// and a unique index on (reference, type) backstops the ledger row. That matters
+// because Paystack delivers at least once and a duplicated payout row would
+// double the seller's recorded withdrawal.
+func (s *WebhookService) handleTransferEvent(payload requests.PaystackWebhookRequest) error {
+	providerStatus := domain.PaystackTransferStatus(payload.Data.Status)
+
+	// Find it first, because what `reversed` means depends entirely on whether
+	// we had already reached `paid`: before payment it is a failure and the
+	// reservation goes back; after payment it is a compensating credit.
+	var req domain.WithdrawalRequest
+	q := s.db.Where("provider_reference = ?", payload.Data.Reference)
+	if payload.Data.Reference == "" {
+		q = s.db.Where("provider_transfer_code = ?", payload.Data.TransferCode)
+	}
+	if err := q.First(&req).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// Not ours — another environment sharing the account, or a transfer
+			// made by hand in the dashboard. Acknowledge so Paystack stops
+			// retrying; there is nothing here to settle.
+			logger.Info(fmt.Sprintf("transfer event for unknown reference %q", payload.Data.Reference))
+			return nil
+		}
+		return err
+	}
+
+	next, ok := domain.NextStatusFor(domain.WithdrawalStatus(req.Status), providerStatus)
+	if !ok {
+		// An unrecognised status resolves to nothing, deliberately: the
+		// reservation stays held and reconciliation will ask Paystack directly.
+		logger.Error(fmt.Sprintf("unrecognised transfer status %q for %s", providerStatus, req.ID))
+		return nil
+	}
+
+	return s.payoutService.Finalize(req.ProviderReference, payments.TransferResult{
+		Outcome:      payments.TransferAccepted,
+		TransferCode: payload.Data.TransferCode,
+		Reference:    payload.Data.Reference,
+		Status:       providerStatus,
+		Fee:          helper.FromKobo(payload.TransferFee()),
+	}, next)
 }
 
 func (s *WebhookService) ShipbubbleWebhook(payload requests.ShipbubbleWebhookRequest) error {

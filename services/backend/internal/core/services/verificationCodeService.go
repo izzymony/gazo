@@ -232,7 +232,11 @@ func (s *VerificationCodeService) ValidateCode(identifier, otp, verificationType
 	} else {
 		// In local/dev/staging, always allow validation with any OTP for easy testing
 		// Just log the attempt and allow it
-		fmt.Printf("[LOCAL] OTP validation bypassed - identifier: %s, otp: %s, type: %s\n", identifier, otp, verificationType)
+		// Was: the identifier (email or phone), the OTP itself, and the type.
+		// Labelled [LOCAL] but reached on staging too, so live codes and
+		// contact details were written down. The TYPE is the only part worth
+		// keeping — it says which flow took the bypass.
+		logger.Info(fmt.Sprintf("otp validation bypassed in a non-production environment type=%s", verificationType))
 		return nil
 	}
 }

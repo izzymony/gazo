@@ -32,8 +32,8 @@ export default function Sort({
             onClick={() => handleFilterClick(filter)}
             className={`px-3 py-1 text-caption font-medium rounded-pill whitespace-nowrap transition-colors ${
               activeFilter === filter
-                ? "bg-ink-90 text-white"
-                : "bg-ink-3 text-ink-90"
+                ? "bg-surface-inverse text-white"
+                : "bg-surface-subtle text-foreground-primary"
             }`}>
             {filter}
           </button>
@@ -43,20 +43,20 @@ export default function Sort({
         <button
           onClick={() => setIsSearchVisible((prev) => !prev)}
           aria-label="Search"
-          className="text-ink-90">
+          className="text-foreground-primary">
           <Search size={20} />
         </button>
         {isSearchVisible && (
           <input
             type="text"
-            className="p-1 border border-ink-10 rounded-field text-body-sm"
+            className="p-1 border border-outline rounded-field text-body-sm"
             value={searchValue}
             name="search"
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search..."
           />
         )}
-        <button onClick={onSortToggle} aria-label="Sort" className="text-ink-90">
+        <button onClick={onSortToggle} aria-label="Sort" className="text-foreground-primary">
           <SortVertical size={20} />
         </button>
       </div>

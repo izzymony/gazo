@@ -1,17 +1,16 @@
 "use client";
 import React from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
-import Card from "@vibaar/ui/common/Card";
+import Header from "@vibaar/ui/common/Header";
+import Surface from "@vibaar/ui/common/Surface";
 import Section from "@vibaar/ui/common/Section";
 import {
   ChevronRight,
-  HelpSquare,
   BubbleChat,
-  Book,
   Globe,
 } from "@vibaar/ui/icons";
 import { useRouter } from "next/navigation";
+import { supportWhatsAppUrl } from "@/lib/support";
 
 const Security = () => {
   const router = useRouter();
@@ -19,42 +18,34 @@ const Security = () => {
     <PageShell
       header={
         <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="Help & support"
+          onBack={() => router.back()}
+          title="Help & support"
         />
       }>
       <Section>
-        <Card
+        {/* The FAQs row used to route to /dashboard/settings/change-password —
+            a SELLER route, from the buyer side, labelled FAQs. No FAQ exists, so
+            the row is gone rather than sent somewhere wrong. */}
+        <Surface
           className="flex justify-between items-center"
-          onClick={() => router.push(`/dashboard/settings/change-password`)}>
-          <div className="flex gap-2 items-center cursor-pointer">
-            <HelpSquare size={20} className="text-ink-90" />
-            <p className="text-ink-60 text-body">FAQs</p>
+          onClick={() => window.open(supportWhatsAppUrl(), "_blank", "noopener")}
+          ariaLabel="Contact us on WhatsApp">
+          <div className="flex gap-2 items-center">
+            <BubbleChat size={20} className="text-foreground-primary" />
+            <p className="text-foreground-secondary text-body">Contact us on WhatsApp</p>
           </div>
-          <ChevronRight size={20} className="text-ink-90" />
-        </Card>
-        <Card className="flex justify-between items-center">
-          <div className="flex gap-2 items-center cursor-pointer">
-            <BubbleChat size={20} className="text-ink-90" />
-            <p className="text-ink-60 text-body">Contact Us</p>
+          <ChevronRight size={20} className="text-foreground-primary" />
+        </Surface>
+        <Surface
+          className="flex justify-between items-center"
+          onClick={() => router.push("/")}
+          ariaLabel="Visit our website">
+          <div className="flex gap-2 items-center">
+            <Globe size={20} className="text-foreground-primary" />
+            <p className="text-foreground-secondary text-body">Visit our website</p>
           </div>
-          <ChevronRight size={20} className="text-ink-90" />
-        </Card>
-        <Card className="flex justify-between items-center">
-          <div className="flex gap-2 items-center cursor-pointer">
-            <Book size={20} className="text-ink-90" />
-            <p className="text-ink-60 text-body">Visit our blog</p>
-          </div>
-          <ChevronRight size={20} className="text-ink-90" />
-        </Card>
-        <Card className="flex justify-between items-center">
-          <div className="flex gap-2 items-center cursor-pointer">
-            <Globe size={20} className="text-ink-90" />
-            <p className="text-ink-60 text-body">Visit our Website</p>
-          </div>
-          <ChevronRight size={20} className="text-ink-90" />
-        </Card>
+          <ChevronRight size={20} className="text-foreground-primary" />
+        </Surface>
       </Section>
     </PageShell>
   );

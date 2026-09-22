@@ -171,13 +171,13 @@ export default function MilestoneCelebration() {
           }}
         >
           <div className="flex flex-col items-center text-center px-4 py-5">
-            <div className="w-14 h-14 rounded-full bg-[#FFEAEE] flex items-center justify-center mb-3">
+            <div className="w-14 h-14 rounded-full bg-brand/10 flex items-center justify-center mb-3">
               <span className="text-2xl">{activeModal.emoji}</span>
             </div>
-            <h2 className="text-body-lg font-semibold text-ink-90 mb-1.5">
+            <h2 className="text-body-lg font-semibold text-foreground-primary mb-1.5">
               {activeModal.title}
             </h2>
-            <p className="text-body-sm text-ink-60 mb-5 max-w-[280px] leading-relaxed">
+            <p className="text-body-sm text-foreground-secondary mb-5 max-w-[280px] leading-relaxed">
               {activeModal.subtitle}
             </p>
             {activeModal.ctaRoute && (
@@ -187,7 +187,7 @@ export default function MilestoneCelebration() {
                   setShowConfetti(false);
                   router.push(activeModal.ctaRoute!);
                 }}
-                className="bg-brand text-white text-body-sm font-semibold px-5 py-3 rounded-full min-h-[44px] w-full touch-manipulation"
+                className="bg-brand text-brandInk text-body-sm font-semibold px-5 py-3 rounded-full min-h-[44px] w-full touch-manipulation"
                 style={{ boxShadow: '4px 8px 24px 0px rgb(var(--brand-rgb) / 0.2)' }}
               >
                 {activeModal.ctaLabel}

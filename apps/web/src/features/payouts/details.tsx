@@ -5,12 +5,12 @@ import useBusinessStore from "@/store/businessStore";
 import { useRouter } from "next/navigation";
 import TransactionIcon from "@vibaar/ui/common/TransactionIcon";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Section from "@vibaar/ui/common/Section";
 import Button from "@vibaar/ui/common/Button";
 import DetailRow from "@vibaar/ui/common/DetailRow";
 import DetailList from "@vibaar/ui/common/DetailList";
-import StatusBadge from "@/features/seller-dashboard/StatusBadge";
+import StatusBadge from "@/features/orders/StatusBadge";
 
 export default function WithdrawalDetails({
   action = () => {},
@@ -49,13 +49,10 @@ export default function WithdrawalDetails({
     <PageShell
       header={
         <Header
-          showBack
-          onBackClick={
-            base
+          onBack={base
               ? () => router.push("/dashboard")
-              : () => router.push("/dashboard")
-          }
-          customText="Transaction details"
+              : () => router.push("/dashboard")}
+          title="Transaction details"
         />
       }
       footerAction={
@@ -72,12 +69,14 @@ export default function WithdrawalDetails({
           />
         </div>
         <div className="flex justify-center items-center flex-col gap-2">
-          <p className="text-h1 font-medium text-ink-90 text-center">
+          <p className="text-h1 font-medium text-foreground-primary text-center">
             {selectedTransaction.amount || "-₦ " + datas.amount}
           </p>
-          <p className="text-body-sm w-3/4 font-normal text-ink-60 text-center">
+          <p className="text-body-sm w-3/4 font-normal text-foreground-secondary text-center">
+            {/* Same correction as the request screen: the fallback promised a
+                transfer in flight for what is still an unreviewed request. */}
             {selectedTransaction.title ||
-              "We are working on your transfer! Your money should enter your account shortly."}
+              "Your payout request is being reviewed. We'll notify you when the transfer to your bank is on its way."}
           </p>
         </div>
       </Section>
@@ -88,18 +87,18 @@ export default function WithdrawalDetails({
           <DetailRow label="Transaction Amount" value={"₦ " + datas.amount} />
           <DetailRow label="Beneficiary">
             <div className="flex flex-col items-end text-right">
-              <p className="text-body font-medium text-ink-90">{`${datas.bankname.slice(
+              <p className="text-body font-medium text-foreground-primary">{`${datas.bankname.slice(
                 0,
                 3
               )} - Ending in ${datas.accountnumber.slice(-4)}`}</p>
-              <p className="text-body-sm text-ink-60">{datas.accountname}</p>
+              <p className="text-body-sm text-foreground-secondary">{datas.accountname}</p>
             </div>
           </DetailRow>
           <DetailRow label="Transaction Status">
             {datas.status ? (
               <StatusBadge status={datas.status} />
             ) : (
-              <p className="text-body font-medium text-ink-90 text-right">
+              <p className="text-body font-medium text-foreground-primary text-right">
                 {datas.status}
               </p>
             )}

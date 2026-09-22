@@ -60,6 +60,19 @@ type PaystackWebhookRequest struct {
 		Customer  struct {
 			Email string `json:"email"`
 		} `json:"customer"`
+
+		// `transfer.*` events only. The reference is ours (we set it when
+		// initiating); the transfer code is Paystack's. Either can identify the
+		// withdrawal, which matters because a transfer created by an older
+		// build may predate our reference.
+		TransferCode string `json:"transfer_code"`
+		Status       string `json:"status"`
+		Amount       int64  `json:"amount"`
+		// Paystack sends `fee_charged` on the transfer object — verified against a
+		// real transfer, whose keys contain `fee_charged` and no `fee` at all.
+		// `Fee` stays as a fallback; a silently-zero fee is invisible.
+		FeeCharged int64 `json:"fee_charged"`
+		Fee        int64 `json:"fee"`
 	} `json:"data"`
 }
 
@@ -73,4 +86,15 @@ type TwilioMessageStatus struct {
 	From                string `form:"From"`
 	MessageSid          string `form:"MessageSid"`
 	AccountSid          string `form:"AccountSid"`
+}
+
+// TransferFee returns whichever fee field the transfer payload carried.
+//
+// Paystack sends `fee_charged`; `fee` is read as a fallback so a payload
+// shape we have not seen does not silently record a zero fee.
+func (r PaystackWebhookRequest) TransferFee() int64 {
+	if r.Data.FeeCharged != 0 {
+		return r.Data.FeeCharged
+	}
+	return r.Data.Fee
 }

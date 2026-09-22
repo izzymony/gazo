@@ -52,7 +52,7 @@ const BankSelectorModal = ({
     <Dialog isOpen={isOpen} onClose={onClose} ariaLabel="Select a bank">
       {/* Header */}
       <div className="w-full flex flex-col items-center space-y-4">
-        <p className="text-ink-90 text-body-lg font-medium">Select a bank</p>
+        <p className="text-foreground-primary text-body-lg font-medium">Select a bank</p>
         <InputField
           type="text"
           name="search"
@@ -66,24 +66,24 @@ const BankSelectorModal = ({
       {/* Bank list — own scroll so the search header stays put */}
       <div className="overflow-y-scroll scrollbar-hide mt-4 max-h-[55vh]">
         {filteredBanks.map((bank) => (
-          <div
+          <button type="button"
             key={bank.code}
             onClick={() => {
               onSelect(bank);
               onClose();
             }}
-            className={`flex items-center px-3 py-3 cursor-pointer rounded-field ${
+            className={`text-left w-full flex items-center px-3 py-3 cursor-pointer rounded-field ${
               selectedName === bank.name
-                ? "bg-brand/10 border border-brand"
-                : "hover:bg-ink-5"
+                ? "bg-brand/10 border border-brandDeep"
+                : "hover:bg-surface-muted"
             }`}
           >
             {/* Bank icon */}
-            <div className="w-8 h-8 rounded-full bg-green/10 flex items-center justify-center mr-3">
-              <Bank size={16} className="text-green" />
+            <div className="w-8 h-8 rounded-full bg-success-surface flex items-center justify-center mr-3">
+              <Bank size={16} className="text-success-foreground" />
             </div>
-            <span className="text-body text-ink-90">{bank.name}</span>
-          </div>
+            <span className="text-body text-foreground-primary">{bank.name}</span>
+          </button>
         ))}
       </div>
     </Dialog>

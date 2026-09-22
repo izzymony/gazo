@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import DataSort from "./datasort";
 import { IoCubeOutline } from "@vibaar/ui/icons";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import Section from "@vibaar/ui/common/Section";
@@ -21,31 +20,43 @@ const CollectionCard = ({ collection }: { collection: CollectionData }) => {
         <div className="space-y-1">
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-8">
-                    <span className="text-body font-medium text-ink-90">{collection.name}</span>
-                    <span className="text-body-sm space-x-1 flex items-center rounded-field bg-ink-3">
+                    <span className="text-body font-medium text-foreground-primary">{collection.name}</span>
+                    <span className="text-body-sm space-x-1 flex items-center rounded-field bg-surface-subtle">
                         <span>{collection.productCount}</span>
                         <IoCubeOutline size={16} />
                     </span>
                 </div>
                 <div>
-                    <p className="text-body font-medium text-ink-90">
+                    <p className="text-body font-medium text-foreground-primary">
                         {formatCurrency(collection.totalValue)}
                     </p>
                 </div>
             </div>
             <div className="flex justify-between">
-                <p className="text-body-sm text-ink-40">Avg Price: {formatCurrency(collection.averagePrice)}</p>
-                <span className="text-body-sm text-ink-40">Total Value</span>
+                <p className="text-body-sm text-foreground-muted">Avg Price: {formatCurrency(collection.averagePrice)}</p>
+                <span className="text-body-sm text-foreground-muted">Total Value</span>
             </div>
         </div>
     );
 };
 
-const Collections = () => {
+/**
+ * The catalog's Collections list.
+ *
+ * Its sort/search row now lives in the catalog page's tab-bar block, shared
+ * with the other two tabs. It used to render its own copy inside this panel —
+ * as did Products and Discount — so the row sat in a different position on
+ * every tab and its state reset each time you switched.
+ */
+const Collections = ({
+    searchTerm = "",
+    sortOrder = "ascending",
+}: {
+    searchTerm?: string;
+    sortOrder?: "ascending" | "descending";
+}) => {
     const { businessProduct } = useBusinessStore();
     const [collections, setCollections] = useState<CollectionData[]>([]);
-    const [sortOrder, setSortOrder] = useState<"ascending" | "descending">("ascending");
-    const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
         // Aggregate products by tags
@@ -75,14 +86,6 @@ const Collections = () => {
         setCollections(collectionsData);
     }, [businessProduct]);
 
-    const handleSortToggle = () => {
-        setSortOrder((prevOrder) => (prevOrder === "ascending" ? "descending" : "ascending"));
-    };
-
-    const handleSortChange = (option: "ascending" | "descending") => {
-        setSortOrder(option);
-    };
-
     // Filter and sort the collections
     const filteredCollections = collections
         .filter((collection) =>
@@ -95,15 +98,6 @@ const Collections = () => {
         });
 
     return (
-        <div className="space-y-6">
-            <DataSort
-                sortOrder={sortOrder}
-                onSortToggle={handleSortToggle}
-                onSortOrderChange={handleSortChange}
-                searchValue={searchTerm}
-                onSearchChange={setSearchTerm}
-            />
-
             <Section>
                 {collections.length === 0 ? (
                     <EmptyState
@@ -117,7 +111,6 @@ const Collections = () => {
                     ))
                 )}
             </Section>
-        </div>
     );
 };
 

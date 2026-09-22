@@ -2,7 +2,7 @@
 "use client";
 
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Section from "@vibaar/ui/common/Section";
 import Button from "@vibaar/ui/common/Button";
 
@@ -23,7 +23,7 @@ export default function WithdrawalInitiated({
   return (
     <PageShell
       header={
-        <Header showBack onBackClick={() => action("withdraw")} />
+        <Header onBack={() => action("withdraw")} />
       }
       footerAction={
         <Button onClick={() => action("details")}>View details</Button>
@@ -37,8 +37,8 @@ export default function WithdrawalInitiated({
             fill="none"
             xmlns="http://www.w3.org/2000/svg">
             <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
+              fillRule="evenodd"
+              clipRule="evenodd"
               d="M51.9997 68.1673C66.7273 68.1673 78.6663 56.2282 78.6663 41.5007C78.6663 26.7731 66.7273 14.834 51.9997 14.834C37.2721 14.834 25.333 26.7731 25.333 41.5007C25.333 56.2282 37.2721 68.1673 51.9997 68.1673ZM66.8231 34.8347C67.5599 34.0118 67.49 32.7474 66.6671 32.0106C65.8441 31.2738 64.5797 31.3437 63.8429 32.1666L54.8585 42.2017C53.038 44.2352 51.8119 45.5974 50.7637 46.4784C49.7652 47.3177 49.1787 47.5007 48.6663 47.5007C48.154 47.5007 47.5675 47.3177 46.569 46.4784C45.5207 45.5974 44.2947 44.2352 42.4742 42.2017L40.1564 39.6129C39.4196 38.79 38.1552 38.7201 37.3323 39.4569C36.5093 40.1937 36.4395 41.4581 37.1763 42.281L39.5931 44.9805C41.2887 46.8745 42.703 48.4543 43.9953 49.5405C45.3623 50.6895 46.8368 51.5007 48.6663 51.5007C50.4959 51.5007 51.9704 50.6895 53.3374 49.5405C54.6297 48.4543 56.044 46.8745 57.7396 44.9805L66.8231 34.8347Z"
               fill="#06C270"
             />
@@ -57,27 +57,33 @@ export default function WithdrawalInitiated({
           </svg>
         </div>
         <div className="flex justify-center items-center flex-col gap-2">
-          <p className="text-h1 font-bold text-ink-90 text-center">
-            Withdrawal Initiated!
+          <p className="text-h1 font-bold text-foreground-primary text-center">
+            Payout requested
           </p>
-          <p className="text-body font-normal text-ink-60 text-center">
-            We are working on your transfer! Your money should enter your
-            account shortly.
+          {/* "Withdrawal Initiated! ... your money should enter your account
+              shortly" described a transfer that was already on its way. It is
+              not: a request is reviewed first, and no transfer is attempted
+              until it is approved. Saying otherwise sets a seller waiting for
+              money that has not been sent, and makes a normal review look like
+              a fault. */}
+          <p className="text-body font-normal text-foreground-secondary text-center">
+            We&apos;ve received your request. It will be reviewed before payment,
+            and we&apos;ll notify you when the transfer to your bank is on its way.
           </p>
         </div>
-        <div className="p-3 border gap-3 flex flex-col bg-brand/10 w-full border-brand rounded-field">
+        <div className="p-3 border gap-3 flex flex-col bg-brand/10 w-full border-brandDeep rounded-field">
           <div className="flex flex-row justify-between items-center">
-            <p className="text-ink-60 text-body-sm font-normal">Withdrawal</p>
-            <p className="text-ink-90 text-body-sm font-medium">NGN {amount}</p>
+            <p className="text-foreground-secondary text-body-sm font-normal">Withdrawal</p>
+            <p className="text-foreground-primary text-body-sm font-medium">NGN {amount}</p>
           </div>
           <div className="flex flex-row justify-between items-center">
-            <p className="text-ink-60 text-body-sm font-normal">To:</p>
+            <p className="text-foreground-secondary text-body-sm font-normal">To:</p>
             <div className="items-end flex flex-col">
-              <p className="text-ink-90 text-body-sm font-medium">
+              <p className="text-foreground-primary text-body-sm font-medium">
                 {data.bankname.slice(0, 3) || "ACC"}-Ending in {"  "}
                 {data.accountnumber.slice(-4)}
               </p>
-              <p className="text-ink-60 text-body-sm font-medium">
+              <p className="text-foreground-secondary text-body-sm font-medium">
                 {data.accountname || "Account Name"}
               </p>
             </div>

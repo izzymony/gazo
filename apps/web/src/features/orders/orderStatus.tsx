@@ -1,5 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
+import type { BadgeTone } from "@vibaar/ui/common/Badge";
 import {
   ShoppingBag,
   Bell,
@@ -13,90 +14,77 @@ import {
   ArrowLeft,
 } from "@vibaar/ui/icons";
 
-export type StatusHue =
-  | "blue"
-  | "teal"
-  | "yellow"
-  | "orange"
-  | "purple"
-  | "sky"
-  | "green"
-  | "red";
+/**
+ * The tones an order status can take. A subset of the design system's
+ * `BadgeTone` — order stages need mutually distinguishable colours, so most are
+ * categorical hues rather than semantic tones ("in transit" is not a warning).
+ * Typed against BadgeTone so an unknown tone is a compile error, not a badge
+ * that silently falls back to neutral.
+ */
+export type StatusTone = Extract<
+  BadgeTone,
+  "info" | "teal" | "warning" | "orange" | "purple" | "sky" | "success" | "error"
+>;
 
 type Glyph = React.FC<{ size?: number; className?: string }>;
 
 /**
- * SINGLE SOURCE OF TRUTH for order-status presentation: each status → its hue +
+ * SINGLE SOURCE OF TRUTH for order-status presentation: each status → its tone +
  * icon. The text pill (`StatusBadge`) and the timeline icon (`OrderStatusIcon`)
- * both read the hue from here, so they can never drift out of sync. Keys are the
+ * both read the tone from here, so they can never drift out of sync. Keys are the
  * order-activity `title.toLowerCase()`.
  *
  * Replaces the 818-line hardcoded `pickers` SVG map that used to live in
  * `design-system/svg.tsx` (23 order statuses × an inline colored-circle icon).
  */
-export const ORDER_STATUS: Record<string, { hue: StatusHue; icon: Glyph }> = {
-  "order placed": { hue: "blue", icon: ShoppingBag },
-  "new order received": { hue: "blue", icon: Bell },
-  "payment confirmed": { hue: "teal", icon: Wallet },
-  "processing for shipping": { hue: "yellow", icon: Package },
-  "ready for shipping": { hue: "yellow", icon: Package },
-  "shipping created & assigned to a courier": { hue: "yellow", icon: DeliveryTruck },
-  "shipment created & assigned to a courier": { hue: "yellow", icon: DeliveryTruck },
-  "shipping started": { hue: "yellow", icon: DeliveryTruck },
-  "shipping confirmed": { hue: "yellow", icon: DeliveryTruck },
-  "courier processing shipping": { hue: "yellow", icon: DeliveryTruck },
-  "courier accepted shipping": { hue: "yellow", icon: DeliveryTruck },
-  "waiting to be shipped": { hue: "yellow", icon: Clock },
-  "rider on the way to vendor": { hue: "orange", icon: DeliveryTruck },
-  "order picked up & in transit": { hue: "purple", icon: DeliveryTruck },
-  "order picked up": { hue: "purple", icon: Package },
-  "package picked up": { hue: "purple", icon: Package },
-  "order in transit": { hue: "purple", icon: DeliveryTruck },
-  "out for delivery": { hue: "sky", icon: DeliveryTruck },
-  "shipped": { hue: "sky", icon: DeliveryTruck },
-  "order delivered": { hue: "green", icon: CircleCheck },
-  "order cancelled": { hue: "red", icon: X },
-  "delivery attempt failed": { hue: "red", icon: AiOutlineInfoCircle },
-  "order returned to vendor": { hue: "red", icon: ArrowLeft },
+export const ORDER_STATUS: Record<string, { tone: StatusTone; icon: Glyph }> = {
+  "order placed": { tone: "info", icon: ShoppingBag },
+  "new order received": { tone: "info", icon: Bell },
+  "payment confirmed": { tone: "teal", icon: Wallet },
+  "processing for shipping": { tone: "warning", icon: Package },
+  "ready for shipping": { tone: "warning", icon: Package },
+  "shipping created & assigned to a courier": { tone: "warning", icon: DeliveryTruck },
+  "shipment created & assigned to a courier": { tone: "warning", icon: DeliveryTruck },
+  "shipping started": { tone: "warning", icon: DeliveryTruck },
+  "shipping confirmed": { tone: "warning", icon: DeliveryTruck },
+  "courier processing shipping": { tone: "warning", icon: DeliveryTruck },
+  "courier accepted shipping": { tone: "warning", icon: DeliveryTruck },
+  "waiting to be shipped": { tone: "warning", icon: Clock },
+  "rider on the way to vendor": { tone: "orange", icon: DeliveryTruck },
+  "order picked up & in transit": { tone: "purple", icon: DeliveryTruck },
+  "order picked up": { tone: "purple", icon: Package },
+  "package picked up": { tone: "purple", icon: Package },
+  "order in transit": { tone: "purple", icon: DeliveryTruck },
+  "out for delivery": { tone: "sky", icon: DeliveryTruck },
+  "shipped": { tone: "sky", icon: DeliveryTruck },
+  "order delivered": { tone: "success", icon: CircleCheck },
+  "order cancelled": { tone: "error", icon: X },
+  "delivery attempt failed": { tone: "error", icon: AiOutlineInfoCircle },
+  "order returned to vendor": { tone: "error", icon: ArrowLeft },
 };
 
 /**
- * Literal per-hue class strings for the TEXT PILL (StatusBadge): -50 tint / -700
- * text / -600 border. Tailwind JIT only keeps classes it sees as literals, so
- * these must never be built as `bg-${hue}-50`. Includes the extra product/customer
- * hues StatusBadge needs beyond the order set.
+ * Icon circle (OrderStatusIcon): the tone's `surface-strong` tint behind its
+ * `foreground` glyph. Literal strings for Tailwind's JIT. These were raw
+ * palette classes (`bg-teal-100 text-teal-600`); as tokens they are covered by
+ * the contrast contract, which the -600 glyph shade was failing.
  */
-export const BADGE_HUE: Record<string, string> = {
-  blue: "bg-blue-50 text-blue-700 border-blue-600",
-  teal: "bg-teal-50 text-teal-700 border-teal-600",
-  yellow: "bg-yellow-50 text-yellow-700 border-yellow-500",
-  orange: "bg-orange-50 text-orange-600 border-orange-500",
-  purple: "bg-purple-50 text-purple-700 border-purple-600",
-  sky: "bg-sky-50 text-sky-700 border-sky-600",
-  green: "bg-green-50 text-green-700 border-green-600",
-  red: "bg-red-50 text-red-700 border-red-600",
-  emerald: "bg-emerald-50 text-emerald-700 border-emerald-600",
-  indigo: "bg-indigo-50 text-indigo-700 border-indigo-600",
-  ink: "bg-ink-3 text-ink-50 border-ink-30",
-};
-
-// Icon circle (OrderStatusIcon): -100 tint bg / -600 glyph (via currentColor).
-// Matches the shades the old `pickers` circles used. Literal strings for JIT.
-const ICON_HUE: Record<StatusHue, string> = {
-  blue: "bg-blue-100 text-blue-600",
-  teal: "bg-teal-100 text-teal-600",
-  yellow: "bg-yellow-100 text-yellow-600",
-  orange: "bg-orange-100 text-orange-600",
-  purple: "bg-purple-100 text-purple-600",
-  sky: "bg-sky-100 text-sky-600",
-  green: "bg-green-100 text-green-600",
-  red: "bg-red-100 text-red-600",
+const ICON_TONE: Record<StatusTone, string> = {
+  info: "bg-info-surface-strong text-info-foreground",
+  teal: "bg-hue-teal-surface-strong text-hue-teal-foreground",
+  warning: "bg-warning-surface-strong text-warning-foreground",
+  orange: "bg-hue-orange-surface-strong text-hue-orange-foreground",
+  purple: "bg-hue-purple-surface-strong text-hue-purple-foreground",
+  sky: "bg-hue-sky-surface-strong text-hue-sky-foreground",
+  success: "bg-success-surface-strong text-success-foreground",
+  error: "bg-error-surface-strong text-error-foreground",
 };
 
 /**
  * Order-timeline status icon — the icon counterpart of `StatusBadge`. Renders the
- * status glyph in a hue-tinted 60px circle (the glyph inherits the -600 color via
- * currentColor). Unknown status → null (matches the old `pickers[x]` behaviour).
+ * status glyph in a tone-tinted 60px circle (the glyph inherits the tone's
+ * foreground via currentColor). Unknown status → null (matches the old
+ * `pickers[x]` behaviour).
  */
 export function OrderStatusIcon({
   status,
@@ -112,7 +100,7 @@ export function OrderStatusIcon({
     <span
       className={cn(
         "flex h-[60px] w-[60px] items-center justify-center rounded-full",
-        ICON_HUE[entry.hue],
+        ICON_TONE[entry.tone],
         className
       )}>
       <Icon size={28} />

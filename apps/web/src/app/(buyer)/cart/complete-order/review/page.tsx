@@ -5,7 +5,8 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
+import StepNavigation from "@vibaar/ui/common/StepNavigation";
 import IconButton from "@vibaar/ui/common/IconButton";
 import { Minus, Plus, Delete, Gift } from "@vibaar/ui/icons";
 import ShippingOptionCard from "@/design-system/common/ShippingOptionCard";
@@ -17,6 +18,7 @@ import useAuthStore from "@/store/authStore";
 import { toast } from "sonner";
 import Loader from "@vibaar/ui/common/Loader";
 import Button from "@vibaar/ui/common/Button";
+import Switch from "@vibaar/ui/common/Switch";
 import BottomModal from "@vibaar/ui/common/BottomModal";
 import useShippingStore, { ShippingOptionInfo } from "@/store/shippingStore";
 import { CartsItems } from "@/lib/newinterface";
@@ -24,6 +26,7 @@ import { Client } from "@/lib/client";
 import { RewardsInfo } from "@/lib/types";
 import { trackCheckoutStep, trackAddShippingInfo, trackAddPaymentInfo, trackCheckoutError } from "@/lib/analytics";
 import { ORDER_ON_SUCCESS } from "@/lib/flags";
+import Badge from "@vibaar/ui/common/Badge";
 
 const CartItem = ({
   cart,
@@ -50,11 +53,11 @@ const CartItem = ({
   decrement: (val: string) => void;
 }) => {
   return (
-    <div className="bg-ink-3 rounded-field p-1 mt-3">
-      <div className="flex gap-2 mb-4 bg-white p-3 rounded-field">
+    <div className="bg-surface-subtle rounded-field p-1 mt-3">
+      <div className="flex gap-2 mb-4 bg-surface p-3 rounded-field">
         <div className="h-[60px] w-[60px]">
           <img
-            src={cart.image || "/PRODUCT IMAGE (2).png"}
+            src={cart.image || "/images/product-placeholder.svg"}
             alt=""
             className="rounded-field h-[60px] w-[60px] object-cover"
           />
@@ -62,7 +65,7 @@ const CartItem = ({
         <div className="flex flex-col w-full gap-3">
           <div>
             <p className="text-body-sm font-normal">{cart.title}</p>
-            <p className="text-body-sm font-normal text-ink-40">
+            <p className="text-body-sm font-normal text-foreground-muted">
               Color: {cart.color}
             </p>
           </div>
@@ -74,8 +77,8 @@ const CartItem = ({
                   icon={Delete}
                   label="Remove item"
                   onClick={() => decrement(cart.id)}
-                  className="bg-ink-3"
-                  iconClassName="text-red"
+                  className="bg-surface-subtle"
+                  iconClassName="text-error-foreground"
                   iconSize={18}
                 />
               ) : (
@@ -83,7 +86,7 @@ const CartItem = ({
                   icon={Minus}
                   label="Decrease quantity"
                   onClick={() => decrement(cart.id)}
-                  className="bg-ink-3"
+                  className="bg-surface-subtle"
                   iconSize={18}
                 />
               )}
@@ -92,7 +95,7 @@ const CartItem = ({
                 icon={Plus}
                 label="Increase quantity"
                 onClick={() => increment(cart.id)}
-                className="bg-ink-3"
+                className="bg-surface-subtle"
                 iconSize={18}
               />
             </div>
@@ -101,19 +104,19 @@ const CartItem = ({
       </div>
 
       <div className="w-full p-2 flex flex-col gap-3">
-        <div className="flex items-center text-body-sm text-ink-60 ">
+        <div className="flex items-center text-body-sm text-foreground-secondary ">
           {delivery.title}
-          <span className="ml-auto font-500 text-ink-90">
+          <span className="ml-auto font-medium text-foreground-primary">
             {delivery.price}
             {"   "}
-            <button onClick={action} className="text-brand font-medium">
+            <Button variant="link" size="md" fullWidth={false} onClick={action}>
               {delivery.title ? "Change" : "Select"}
-            </button>
+            </Button>
           </span>
         </div>
-        <div className="flex items-center text-body-sm text-ink-60 ">
+        <div className="flex items-center text-body-sm text-foreground-secondary ">
           Arrives by:{" "}
-          <span className="ml-auto font-500 text-ink-90">
+          <span className="ml-auto font-medium text-foreground-primary">
             {delivery.estimate}
           </span>
         </div>
@@ -301,24 +304,24 @@ const ReviewOrder = () => {
   //   // setLoading(true);
   //   return (
   //     <div className="flex-1 p-3 h-screen w-screen flex justify-center items-center">
-  //       <div className="border bg-white rounded-2xl p-3 flex flex-col gap-3">
-  //         <p className="text-body-lg text-ink-90 font-semibold">
+  //       <div className="border bg-surface rounded-2xl p-3 flex flex-col gap-3">
+  //         <p className="text-body-lg text-foreground-primary font-semibold">
   //           Create a shipping addres
   //         </p>
-  //         <p className="text-body text-ink-90 font-normal">
+  //         <p className="text-body text-foreground-primary font-normal">
   //           To continue please ensure you have a shipping address created
   //         </p>
   //         <div className="flex w-full gap-2">
   //           <button
   //             onClick={() => router.push("/cart/shipping-profile/new")}
   //             type="button"
-  //             className="w-1/2 py-3 rounded-2xl bg-brand  text-white text-body">
+  //             className="w-1/2 py-3 rounded-2xl bg-brand  text-brandInk text-body">
   //             create
   //           </button>
   //           <button
   //             onClick={() => router.push("/cart/shipping-profile/new")}
   //             type="button"
-  //             className="w-1/2 py-3 rounded-2xl bg-white border border-brand text-brand text-body">
+  //             className="w-1/2 py-3 rounded-2xl bg-surface border border-brandDeep text-brandDeep text-body">
   //             cancel
   //           </button>
   //         </div>
@@ -365,23 +368,18 @@ const ReviewOrder = () => {
     }
   };
 
-  return (
-    <PageShell
-      header={
-        <Header
-          showBack
-          customText="Complete order"
-          showMenu
-          step={1}
-          totalSteps={2}
-          showStepNavigation
-          onBackClick={() => router.back()}
-        />
-      }
-      footerAction={
+  // The Pay Now control, lifted out of `footerAction` UNCHANGED so that the
+  // submit handler — double-submission guard, validation, order creation and
+  // Paystack hand-off — is moved rather than rewritten. Not one line of it is
+  // edited by this layout change.
+  const payNowRow = (
         <div className="flex items-center gap-4">
-          <div className="shrink-0">
-            <p className="text-ink-40 text-body-sm">Total ({quantity}):</p>
+          {/* The mobile bar has to restate the total, because the summary card
+              is far up the page behind the thumb. At lg the same figure is two
+              rows above this button inside the same panel, so restating it is
+              noise — hidden there, which also lets the action fill the panel. */}
+          <div className="shrink-0 lg:hidden">
+            <p className="text-foreground-muted text-body-sm">Total ({quantity}):</p>
             <p className="font-medium">{formatCurrency(totals)}</p>
           </div>
           <Button
@@ -534,13 +532,59 @@ const ReviewOrder = () => {
             Pay Now
           </Button>
         </div>
-      }>
-      <div className="pt-4">
-        <div className="">
-          <div>
-            <h1 className="mb-3 font-medium text-h1">Review Order</h1>
+  );
+
+  return (
+    <PageShell
+      header={
+        <Header
+          onBack={() => router.back()}
+          title="Complete order"
+          progress={<StepNavigation step={1} totalSteps={2} />}
+        />
+      }
+      // Pay Now is no longer a `footerAction` — at lg it belongs inside the
+      // summary panel, which the shell cannot place. Below lg it is still the
+      // fixed bar, and still needs the clearance the shell used to add for it.
+      contentClassName="pb-24 lg:pb-0">
+      {/*
+        TWO COLUMNS AT lg: the order on the left, the money on the right.
+
+        Both columns start at the top of the content area, directly beneath the
+        header and its progress row — the summary is not pushed down past the
+        item list, which is the whole point of moving it out of the footer.
+
+        HOW ONE DOM SERVES BOTH SHAPES. The two wrappers are `contents` below lg,
+        so they generate no boxes there and their children become items of a
+        single-column grid; each carries an explicit `row-start` that reproduces
+        today's mobile order exactly, including the totals card sitting between
+        the item list and the rewards toggle. At lg the wrappers become real
+        blocks and the row classes on their children go inert, so each column
+        lays out independently — which is what stops a 400px summary card from
+        inflating the row that holds a 30px heading.
+
+        Pay Now is LAST IN THE DOM. It could have been written between the items
+        and the rewards card, which would have preserved the mobile reading
+        position of the totals card too — but it would have made the checkout
+        button a tab stop before the rewards toggle and the shipping controls.
+        An interactive control's position in the tab order matters more than a
+        static summary's position in the reading order, so the totals card is the
+        one that moves.
+      */}
+      <div className="pt-4 grid lg:grid-cols-content-aside lg:gap-6 lg:items-start">
+        {/* LEFT — what is being bought and where it is going */}
+        <div className="contents lg:block lg:min-w-0">
+          <div className="row-start-1">
+            {/* `lg:mb-3`, not `mb-3`. As a plain block this heading's bottom
+                margin COLLAPSED into the first cart item's top margin and
+                contributed nothing; as a grid item below lg it cannot collapse
+                out of its own box, so the same class started adding 12px and
+                pushed everything below it down. Measured: item 1 at y=138
+                before, y=150 after, 138 again with this. At lg the wrapper is a
+                block again and the margin behaves as it always did. */}
+            <h1 className="font-medium text-h1 lg:mb-3">Review Order</h1>
           </div>
-          <div>
+          <div className="row-start-2">
             {cart.map((item) => (
               <CartItem
                 key={item.product_id}
@@ -568,105 +612,56 @@ const ReviewOrder = () => {
                 decrement={decrement}
               />
             ))}
+          </div>
 
-
-            <div className="space-y-3 mt-2 text-body font-normal border rounded-field p-3">
-              <div className=" flex justify-between items-center">
-                <div className="">Subtotal</div>
-                <div>{formatCurrency(subTotal)}</div>
-              </div>
-
-              <div className=" flex justify-between items-center">
-                <div className="">Shipping</div>
-                <div className="text-body-sm">
-                  {formatCurrency(shippingCost)}
-                </div>
-              </div>
-
-              <div className=" flex justify-between items-center">
-                <div className="">Service fee</div>
-                <div className="text-body-sm">{formatCurrency(serviceFee)}</div>
-              </div>
-
-              {creditApplied > 0 && (
-                <div className="flex justify-between items-center text-success-strong">
-                  <div>Rewards credit</div>
-                  <div className="text-body-sm">
-                    -{formatCurrency(creditApplied)}
-                  </div>
-                </div>
-              )}
-
-              <div className=" flex justify-between items-center">
-                <div className="text-body-lg font-500">
-                  {creditApplied > 0 ? "You pay" : "Total"}
-                </div>
-                <div className="text-body-lg font-500">
-                  {formatCurrency(totals)}
-                </div>
-              </div>
-            </div>
-
+          <div className="row-start-4">
             {/* Rewards Credit Toggle (RW1): the backend now atomically RESERVES the
                 credit at checkout and charges gross - reserved, so this applies a real
                 discount. Order-on-success only (the legacy order-first path has no
                 reserve/charge machinery); shown only when the buyer has credit. */}
             {ORDER_ON_SUCCESS && user && totalCredit > 0 && (
-              <div className="border border-ink-10 rounded-card p-4 mt-4 bg-red/5">
+              <div className="border border-error-border rounded-card p-4 mt-4 bg-error-surface">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-brand rounded-full flex items-center justify-center">
-                      <Gift size={16} className="text-white" />
+                      <Gift size={16} className="text-brandInk" />
                     </div>
                     <div>
-                      <p className="font-medium text-body text-ink-90">
+                      <p className="font-medium text-body text-foreground-primary">
                         Use Rewards Credit
                       </p>
-                      <p className="text-body-sm text-ink-40">
+                      <p className="text-body-sm text-foreground-muted">
                         {formatCurrency(totalCredit)} available
                       </p>
                     </div>
                   </div>
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="toggle-checkbox hidden"
-                      checked={useReferralCredit}
-                      onChange={(e) => setUseReferralCredit(e.target.checked)}
-                      disabled={totalCredit === 0}
-                    />
-                    <span className="relative">
-                      <span
-                        className={`block w-[32px] h-[20px] rounded-full transition-colors duration-200 ease-linear ${
-                          useReferralCredit ? "bg-brand" : "bg-ink-20"
-                        } ${totalCredit === 0 ? "opacity-50" : ""}`}
-                      ></span>
-                      <span
-                        className={`absolute left-1 top-[10%] w-[15px] h-[15px] bg-white border border-ink-20 rounded-full transition-transform duration-200 ease-linear transform ${
-                          useReferralCredit ? "translate-x-3" : "-translate-x-1"
-                        }`}
-                      ></span>
-                    </span>
-                  </label>
+                  <Switch
+                    aria-label="Use rewards credit"
+                    checked={useReferralCredit}
+                    onChange={(event) => setUseReferralCredit(event.target.checked)}
+                    disabled={totalCredit === 0}
+                    variant="brand"
+                  />
                 </div>
                 {useReferralCredit && maxUsableCredit > 0 && (
-                  <p className="text-body-sm text-success-strong mt-2">
+                  <p className="text-body-sm text-success-foreground mt-2">
                     -{formatCurrency(creditApplied)} applied (max 50% of order)
                   </p>
                 )}
               </div>
             )}
 
+          </div>
+
+          <div className="row-start-5">
             {/* F5: "Add Coupon" affordance removed — there is no coupon feature
                 yet and the button had no behaviour attached (misleading). Restore
                 a real control when server-side coupons/discounts land (see R1/R2). */}
 
             <div className="mt-4">
               <p className="mb-3 text-body-sm font-normal">Shipping method</p>
-              <div className="p-2 rounded-field border flex flex-col gap-2 text-body-sm font-normal text-ink-90">
-                <span className="border rounded-full px-4 py-1 text-caption border-brand bg-brand/10 text-brand w-[max-content]">
-                  Default
-                </span>
+              <div className="p-2 rounded-field border flex flex-col gap-2 text-body-sm font-normal text-foreground-primary">
+                <Badge tone="brand" size="md">Default</Badge>
                 <p>
                   {singleShippingDetails?.shipping_user?.firstname +
                     " " +
@@ -679,11 +674,14 @@ const ReviewOrder = () => {
                 <Button
                   variant="bordered"
                   type="button"
-                  onClick={() => {
-                    setLoading(true);
-                    router.push("/cart/shipping-profile");
-                  }}
-                  className="text-body-sm !px-5 !py-1 !w-full !mt-3">
+                  // NO PAGE LOADER HERE. This route is intercepted into a dialog
+                  // over THIS page, so the page is never unmounted — a page-level
+                  // loading flag turns the thing behind the panel into a full
+                  // screen spinner, and nothing ever clears it, so closing the
+                  // dialog returns to a spinner instead of the order. The loader
+                  // was correct when this navigation replaced the page.
+                  onClick={() => router.push("/cart/shipping-profile")}
+                  className="text-body-sm px-5 py-1 w-full mt-3">
                   Change Shipping Details
                 </Button>
               </div>
@@ -703,6 +701,8 @@ const ReviewOrder = () => {
                 onChange={() => { }}
               />
             </div> */}
+          </div>
+
             <BottomModal
               isOpen={isDeliveryModalOpen}
               onClose={closeDeliveryModal}>
@@ -722,6 +722,52 @@ const ReviewOrder = () => {
                 </div>
               </div>
             </BottomModal>
+        </div>
+
+        {/* RIGHT — the money, and the one control that commits it */}
+        <div className="contents lg:block">
+          <div className="row-start-3 space-y-3 mt-2 text-body font-normal border rounded-field p-3 lg:mt-0">
+            <div className=" flex justify-between items-center">
+              <div className="">Subtotal</div>
+              <div>{formatCurrency(subTotal)}</div>
+            </div>
+
+            <div className=" flex justify-between items-center">
+              <div className="">Shipping</div>
+              <div className="text-body-sm">
+                {formatCurrency(shippingCost)}
+              </div>
+            </div>
+
+            <div className=" flex justify-between items-center">
+              <div className="">Service fee</div>
+              <div className="text-body-sm">{formatCurrency(serviceFee)}</div>
+            </div>
+
+            {creditApplied > 0 && (
+              <div className="flex justify-between items-center text-success-foreground">
+                <div>Rewards credit</div>
+                <div className="text-body-sm">
+                  -{formatCurrency(creditApplied)}
+                </div>
+              </div>
+            )}
+
+            <div className=" flex justify-between items-center">
+              <div className="text-body-lg font-medium">
+                {creditApplied > 0 ? "You pay" : "Total"}
+              </div>
+              <div className="text-body-lg font-medium">
+                {formatCurrency(totals)}
+              </div>
+            </div>
+          </div>
+
+          {/* `lg:w-full` because a panel action may fill its bounded panel —
+              the 176px inline floor and the intrinsic dialog width both belong
+              to other placements. Below lg this is the fixed bar, unchanged. */}
+          <div className="fixed left-shell-inset right-0 bottom-0 z-sticky w-full max-w-full border-t border-outline-subtle bg-surface px-3 pb-5 lg:static lg:z-auto lg:mt-4 lg:w-full lg:border-t-0 lg:px-0 lg:pb-0 lg:[&_button]:flex-1">
+            {payNowRow}
           </div>
         </div>
       </div>

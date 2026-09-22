@@ -30,10 +30,10 @@ export const TransactionCard = ({
   const router = useRouter();
   const colorClass =
     type === "credit"
-      ? "text-green-700"
+      ? "text-success-foreground"
       : type === "debit"
-      ? "text-brand"
-      : "text-ink-60";
+      ? "text-brandDeep"
+      : "text-foreground-secondary";
   return (
     <ListItem
       onClick={() => {

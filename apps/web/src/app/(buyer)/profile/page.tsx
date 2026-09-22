@@ -4,9 +4,11 @@
 import React, { useState, useEffect } from "react";
 import Selling from "@/features/seller-dashboard/selling";
 import Buying from "@/features/seller-dashboard/buying";
-import VendorNav from "@/features/storefront/VendorNav";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
+import Badge from "@vibaar/ui/common/Badge";
+import IconButton from "@vibaar/ui/common/IconButton";
+import { Bell, BsThreeDotsVertical } from "@vibaar/ui/icons";
 import Button from "@vibaar/ui/common/Button";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/store/authStore";
@@ -40,17 +42,17 @@ const MenuItem = ({
   onClick: () => void;
   danger?: boolean;
 }) => (
-  <div
+  <button type="button"
     onClick={onClick}
-    className={`flex justify-between items-center text-body font-medium px-3 py-3 rounded-field cursor-pointer transition-colors active:bg-ink-5 ${
-      danger ? "text-brand" : "text-ink-90"
+    className={`text-left w-full flex justify-between items-center text-body font-medium px-3 py-3 rounded-field cursor-pointer transition-colors active:bg-surface-muted ${
+      danger ? "text-brandDeep" : "text-foreground-primary"
     }`}>
     <div className="flex gap-3 items-center">
       {Icon}
       <p>{label}</p>
     </div>
-    <ChevronRight size={20} className={danger ? "text-brand" : "text-ink-40"} />
-  </div>
+    <ChevronRight size={20} className={danger ? "text-brandDeep" : "text-foreground-muted"} />
+  </button>
 );
 
 const Page = () => {
@@ -92,17 +94,32 @@ const Page = () => {
       <PageShell
         header={
           <Header
-            showBack
-            showMenu
-            isMenu={false}
-            customText="Profile"
-            handleMenu={openModal}
-            showNotification={!!user}
-            notificationCount={unreadCount}
-            onNotificationClick={() => router.push("/notification")}
-            onBackClick={() => {
+            onBack={() => {
               router.push("/shop");
             }}
+            title="Profile"
+            trailing={
+              <>
+                {!!user && (
+                  <span className="relative">
+                    <IconButton
+                      icon={Bell}
+                      label="Notifications"
+                      onClick={() => router.push("/notification")}
+                    />
+                    {unreadCount > 0 && (
+                      <Badge
+                        tone="error"
+                        variant="solid"
+                        className="absolute -top-1 -right-1 min-w-[18px] h-[18px] justify-center px-1 ring-1 ring-white">
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </Badge>
+                    )}
+                  </span>
+                )}
+                <IconButton icon={BsThreeDotsVertical} label="Menu" onClick={openModal} />
+              </>
+            }
           />
         }>
         <div className="pb-28">
@@ -112,14 +129,14 @@ const Page = () => {
                 alt="Vibaar"
                 width={0}
                 height={0}
-                src="/Logo (6).svg"
+                src="/brand/logo-black.svg"
                 className="max-w-[160px] w-full h-auto mx-auto"
               />
               <div className="text-center mt-5 flex flex-col gap-2">
                 <H1 className="text-h2 mb-1 leading-[22px]">
                   Sign in to your account
                 </H1>
-                <p className="text-ink-60 mt-3 max-w-[320px]">
+                <p className="text-foreground-secondary mt-3 max-w-[320px]">
                   To continue enjoying Vibaar’s features you need to sign in
                   to your account.
                 </p>
@@ -135,13 +152,13 @@ const Page = () => {
                   Sign in
                 </Button>
               </div>
-              <p className="text-body mt-3 text-center text-ink-60">
+              <p className="text-body mt-3 text-center text-foreground-secondary">
                 Don’t have an account?{" "}
-                <span
-                  className="text-brand ml-2 cursor-pointer"
+                <button type="button"
+                  className="text-left text-brandDeep ml-2 cursor-pointer"
                   onClick={() => router.push("/signup")}>
                   Sign up
-                </span>
+                </button>
               </p>
             </div>
           ) : (
@@ -149,7 +166,6 @@ const Page = () => {
           )}
         </div>
       </PageShell>
-      <VendorNav />
       <ModeSwitch />
 
       {isModalOpen && (
@@ -162,10 +178,10 @@ const Page = () => {
               {/* Close button - positioned absolutely, hidden on mobile */}
               <button
                 onClick={closeModal}
-                className="hidden md:flex absolute top-3 right-3 md:top-4 md:right-4 lg:top-5 lg:right-5 w-8 h-8 items-center justify-center rounded-full hover:bg-ink-5 transition-colors z-10"
+                className="hidden md:flex absolute top-3 right-3 md:top-4 md:right-4 lg:top-5 lg:right-5 w-8 h-8 items-center justify-center rounded-full hover:bg-surface-muted transition-colors z-10"
                 aria-label="Close modal"
               >
-                <X size={20} className="text-ink-60" />
+                <X size={20} className="text-foreground-secondary" />
               </button>
 
               <h2 className="text-body md:text-body-lg font-medium text-center">Menu</h2>
@@ -190,7 +206,7 @@ const Page = () => {
                 <MenuItem
                   icon={<CreditCard size={20} />}
                   label="Payment details"
-                  onClick={() => toast("Payment methods coming soon", { icon: "🔜" })}
+                  onClick={() => router.push("/dashboard/settings/billing")}
                 />
                 <MenuItem
                   icon={<Settings size={20} />}
@@ -217,7 +233,7 @@ const Page = () => {
           <div
             onClick={closeModalTwo}
             className="fixed inset-0 z-modal flex items-end justify-center bg-black/50 w-full ">
-            <div className="bg-white rounded-t-card w-full px-8 py-10 shadow-pop flex flex-col">
+            <div className="bg-surface rounded-t-card w-full px-8 py-10 shadow-pop flex flex-col">
               <p className="text-center mt-10 text-display font-medium mb-2 tracking-[0.5px] leading-[34px]">
                 Transform Your <br />
                 Passion into Profit
@@ -281,7 +297,7 @@ const Page = () => {
                 </svg>
               </div>
 
-              <div className="py-3 px-4 bg-brand/10 border-[0.5px] border-brand rounded-card w-full my-3 gap-3 flex flex-col">
+              <div className="py-3 px-4 bg-brand/10 border-[0.5px] border-brandDeep rounded-card w-full my-3 gap-3 flex flex-col">
                 {[
                   "Reach Millions of Shoppers",
                   "Easy Product Listing",
@@ -290,8 +306,8 @@ const Page = () => {
                 ].map((item) => (
                   <div
                     key={item}
-                    className="flex gap-2 items-center font-medium text-body text-ink-90">
-                    <CircleCheck size={18} className="text-brand" />
+                    className="flex gap-2 items-center font-medium text-body text-foreground-primary">
+                    <CircleCheck size={18} className="text-brandDeep" />
                     <p>{item}</p>
                   </div>
                 ))}

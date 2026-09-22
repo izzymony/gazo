@@ -2,8 +2,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
-import VendorNav from "@/features/storefront/VendorNav";
+import Header from "@vibaar/ui/common/Header";
+import StepNavigation from "@vibaar/ui/common/StepNavigation";
 import { FaStar, MdFavoriteBorder } from "@vibaar/ui/icons";
 import { useParams, useRouter } from "next/navigation";
 import CartIcon from "@/assets/icons/CartIcon";
@@ -31,18 +31,6 @@ const OrderConfirmed = () => {
   }, [getOrderById, getGuestOrdersById, getOrderByIdPublic, id, user, guestId]);
 
   // Debug logging
-  console.log("Order Debug:", {
-    order,
-    orderOrder: order?.order,
-    buyerActivity: order?.order?.buyer_activity,
-    buyerActivityLength: order?.order?.buyer_activity?.length,
-    firstBuyerItem: order?.order?.buyer_activity?.[0],
-    orderCart: order?.cart,
-    orderOrderCart: order?.order?.cart,
-    orderItems: order?.order?.items,
-    orderOrderItems: order?.order?.order_items,
-    hasItems: order?.cart?.length || order?.order?.cart?.length || order?.order?.items?.length
-  });
   const truncateTextByLength = (
     text: string | undefined,
     charLimit: number
@@ -94,30 +82,26 @@ const OrderConfirmed = () => {
     <PageShell
       header={
         <Header
-          showBack
-          customText="Complete order"
-          showMenu
-          step={2}
-          totalSteps={2}
-          showStepNavigation
-          onBackClick={() => router.back()}
+          onBack={() => router.back()}
+          title="Complete order"
+          progress={<StepNavigation step={2} totalSteps={2} />}
         />
       }>
       <div className="w-full pt-4">
         <p className="text-h1 font-medium mb-2">Order confirmed</p>
-        <p className="text-ink-60 text-body font-normal mb-5">
+        <p className="text-foreground-secondary text-body font-normal mb-5">
           Thank you for shopping on Vibaar. <br /> You will receive a
           confirmation email.
         </p>
 
-        <div className="border border-ink-10 rounded-field p-3">
+        <div className="border border-outline rounded-field p-3">
           {/* Order Details */}
           <div className="space-y-3 text-body-sm font-medium mb-4">
             <p>
-              <span className="text-ink-60">Order ID:</span> {order?.order?.invoice}
+              <span className="text-foreground-secondary">Order ID:</span> {order?.order?.invoice}
             </p>
             <p>
-              <span className="text-ink-60">Total cost:</span>{" "}
+              <span className="text-foreground-secondary">Total cost:</span>{" "}
               {formatCurrency(
                 order?.order?.total && order.order.total > 0 ?
                   order.order.total :
@@ -126,7 +110,7 @@ const OrderConfirmed = () => {
             </p>
             {deliveryEstimate && (
               <p>
-                <span className="text-ink-60">Estimated delivery:</span>{" "}
+                <span className="text-foreground-secondary">Estimated delivery:</span>{" "}
                 {deliveryEstimate}
               </p>
             )}
@@ -152,44 +136,36 @@ const OrderConfirmed = () => {
             
             const itemCount = cartItems.length;
             
-            console.log("Cart Items Debug:", { 
-              cartItems, 
-              itemCount, 
-              orderExists: !!order,
-              buyerActivityExists: !!order?.order?.buyer_activity,
-              buyerActivityLength: order?.order?.buyer_activity?.length
-            });
             
             if (itemCount > 0) {
               return (
                 <div className="mb-4">
-                  <p className="text-ink-60 text-body-sm font-medium mb-3">
+                  <p className="text-foreground-secondary text-body-sm font-medium mb-3">
                     Items ({itemCount})
                   </p>
                   <div className="space-y-3">
                     {cartItems.map((item, index) => {
-                      console.log("Individual item:", item);
                       const productDetails = products.find(
                         (prod) => prod?.id === (item?.product_id || item?.id)
                       );
                       return (
-                        <div key={item?.product_id || item?.id || index} className="flex items-center gap-3 p-2 bg-ink-3 rounded-field">
+                        <div key={item?.product_id || item?.id || index} className="flex items-center gap-3 p-2 bg-surface-subtle rounded-field">
                           <div className="w-12 h-12 flex-shrink-0">
                             <img
                               src={
                                 productDetails?.image
                                   ? getMobileCompatibleImageUrl(productDetails?.image[0])
-                                  : "/PRODUCT IMAGE (2).png"
+                                  : "/images/product-placeholder.svg"
                               }
                               alt={productDetails?.title}
                               className="w-12 h-12 object-cover rounded-field"
                             />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-body-sm font-medium text-ink-90 truncate">
+                            <p className="text-body-sm font-medium text-foreground-primary truncate">
                               {productDetails?.title || item?.title || item?.name || item?.product?.title || 'Product'}
                             </p>
-                            <p className="text-body-sm text-ink-60">
+                            <p className="text-body-sm text-foreground-secondary">
                               Qty: {item?.quantity || 1} × {formatCurrency(item?.price || item?.product?.price || 0)}
                             </p>
                           </div>
@@ -207,11 +183,11 @@ const OrderConfirmed = () => {
             // Fallback when no items found
             return (
               <div className="mb-4">
-                <p className="text-ink-60 text-body-sm font-medium mb-3">
+                <p className="text-foreground-secondary text-body-sm font-medium mb-3">
                   Order Items
                 </p>
-                <div className="p-4 bg-ink-3 rounded-field text-center">
-                  <p className="text-body-sm text-ink-60">No items to display</p>
+                <div className="p-4 bg-surface-subtle rounded-field text-center">
+                  <p className="text-body-sm text-foreground-secondary">No items to display</p>
                 </div>
               </div>
             );
@@ -220,7 +196,7 @@ const OrderConfirmed = () => {
           {/* View Order Details Button */}
           <button
             onClick={() => router.push("/orders")}
-            className="border w-full border-ink-10 text-brand rounded-3xl px-10 md:px-24 py-2 font-medium mx-auto block mt-3">
+            className="border w-full border-outline text-brandDeep rounded-3xl px-10 md:px-24 py-2 font-medium mx-auto block mt-3 lg:w-fit lg:min-w-action lg:ml-auto lg:mr-0">
             View order details
           </button>
         </div>
@@ -235,17 +211,17 @@ const OrderConfirmed = () => {
           {products.slice(0, 6).map((item, index) => (
             <div
               key={index}
-              className="cursor-pointer relative bg-white rounded-field overflow-hidden"
+              className="cursor-pointer relative bg-surface rounded-field overflow-hidden"
               onClick={() => handleProductClick(index)}>
               <div className="relative w-full aspect-square">
                 <img
-                  src={item.image ? getMobileCompatibleImageUrl(item.image[0]) : "/PRODUCT IMAGE (2).png"}
+                  src={item.image ? getMobileCompatibleImageUrl(item.image[0]) : "/images/product-placeholder.svg"}
                   alt={item.title}
                   className="w-full h-full object-cover"
                 />
-                <span
-                  className={`absolute top-2 right-2 h-8 w-8 flex justify-center items-center rounded-full cursor-pointer ${
-                    likedStates[index] ? "bg-brand" : "bg-ink-5"
+                <button type="button" aria-label="Add to wishlist"
+                  className={`text-left absolute top-2 right-2 h-8 w-8 flex justify-center items-center rounded-full cursor-pointer ${
+                    likedStates[index] ? "bg-brand" : "bg-surface-muted"
                   }`}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -255,8 +231,8 @@ const OrderConfirmed = () => {
                     style={{ fill: likedStates[index] ? "white" : "white" }}
                     className="text-body"
                   />
-                </span>
-                <span className="absolute bottom-2 right-2 h-8 w-8 flex justify-center items-center rounded-full cursor-pointer bg-ink-5">
+                </button>
+                <span className="absolute bottom-2 right-2 h-8 w-8 flex justify-center items-center rounded-full cursor-pointer bg-surface-muted">
                   <CartIcon />
                 </span>
               </div>
@@ -265,7 +241,7 @@ const OrderConfirmed = () => {
                   {truncateTextByLength(item.title, 40)}
                 </p>
                 {item?.original_price && (
-                  <p className="text-body-sm text-ink-30 font-medium line-through mb-1">
+                  <p className="text-body-sm text-foreground-disabled font-medium line-through mb-1">
                     {formatCurrency(
                       item?.original_price ? +item?.original_price : 0
                     )}
@@ -277,14 +253,13 @@ const OrderConfirmed = () => {
                   </p>
                   <div className="flex items-center gap-1">
                     <FaStar fill="#FFD700" size={12} />
-                    <p className="text-body-sm text-ink-40">{item.rating}</p>
+                    <p className="text-body-sm text-foreground-muted">{item.rating}</p>
                   </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
-        <VendorNav />
       </div>
     </PageShell>
   );

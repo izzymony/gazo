@@ -268,7 +268,6 @@ const useProductStore = create<ProductState>()(
         productPayload: ProductPayloadData,
         callback?: () => void
       ) => {
-        console.log(productPayload);
         set({ isLoading: true, error: null });
         try {
           const response = await Client({
@@ -287,7 +286,6 @@ const useProductStore = create<ProductState>()(
 
             // CRITICAL: Refresh products from backend to ensure complete sync
             // This prevents the "products not showing immediately after creation" issue
-            console.log("🔄 Refreshing products list after creation...");
 
             try {
               // Get the current business ID to fetch products
@@ -302,7 +300,6 @@ const useProductStore = create<ProductState>()(
                 }) as AxiosResponse;
 
                 const freshProducts = freshProductsResponse.data?.data?.data || [];
-                console.log(`✅ Fetched ${freshProducts.length} products for business ${businessId}`);
 
                 // Update state with fresh products list
                 set({
@@ -314,13 +311,16 @@ const useProductStore = create<ProductState>()(
                 const businessStore = (await import("@/store/businessStore")).default;
                 const currentStore = businessStore.getState().store;
                 if (currentStore) {
+                  // `false` = the OWNER slot. This read `store` (the owner's
+                  // business) and wrote it back with the default `true`, i.e.
+                  // into the VIEWED-vendor slot — overwriting whichever vendor
+                  // the shopper was looking at with the seller's own store.
                   businessStore.getState().setStore({
                     ...currentStore,
                     product_count: freshProducts.length
-                  });
+                  }, false);
                 }
 
-                console.log("✅ Products list refreshed successfully");
               } else {
                 console.warn("⚠️ No business ID found, skipping product refresh");
               }
@@ -345,7 +345,6 @@ const useProductStore = create<ProductState>()(
       },
 
       fetchRegisterOtp: async (val) => {
-        console.log(val);
         set({ isLoading: true, error: null });
         try {
           await Client({
@@ -378,7 +377,6 @@ const useProductStore = create<ProductState>()(
       },
 
       verifyOtpSent: async (payload) => {
-        console.log(payload);
         set({ isLoading: true, error: null });
         try {
           await Client({
@@ -386,10 +384,18 @@ const useProductStore = create<ProductState>()(
             method: "POST",
             data: payload,
           }).then((response) => response as ProductResponse);
+          // Kept: the signup and forgot-password screens do not announce this
+          // themselves, so removing it would leave both flows silent. The
+          // withdrawal caller has its own message and is guarded there.
           toast.success("Otp verified!");
         } catch (error) {
           set({ error: (error as Error).message });
           handleAxiosError(error);
+          // Re-throw so callers can tell a rejected code from an accepted one.
+          // Swallowing here made `await verifyOtpSent(...)` resolve on a wrong
+          // code, so the withdrawal screen announced "OTP verification
+          // successful!!!" on top of the error it had just shown.
+          throw error;
         } finally {
           set({ isLoading: false });
         }
@@ -411,7 +417,6 @@ const useProductStore = create<ProductState>()(
           set({
             isLoading: false,
           });
-          console.log('fetching data => ',response.data.data)
           return response.data.data.data;
         } catch (error) {
           set({ error: (error as Error).message });
@@ -622,9 +627,15 @@ const useProductStore = create<ProductState>()(
         id: string | string[],
         user: "buy" | "sell" = "buy"
       ) => {
-        console.log('🚀🚀🚀 PRODUCTSTORE GETPRODUCTBYID CALLED WITH:', { user, id });
-        console.log('🔥 FUNCTION EXECUTION CONFIRMED - V4 Cache Reset Successful');
-        set({ isLoading: true, error: null });
+        // `product: null` up front. It used to be left alone, so when the fetch
+        // failed — an expired token, or an id the caller does not own, both of
+        // which the seller route hits — the catch set `error` and the page went
+        // on rendering the PREVIOUS product's title, price and images. Nothing
+        // else cleared it, and the seller route has no server-primed product to
+        // fall back to, so the wrong product was the only thing on screen.
+        // (`{}` is this slot's empty value, as at initialisation — every reader
+        // tests `product?.id`.)
+        set({ isLoading: true, error: null, product: {} as ProductData });
         try {
           const response = (await Client({
             path:
@@ -633,42 +644,20 @@ const useProductStore = create<ProductState>()(
                 : `/business/get-product/${id}`,
             method: "GET",
           })) as AxiosResponse;
-          //("setting id passed => ", response.data);
-          console.log('🔧 ProductStore API Response:', response.data);
-          // Extract both product and combinations data from API response
           const responseData = response.data.data;
 
-          // For public endpoints: {data: {product: {...}, combinations: [...]}}
-          // For business endpoints: {data: {...}} (direct product object)
+          // Both endpoints answer `{data: {product, combinations}}` — the
+          // business one is explicitly written to match the public one. The
+          // bare-object fallback stays for older responses.
           const productData = responseData.product ? responseData.product : responseData;
           const combinations = responseData.combinations || [];
 
-          console.log('🔧 ProductStore response structure:', {
-            'responseData': Object.keys(responseData),
-            'has responseData.product': !!responseData.product,
-            'has responseData.combinations': !!responseData.combinations,
-            'selected productData source': responseData.product ? 'responseData.product' : 'responseData'
+          set({
+            product: {
+              ...productData,
+              variant_combinations: combinations,
+            },
           });
-
-          console.log('🔧 ProductStore extracted data:', {
-            'productData.variants': productData?.variants,
-            'productData has variants': !!productData?.variants,
-            'variants length': productData?.variants?.length,
-            'combinations': combinations
-          });
-
-          // Add combinations to product data if available
-          const productWithCombinations = {
-            ...productData,
-            variant_combinations: combinations
-          };
-
-          console.log('🔧 ProductStore final product:', {
-            'productWithCombinations.variants': productWithCombinations?.variants,
-            'has variants after spread': !!productWithCombinations?.variants
-          });
-
-          set({ product: productWithCombinations });
         } catch (error) {
           const err = error as AxiosError<{ error: string }>;
           set({ error: err.message });
@@ -706,10 +695,6 @@ const useProductStore = create<ProductState>()(
             method: "GET",
           })) as AxiosResponse;
 
-          console.log('🌐 API Response for product:', {
-            status: response.status,
-            data: response.data.data
-          });
 
           const data = response.data.data;
           return data.product || data;
@@ -734,18 +719,10 @@ const useProductStore = create<ProductState>()(
           });
 
           // 🔍 DEBUG: Log the complete response structure
-          console.log("🔍 RAW RESPONSE STRUCTURE:", {
-            'response': response,
-            'response.status': response.status,
-            'response.data': response.data,
-            'response.data.data': response.data?.data,
-            'response.data.message': response.data?.message
-          });
 
           // Fix: Access the nested data structure correctly
           const updatedProductData: Partial<ProductData> = response.data?.data ?? {};
 
-          console.log("🔍 EXTRACTED PRODUCT DATA:", updatedProductData);
 
           set((state) => ({
             products: state.products.map((product) =>
@@ -760,7 +737,6 @@ const useProductStore = create<ProductState>()(
           }));
 
           // Removed auto-redirect toast - let the component handle success messages
-          console.log("✅ Product updated successfully in store");
 
           // Return the updated product data for the caller
           return updatedProductData;
@@ -807,6 +783,9 @@ const useProductStore = create<ProductState>()(
                     user_id: ratingPayload.user_id,
                     rate: ratingPayload.rate,
                     comment: ratingPayload.comment,
+                    // The server stamps this; the optimistic copy omitted it,
+                    // so a review rendered with a blank date until a reload.
+                    created_at: new Date().toISOString(),
                   },
                 ],
               };

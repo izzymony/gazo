@@ -5,7 +5,7 @@
 import useBusinessStore from "@/store/businessStore";
 import useProductStore from "@/store/productStore";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Section from "@vibaar/ui/common/Section";
 import Button from "@vibaar/ui/common/Button";
 
@@ -21,22 +21,22 @@ export const ReceiptCard = ({
   return (
     <div className="flex justify-between gap-2 py-4">
       <div>
-        <p className="text-body font-normal text-ink-90">{title}</p>
+        <p className="text-body font-normal text-foreground-primary">{title}</p>
       </div>
       <div className="items-end flex flex-col">
         {content && (
-          <p className="text-body font-medium text-ink-90">{content}</p>
+          <p className="text-body font-medium text-foreground-primary">{content}</p>
         )}
         {sub.toLowerCase() === "pending" ? (
-          <div className="px-2 py-1 bg-warning/10 rounded-pill border border-warning/30">
-            <p className="text-body-sm font-normal text-warning-strong">Pending</p>
+          <div className="px-2 py-1 bg-warning-surface rounded-pill border border-warning-border">
+            <p className="text-body-sm font-normal text-warning-foreground">Pending</p>
           </div>
         ) : sub.toLowerCase() === "completed" ? (
-          <div className="px-2 py-1 bg-success/10 rounded-pill border border-success/30">
-            <p className="text-body-sm font-normal text-success-strong">Completed</p>
+          <div className="px-2 py-1 bg-success-surface rounded-pill border border-success-border">
+            <p className="text-body-sm font-normal text-success-foreground">Completed</p>
           </div>
         ) : (
-          <p className="text-body font-normal text-ink-60">{sub}</p>
+          <p className="text-body font-normal text-foreground-secondary">{sub}</p>
         )}
       </div>
     </div>
@@ -79,12 +79,15 @@ export default function Confirm({
   return (
     <PageShell
       header={
-        <Header showBack onBackClick={goBack} customText="Confirm Withdraw" />
+        <Header
+          onBack={goBack}
+          title="Confirm payout request"
+        />
       }
       footerAction={<Button onClick={handleConfirm}>Confirm</Button>}>
       <Section>
         <div className="flex items-center justify-center mt-5">
-          <p className="text-ink-90 font-medium text-h2">NGN {amount}</p>
+          <p className="text-foreground-primary font-medium text-h2">NGN {amount}</p>
         </div>
       </Section>
       <Section>
@@ -95,12 +98,12 @@ export default function Confirm({
             data.bankname.slice(0, 3) || "ACC"
           }-Ending in ${data.accountnumber.slice(-4)}`}
         />
-        <ReceiptCard title={"Withdrawal Amount"} sub={"NGN " + amount} />
+        <ReceiptCard title={"Payout amount"} sub={"NGN " + amount} />
         <ReceiptCard title={"Withdrawal Fee"} sub={"NGN " + withdrawalfee.toFixed(2)} />
         <ReceiptCard title={"Total"} sub={"NGN " + total} />
       </Section>
       <Section>
-        <p className="mx-11 text-body-sm text-center font-normal text-ink-60">
+        <p className="mx-11 text-body-sm text-center font-normal text-foreground-secondary">
           Bank Transfers typically works instantly! In rare cases, processing
           may take longer depending on your bank.
         </p>

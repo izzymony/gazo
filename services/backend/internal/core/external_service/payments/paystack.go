@@ -13,12 +13,11 @@ import (
 	"strings"
 	"time"
 
-	"gorm.io/gorm"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/requests"
 	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
-	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
+	"gorm.io/gorm"
 )
 
 type Paystack struct {
@@ -68,8 +67,16 @@ type VerifyPaystackResponse struct {
 		Currency        string      `json:"currency"`
 		IPAddress       string      `json:"ip_address"`
 		Metadata        interface{} `json:"metadata"`
-		Fees            interface{} `json:"fees"`
-		Customer        struct {
+		// Paystack's collection fee for this charge, in kobo. A POINTER because
+		// the field is absent or null on some responses, and `int64` would then
+		// silently read as a genuine zero fee.
+		//
+		// It used to be `interface{}` and was parsed and discarded, so the
+		// gateway cost of every charge Vibaar has ever taken is unrecorded. It
+		// is persisted on the transaction now; `payment_fee_allocation` on the
+		// allocation record reads it later.
+		Fees     *int64 `json:"fees"`
+		Customer struct {
 			ID           int64       `json:"id"`
 			FirstName    *string     `json:"first_name"`
 			LastName     *string     `json:"last_name"`
@@ -99,14 +106,46 @@ type InitiateResponse struct {
 
 var banks []Bank
 
-func (p Paystack) Initiate(email, ref string, amount int32, redirectURL string) (*PaystackInitiateResponse, error) {
+// maxInitiateKobo is a PROVIDER safety limit, not a business rule: ₦100,000,000
+// expressed in kobo.
+//
+// It is deliberately separate from CHECKOUT_MAX_NGN. That variable is product
+// policy and an operator can raise it; this one protects the arithmetic and the
+// wire format, and nothing in the environment can switch it off. If the two ever
+// disagree, the smaller wins, which is the safe direction.
+const maxInitiateKobo int64 = 100_000_000 * 100
+
+// Initiate opens a Paystack transaction for amountKobo, in integer kobo.
+//
+// The amount is kobo — and int64 — because the previous signature took `int32`
+// naira and sent `amount * 100`, which was wrong twice over:
+//
+//   - Every caller had to round to whole naira to fit the type
+//     (`int32(math.Round(input.Amount))`), so a cart totalling ₦8,450.50 was
+//     charged ₦8,451 or ₦8,450. Kobo were lost at the call site, before this
+//     function ever saw them.
+//   - `amount * 100` in int32 OVERFLOWS above ₦21,474,836 — silently, and
+//     into a negative number, which Paystack would have rejected with a
+//     message about the amount rather than about the type.
+//
+// Callers now convert once, with helper.ToKobo, which rounds rather than
+// truncating.
+func (p Paystack) Initiate(email, ref string, amountKobo int64, redirectURL string) (*PaystackInitiateResponse, error) {
+	if amountKobo <= 0 {
+		return nil, fmt.Errorf("invalid charge amount: %d kobo", amountKobo)
+	}
+	if amountKobo > maxInitiateKobo {
+		return nil, fmt.Errorf("charge amount %d kobo exceeds the provider limit of %d kobo",
+			amountKobo, maxInitiateKobo)
+	}
+
 	// createTransaction initiates a payment transaction on Paystack.
 	url := fmt.Sprintf("%s/transaction/initialize", p.url)
 
 	// Prepare the payload for creating a transaction.
 	payload := map[string]interface{}{
 		"email":        email,
-		"amount":       amount * 100,
+		"amount":       amountKobo,
 		"reference":    ref,
 		"callback_url": redirectURL, // Redirect here after payment
 		"currency":     "NGN",
@@ -162,7 +201,10 @@ func (p Paystack) Verify(reference string) (*VerifyPaystackResponse, error) {
 		return nil, err
 	}
 
-	log.Println("paystack-verification", verifyResponse)
+	// Was the entire verify response: the customer's email and phone, the
+	// authorization object, the amount and the gateway metadata.
+	log.Printf("paystack verify: status=%q reference_present=%t",
+		verifyResponse.Data.Status, verifyResponse.Data.Reference != "")
 
 	if !verifyResponse.Status {
 		return nil, fmt.Errorf("failed to verify transaction: %s", verifyResponse.Message)
@@ -366,110 +408,10 @@ type TransferRecipientResponse struct {
 	} `json:"data"`
 }
 
-type InitiateTransferRequest struct {
-	Source    string `json:"source"`
-	Amount    int    `json:"amount"`
-	Recipient string `json:"recipient"`
-	Reason    string `json:"reason"`
-}
-
-type InitiateTransferResponse struct {
-	Status  bool   `json:"status"`
-	Message string `json:"message"`
-	Data    any    `json:"data"`
-}
-
-type ProcessWithdrawalRequest struct {
-	AccountDetails *domain.BusinessBankAccountDetail
-	Amount         float64
-	Reason         string
-}
-
-func (p Paystack) ProcessWithdrawal(request *ProcessWithdrawalRequest) error {
-	var (
-		recipientCode string
-		client        = &http.Client{Timeout: 30 * time.Second}
-	)
-
-	for _, item := range request.AccountDetails.Metadata {
-		if code, ok := item["paystack_transfer_recipient_code"]; ok && code != "" {
-			recipientCode = code.(string)
-			break
-		}
-	}
-
-	if recipientCode == "" {
-		createRecipientUrl := fmt.Sprintf("%s/transferrecipient", p.url)
-		payload := TransferRecipientRequest{
-			Type:          "nuban",
-			Name:          request.AccountDetails.AccountName,
-			AccountNumber: request.AccountDetails.AccountNumber,
-			BankCode:      fmt.Sprintf(`%d`, request.AccountDetails.BankCode),
-			Currency:      "NGN",
-		}
-
-		bodyBytes, _ := json.Marshal(payload)
-		req, err := http.NewRequest("POST", createRecipientUrl, bytes.NewBuffer(bodyBytes))
-		if err != nil {
-			return fmt.Errorf("error creating recipient request: %w", err)
-		}
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", p.secretKey))
-		req.Header.Set("Content-Type", "application/json")
-
-		resp, err := client.Do(req)
-		if err != nil {
-			return fmt.Errorf("error sending recipient request: %w", err)
-		}
-		defer resp.Body.Close()
-
-		respBody, _ := io.ReadAll(resp.Body)
-
-		var recipientResp TransferRecipientResponse
-		if err := json.Unmarshal(respBody, &recipientResp); err != nil {
-			return fmt.Errorf("error parsing recipient response: %w", err)
-		}
-		if !recipientResp.Status {
-			return fmt.Errorf("failed to create transfer recipient: %s", recipientResp.Message)
-		}
-		recipientCode = recipientResp.Data.RecipientCode
-		if err := p.businessRepo.AppendAccountDetailsMetadata(request.AccountDetails.ID, map[string]interface{}{
-			"paystack_transfer_recipient_code": recipientCode,
-		}); err != nil {
-			return err
-		}
-	}
-
-	initiateUrl := fmt.Sprintf("%s/transfer", p.url)
-	initiatePayload := InitiateTransferRequest{
-		Source:    "balance",
-		Amount:    int(request.Amount * 100),
-		Recipient: recipientCode,
-		Reason:    request.Reason,
-	}
-
-	initiateBody, _ := json.Marshal(initiatePayload)
-	initiateReq, err := http.NewRequest("POST", initiateUrl, bytes.NewBuffer(initiateBody))
-	if err != nil {
-		return fmt.Errorf("error creating transfer request: %w", err)
-	}
-	initiateReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", p.secretKey))
-	initiateReq.Header.Set("Content-Type", "application/json")
-
-	initiateResp, err := client.Do(initiateReq)
-	if err != nil {
-		return fmt.Errorf("error sending Ptransfer request: %w", err)
-	}
-	defer initiateResp.Body.Close()
-
-	initiateRespBody, _ := io.ReadAll(initiateResp.Body)
-
-	var transferResp InitiateTransferResponse
-	if err := json.Unmarshal(initiateRespBody, &transferResp); err != nil {
-		return fmt.Errorf("error parsing transfer response: %w", err)
-	}
-	if !transferResp.Status {
-		return fmt.Errorf("failed to initiate transfer: %s", transferResp.Message)
-	}
-
-	return nil
-}
+// ProcessWithdrawal lived here, unreferenced, and is deleted rather than left
+// for someone to find and wire up. It computed kobo as `int(amount * 100)`,
+// which truncates — ₦8.29 became 828 — sent no `reference`, so a retry created
+// a SECOND REAL TRANSFER, and discarded the transfer object, so no webhook
+// could ever be matched back to a payout. Its replacement is
+// `transfer.go`: EnsureTransferRecipient / InitiateTransfer / VerifyTransfer,
+// driven by PayoutService.

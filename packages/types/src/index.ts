@@ -11,63 +11,47 @@ export interface StoreTheme {
   pattern?: string;
 }
 
+/**
+ * Props the legacy `MainLayout` forwards to a Header. Only the subset its one
+ * caller (shop/spotlights) actually sets — the tab bar, pill bar, skip link,
+ * logoDisplayCenter and searchComponent props that used to live here were set
+ * by nothing anywhere in the app.
+ *
+ * New screens use PageShell + Header's slots directly; this exists to keep
+ * MainLayout working until its last caller migrates.
+ */
 export interface HeaderProps {
   showBack?: boolean;
-  showLogo?: boolean;
-  showSkip?: boolean;
-  showMenu?: boolean;
   customText?: string;
   onBackClick?: () => void;
-  handleMenu?: () => void;
-  skipLink?: string;
-  showStepNavigation?: boolean;
-  step?: number;
-  totalSteps?: number;
-  logoDisplayCenter?: boolean;
-  showTab?: boolean;
-  tabs?: string[];
-  activeTab?: number;
-  onTabChange?: (value: number) => void;
-  showPillBar?: boolean;
-  pillTabs?: string[];
-  activePill?: number;
-  onPillChange?: (index: number) => void;
-  searchComponent?: boolean;
+  /** Shows a search icon that toggles the title out for a search field. */
   showSearch?: boolean;
-  handleSearchClick?: () => void;
   showInput?: boolean;
-  showEmer?: boolean;
-  isMenu?: boolean;
-  showNotification?: boolean;
-  notificationCount?: number;
-  onNotificationClick?: () => void;
+  handleSearchClick?: () => void;
 }
 
+/**
+ * LEGACY layout, one caller left — see design-system/mainLayout.
+ *
+ * The thirteen button props are gone with the two `fixed bottom-0` action bars
+ * they filled: buttonText, btnClass, onClickBtn, buttonType, isButtonLoading,
+ * showBtn, showBeforeBtn, beforeButtonContent, afterButtonContent, showDivider,
+ * secondaryText, secondaryLink, otpCheckMailNotification. Deleting the markup
+ * without deleting the props would have left a legacy layout still advertising a
+ * viewport-fixed CTA bar that the desktop rule forbids.
+ */
 export interface MainLayoutProps {
   addSpace?: boolean;
   title?: string;
-  btnClass?: string;
   description?: string;
   features?: string[];
   imageSrc?: string;
-  buttonType?: "button" | "reset" | "submit";
-  buttonText?: string;
-  onClickBtn?: () => void;
-  secondaryText?: string;
-  secondaryLink?: string;
   bgImage?: string;
   imgSrc?: string;
   children?: React.ReactNode;
   headerProps?: HeaderProps;
   showFooter?: boolean;
   staticContent?: boolean;
-  showBeforeBtn?: boolean;
-  beforeButtonContent?: React.ReactNode;
-  afterButtonContent?: React.ReactNode;
-  showDivider?: boolean;
-  showBtn?: boolean;
-  otpCheckMailNotification?: boolean;
-  isButtonLoading?: boolean;
 }
 export interface User {
   user_id?: string;

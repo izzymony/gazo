@@ -1,16 +1,15 @@
+@import '@vibaar/design-tokens/tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import responsive utility classes */
-@import './responsive-utils.css';
 
 /* Driver.js guided tour styles */
 @import 'driver.js/dist/driver.css';
 
 /* Custom driver.js styles to match app design */
 .driver-popover.driverjs-theme {
-  font-family: var(--font-dm-sans), 'DM Sans', system-ui, -apple-system, sans-serif !important;
+  font-family: var(--font-outfit), 'Outfit', system-ui, -apple-system, sans-serif !important;
   background: #ffffff !important;
   border-radius: 16px !important;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12) !important;
@@ -54,23 +53,23 @@
 }
 
 .driver-popover.driverjs-theme .driver-popover-prev-btn {
-  color: #FE2C55 !important;
+  color: var(--brand-deep) !important;
   background: #ffffff !important;
-  border: 1px solid #FE2C55 !important;
+  border: 1px solid var(--brand-deep) !important;
 }
 
 .driver-popover.driverjs-theme .driver-popover-prev-btn:hover {
-  background: #FFF5F7 !important;
+  background: #FFFBE5 !important;
 }
 
 .driver-popover.driverjs-theme .driver-popover-next-btn {
-  color: #ffffff !important;
-  background: #FE2C55 !important;
+  color: var(--brand-ink) !important;
+  background: var(--brand) !important;
   border: none !important;
 }
 
 .driver-popover.driverjs-theme .driver-popover-next-btn:hover {
-  background: #e02549 !important;
+  background: var(--brand-hover) !important;
 }
 
 /* Close button (X) in top-right - subtle style */
@@ -140,79 +139,36 @@ html {
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-
-  /* ===================================================================
-     Design tokens (W3.2) — single source of truth.
-     Values extracted from existing hardcoded usage; classes are mapped
-     additively in tailwind.config.ts. Migrating raw hex/usages onto
-     these tokens is the W3.9 codemod.
-     =================================================================== */
-
-  /* Brand — rgb channels so Tailwind's /opacity modifier composes.
-     The pending rebrand is a one-line change here. */
-  --brand-rgb: 254 44 85;          /* #FE2C55 — vibaar brand (change here to rebrand the color) */
-  --brand: rgb(var(--brand-rgb));  /* convenience for inline styles / SVG fill+stroke */
-  --brand-hover: #e02549;          /* pressed/hover shade already used in tour */
-
-  /* Ink — black-on-white alpha ramp (the app's "soft black" family). Defined as
-     the EXACT hex values already scattered across the app (number ≈ opacity %)
-     so tokenising the raw usages is byte-identical. */
-  --ink-3: #00000008;   /* rgba(0,0,0,.03) */
-  --ink-5: #0000000D;   /* rgba(0,0,0,.05) */
-  --ink-10: #0000001A;  /* rgba(0,0,0,.10) */
-  --ink-20: #00000033;  /* rgba(0,0,0,.20) */
-  --ink-30: #0000004D;  /* rgba(0,0,0,.30) */
-  --ink-40: #00000066;  /* rgba(0,0,0,.40) */
-  --ink-50: #00000080;  /* rgba(0,0,0,.50) */
-  --ink-60: #00000099;  /* rgba(0,0,0,.60) */
-  --ink-70: #000000B2;  /* rgba(0,0,0,.70) */
-  --ink-80: #000000CC;  /* rgba(0,0,0,.80) */
-  --ink-90: #000000E5;  /* rgba(0,0,0,.90) */
-
-  /* True black — distinct from the soft --ink-90 (resolves the W3.1 conflation) */
-  --black: #000000;
-
-  /* Hairline border */
-  --line: rgba(0, 0, 0, 0.06);
-
-  /* Semantic status colors (values match existing usage) */
-  --success: #06C270;   /* brand green / green DEFAULT (solid fills, icons) */
-  --error: #CC2020;     /* brand error / red DEFAULT */
-  --warning: #F59E0B;   /* amber (solid fills, icons) */
-  --info: #0063F7;      /* link blue */
-  /* `strong` = deeper, text-safe shades for coloured TEXT on light/tinted bg,
-     where the solid tokens above read washed-out and low-contrast. */
-  --success-strong: #047857;  /* emerald-700 — green text on white/tint */
-  --warning-strong: #B45309;  /* amber-700 — amber text on white/tint */
-
-  /* Radius scale (semantic) */
-  --radius-field: 12px;
-  --radius-card: 16px;
-  --radius-pill: 9999px;
-
-  /* Elevation */
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-pop: 0 4px 24px rgba(0, 0, 0, 0.12);
-
-  /* Z-index scale (matches current sticky/overlay usage) */
-  --z-dropdown: 30;
-  --z-sticky: 40;
-  --z-modal: 50;
-  --z-toast: 60;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
   }
 }
 
+/* ── Brand typography ────────────────────────────────────────────────
+   ONE family: Outfit. Geometric, single-storey `a` — the same letterform
+   as the vibaar wordmark, so the UI descends from the logo. Its weight
+   range covers headings and body, so there is no secondary family.
+   Self-hosted via next/font/local (src/app/fonts.ts) — never a build-time
+   Google fetch (F3). */
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--font-outfit), 'Outfit', system-ui, -apple-system, sans-serif;
+  font-weight: 600;              /* semibold — geometric faces read thin at 400 */
+  letter-spacing: -0.015em;
+}
+
+/* Outfit's 400 is optically light for UI at small sizes. Nudge the base up so
+   body copy, labels and controls read solid rather than wiry. */
 body {
-  /* color: var(--foreground); */
+  font-weight: 450;
+}
+strong, b { font-weight: 600; }
+
+body {
   background: var(--background);
-  font-family: var(--font-dm-sans), 'DM Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-outfit), 'Outfit', system-ui, -apple-system, sans-serif;
   margin: 0;
   padding: 0;
   width: 100%;
@@ -227,21 +183,90 @@ html {
 }
 
 a {
-  color: #0063F7;
+  /* through the token, not a hex — --info is this exact value */
+  color: var(--info);
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  /*
+   * The buyer's desktop rail is an OVERLAY, not a layout column.
+   *
+   * It has no surface of its own and the page shows through it, so the frame
+   * must not be padded: `/shop`'s header gradient runs edge to edge and passes
+   * underneath the rail, and padding the frame would push it off the screen.
+   * Instead the shell marks itself, and foreground containers opt in.
+   *
+   * Deliberately NOT `--shell-inset`. That variable already means something on
+   * the seller side, where the frame applies `pl-shell-inset` to its OUTER box;
+   * shared in-flow containers like PageShell's content and Header's wrapper sit
+   * inside that padded frame, so teaching them to read it would indent seller
+   * content twice. This obstruction resolves to zero everywhere except inside a
+   * buyer shell that has a rail.
+   */
+  .buyer-rail-overlay {
+    --buyer-rail-obstruction: 0px;
   }
 
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
+  /*
+   * Only where the rail actually is. It is `hidden lg:flex`, so below that
+   * breakpoint there is nothing to clear and any clearance would be a phone
+   * indenting its content for a rail that is not there.
+   */
+  @media (min-width: 1024px) {
+    .buyer-rail-overlay {
+      --buyer-rail-obstruction: var(--buyer-rail-width);
+    }
   }
 
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  /*
+   * Clear the rail — by however much is actually missing, and no more.
+   *
+   * The centred max-w-5xl column already clears the rail at wider viewports, so
+   * a flat 5rem would shove `/shop` sideways by exactly the amount that
+   * misaligns it against every other page:
+   *
+   *   1024px  centred margin 0    -> adds 80px
+   *   1280px  centred margin 128  -> adds 0
+   *   1440px  centred margin 208  -> adds 0
+   *
+   * A TRANSPARENT START BORDER rather than margin or padding, which sounds odd
+   * and is the only thing that composes. These containers are `mx-auto`, so a
+   * margin fights the centring — set it and the column stops being centred; and
+   * they carry their own `px-*`, so padding-inline-start collides with a gutter
+   * that differs per component (px-8 on the banner, px-6 on the feed sheet, px-5
+   * on PageShell and Header). Nothing else in the stack sets a start border, so
+   * this adds to whatever geometry the component already has instead of
+   * replacing part of it — which is the whole requirement.
+   */
+  .rail-safe-foreground {
+    border-inline-start: max(
+        0px,
+        calc(var(--buyer-rail-obstruction, 0px) - max(0px, (100vw - 64rem) / 2))
+      )
+      solid transparent;
+  }
+
+  /*
+   * Declares how far a viewport-fixed descendant must be inset to clear this
+   * shell. The seller dashboard frame carries it whenever the desktop rail is
+   * mounted; PageShell's fixed action bar reads it through `left-shell-inset`.
+   *
+   * Breakpoint-scoped because the rail itself is (`hidden lg:flex`): below lg
+   * there is nothing to clear and a bar must span the full width.
+   *
+   * A custom property rather than a utility on the bar, because the bar is a
+   * shared primitive that must not know which shell it is inside — and because
+   * custom properties inherit down the DOM, which is what reaches a `fixed`
+   * descendant whose containing block is the viewport, not its parent.
+   */
+  .shell-inset-rail {
+    --shell-inset: 0px;
+  }
+
+  @media (min-width: 1024px) {
+    .shell-inset-rail {
+      --shell-inset: var(--rail-width);
+    }
   }
 
   /* iOS Safe Area Support */
@@ -317,8 +342,8 @@ a {
 }
 
 .custom-checkbox:checked {
-  border-color: #FE2C55;
-  background-color: #FE2C55;
+  border-color: var(--brand);
+  background-color: var(--brand);
 }
 
 .custom-checkbox:checked::after {
@@ -329,7 +354,7 @@ a {
   transform: translate(-50%, -50%) rotate(45deg);
   width: 4px;
   height: 8px;
-  border: solid #fff;
+  border: solid var(--brand-ink);  /* on-brand: the tick sits on brand yellow */
   border-width: 0 2px 2px 0;
 }
 
@@ -337,39 +362,3 @@ a {
   outline: none;
 }
 
-
-/* Container styles moved to specific components - landing page needs full width */
-.container {
-  max-width: full;
-  margin: 0 auto;
-  /* Center it */
-}
-
-
-@media (min-width: 768px) {
-  .container:not(.landing-page *) {
-    max-width: 768px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .container:not(.landing-page *) {
-    max-width: 760px;
-  }
-}
-
-
-/* Global CSS (e.g., styles.css) */
-.animate-slide {
-  animation: slideLeft 3s linear;
-}
-
-@keyframes slideLeft {
-  0% {
-    width: 0%;
-  }
-
-  100% {
-    width: 100%;
-  }
-}

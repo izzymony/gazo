@@ -1,9 +1,24 @@
-import React from 'react'
+import React from "react";
+import { cn } from "@vibaar/utils";
 
-const H1 = ({children, className} : { className: string, children: React.ReactNode }) => {
+export type H1Props = React.HTMLAttributes<HTMLHeadingElement>;
+
+/** Semantic page heading using the system h1 type and foreground tokens. */
+const H1 = React.forwardRef<HTMLHeadingElement, H1Props>(function H1(
+  { children, className, ...props },
+  ref
+) {
   return (
-    <p className={`font-medium text-h1 text-center text-ink-90 tracking-[0px] ${className}`}>{children}</p>
-  )
-}
+    <h1
+      ref={ref}
+      className={cn(
+        "text-center text-h1 font-medium text-foreground-primary",
+        className
+      )}
+      {...props}>
+      {children}
+    </h1>
+  );
+});
 
-export default H1
+export default H1;

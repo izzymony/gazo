@@ -25,7 +25,7 @@ const Step2MakeItShine = ({
                     <H1 className="text-h1 text-start">
                         Make it Shine
                     </H1>
-                    <p className="text-body mt-3 text-ink-40 text-start">
+                    <p className="text-body mt-3 text-foreground-muted text-start">
                         Looking great! Let's add the details that sell 📝
                     </p>
 
@@ -52,15 +52,10 @@ const Step2MakeItShine = ({
                             }
                             onCategorySelect={(category) => {
                                 if (typeof category === 'object') {
-                                    console.log('🔍 Step2 - Category selected:', category);
                                     setSelectedCategory(category);
                                     // Also set in formik for validation and submission
                                     formik.setFieldValue('categoryId', category.categoryId);
                                     formik.setFieldValue('subCategoryId', category.subCategoryId);
-                                    console.log('🔍 Step2 - Formik values after category set:', {
-                                        categoryId: category.categoryId,
-                                        subCategoryId: category.subCategoryId
-                                    });
                                 }
                             }}
                             error={formik.errors.categoryId as string || formik.errors.subCategoryId as string}

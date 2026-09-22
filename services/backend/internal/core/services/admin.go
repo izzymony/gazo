@@ -11,6 +11,7 @@ import (
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	fileupload "github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/file-upload"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/payments"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
@@ -34,11 +35,12 @@ type AdminService struct {
 	walletService         *WalletService
 	notificationService   *NotificationService
 	dispatcher            *NotificationDispatcher
+	payoutService         *PayoutService
 	db                    *gorm.DB
 }
 
 func NewAdminService(db *gorm.DB) *AdminService {
-	return &AdminService{
+	svc := &AdminService{
 		businessRepo:          mysql_repo.NewBusinessRepository(db),
 		userRepo:              mysql_repo.NewUserRepository(db),
 		adminRepo:             mysql_repo.NewAdminRepository(db),
@@ -55,6 +57,15 @@ func NewAdminService(db *gorm.DB) *AdminService {
 		dispatcher:            NewNotificationDispatcher(db),
 		db:                    db,
 	}
+	// The payout lifecycle owns every money movement for a withdrawal. Admin
+	// approval delegates to it rather than reimplementing the accounting, so
+	// the webhook, the reconciler and this button all settle a payout through
+	// exactly one code path.
+	svc.payoutService = NewPayoutService(db, payments.NewPaystackPaymentService(db),
+		func(event, userID string, vars map[string]string) {
+			_ = svc.dispatcher.Emit(context.Background(), EmitInput{Event: event, UserID: userID, Vars: vars})
+		})
+	return svc
 }
 
 // DashboardStats is the platform-wide summary for the admin dashboard +
@@ -82,7 +93,15 @@ func (s *AdminService) GetDashboardStats() (DashboardStats, error) {
 	s.db.Model(&domain.Transaction{}).
 		Where("status = ?", string(helper.PaymentSuccessful)).
 		Select("COALESCE(SUM(amount), 0)").Scan(&stats.TotalRevenue)
-	s.db.Model(&domain.WithdrawalRequest{}).Where("status = ?", "pending").Count(&stats.PendingWithdrawals)
+	// The admin dashboard's "awaiting action" count. `processing` and
+	// `awaiting_otp` are deliberately excluded — those are with Paystack, not
+	// with the admin — but `needs_review` is included, because those are stuck
+	// payouts that genuinely need a person.
+	s.db.Model(&domain.WithdrawalRequest{}).
+		Where("status IN ?", []string{
+			string(domain.WithdrawalRequested),
+			string(domain.WithdrawalNeedsReview),
+		}).Count(&stats.PendingWithdrawals)
 	s.db.Model(&domain.KYC{}).Where("status = ?", "pending").Count(&stats.PendingKYC)
 	return stats, nil
 }
@@ -116,97 +135,29 @@ func (s *AdminService) Login(input requests.LoginRequest) (interface{}, error) {
 	}, nil
 }
 
+// ApproveWithdrawal authorises a payout. It does not perform one, and it no
+// longer pretends to.
+//
+// What this replaced: the previous body debited `available_balance`,
+// decremented the reservation, incremented `total_withdrawn`, wrote a
+// WalletTransaction with Status "completed", set the request to "completed" and
+// emitted `seller.payout.withdrawal_sent` — all inside one transaction, with no
+// Paystack call anywhere in the function. Three records asserted a payment that
+// had not happened, and whether money actually moved depended on someone
+// remembering to make a bank transfer by hand.
+//
+// Now: approval claims the withdrawal, initiates a Paystack transfer, and
+// leaves it `processing`. Only a verified provider outcome — via the
+// `transfer.*` webhook or reconciliation — may mark it paid and move the money.
+// See PayoutService for the accounting.
 func (s *AdminService) ApproveWithdrawal(requestID string) error {
-	var sellerID, bankLabel string
-	var amount float64
-	err := s.db.Transaction(func(tx *gorm.DB) error {
-		// 1. Fetch and lock withdrawal request to prevent concurrent modifications
-		var withdrawalRequest domain.WithdrawalRequest
-		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-			Where("id = ?", requestID).First(&withdrawalRequest).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("request not found")
-			}
-			return fmt.Errorf("failed to fetch request: %w", err)
-		}
-
-		// 2. Idempotency check - prevent double approval
-		if withdrawalRequest.Status != "pending" {
-			return fmt.Errorf("withdrawal already %s", withdrawalRequest.Status)
-		}
-
-		// 3. Fetch and lock wallet to prevent concurrent balance changes
-		var wallet domain.Wallet
-		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-			Where("id = ?", withdrawalRequest.WalletID).First(&wallet).Error; err != nil {
-			return fmt.Errorf("wallet not found: %w", err)
-		}
-
-		// 4. Verify bank account exists
-		bankAccountDetails, err := s.businessRepo.FindAccountDetailsByIDAndBusiness(withdrawalRequest.BankAccountDetailsID, wallet.BusinessID)
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("failed to fetch bank account: %w", err)
-		}
-		if bankAccountDetails == nil {
-			return fmt.Errorf("bank account not found")
-		}
-		sellerID = withdrawalRequest.UserID
-		amount = withdrawalRequest.Amount
-		bankLabel = bankAccountDetails.Bank
-		if len(bankAccountDetails.AccountNumber) >= 4 {
-			bankLabel = bankAccountDetails.Bank + " ••" + bankAccountDetails.AccountNumber[len(bankAccountDetails.AccountNumber)-4:]
-		}
-
-		// 5. Atomically update wallet balances:
-		//    - Deduct from available_balance
-		//    - Unlock from pending_withdrawals
-		//    - Increment total_withdrawn
-		if err := tx.Model(&wallet).Updates(map[string]interface{}{
-			"available_balance":   gorm.Expr("available_balance - ?", withdrawalRequest.Amount),
-			"pending_withdrawals": gorm.Expr("pending_withdrawals - ?", withdrawalRequest.Amount),
-			"total_withdrawn":     gorm.Expr("total_withdrawn + ?", withdrawalRequest.Amount),
-		}).Error; err != nil {
-			return fmt.Errorf("failed to update wallet: %w", err)
-		}
-
-		// 6. Create wallet transaction record for audit trail
-		transaction := &domain.WalletTransaction{
-			WalletID:        withdrawalRequest.WalletID,
-			Type:            string(helper.WithdrawalTransactionType),
-			TypeDescription: "Withdrawal approved",
-			Amount:          withdrawalRequest.Amount,
-			Reference:       withdrawalRequest.Reference,
-			Status:          "completed",
-			BalanceBefore:   wallet.AvailableBalance,
-			BalanceAfter:    wallet.AvailableBalance - withdrawalRequest.Amount,
-			Beneficiary:     bankAccountDetails.AccountName,
-			From:            "Vibaar Wallet",
-			To:              fmt.Sprintf("%s - %s", bankAccountDetails.Bank, bankAccountDetails.AccountNumber),
-		}
-		if err := tx.Create(transaction).Error; err != nil {
-			logger.Error(fmt.Sprintf("failed to create wallet transaction: %v", err))
-		}
-
-		// 7. Update withdrawal request status to completed
-		return tx.Model(&withdrawalRequest).Update("status", "completed").Error
-	})
-	if err != nil {
-		return err
-	}
-
-	// NS2 seller.payout.withdrawal_sent — post-commit, best-effort, money untouched.
-	_ = s.dispatcher.Emit(context.Background(), EmitInput{
-		Event:  "seller.payout.withdrawal_sent",
-		UserID: sellerID,
-		Vars:   map[string]string{"amount": FormatNaira(amount), "bank": bankLabel},
-	})
-	return nil
+	return s.payoutService.ApproveAndTransfer(requestID)
 }
 
 func (s *AdminService) RejectWithdrawal(requestID, reason string) error {
 	var sellerID string
 	var amount float64
-	err := s.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(s.db, "reject_withdrawal", func(tx *gorm.DB) error {
 		// 1. Fetch and lock withdrawal request
 		var withdrawalRequest domain.WithdrawalRequest
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
@@ -218,22 +169,31 @@ func (s *AdminService) RejectWithdrawal(requestID, reason string) error {
 		}
 
 		// 2. Idempotency check
-		if withdrawalRequest.Status != "pending" {
+		// `requested` is the renamed `pending`: the seller has asked and
+		// LockBalance is holding the funds. Once a transfer has been claimed the
+		// answer is no longer ours to give — only Paystack can say what happened.
+		if domain.WithdrawalStatus(withdrawalRequest.Status) != domain.WithdrawalRequested {
 			return fmt.Errorf("withdrawal already %s", withdrawalRequest.Status)
 		}
 		sellerID = withdrawalRequest.UserID
 		amount = withdrawalRequest.Amount
 
-		// 3. Unlock pending balance (release the reserved funds back to available)
-		if err := tx.Model(&domain.Wallet{}).
-			Where("id = ?", withdrawalRequest.WalletID).
-			Update("pending_withdrawals", gorm.Expr("pending_withdrawals - ?", withdrawalRequest.Amount)).Error; err != nil {
+		// 3. Release the reservation back to available.
+		//
+		// This was an inline copy of the repository's unguarded UnlockBalance:
+		// an unconditional subtraction whose RowsAffected was never checked.
+		// Rejecting a request twice, or rejecting more than was reserved, drove
+		// pending_withdrawals negative — and since withdrawable is
+		// `available - pending`, a negative reservation INFLATES what the seller
+		// may request. One guarded implementation now, addressed by wallet id
+		// inside this transaction.
+		if err := s.walletRepo.UnlockBalanceTx(tx, withdrawalRequest.WalletID, withdrawalRequest.Amount); err != nil {
 			return fmt.Errorf("failed to unlock balance: %w", err)
 		}
 
 		// 4. Update withdrawal request status with rejection reason
 		return tx.Model(&withdrawalRequest).Updates(map[string]interface{}{
-			"status": "rejected",
+			"status": string(domain.WithdrawalRejected),
 			"reason": reason,
 		}).Error
 	})
@@ -250,9 +210,18 @@ func (s *AdminService) RejectWithdrawal(requestID, reason string) error {
 	return nil
 }
 
-func (s *AdminService) GetAllWithdrawalRequests(limit, page int) ([]domain.WithdrawalRequest, int64, error) {
+func (s *AdminService) GetAllWithdrawalRequests(limit, page int, statuses []string) ([]domain.WithdrawalRequest, int64, error) {
 	offset := (page - 1) * limit
-	return s.withdrawalRequestRepo.GetAll(limit, offset)
+	return s.withdrawalRequestRepo.GetAll(limit, offset, statuses)
+}
+
+// WithdrawalStatusCounts backs the admin's filter badges and money totals.
+//
+// Separate from the list because it must NOT share the list's filter or
+// pagination — the whole point is that the badges stay right while the admin is
+// looking at one filtered page.
+func (s *AdminService) WithdrawalStatusCounts() ([]domain.WithdrawalStatusTally, error) {
+	return s.withdrawalRequestRepo.CountsByStatus()
 }
 
 func (s *AdminService) GetWithdrawalRequestByID(id string) (*domain.WithdrawalRequest, error) {

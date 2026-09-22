@@ -9,7 +9,6 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 var DBInstance *gorm.DB
@@ -32,14 +31,20 @@ func ConnectDB() *gorm.DB {
 	logOutput = log.New(os.Stdout, "\r\n", log.LstdFlags)
 	// }
 
-	newLogger := logger.New(
-		logOutput,
-		logger.Config{
-			SlowThreshold: time.Second,
-			LogLevel:      logger.Info,
-			Colorful:      os.Getenv("ENV") == "local",
-		},
-	)
+	// Value-level SQL logging is LOCAL ONLY.
+	//
+	// This was `LogLevel: logger.Info` everywhere, which logs every statement
+	// with its values interpolated — so staging and production wrote every
+	// address, phone, email and name the application inserted into their
+	// retained logs. Outside local, the sanitized logger takes over: it never
+	// interpolates values (ParamsFilter returns nil params) and never prints a
+	// driver error's text, only its SQLSTATE, because pgx puts the offending
+	// value inside the message.
+	//
+	// ParameterizedQueries is also set on the local config, so the one
+	// environment that still sees values sees them only because its level is
+	// Info — not because the parameter filter is off.
+	newLogger := newGormLogger(logOutput)
 
 	if os.Getenv("DB_DRIVER") == "mysql" {
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
@@ -66,6 +71,12 @@ func ConnectDB() *gorm.DB {
 		panic(err)
 	}
 
+	// Contain persistence errors at the boundary, before any repository can see
+	// one. Registered immediately after Open so no query runs unconverted.
+	if err := registerErrorSanitizer(db); err != nil {
+		panic(err)
+	}
+
 	// Configure connection pool for production stability
 	sqlDB, err := db.DB()
 	if err != nil {
@@ -73,9 +84,9 @@ func ConnectDB() *gorm.DB {
 	}
 
 	// Production-optimized connection pool settings
-	sqlDB.SetMaxIdleConns(10)                  // Keep 10 idle connections ready
-	sqlDB.SetMaxOpenConns(100)                 // Allow up to 100 concurrent connections
-	sqlDB.SetConnMaxLifetime(time.Hour)        // Recycle connections every hour
+	sqlDB.SetMaxIdleConns(10)           // Keep 10 idle connections ready
+	sqlDB.SetMaxOpenConns(100)          // Allow up to 100 concurrent connections
+	sqlDB.SetConnMaxLifetime(time.Hour) // Recycle connections every hour
 
 	DBInstance = db
 	return db

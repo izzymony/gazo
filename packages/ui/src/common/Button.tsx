@@ -1,6 +1,11 @@
-import React from 'react';
+"use client";
+
+import React from "react";
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@vibaar/utils';
+import { focusRing } from "../styles";
+import Spinner from "./Spinner";
+import Link from "next/link";
 
 // Button variant system.
 //   variant  — filled (primary CTA) · bordered (secondary/outline) · ghost (tertiary/text)
@@ -9,21 +14,37 @@ import { cn } from '@vibaar/utils';
 // Default render (filled / md / fullWidth) is byte-identical to the previous
 // component, so existing footerAction buttons are unchanged.
 const buttonVariants = cva(
-  "max-w-full disabled:opacity-50 flex flex-row gap-2 justify-center items-center text-center rounded-full font-500 touch-manipulation transition-all duration-200",
+  cn(
+    "max-w-full disabled:opacity-50 flex flex-row gap-2 justify-center items-center text-center rounded-full font-medium touch-manipulation transition-all duration-200",
+    focusRing
+  ),
   {
     variants: {
-      variant: {
-        filled:
-          "bg-brand text-white hover:bg-brandHover active:bg-brandHover",
-        bordered:
-          "border border-brand text-brand bg-white hover:bg-ink-3 active:bg-ink-5",
-        ghost:
-          "bg-transparent text-brand hover:bg-ink-3 active:bg-ink-5",
-      },
       size: {
-        sm: "py-1.5 px-4 text-body-sm",
+        // `min-h-9` is the 36px touch floor, the same one IconButton (`md`),
+        // Switch and ChipToggle already hold. Padding alone put `sm` at 28px,
+        // which is how the storefront hero ended up with a 36px hand-rolled
+        // "Edit store" pill sitting beside a 28px "Share store" Button — the
+        // hand-rolled one existed because the primitive was the wrong height.
+        sm: "min-h-9 py-1.5 px-4 text-body-sm",
         md: "py-3 px-4 text-body",
         lg: "py-4 px-6 text-body-lg",
+      },
+      variant: {
+        filled:
+          "bg-brand text-brandInk hover:bg-brandHover active:bg-brandHover",
+        bordered:
+          "border border-brandDeep text-brandDeep bg-surface hover:bg-surface-subtle active:bg-surface-muted",
+        ghost:
+          "bg-transparent text-brandDeep hover:bg-surface-subtle active:bg-surface-muted",
+        // A text-only action sitting inside prose or beside a field — "Change",
+        // "Resend code", "Add another". Eight screens hand-rolled a bare
+        // <button className="text-brandDeep font-medium"> because the filled,
+        // bordered and ghost variants all draw a pill, and a pill is wrong
+        // there. It keeps the underline on hover so it still reads as an action.
+        // `size` is declared above so its padding is emitted first; a link
+        // action has no box, so this clears it without a compoundVariant.
+        link: "bg-transparent p-0 rounded-none gap-1 text-brandDeep underline-offset-4 hover:underline active:opacity-70",
       },
       fullWidth: {
         true: "w-full mt-4",
@@ -34,8 +55,16 @@ const buttonVariants = cva(
   }
 );
 
-type ButtonProps = {
-  onClick: () => void;
+/**
+ * Native <button> attributes are spread onto the element, so aria-*, id, name,
+ * form, data-* and the rest work without the component having to enumerate
+ * them. `onClick` is therefore optional: a `type="submit"` button inside a form
+ * needs no handler at all.
+ */
+type ButtonProps = Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  "className" | "type" | "disabled"
+> & {
   children: React.ReactNode;
   className?: string;
   type?: "button" | "reset" | "submit";
@@ -43,31 +72,25 @@ type ButtonProps = {
   loadingText?: string; // Optional custom loading text
   disabled?: boolean; // Non-interactive + dimmed (uses the cva `disabled:opacity-50`)
   hapticFeedback?: boolean; // Enable/disable haptic feedback
+  /**
+   * Swallow the click instead of letting it bubble. OFF by default: a native
+   * button bubbles, and a component should not silently change that for every
+   * consumer. Nothing in the app relied on it — a scan for a Button rendered
+   * inside a parent with its own onClick returned zero real cases. Opt in only
+   * where a genuinely tappable ancestor would otherwise double-fire.
+   */
+  stopPropagation?: boolean;
+  /**
+   * Renders a link instead of a button, with identical styling.
+   *
+   * An action that NAVIGATES is a link — middle-clickable, openable in a new
+   * tab, and announced as a link. Without this, every screen that wanted a
+   * styled navigation hand-rolled the pill itself: the storefront hero's "Edit
+   * store", the profile's "View store", the catalog's "View store front". Three
+   * copies, three different heights, and none of them with a focus ring.
+   */
+  href?: string;
 } & VariantProps<typeof buttonVariants>;
-
-// Spinner component for loading state
-const LoadingSpinner = ({ color = "currentColor" }: { color?: string }) => (
-  <svg
-    className="animate-spin h-5 w-5"
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-  >
-    <circle
-      className="opacity-25"
-      cx="12"
-      cy="12"
-      r="10"
-      stroke={color}
-      strokeWidth="4"
-    />
-    <path
-      className="opacity-75"
-      fill={color}
-      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-    />
-  </svg>
-);
 
 // Haptic feedback utility
 const triggerHapticFeedback = (type: 'light' | 'medium' | 'heavy' = 'light') => {
@@ -88,79 +111,94 @@ const triggerHapticFeedback = (type: 'light' | 'medium' | 'heavy' = 'light') => 
   }
 };
 
-export default function Button({
-  onClick,
-  children,
-  className = "",
-  type = "button",
-  loading = false,
-  loadingText,
-  disabled = false,
-  variant = "filled",
-  size = "md",
-  fullWidth = true,
-  hapticFeedback = true, // Enable by default for better mobile UX
-}: ButtonProps) {
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    onClick,
+    children,
+    className = "",
+    type = "button",
+    loading = false,
+    loadingText,
+    disabled = false,
+    variant = "filled",
+    size = "md",
+    fullWidth = true,
+    hapticFeedback = true, // Enable by default for better mobile UX
+    stopPropagation = false,
+    href,
+    // Pulled out of `rest` because each one collides with a value this
+    // component controls. `rest` is spread FIRST below so these win.
+    style,
+    "aria-label": ariaLabel,
+    "aria-busy": ariaBusy,
+    ...rest
+  },
+  ref
+) {
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    // NOTE: no preventDefault(). It used to be unconditional, which meant a
+    // `type="submit"` button never actually submitted its form — every call
+    // site worked around it by wiring formik.handleSubmit into onClick.
+    if (stopPropagation) event.stopPropagation();
 
-    if (!loading && !disabled) {
-      if (hapticFeedback) {
-        triggerHapticFeedback('light');
-      }
-      onClick();
-    }
+    if (loading || disabled) return;
+    if (hapticFeedback) triggerHapticFeedback("light");
+    onClick?.(event);
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const classes = cn(
+    buttonVariants({ variant, size, fullWidth }),
+    loading && "opacity-70 cursor-not-allowed",
+    disabled && !loading && "opacity-50 cursor-not-allowed",
+    className
+  );
 
-    if (!loading && !disabled) {
-      if (hapticFeedback) {
-        triggerHapticFeedback('light');
-      }
-      onClick();
-    }
-  };
-
-  // Handle touch start for immediate visual feedback
-  const handleTouchStart = () => {
-    if (!loading && !disabled && hapticFeedback) {
-      triggerHapticFeedback('light');
-    }
-  };
+  // A navigation renders a real link. Loading/disabled have no meaning on one,
+  // so they are not accepted here — a link either goes somewhere or it is not
+  // a link.
+  if (href) {
+    return (
+      <Link href={href} className={classes} aria-label={ariaLabel} style={style}>
+        {children}
+      </Link>
+    );
+  }
 
   return (
     <button
+      // `rest` FIRST so every attribute this component controls is applied
+      // after it and cannot be clobbered. Previously `{...rest}` came last,
+      // which let a caller's `style` replace the whole internal style object
+      // and a caller's `aria-busy` override the loading state.
+      {...rest}
+      ref={ref}
       onClick={handleClick}
-      onTouchEnd={handleTouchEnd}
-      onTouchStart={handleTouchStart}
-      className={cn(
-        buttonVariants({ variant, size, fullWidth }),
-        loading && "opacity-70 cursor-not-allowed",
-        disabled && !loading && "opacity-50 cursor-not-allowed",
-        className
-      )}
+      className={classes}
       style={{
         boxShadow:
           variant === "filled" && !loading
-            ? '4px 8px 24px 0px rgb(var(--brand-rgb) / 0.2)'
+            // Neutral, not brand-tinted. A coloured glow worked while the
+            // brand was a saturated red; a yellow one is invisible on light
+            // surfaces and muddy on white. Ink reads on every ground.
+            ? "4px 8px 24px 0px rgb(var(--brand-ink-rgb) / 0.18)"
             : undefined,
-        WebkitTapHighlightColor: 'transparent',
-        touchAction: 'manipulation',
-        userSelect: 'none',
-        WebkitUserSelect: 'none',
+        WebkitTapHighlightColor: "transparent",
+        touchAction: "manipulation",
+        userSelect: "none",
+        WebkitUserSelect: "none",
+        // Caller style merges over the internal one rather than replacing it.
+        ...style,
       }}
       type={type}
       disabled={loading || disabled}
-      aria-busy={loading}
-      aria-label={loading ? (loadingText || "Loading, please wait") : undefined}
+      // Loading is a fact about the control, so it wins; otherwise the caller's
+      // value stands.
+      aria-busy={loading ? true : ariaBusy}
+      aria-label={ariaLabel ?? (loading ? loadingText || "Loading, please wait" : undefined)}
     >
       {loading ? (
         <span className="flex items-center gap-2">
-          <LoadingSpinner color={variant === "filled" ? "white" : "var(--brand)"} />
+          <Spinner color={variant === "filled" ? "var(--brand-ink)" : "var(--brand-deep)"} />
           {loadingText && <span>{loadingText}</span>}
         </span>
       ) : (
@@ -168,4 +206,6 @@ export default function Button({
       )}
     </button>
   );
-}
+});
+
+export default Button;

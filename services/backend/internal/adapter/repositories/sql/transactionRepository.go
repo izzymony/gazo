@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 
@@ -127,6 +128,28 @@ func (repo *TransactionRepository) SetStatus(id, status string, isGuest bool) er
 	return repo.db.Table(tableName).Where("id = ?", id).Update("status", status).Error
 }
 
+// SetProviderFee records the provider's collection fee for a settled charge,
+// in integer kobo.
+//
+// Writes only that column, and only where it is still NULL. Verify is called
+// from the webhook, the client callback and the reconcile cron, so the same fee
+// arrives several times; a guarded UPDATE keeps the first recorded value rather
+// than rewriting it on every replay.
+//
+// The guard is `IS NULL`, NOT `IS NULL OR = 0`. A recorded zero is a real
+// answer — Paystack charged nothing — and treating it as "not yet recorded"
+// would leave the row permanently open to being overwritten by a later,
+// different value, which is the opposite of what an idempotent write is for.
+func (repo *TransactionRepository) SetProviderFee(id string, feeKobo int64, isGuest bool) error {
+	tableName := "transactions"
+	if isGuest {
+		tableName += "_guest"
+	}
+	return repo.db.Table(tableName).
+		Where("id = ? AND provider_fee_kobo IS NULL", id).
+		Update("provider_fee_kobo", feeKobo).Error
+}
+
 // ExpireIfPending flips a still-pending transaction to expired in one
 // conditional UPDATE, so the pending-GC backstop never clobbers a status that a
 // concurrent verify just settled (success/failed).
@@ -178,25 +201,14 @@ func (repo *TransactionRepository) Create(data *domain.Transaction, isGuest bool
 		tableName += "_guest"
 	}
 
-	tx := repo.db.Begin()
-
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
-	q := tx.Table(tableName).Create(data)
-	if q.Error != nil {
-		tx.Rollback()
-		return nil, q.Error
-	}
-	if err := tx.Commit().Error; err != nil {
+	err := database.WithTransaction(repo.db, "create_transaction", func(tx *gorm.DB) error {
+		return tx.Table(tableName).Create(data).Error
+	})
+	if err != nil {
 		return nil, err
 	}
 
 	return data, nil
-
 }
 
 func (repo *TransactionRepository) Update(id string, input domain.Transaction, isGuest bool) (*domain.Transaction, error) {
@@ -205,22 +217,12 @@ func (repo *TransactionRepository) Update(id string, input domain.Transaction, i
 		tableName += "_guest"
 	}
 
-	tx := repo.db.Table(tableName).Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
 	input.ID = id
 
-	q := tx.Where("id = ?", id).Updates(input)
-	if q.Error != nil {
-		tx.Rollback()
-		return nil, q.Error
-	}
-
-	if err := tx.Commit().Error; err != nil {
+	if err := database.WithTransaction(repo.db.Table(tableName), "update_transaction",
+		func(tx *gorm.DB) error {
+			return tx.Where("id = ?", id).Updates(input).Error
+		}); err != nil {
 		return nil, err
 	}
 

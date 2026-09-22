@@ -1,28 +1,31 @@
 "use client";
 
+import { cn } from "@vibaar/utils";
+import Badge from "./Badge";
+
 interface StoreStatusBadgeProps {
   isActive?: boolean;
   className?: string;
 }
 
-const StoreStatusBadge = ({ 
-  isActive = true, 
-  className = "" 
-}: StoreStatusBadgeProps) => {
-  return (
-    <div className={`flex items-center gap-1 ${className}`}>
-      <div 
-        className={`w-2 h-2 rounded-full ${
-          isActive ? 'bg-green-500' : 'bg-gray-400'
-        }`}
-      />
-      <span className={`text-caption font-medium ${
-        isActive ? 'text-green-600' : 'text-gray-500'
-      }`}>
-        {isActive ? 'Live' : 'Inactive'}
-      </span>
-    </div>
-  );
-};
+/**
+ * Store status = the shared `Badge` preset for whether a storefront is live.
+ *
+ * It owns one decision — live reads as `success`, inactive as `neutral` — and
+ * nothing about appearance. It used to hand-roll its own dot, type scale and
+ * two-branch colour logic, which is how "a small tone-carrying label" ended up
+ * implemented four separate ways across the app.
+ */
+const StoreStatusBadge = ({ isActive = true, className = "" }: StoreStatusBadgeProps) => (
+  <Badge
+    tone={isActive ? "success" : "neutral"}
+    variant="plain"
+    dot
+    // The shipped label was medium weight; Badge's plain variant is
+    // weightless by design, so the preset states it.
+    className={cn("font-medium", className)}>
+    {isActive ? "Live" : "Inactive"}
+  </Badge>
+);
 
 export default StoreStatusBadge;

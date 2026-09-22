@@ -1,9 +1,8 @@
 "use client";
 import React, { useEffect } from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
-import Button from "@vibaar/ui/common/Button";
-import Card from "@vibaar/ui/common/Card";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
+import Surface from "@vibaar/ui/common/Surface";
 import Section from "@vibaar/ui/common/Section";
 import { CircleCheck } from "@vibaar/ui/icons";
 import { useRouter } from "next/navigation";
@@ -11,6 +10,7 @@ import DropdownMenu from "@vibaar/ui/common/DropdownMenu";
 import useAuthStore from "@/store/authStore";
 import useShippingStore from "@/store/shippingStore";
 import { toast } from "sonner";
+import Badge from "@vibaar/ui/common/Badge";
 
 const Page = () => {
   const router = useRouter();
@@ -64,21 +64,18 @@ const Page = () => {
   };
   return (
     <PageShell
-      header={
-        <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="My Shipping profiles"
-        />
-      }
-      footerAction={
-        <Button type="submit" onClick={Send}>
-          Add new Shipping profile
-        </Button>
-      }>
+      pageHeader={{
+        onBack: () => router.back(),
+        title: "My Shipping profiles",
+        actions: (
+          <PageActionButton type="submit" onClick={Send}>
+            Add new Shipping profile
+          </PageActionButton>
+        ),
+      }}>
       <div className="space-y-1">
         <p className="font-medium text-h1">Select shipping profile</p>
-        <p className="text-caption font-normal text-ink-60">
+        <p className="text-caption font-normal text-foreground-secondary">
           Your order will be sent to the shipping information you choose.
         </p>
       </div>
@@ -86,35 +83,34 @@ const Page = () => {
       <Section>
         {shippingDetails.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-ink-60 text-body">No shipping profiles found</p>
-            <p className="text-ink-60 text-body-sm">Add your first shipping profile to get started</p>
+            <p className="text-foreground-secondary text-body">No shipping profiles found</p>
+            <p className="text-foreground-secondary text-body-sm">Add your first shipping profile to get started</p>
           </div>
         ) : (
           shippingDetails.map((profile) => (
-            <Card
+            <Surface
               key={profile.id}
               className={`relative ${
                 profile.id === singleShippingDetails?.id
-                  ? "border-brand"
-                  : "border-ink-10"
+                  ? "border-brandDeep"
+                  : "border-outline"
               }`}>
               <div className="flex justify-between">
                 <div className="flex flex-col gap-1">
                   {profile.id === singleShippingDetails?.id && (
-                    <span className=" flex flex-row items-center w-[max-content] gap-1  bg-brand/10 text-brand text-caption px-2 rounded-pill border border-brand tracking-[0.5px]">
-                      Default{" "}
-                      <CircleCheck size={12} className="text-brand" />
-                    </span>
+                    <Badge tone="brand" icon={<CircleCheck size={12} />}>
+                      Default
+                    </Badge>
                   )}
-                  <p className="font-normal text-ink-90 text-caption">
+                  <p className="font-normal text-foreground-primary text-caption">
                     {profile.shipping_user.firstname +
                       " " +
                       profile.shipping_user.lastname}
                   </p>
-                  <p className="text-caption font-normal text-ink-90">
+                  <p className="text-caption font-normal text-foreground-primary">
                     {profile.shipping_user.phone}
                   </p>
-                  <p className="text-caption font-normal text-ink-90">
+                  <p className="text-caption font-normal text-foreground-primary">
                     {profile.street}
                   </p>
                 </div>
@@ -135,7 +131,7 @@ const Page = () => {
                   ]}
                 />
               </div>
-            </Card>
+            </Surface>
           ))
         )}
       </Section>

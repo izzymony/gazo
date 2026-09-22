@@ -2,16 +2,23 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import RootLayoutClient from "./rootLayoutClient";
 import "../styles/globals.css";
-import { Toaster } from "sonner";
-import { dmSans } from "./fonts";
+import AppToaster from "@vibaar/ui/common/AppToaster";
+import { outfit } from "./fonts";
 
-// DM Sans is self-hosted (see ./fonts). Switzer is loaded via CDN in the head below.
+// One self-hosted brand face (see ./fonts): Outfit, for display and body alike.
 
 export const metadata: Metadata = {
-  title: "Vibaar - Sell Smarter on Instagram & TikTok",
-  description: "Create your free online store in minutes. Accept payments, manage orders, and grow your business on social media. Built for Nigerian entrepreneurs.",
+  title: "Vibaar — Turn your attention into income",
+  description: "Turn social attention into real, paid, trackable orders — a storefront for Instagram and TikTok sellers that takes payment and tracks delivery.",
   generator: "Next.js",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   keywords: ["online store", "ecommerce", "instagram selling", "tiktok shop", "nigeria", "social commerce", "vibaar"],
   authors: [
     {
@@ -21,16 +28,16 @@ export const metadata: Metadata = {
   ],
   metadataBase: new URL('https://vibaar.com'),
   openGraph: {
-    title: "Vibaar - Sell Smarter on Instagram & TikTok",
-    description: "Create your free online store in minutes. Accept payments, manage orders, and grow your business on social media.",
+    title: "Vibaar — Turn your attention into income",
+    description: "Turn social attention into real, paid, trackable orders — a storefront for Instagram and TikTok sellers that takes payment and tracks delivery.",
     url: 'https://vibaar.com',
     siteName: 'Vibaar',
     images: [
       {
-        url: '/og-image.png',
+        url: '/og/og-default.jpg',
         width: 1200,
         height: 630,
-        alt: 'Vibaar - Your Social Commerce Platform',
+        alt: 'Vibaar — turn your attention into income',
       },
     ],
     locale: 'en_NG',
@@ -38,15 +45,16 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Vibaar - Sell Smarter on Instagram & TikTok",
-    description: "Create your free online store in minutes. Accept payments, manage orders, and grow your business on social media.",
-    images: ['/og-image.png'],
+    title: "Vibaar — Turn your attention into income",
+    description: "Turn social attention into real, paid, trackable orders — a storefront for Instagram and TikTok sellers that takes payment and tracks delivery.",
+    images: ['/og/og-default.jpg'],
   },
 };
 
 // P/Tier4: Next 14 wants viewport in its own export, not inside `metadata`
 // (the build warned on this). Behaviour is identical.
 export const viewport: Viewport = {
+  themeColor: "#FFE500",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1.2,
@@ -59,7 +67,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   return (
-    <html lang="en" className={dmSans.variable}>
+    <html lang="en" className={outfit.variable}>
       <head>
         {/* Google Analytics */}
         {GA_MEASUREMENT_ID && (
@@ -81,9 +89,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </>
         )}
       </head>
-      <body className={dmSans.className}>
+      <body className={outfit.className}>
         <RootLayoutClient>{children}</RootLayoutClient>
-        <Toaster position="top-right"/>
+        <AppToaster />
       </body>
     </html>
   );

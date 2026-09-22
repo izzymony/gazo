@@ -1,20 +1,460 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-const colors = require("tailwindcss/colors");
+const { tokens } = require("./tokens.cjs");
+const plugin = require("tailwindcss/plugin");
+
+const cssVariableScale = (name, scale) =>
+  Object.fromEntries(
+    Object.keys(scale).map((step) => [
+      step,
+      `rgb(var(--${name}-${step}-rgb) / <alpha-value>)`,
+    ])
+  );
 
 /**
- * @vibaar/design-tokens — canonical Tailwind token theme (extracted verbatim from
- * web's tailwind.config.ts, M1). Consumers spread this via `presets: [...]`.
- * The CSS custom properties it references (--brand-rgb, --ink-*, --success,
- * --radius-*, --shadow-*, --z-*, …) must be provided by the consumer's global
- * stylesheet (web: src/styles/globals.css). Admin adopts this at M5.
+ * Map a family of tones (`{ success: { foreground, surface, ... } }`) onto the
+ * CSS variables tokens.cjs emits for them. Declared with an `<alpha-value>`
+ * slot, never a bare `var()` — see the note on the colours block below.
+ */
+const toneScale = (tones, prefix = "") =>
+  Object.fromEntries(
+    Object.entries(tones).map(([tone, roles]) => [
+      tone,
+      Object.fromEntries(
+        Object.keys(roles).map((role) => {
+          // Both the Tailwind key and the variable are kebab, so the utility
+          // reads `bg-success-surface-strong` — matching `bg-surface-strong`.
+          const key = role.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+          return [key, `rgb(var(--${prefix}${tone}-${key}-rgb) / <alpha-value>)`];
+        })
+      ),
+    ])
+  );
+
+/**
+ * @vibaar/design-tokens — canonical Tailwind mapping for the values in
+ * tokens.cjs. Consumers use this preset and import `tokens.css`; both outputs
+ * therefore come from the same source rather than relying on an app-local copy.
  *
  * @type {import('tailwindcss').Config}
  */
 module.exports = {
+  plugins: [
+    // Size containment, so a component can scale against the box it was GIVEN
+    // rather than against the viewport. Tailwind 3.4 ships no `container-type`
+    // utility and the official container-queries plugin is not installed, so
+    // the two alternatives were an arbitrary property at every call site or a
+    // class in the app's globals.css. The second is what `rail-safe-foreground`
+    // does, and it is wrong for anything in @vibaar/ui: a package component
+    // would silently depend on an application stylesheet, and break in the
+    // design-system playground or any other consumer that does not load it.
+    //
+    // Declared here instead, beside the tokens, so every consumer of the preset
+    // has it — and it is a real utility, so it raises no drift.
+    //
+    // `size`, not `inline-size`: the auth media pane must scale by height too,
+    // or a short desktop window crops the artwork instead of shrinking it.
+    // Note the containment contract — a size container cannot be sized BY its
+    // contents, so the element needs its dimensions from its own layout.
+    plugin(({ addUtilities, addBase }) => {
+      // In `addBase`, not `theme.keyframes`. Tailwind only emits a themed
+      // keyframe when an `animate-*` utility that references it is generated,
+      // and that shorthand would also set `animation-duration`, racing the
+      // per-overlay longhand in `.scene-float` — the same source-order coin
+      // flip the `@supports` block already lost once.
+      addBase({
+        "@keyframes scene-float": {
+          "0%": { translate: "0 0" },
+          "100%": {
+            translate:
+              "var(--scene-float-drift, 0px) " +
+              "calc(var(--scene-float-rise, 12px) * var(--scene-float-dir, -1))",
+          },
+        },
+      });
+      addUtilities({
+        ".container-size": { "container-type": "size" },
+        ".container-inline": { "container-type": "inline-size" },
+
+        // A composition canvas: artwork whose parts must hold their relative
+        // geometry while the whole scales to the box it is given.
+        //
+        // The auth slideshow was the case that needed it. Its floating cards
+        // were positioned with absolute pixel offsets (±165) and sized in
+        // absolute pixels (217–249), inside a pane whose width is whatever the
+        // grid leaves it — 344px at 768, 928px at 1440. The composition spread
+        // 579px regardless, so it overflowed its own pane by 117px a side at
+        // 768 and left it half empty at 1440. A second hard-coded offset set
+        // and a `window.innerWidth` branch existed to paper over the first half
+        // of that; nothing covered the second.
+        //
+        // So: one canonical square coordinate system, scaled by its container.
+        // Children declare their geometry as FRACTIONS of the canvas
+        // (`--item-x`, `--item-y`, `--item-w`) and CSS multiplies them up, so
+        // the whole composition scales continuously with no breakpoints, no
+        // resize listener and no JS reading the viewport.
+        //
+        // Both axes: `72cqw` keeps the spread inside the pane's width,
+        // `160cqh` keeps it inside a SHORT pane's height — without the second
+        // term a 640px-tall window crops the artwork instead of shrinking it.
+        // The ceiling stops raster cards being upscaled into mush.
+        ".composition-canvas": {
+          "--composition-scale": "clamp(11rem, min(72cqw, 160cqh), 39rem)",
+          width: "var(--composition-scale)",
+          "aspect-ratio": "1 / 1",
+        },
+        // ── The auth scene panel ──────────────────────────────────────────
+        // Overlay coordinates and image focal points are open per-instance
+        // numbers, so they arrive as custom properties (see
+        // `authScene/scenePlacement.ts`) and the arithmetic happens here.
+        // `anchor` and `priority` are closed sets, so those ARE classes.
+        //
+        // Everything resolves against the media pane, which is the size
+        // container (`AuthSplitShell`'s `container-size`). The panel adds no
+        // `container-type` of its own — doing so would silently re-anchor both
+        // these queries and the existing `.composition-canvas` scale.
+        ".scene-layer": {
+          position: "absolute",
+          inset: "0",
+          "--scene-stagger": "110ms",
+        },
+        ".scene-image": {
+          // What `next/image fill` used to supply as an inline style. The
+          // panel serves a plain `<img>` now — see `AuthSceneMedia` for why
+          // the optimiser was buying nothing — so the box belongs here, beside
+          // the `object-position` it already owned.
+          position: "absolute",
+          inset: "0",
+          width: "100%",
+          height: "100%",
+          // Must match `.scene-ground` below. See that rule for the whole story;
+          // this copy covers the window between the element mounting and the
+          // bitmap decoding, where the pane's own ground is already painted but
+          // the image box would otherwise be transparent.
+          "background-color": "#E1C29E",
+          "object-fit": "cover",
+          // Fallback chain, so a scene may omit a breakpoint and inherit the
+          // one below it rather than needing a branch in TSX.
+          "object-position":
+            "calc(var(--scene-focal-x, .5) * 100%) calc(var(--scene-focal-y, .5) * 100%)",
+        },
+        // ASPECT, not width — and that correction matters, because the two
+        // narrow panes are nearly the same WIDTH and crop completely
+        // differently. Measured: the mobile band is 390x422 and the pane at
+        // 768 is 344x976. A `min-width: 22rem` (352px) rule therefore gave the
+        // PHONE the compact focal and the 768 desktop pane the mobile one,
+        // exactly backwards.
+        //
+        // What separates them is shape. Both fill their height from a 4:3
+        // source, so the band shows 69% of the image's width while the 768
+        // pane shows 26% — a slice narrow enough that it needs its own subject.
+        // 3/5 sits well clear of both (0.92 against 0.35).
+        "@container (max-aspect-ratio: 3/5)": {
+          ".scene-image": {
+            "object-position":
+              "calc(var(--scene-focal-x-compact, var(--scene-focal-x, .5)) * 100%) " +
+              "calc(var(--scene-focal-y-compact, var(--scene-focal-y, .5)) * 100%)",
+          },
+        },
+        "@container (min-width: 34rem)": {
+          ".scene-image": {
+            "object-position":
+              "calc(var(--scene-focal-x-desktop, var(--scene-focal-x, .5)) * 100%) " +
+              "calc(var(--scene-focal-y-desktop, var(--scene-focal-y, .5)) * 100%)",
+          },
+        },
+        ".scene-overlay": {
+          position: "absolute",
+          // The BAND's coordinates are the base and the split pane overrides
+          // them, rather than the other way round — mobile-first, and it means
+          // a scene that forgets a mobile coordinate falls back to a sane
+          // centre instead of inheriting a desktop position that does not fit.
+          left: "calc(var(--overlay-x-mobile, var(--overlay-x, .5)) * 100%)",
+          top: "calc(var(--overlay-y-mobile, var(--overlay-y, .5)) * 100%)",
+          // `max-content`, and this is not cosmetic. An absolutely positioned
+          // box with `left` but no `right` shrink-to-fits against the space
+          // LEFT OVER — at `left: 94%` in an 806px pane that is 48px — so the
+          // card collapsed to its longest word and wrapped, then the anchor
+          // translated the pinched box back into view. Measured on the deliver
+          // scene: "Buyer confirmed" broke across two lines while the same
+          // card at a left-hand coordinate did not. The anchor decides where
+          // the card sits; it must not also decide how wide it is.
+          width: "max-content",
+          // A ceiling, because `max-content` has none: a longer string would
+          // otherwise run past the pane instead of wrapping. Two terms because
+          // one cannot do it — a bare cqw truncated "New collection" to "New
+          // collec...", while a fixed rem cap would let the card swallow a
+          // narrow pane. The cqw term keeps it proportional; 19rem stops it
+          // dominating. 58cqw on the band is the figure that lets two cards and
+          // a chip coexist there; the wide override below relaxes it.
+          "max-width": "min(58cqw, 19rem)",
+          // The stagger is a delay, not a timer. One transition per overlay,
+          // ordered by index — no per-overlay JS and nothing to cancel.
+          "transition-delay": "calc(var(--overlay-index, 0) * var(--scene-stagger, 110ms))",
+        },
+        // ── The split pane takes over ─────────────────────────────────────
+        // 30rem (480px), which is above every stacked band this ships
+        // (390-430 wide) and below every split pane (557 at 1024 and up). The
+        // 768x512 band lands ABOVE it deliberately: that pane is wide and short
+        // like a desktop one, so it wants the desktop composition, not the
+        // phone's vertical stack.
+        "@container (min-width: 30rem)": {
+          ".scene-overlay": {
+            left: "calc(var(--overlay-x, .5) * 100%)",
+            top: "calc(var(--overlay-y, .5) * 100%)",
+            // Wider cards are affordable once the pane is, and the 19rem term
+            // still stops one swallowing the composition. One declaration
+            // block, because two `.scene-overlay` keys in the same object
+            // would silently clobber each other — the duplicate-key trap this
+            // preset has already been bitten by once.
+            "max-width": "min(78cqw, 19rem)",
+          },
+        },
+        // Which corner of the card sits on the coordinate. `transform` carries
+        // the anchor and `translate` carries the motion, as independent
+        // properties, so the entrance cannot clobber the positioning.
+        ".scene-anchor-center": { transform: "translate(-50%, -50%)" },
+        ".scene-anchor-top-left": { transform: "translate(0, 0)" },
+        ".scene-anchor-top-right": { transform: "translate(-100%, 0)" },
+        ".scene-anchor-bottom-left": { transform: "translate(0, -100%)" },
+        ".scene-anchor-bottom-right": { transform: "translate(-100%, -100%)" },
+        // 20rem, not 26rem. The earlier threshold dropped the chip on the
+        // 390x422 mobile band, which left the whole band showing ONE element —
+        // and with the secondary card also dropped there, the composition read
+        // as broken rather than restrained. A chip is ~80px wide; a pane has to
+        // be genuinely tiny before it cannot hold one.
+        "@container (max-width: 20rem)": {
+          ".scene-overlay-optional": { display: "none" },
+        },
+        // The only thing still dropped anywhere, and only where a bottom-anchored
+        // `max-w-md` caption would otherwise sit under it: a pane short enough
+        // for the caption to ride up, wide enough to have one at all, and narrow
+        // enough that 448px of it spans most of the width. Measured, chip
+        // against caption:
+        //
+        //   557x576 @1024x640   caption x 32-480, chip x 445-526   COLLIDES
+        //   806x576 @1440x640   caption x 32-480, chip x 685-766   clear
+        //   768x512 band        no caption in the pane             clear
+        //   390x422 band        no caption in the pane             clear
+        //
+        // Nothing else is hidden. `.scene-overlay-secondary` used to disappear
+        // below 30rem of pane width, which meant the phone showed one card out
+        // of three — a different composition, not a responsive one. Per-breakpoint
+        // coordinates replaced it: see `--overlay-x-mobile` above.
+        "@container (min-width: 28rem) and (max-width: 36rem) and (max-height: 38rem)": {
+          ".scene-overlay-optional": { display: "none" },
+        },
+        // The entrance, as INDEPENDENT transform properties.
+        //
+        // This matters and is easy to get wrong: Tailwind's `translate-y-2` and
+        // `scale-105` compile to the `transform` property, so using them here
+        // would OVERWRITE `.scene-anchor-*`'s `transform: translate(-50%,-50%)`
+        // and the card would jump to the raw coordinate. The independent
+        // `translate`/`scale` properties are applied before `transform` and
+        // compose with it, so the anchor survives the animation.
+        //
+        // 8px is inside the 6-12px band the motion spec allows; 1.01 is a
+        // settle, not a zoom. Neither value has a Tailwind step, and the
+        // arbitrary equivalents would be drift findings.
+        ".scene-offset": { translate: "0 0.5rem" },
+        ".scene-settled": { translate: "0 0" },
+        ".scene-media-offset": { scale: "1.01" },
+        ".scene-media-settled": { scale: "1" },
+        // The perpetual bob, restored from `AnimatedImages` and rebuilt as CSS.
+        //
+        // The old one was WAAPI (`el.animate`, `iterations: Infinity`) and that
+        // is exactly why it was a defect: a Web Animations animation is
+        // unreachable from CSS, so the app's blanket `prefers-reduced-motion`
+        // rule could not stop it, and an orphaned `setTimeout` could start one
+        // on an outgoing slide that nothing would ever cancel. A CSS animation
+        // has neither problem — the media query below genuinely stops it, and
+        // it ends when the element unmounts.
+        //
+        // ## The numbers, and why they are not the old ones
+        //
+        // A first pass matched `slidesData` exactly — 3800-4500ms over ~5px on
+        // mobile — and it read as static. Matching the old parameters was the
+        // wrong goal: those were tuned for nine small cards on a 450-unit
+        // canvas, where many things moving a little reads as drift. Three
+        // discrete cards need more travel each to register at all.
+        //
+        //   travel    clamp(12px, 2cqmin, 18px)  -> 12px on the 390 band,
+        //                                           16px on an 806px pane
+        //
+        // The floor is 12px, not 10: at 10 the measured peak-to-peak on the
+        // band came out at 9.0-9.5px, which sat under the intended range rather
+        // than in it. 2cqmin is only 7.8px at 390, so the floor is what decides
+        // the phone and the cqmin term only takes over from ~600px.
+        //   duration  2800 / 3200 / 3600ms       (was 3800-4500)
+        //
+        // ## Why three variants rather than one
+        //
+        // With one keyframe and one direction, three cards rise and fall in
+        // parallel and the whole layer reads as a single sheet sliding, which
+        // is worse than no motion. So each overlay takes one of three
+        // characters: a different direction, a small horizontal drift, and its
+        // own duration and negative delay. Assigned by `index % 3` in
+        // `AuthSceneOverlay`, so it is a closed set of three rather than a
+        // formula nobody can picture.
+        //
+        // Drift is 3px at most. Anything more reads as sliding rather than
+        // floating, and the brief rules out rotation, bounce and zoom — so
+        // `translate` on two axes is the whole vocabulary.
+        //
+        // It lives on its OWN element between the anchor wrapper and the card.
+        // `translate` is already taken twice: the wrapper uses it for the
+        // entrance offset and `transform` for the anchor. An animation on the
+        // wrapper's `translate` would overwrite the entrance mid-flight.
+        ".scene-float": {
+          "--scene-float-rise": "clamp(12px, 2cqmin, 18px)",
+          "animation-name": "scene-float",
+          "animation-duration": "var(--scene-float-duration, 3200ms)",
+          "animation-timing-function": "cubic-bezier(0.45, 0, 0.55, 1)",
+          "animation-iteration-count": "infinite",
+          "animation-direction": "alternate",
+        },
+        // Three characters. NEGATIVE delays, so each starts mid-cycle instead
+        // of waiting its turn — with positive delays all three would sit still
+        // for the first second, which is exactly when someone is looking.
+        ".scene-float-a": {
+          "--scene-float-duration": "2800ms",
+          "--scene-float-dir": "-1",
+          "--scene-float-drift": "0px",
+          "animation-delay": "-600ms",
+        },
+        ".scene-float-b": {
+          "--scene-float-duration": "3600ms",
+          "--scene-float-dir": "1",
+          "--scene-float-drift": "3px",
+          "animation-delay": "-1900ms",
+        },
+        ".scene-float-c": {
+          "--scene-float-duration": "3200ms",
+          "--scene-float-dir": "-1",
+          "--scene-float-drift": "-3px",
+          "animation-delay": "-1200ms",
+        },
+        "@media (prefers-reduced-motion: reduce)": {
+          ".scene-float": { "animation-name": "none" },
+        },
+        // The panel's placeholder: the artwork's own average colour, painted
+        // the instant the pane mounts so it is never a white hole.
+        //
+        // #E1C29E is the MEAN of the three masters, measured rather than
+        // picked. All three are the same room, same light and same camera, so
+        // one colour serves all of them — which is why there is no per-scene
+        // placeholder field, no base64 LQIP in the client bundle, and nothing
+        // added to `AuthSceneImage`. (A `lqip` field would also have to travel
+        // through `scenePlacement`'s helpers, whose tested guarantee is that
+        // they emit only enumerated `--scene-*` properties and never a colour.)
+        //
+        // Be precise about what this does and does not fix. These routes render
+        // nothing until hydration — the prerendered document is a ~20KB shell
+        // with zero `<img>` — so nothing can paint the pane before then. What
+        // this removes is the white box between the pane mounting and the
+        // photograph arriving, which on a slow link is the longer of the two
+        // gaps. Keep it in step with `.scene-image`'s copy above.
+        ".scene-ground": { "background-color": "#E1C29E" },
+        // ── Frosted glass ─────────────────────────────────────────────────
+        // A MATERIAL, not a colour — which is why it is here and not a
+        // `/opacity` class at five call sites. The `overlay` note in the
+        // colours block ("Scrim only; /opacity composes, so a lighter backdrop
+        // is bg-overlay/40 rather than another token") is about a colour with
+        // ONE channel and still holds. This is a fill, a blur, a hairline and
+        // a no-support branch that have to move together — the same shape as
+        // `.scene-overlay` above, declared here for the same reason.
+        //
+        // NUMBERS ARE FOR THIS ARTWORK, and were measured, not chosen. The
+        // three scenes are sunlit cream renders (mean rgb 228,195,155), but
+        // the worst pixel a card can land on is near-black shadow detail. A
+        // white fill is what lifts that floor:
+        //
+        //   ink on glass over the WORST pixel     0.55   0.62   0.78
+        //   foreground-primary  #171717            7.6    8.3   12.3
+        //   foreground-secondary #404040           4.4    4.8    7.1
+        //   foreground-muted    #737373            2.0✗   2.2✗   3.3✗
+        //
+        // Two consequences that are easy to get wrong. White text is
+        // IMPOSSIBLE here — 1.5-2.1:1 directly on the photo — which is why the
+        // retired baked cards cannot be copied: they were exported over dark
+        // photography and used white text. And `text-foreground-muted` is
+        // BANNED on glass at any of these alphas.
+        //
+        // The border is white, not tone-tinted: a tone-200 step measures
+        // ~1.05:1 against the fill, i.e. invisible, and a tone-foreground step
+        // reads as another colour on the scene. White is a highlight on the
+        // glass edge, which is what the material actually wants.
+        ".glass": {
+          "background-color": "rgb(var(--surface-default-rgb) / 0.62)",
+          "border-width": "1px",
+          "border-style": "solid",
+          "border-color": "rgb(var(--surface-default-rgb) / 0.55)",
+          // A little saturation, or a white-leaning glass reads as tracing
+          // paper: the blur averages the hue out of its sample and this puts
+          // some back.
+          "-webkit-backdrop-filter": "blur(12px) saturate(1.15)",
+          "backdrop-filter": "blur(12px) saturate(1.15)",
+        },
+        // The caption, which carries a 24px headline and so cannot be as thin.
+        ".glass-panel": {
+          "background-color": "rgb(var(--surface-default-rgb) / 0.78)",
+          "border-width": "1px",
+          "border-style": "solid",
+          "border-color": "rgb(var(--surface-default-rgb) / 0.5)",
+          "-webkit-backdrop-filter": "blur(16px) saturate(1.1)",
+          "backdrop-filter": "blur(16px) saturate(1.1)",
+        },
+        // `not`, so a browser that supports the filter never matches this at
+        // all. It sits AFTER the two base rules deliberately: `addUtilities`
+        // preserves source order, both rules apply in a non-supporting browser,
+        // and the later `background-color` wins. Declared first — as it was —
+        // the base 0.62 overrode the 0.82 fallback and the branch did nothing.
+        //
+        // Contrast is not what this protects: a blur averages its backdrop, it
+        // does not lighten it, so the alphas above already carry AA on their
+        // own. The higher fill is an aesthetic floor, because an unblurred 0.62
+        // pane over busy detail reads muddy.
+        //
+        // iOS Safari before 18 ships only the `-webkit-` property, which is why
+        // both are in the test.
+        "@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)))": {
+          ".glass": { "background-color": "rgb(var(--surface-default-rgb) / 0.82)" },
+          ".glass-panel": { "background-color": "rgb(var(--surface-default-rgb) / 0.92)" },
+        },
+        ".composition-item": {
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          width: "calc(var(--item-w, 0.5) * var(--composition-scale))",
+          height: "auto",
+        },
+      });
+    }),
+  ],
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-dm-sans)', 'DM Sans', 'system-ui', '-apple-system', 'sans-serif'],
+        // ONE family — Outfit covers display and body. `display`/`body` are
+        // kept as aliases so existing font-display usages keep working.
+        sans: ['var(--font-outfit)', 'Outfit', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['var(--font-outfit)', 'Outfit', 'system-ui', '-apple-system', 'sans-serif'],
+        body: ['var(--font-outfit)', 'Outfit', 'system-ui', '-apple-system', 'sans-serif'],
+      },
+      fontWeight: {
+        // Outfit reads thin at 400 in UI; the scale starts a step up.
+        normal: '450',
+        medium: '500',
+        semibold: '600',
+        bold: '700',
+      },
+      scale: {
+        // The slideshow's floating cards, below `md`. Their artwork is sized
+        // for the 450px desktop cluster; the retired mobile fork carried its
+        // own copies at exactly two thirds (145/217, 155/232, 166/249,
+        // 152/228 — 0.667 every time), and unifying the two trees handed
+        // mobile the desktop sizes, which overhang a 390px screen by ~39px a
+        // side. Scaled rather than repositioned so each card keeps the centre
+        // `spread()` gives it, and the cards keep their differing widths.
+        "slide-card": "0.667",
       },
       fontSize: {
         'hero-xl': ['180px', { lineHeight: '1', letterSpacing: '-0.04em' }],
@@ -31,48 +471,84 @@ module.exports = {
         'micro': ['8px', { lineHeight: '12px' }],
       },
       colors: {
-        brand: "rgb(var(--brand-rgb) / <alpha-value>)",
-        brandHover: "var(--brand-hover)",
-        ink: {
-          3: "var(--ink-3)",
-          5: "var(--ink-5)",
-          10: "var(--ink-10)",
-          20: "var(--ink-20)",
-          30: "var(--ink-30)",
-          40: "var(--ink-40)",
-          50: "var(--ink-50)",
-          60: "var(--ink-60)",
-          70: "var(--ink-70)",
-          80: "var(--ink-80)",
-          90: "var(--ink-90)",
+        // Brand PALETTE plus the semantic default. `brand` with no step stays
+        // the brand itself, so every existing bg-brand / text-brand keeps
+        // working unchanged; the numeric steps are the new scale.
+        // GENERATED — scripts/generate-brand-scale.mjs. Re-run after a rebrand.
+        //
+        // `brand-500` is the canonical brand colour. The generated surrounding
+        // steps preserve a Tailwind-style light-to-dark API while `brand`
+        // remains a compatibility alias for the same value.
+        brand: {
+          DEFAULT: "rgb(var(--brand-rgb) / <alpha-value>)",
+          50: "rgb(var(--brand-50-rgb) / <alpha-value>)",
+          100: "rgb(var(--brand-100-rgb) / <alpha-value>)",
+          200: "rgb(var(--brand-200-rgb) / <alpha-value>)",
+          300: "rgb(var(--brand-300-rgb) / <alpha-value>)",
+          400: "rgb(var(--brand-400-rgb) / <alpha-value>)",
+          500: "rgb(var(--brand-500-rgb) / <alpha-value>)",
+          600: "rgb(var(--brand-600-rgb) / <alpha-value>)",
+          700: "rgb(var(--brand-700-rgb) / <alpha-value>)",
+          800: "rgb(var(--brand-800-rgb) / <alpha-value>)",
+          900: "rgb(var(--brand-900-rgb) / <alpha-value>)",
+          950: "rgb(var(--brand-950-rgb) / <alpha-value>)",
         },
-        line: "var(--line)",
-        success: { DEFAULT: "var(--success)", strong: "var(--success-strong)" },
-        error: "var(--error)",
-        warning: { DEFAULT: "var(--warning)", strong: "var(--warning-strong)" },
-        info: "var(--info)",
-        green: { ...colors.green, DEFAULT: "#06C270" },
-        red: { ...colors.red, DEFAULT: "#CC2020" },
-        black: "#000000E5",
-        foreground: "var(--foreground)",
-        landing: {
-          yellow: "#F2DE4D",
-          cyan: "#00DAE6",
-          purple: "#F193FF",
-          darkFooter: "#010A0B",
-          navy: {
-            50: '#f0f9ff',
-            100: '#e0f2fe',
-            200: '#bae6fd',
-            300: '#7dd3fc',
-            400: '#38bdf8',
-            500: '#0ea5e9',
-            600: '#0284c7',
-            700: '#0369a1',
-            800: '#075985',
-            900: '#0c4a6e',
-          },
+        brandHover: "rgb(var(--brand-hover-rgb) / <alpha-value>)",
+        // Brand yellow carries BLACK, never white (white-on-brand = 1.28:1).
+        // brandInk = foreground ON a brand surface. brandDeep = brand AS text
+        // on a light surface, where the yellow itself is invisible.
+        brandInk: "rgb(var(--brand-ink-rgb) / <alpha-value>)",
+        brandDeep: "rgb(var(--brand-deep-rgb) / <alpha-value>)",
+        // The solid black/grey half of the yellow-and-black identity. These
+        // values exactly alias Tailwind neutral; CSS variables make the
+        // approved scale explicit and keep /opacity support consistent.
+        neutral: cssVariableScale("neutral", tokens.color.neutral),
+        foreground: {
+          primary: "rgb(var(--foreground-primary-rgb) / <alpha-value>)",
+          secondary: "rgb(var(--foreground-secondary-rgb) / <alpha-value>)",
+          muted: "rgb(var(--foreground-muted-rgb) / <alpha-value>)",
+          disabled: "rgb(var(--foreground-disabled-rgb) / <alpha-value>)",
+          inverse: "rgb(var(--foreground-inverse-rgb) / <alpha-value>)",
         },
+        outline: {
+          DEFAULT: "rgb(var(--outline-default-rgb) / <alpha-value>)",
+          subtle: "rgb(var(--outline-subtle-rgb) / <alpha-value>)",
+          strong: "rgb(var(--outline-strong-rgb) / <alpha-value>)",
+          emphasis: "rgb(var(--outline-emphasis-rgb) / <alpha-value>)",
+          contrast: "rgb(var(--outline-contrast-rgb) / <alpha-value>)",
+        },
+        // The background counterpart to `foreground` and `outline`. DEFAULT is
+        // pure white so a card still reads as raised on a tinted page.
+        surface: {
+          DEFAULT: "rgb(var(--surface-default-rgb) / <alpha-value>)",
+          subtle: "rgb(var(--surface-subtle-rgb) / <alpha-value>)",
+          muted: "rgb(var(--surface-muted-rgb) / <alpha-value>)",
+          strong: "rgb(var(--surface-strong-rgb) / <alpha-value>)",
+          inverse: "rgb(var(--surface-inverse-rgb) / <alpha-value>)",
+        },
+        // Scrim only. `/opacity` composes, so a lighter backdrop is
+        // bg-overlay/40 rather than another token.
+        overlay: "rgb(var(--overlay-rgb) / <alpha-value>)",
+        // Declared with an <alpha-value> slot, NOT a bare var(): Tailwind can
+        // only generate a /opacity modifier for the former. As bare vars,
+        // bg-success/10, bg-warning/10, text-brandInk/70 and friends emitted no
+        // CSS at all — 31 dead utilities across the app, invisible to
+        // tsc/lint/build. `ink-*` is deliberately NOT converted: those tokens
+        // are already alpha (--ink-50 is 50% black), so a modifier would
+        // compound into a silent double-dim rather than fail loudly.
+        // Semantic tones, generated from the token source rather than listed by
+        // hand — a role added in tokens.cjs (as `surfaceStrong` was) reaches
+        // Tailwind automatically instead of silently existing only as a CSS var.
+        ...toneScale(tokens.color.status),
+        // Categorical hues, namespaced so `hue-teal-surface` can never be
+        // mistaken for — or collide with — the Tailwind palette's `teal`.
+        hue: toneScale(tokens.color.hue, "hue-"),
+        // `text-black` (39 uses) and `bg-black` (30) historically meant a SOFT
+        // black — the old ink-90, #000000E5 — not pure black. Now that the ink
+        // ramp is gone it aliases the neutral role that replaced it, so those
+        // call sites keep rendering the same colour. New UI should use
+        // foreground-primary / surface-inverse explicitly.
+        black: tokens.color.foreground.primary,
       },
       backgroundImage: {
         'section-yellow': 'linear-gradient(90deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.7) 100%), linear-gradient(90deg, rgb(242, 222, 77) 0%, rgb(242, 222, 77) 100%)',
@@ -81,29 +557,212 @@ module.exports = {
         'footer-hero': 'linear-gradient(90deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.2) 100%), linear-gradient(rgba(254, 44, 85, 0) 31.929%, rgba(254, 44, 85, 0.85) 85.643%)',
       },
       borderRadius: {
+        // outer = inner + 8px inset, at every level: panel → card → media.
+        // See the `radius` block in tokens.cjs for the rule.
+        media: "var(--radius-media)",
         field: "var(--radius-field)",
         card: "var(--radius-card)",
+        panel: "var(--radius-panel)",
         pill: "var(--radius-pill)",
       },
       boxShadow: {
         card: "var(--shadow-card)",
         pop: "var(--shadow-pop)",
       },
+      spacing: {
+        // The iOS home indicator. Any bar that touches the bottom edge — the
+        // seller BottomNav, the marketplace VendorNav — has to clear it, and
+        // `pb-safe` was already being written as though this existed. It did
+        // not: the class was in the markup, matched no utility, and emitted
+        // nothing, so the nav sat under the indicator on every notched phone.
+        safe: "env(safe-area-inset-bottom)",
+        // The height of a form row — an InputField, or a row you tap to edit
+        // one. 52px is off the 4px scale (13 × 4), which is why it has always
+        // been written as the arbitrary `h-[52px]` and why rows that were meant
+        // to match it drifted to 60 and 64.
+        //
+        // NEW code uses this. The existing `h-[52px]` call sites — InputField
+        // included — are deliberately NOT migrated here: a token is invisible
+        // to Tailwind until the config is re-read, so switching a primitive
+        // used on ~93 call sites to a brand-new token is a change that cannot
+        // be verified by tsc, lint or tests, only by looking. Migrate them in
+        // their own pass, with a restart and a render.
+        field: "52px",
+        // The hero band above the content column on /signin, /signup and
+        // /welcome, below `md` (at `md` the artwork becomes a full-height pane
+        // and this stops applying).
+        //
+        // Half the screen where there is room for it, yielding to the content
+        // where there is not. The three terms, outermost last:
+        //   50dvh          - the intent: the artwork takes half the screen
+        //   100dvh - 25rem - reserve 400px for the headline, the actions and
+        //                    the legal line, so a short phone shrinks the
+        //                    artwork rather than pushing the buttons off
+        //   max(14rem, ..) - but never collapse below 224px, or the artwork
+        //                    stops reading as artwork
+        // So it holds at 50% from ~812px tall upward and tapers below: 466px
+        // at 932, 422 at 844, 267 at 667.
+        //
+        // `dvh`, not `vh`: the frame is `min-h-dvh`, and on mobile Safari `vh`
+        // is the URL-bar-hidden viewport, which is not the space being divided.
+        //
+        // It is a token because all three screens must agree. They were written
+        // as `h-[38vh] sm:h-[42vh]` on welcome and `h-60 sm:h-[500px]` on the
+        // two auth screens, which is how the same band ended up 240px on one
+        // and 321px on another at the same width. It is height-driven, so it
+        // needs no `sm:` step — that was varying the wrong axis.
+        "auth-band": "min(50dvh, max(14rem, 100dvh - 25rem))",
+        // The seller desktop rail (--rail-width). Used by the rail, by the
+        // gutter the dashboard frame reserves for it, and — through
+        // `shell-inset` below — by anything fixed that has to clear it.
+        rail: "var(--rail-width)",
+        // The buyer's collapsed desktop rail.
+        "buyer-rail": "var(--buyer-rail-width)",
+        // How far a viewport-fixed element must be inset to clear the shell it
+        // sits in. Zero unless a layout says otherwise, so PageShell's action
+        // bar is unchanged everywhere except inside a shell that sets it.
+        "shell-inset": "var(--shell-inset, 0px)",
+      },
+      gridTemplateColumns: {
+        // The desktop page-header band: a flexible title column and one `auto`
+        // column per trailing cell. The action column sizing to its own content
+        // is the whole point — an absolutely-positioned action would share the
+        // header's coordinates but not its layout calculation, so a long title
+        // would run underneath it. Here the title truncates against the space
+        // that genuinely remains.
+        //
+        // `1fr`, NOT `minmax(0,1fr)`. This was the other way round and measured
+        // wrong in Chrome: with `<main>` spanning `1 / -1`, a `minmax(0,1fr)`
+        // track does not expand into the free space, and the default
+        // `justify-content: stretch` then splits that space across the tracks
+        // instead — the "auto" action column came out 417px wide inside a
+        // 984px band, with the button floating at its left edge. Measured, not
+        // reasoned: `1fr auto` gives 909.78 / 62.22 on the same page.
+        //
+        // The objection to `1fr` is that its automatic minimum is min-content,
+        // which would let a long title push the action off the row. That does
+        // not apply because `HeaderRow` sets `min-w-0`, so the item contributes
+        // a zero minimum to the track and `truncate` still engages. Verified at
+        // 1280 with a 96-character title: the action held at 62px on the right
+        // edge and the title clipped. Keep `min-w-0` on any item placed in this
+        // column — it is load-bearing here, not defensive.
+        "page-band": "1fr auto",
+        "page-band-status": "1fr auto auto",
+        // Content beside a bounded summary panel. 360px holds a money column —
+        // a label and a right-aligned figure — without the figures wrapping, and
+        // leaves the review list the majority of a 1024px column.
+        //
+        // `1fr`, not `minmax(0,1fr)`, for the reason recorded above; the content
+        // column carries `min-w-0` so the zero minimum comes from the item.
+        "content-aside": "1fr 360px",
+        // The product page: gallery and details left, purchase panel right. 380
+        // rather than 360 because this panel holds variant swatches and a
+        // delivery card, not a column of figures.
+        product: "1fr 380px",
+      },
+      gridTemplateRows: {
+        // title/action row · progress · content. Progress gets its OWN row so
+        // row 1's height is the title/action row alone — as one opaque cell it
+        // would measure title+progress, and the action would centre against the
+        // combined height, drifting on the 9 stepper screens but not the rest.
+        //
+        // Row 3 is `1fr` for the same measured reason as the columns above: as
+        // `minmax(0,1fr)` it refused to expand and the two `auto` rows absorbed
+        // the free space instead — a 48px header row rendered 189px tall and an
+        // EMPTY progress row rendered 141px tall. `1fr`'s min-content minimum is
+        // harmless here because the only item in the row is a scroll container,
+        // whose automatic minimum size is already zero.
+        "page-band": "auto auto 1fr",
+        // Content, then the action directly beneath it.
+        //
+        // `minmax(0, max-content)` is the whole trick and `1fr` is the trap.
+        // With `1fr` the content row takes every pixel available, so on a short
+        // page the action is pushed to the bottom of the viewport — a fixed bar
+        // in all but the CSS. Here row 2 is sized to the action first and row 1
+        // gets what is left UP TO its content height, so a short page puts the
+        // action right under the last field and a long one scrolls the content
+        // with the action still parked below it.
+        "page-action": "minmax(0,max-content) auto",
+      },
+      maxWidth: {
+        // Dialog panel widths, by role rather than by pixel count.
+        //
+        // `dialog` is the 448px `lg:max-w-md` the modal primitive has always
+        // used, named so it stops being an incidental Tailwind step. `dialog-lg`
+        // is 640px for a dialog that holds a FORM: three stacked fields, their
+        // labels and their error text do not read at 448px, and a route-backed
+        // dialog is a whole screen's content, not a confirmation.
+        dialog: "448px",
+        "dialog-lg": "640px",
+      },
+      maxHeight: {
+        // A dialog may grow with its content and then stop one comfortable
+        // gutter short of the viewport — NOT at a hard 600px, which capped a
+        // 1440-tall screen and a 640-tall one identically. `dvh` so the mobile
+        // URL bar collapsing does not leave the panel overhanging.
+        dialog: "calc(100dvh - 64px)",
+        // A sticky aside panel: as tall as the viewport leaves it, so its body
+        // can scroll internally and the action it holds stays on screen instead
+        // of being pushed below the fold by a long options list.
+        aside: "calc(100dvh - 2rem)",
+      },
+      minWidth: {
+        // The desktop inline page-action floor. A "Save" that hugs its label is
+        // 78px and reads as incidental next to the content it commits; the
+        // design rule is a 160–200px band, and 176 sits in the middle of it.
+        //
+        // A token rather than an arbitrary value because it is a decision, not
+        // a measurement — and because `minWidth` carries NO spacing scale in
+        // Tailwind (its defaults are only 0/full/min/max/fit), so `min-w-44`
+        // silently generates nothing. That failure mode has already cost this
+        // codebase every input on the page once.
+        action: "176px",
+      },
       zIndex: {
         dropdown: "var(--z-dropdown)",
         sticky: "var(--z-sticky)",
+        shell: "var(--z-shell)",
         modal: "var(--z-modal)",
         toast: "var(--z-toast)",
       },
-    },
-    letterSpacing: {
-      tightest: "-.075em",
-      tighter: "-.05em",
-      tight: "-.025em",
-      normal: "0",
-      wide: ".025em",
-      wider: ".05em",
-      widest: ".1em",
+      transitionProperty: {
+        // Collapsing headers animate their own box, not their contents. Tailwind
+        // ships no utility for that (`transition` covers colour/opacity/transform
+        // only, and `transition-all` animates everything including layout it has
+        // no business touching), so the two call sites were reaching for
+        // `transition-[padding]` / `transition-[margin]` arbitrary values.
+        spacing: "margin, padding",
+        // The scene entrance moves `opacity`, `translate` and `scale` only —
+        // and the latter two as INDEPENDENT properties, not through
+        // `transform`, so the overlay's anchor (`transform:
+        // translate(-50%,-50%)`) is not clobbered by its own entrance.
+        // `transition-transform` would miss all three and `transition-all`
+        // would sweep in colour and shadow.
+        //
+        // All three in one token, used by both the overlay cards (opacity +
+        // translate) and the artwork layer (opacity + scale): a property a
+        // given element never sets costs nothing to list, and two tokens that
+        // must stay in step is how the durations would drift apart.
+        scene: "opacity, translate, scale",
+      },
+      letterSpacing: {
+        // Add only what Tailwind does not already provide. Declaring the full
+        // scale at `theme.letterSpacing` replaced Tailwind's defaults.
+        tightest: "-.075em",
+      },
     },
   },
 };
+
+// DELIBERATELY NOT PROVIDED: a `fade-edge-*` mask utility.
+//
+// Masking a scrolling rail's trailing edge is the obvious way to say "there is
+// more" — and it silently breaks every `backdrop-filter` inside it. An element
+// with a mask becomes a backdrop root, so a descendant can only sample what is
+// painted within that element: the frosted product tiles in VendorCard sampled
+// nothing and rendered as flat transparent panes. It was invisible until you
+// scrolled to the end, because that is when the class came off.
+//
+// Verified, not assumed: two identical rails over the same striped backdrop,
+// one masked and one not — the masked tiles showed sharp stripes, the unmasked
+// ones blurred. Fade a rail with a positioned sibling gradient instead.

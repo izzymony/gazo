@@ -1,45 +1,68 @@
-import React from "react";
+"use client";
 
-interface Props {
-  checked?: boolean;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  name?: string;
-  subtitle?: string;
-  color?: string;
-  containerClass?: unknown;
-  /** Accessible name for the toggle (announced by screen readers). */
-  ariaLabel?: string;
-}
-export default function Switch({
-  checked,
-  onChange,
-  name,
-  color = "bg-green",
-  containerClass,
-  ariaLabel,
-}: Props) {
+import React from "react";
+import { cn } from "@vibaar/utils";
+
+export type SwitchProps = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "type" | "color" | "size"
+> & {
+  /** Visual treatment used for the checked track. */
+  variant?: "success" | "brand";
+  /** Classes for the 36px interaction container; `className` targets the input. */
+  containerClassName?: string;
+};
+
+const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(function Switch(
+  {
+    checked,
+    disabled = false,
+    variant = "success",
+    className,
+    containerClassName,
+    ...inputProps
+  },
+  ref
+) {
   return (
-    <label className={`flex items-center cursor-pointer  ${containerClass}`}>
-      {/* sr-only (not hidden) keeps the control focusable + in the a11y tree, so
-          the toggle is keyboard-operable and announced. Visually identical. */}
+    <label
+      className={cn(
+        "inline-flex min-h-9 min-w-9 items-center justify-center",
+        disabled ? "cursor-not-allowed" : "cursor-pointer",
+        containerClassName
+      )}>
       <input
+        {...inputProps}
+        ref={ref}
         type="checkbox"
         role="switch"
-        aria-label={ariaLabel}
-        className="toggle-checkbox sr-only peer"
-        name={name}
         checked={checked}
-        onChange={onChange}
+        disabled={disabled}
+        className={cn("peer sr-only", className)}
       />
-
-      <span className="relative rounded-full peer-focus-visible:ring-2 peer-focus-visible:ring-brand/40 peer-focus-visible:ring-offset-1">
+      <span
+        aria-hidden="true"
+        className="relative rounded-pill peer-focus-visible:ring-2 peer-focus-visible:ring-brandDeep/40 peer-focus-visible:ring-offset-1">
         <span
-          className={`block w-[32px] h-[20px] rounded-full transition-colors duration-200 ease-linear
-            ${checked ? color : "bg-gray-300"}`}></span>
+          className={cn(
+            "block h-5 w-8 rounded-pill transition-colors duration-200 ease-linear",
+            checked
+              ? variant === "brand"
+                ? "bg-brand"
+                : "bg-success-foreground"
+              : "bg-surface-strong",
+            disabled && "opacity-50"
+          )}
+        />
         <span
-          className={`absolute left-1 top-[10%]  w-[15px] h-[15px] bg-white border border-gray-300 rounded-full transition-transform duration-200 ease-linear transform 
-            ${checked ? "translate-x-3" : "-translate-x-1"}`}></span>
+          className={cn(
+            "absolute left-0.5 top-0.5 h-4 w-4 rounded-pill border border-outline-strong bg-surface transition-transform duration-200 ease-linear",
+            checked && "translate-x-3"
+          )}
+        />
       </span>
     </label>
   );
-}
+});
+
+export default Switch;

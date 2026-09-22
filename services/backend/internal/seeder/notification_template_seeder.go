@@ -1,6 +1,7 @@
 package seeder
 
 import (
+	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -393,7 +394,7 @@ func SeedNotificationTemplates(db *gorm.DB) error {
 		result := db.Where("name = ?", template.Name).First(&existing)
 
 		if result.Error != nil {
-			if result.Error == gorm.ErrRecordNotFound {
+			if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 				// Create new template
 				if err := db.Create(&template).Error; err != nil {
 					logger.Error(fmt.Sprintf("Failed to create notification template %s: %v", template.Name, err))

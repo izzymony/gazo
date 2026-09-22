@@ -3,7 +3,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import { useRouter } from "next/navigation";
 import useOrderStore from "@/store/orderStore";
 import { formatCurrency } from "@/lib/utils";
@@ -14,7 +14,6 @@ import Button from "@vibaar/ui/common/Button";
 import IconButton from "@vibaar/ui/common/IconButton";
 import { Minus, Plus, Delete, CircleCheck } from "@vibaar/ui/icons";
 import NavigationTabs from "@vibaar/ui/common/NavigationTabs";
-import VendorNav from "@/features/storefront/VendorNav";
 import Loader from "@vibaar/ui/common/Loader";
 import useShippingStore from "@/store/shippingStore";
 import { CartsItems } from "@/lib/newinterface";
@@ -180,12 +179,6 @@ const Page = () => {
     const businame = business?.name || "Vendor name";
     const busiimg = (business?.logo as string | undefined) || "";
 
-    console.log("🛒 Cart grouping debug:", {
-      cartItemId: it.id,
-      businessId: businameid,
-      businessName: businame,
-      storesCount: stores.length
-    });
 
     const finder = acc.findIndex((group) => group.id === businameid);
 
@@ -270,11 +263,11 @@ const Page = () => {
   };
 
   const CartCard = ({ cart, id }: { cart: CartsItems; id: string }) => (
-    <div className="bg-ink-3 rounded-field mt-3 relative">
-      <div className="flex gap-2 mb-4 bg-white rounded-field">
+    <div className="bg-surface-subtle rounded-field mt-3 relative">
+      <div className="flex gap-2 mb-4 bg-surface rounded-field">
         <div className="h-20 w-20">
           <img
-            src={cart.image || "/PRODUCT IMAGE (2).png"}
+            src={cart.image || "/images/product-placeholder.svg"}
             alt=""
             className="rounded-field h-[80px] w-[80px] object-cover"
           />
@@ -282,7 +275,7 @@ const Page = () => {
         <div className="flex flex-col w-full gap-3">
           <div>
             <p className="text-body-sm font-normal">{cart.title}</p>
-            <p className="text-body-sm font-medium text-ink-40">
+            <p className="text-body-sm font-medium text-foreground-muted">
               Color: {cart.color}
             </p>
           </div>
@@ -294,8 +287,8 @@ const Page = () => {
                   icon={Delete}
                   label="Remove item"
                   onClick={() => decrement(cart.id)}
-                  className="bg-ink-3"
-                  iconClassName="text-red"
+                  className="bg-surface-subtle"
+                  iconClassName="text-error-foreground"
                   iconSize={18}
                 />
               ) : (
@@ -303,7 +296,7 @@ const Page = () => {
                   icon={Minus}
                   label="Decrease quantity"
                   onClick={() => decrement(cart.id)}
-                  className="bg-ink-3"
+                  className="bg-surface-subtle"
                   iconSize={18}
                 />
               )}
@@ -312,7 +305,7 @@ const Page = () => {
                 icon={Plus}
                 label="Increase quantity"
                 onClick={() => increment(cart.id)}
-                className="bg-ink-3"
+                className="bg-surface-subtle"
                 iconSize={18}
               />
             </div>
@@ -327,9 +320,9 @@ const Page = () => {
             }}
             className="absolute right-0 top-0 cursor-pointer">
             {unchecked.includes(cart.id) ? (
-              <div className="w-5 h-5 rounded-full border border-brand" />
+              <div className="w-5 h-5 rounded-full border border-brandDeep" />
             ) : (
-              <CircleCheck size={20} className="text-brand" />
+              <CircleCheck size={20} className="text-brandDeep" />
             )}
           </div>
         </div>
@@ -348,7 +341,8 @@ const Page = () => {
             variant="bordered"
             type="button"
             onClick={() => router.push("/shop")}
-            className="text-body-sm !px-5 py-1 !w-[max-content]">
+            size="sm"
+            fullWidth={false}>
             Explore vendors
           </Button>
         </EmptyState>
@@ -359,11 +353,11 @@ const Page = () => {
               <div className="flex justify-between items-center w-full">
                 <div className="flex gap-1 items-center">
                   <img
-                    src={cart.title.img || "/PRODUCT IMAGE (2).png"}
+                    src={cart.title.img || "/images/product-placeholder.svg"}
                     alt=""
                     className="rounded-full h-[20px] w-[20px] object-cover"
                   />
-                  <p className="text-body text-ink-90 font-medium">
+                  <p className="text-body text-foreground-primary font-medium">
                     {cart.title.name}
                   </p>
                 </div>
@@ -386,9 +380,9 @@ const Page = () => {
                     }
                   }}>
                   {unchecked.includes(cart.id) ? (
-                    <div className="w-5 h-5 rounded-full border border-brand" />
+                    <div className="w-5 h-5 rounded-full border border-brandDeep" />
                   ) : (
-                    <CircleCheck size={20} className="text-brand" />
+                    <CircleCheck size={20} className="text-brandDeep" />
                   )}
                 </div>
               </div>
@@ -399,8 +393,6 @@ const Page = () => {
           );
         })
       )}
-
-      {carts?.length <= 0 && <VendorNav />}
     </div>
   );
 
@@ -434,11 +426,17 @@ const Page = () => {
       // Carry only the selected items to checkout WITHOUT overwriting the cart,
       // so unchecked items are preserved (W1.8).
       setCheckoutCart(totals);
-      setLoading(true);
 
       const destination = shippingDetails.length > 0
         ? "/cart/complete-order/review"
         : "/cart/shipping-profile/new";
+
+      // The page loader is for LEAVING this page. The add-address route is
+      // intercepted into a dialog over the cart, so the cart is never unmounted
+      // — a page loader there becomes the backdrop of the panel and is never
+      // cleared. Review is a real navigation and still gets one. The button's
+      // own spinner covers both cases either way.
+      if (shippingDetails.length > 0) setLoading(true);
 
       await router.push(destination);
     } finally {
@@ -446,41 +444,71 @@ const Page = () => {
     }
   };
 
+  const hasSummary = carts?.length > 0 && totals?.length > 0;
+
   return (
     <PageShell
       header={
         <Header
-          showBack
-          customText="Cart and Orders"
-          showMenu
-          onBackClick={() => router.back()}
+          onBack={() => router.back()}
+          title="Cart and Orders"
         />
       }
-      footerAction={
-        carts?.length > 0 && totals?.length > 0 ? (
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col w-24 shrink-0">
-              <p className="text-ink-40 line-clamp-1 text-body-sm">
-                Total ({totals.length}):
-              </p>
-              <p className="font-medium">
-                {formatCurrency(
-                  +totals.reduce((a, b) => a + +b.price * +b.quantity, 0)
-                )}
-              </p>
-            </div>
-            <Button
-              onClick={handleCheckout}
-              loading={isProcessingCheckout}
-              className="flex-1">
-              Proceed to checkout
-            </Button>
-          </div>
-        ) : undefined
-      }>
-      <div className="w-full">
+      // The summary is no longer a `footerAction`, so the shell no longer
+      // reserves room for one. Below lg the row is still the fixed bar and
+      // still needs the clearance; at lg it is in the flow and does not.
+      contentClassName={hasSummary ? "pb-24 lg:pb-0" : undefined}>
+      {/*
+        THE SUMMARY MOVES UP AT lg, AND STAYS ONE NODE.
+
+        At lg it belongs directly under the tabs and above the list — a bounded
+        row at the right edge, not a slab across the column and not a bar welded
+        to the bottom of the page. Below lg it is the fixed footer it has always
+        been, unchanged.
+
+        It is LAST IN THE DOM and placed into row 2 by the grid, rather than
+        written between the tabs and the list. Written there it would become a
+        tab stop before the cart itself, so a keyboard or screen-reader user
+        would meet "Proceed to checkout" before reading what they are buying.
+        Grid placement moves the pixels and leaves the reading order alone —
+        the same reason PageHeaderBand keeps its action after `<main>`.
+
+        Rows are implicit: two children carry an explicit `lg:row-start`, the
+        tabs take row 1 by auto-placement, and `grid-auto-rows` sizes all three
+        to content. No template needed, so no arbitrary track value.
+      */}
+      <div className="w-full lg:grid">
         <NavigationTabs tabs={tabs} />
-        <Cart key="cart" />
+
+        <div className="lg:row-start-3">
+          <Cart key="cart" />
+        </div>
+
+        {hasSummary ? (
+          <div
+            // Below lg: byte-for-byte the bar PageShell used to render for this
+            // page. At lg: static, content-width, pushed to the right edge.
+            className="fixed left-shell-inset right-0 bottom-0 z-sticky w-full max-w-full border-t border-outline-subtle bg-surface px-3 pb-5 lg:static lg:z-auto lg:row-start-2 lg:mb-4 lg:ml-auto lg:w-fit lg:max-w-none lg:border-t-0 lg:px-0 lg:pb-0">
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col w-24 shrink-0 lg:w-auto">
+                <p className="text-foreground-muted line-clamp-1 text-body-sm">
+                  Total ({totals.length}):
+                </p>
+                <p className="font-medium">
+                  {formatCurrency(
+                    +totals.reduce((a, b) => a + +b.price * +b.quantity, 0)
+                  )}
+                </p>
+              </div>
+              <Button
+                onClick={handleCheckout}
+                loading={isProcessingCheckout}
+                className="flex-1 lg:flex-none lg:w-auto lg:mt-0">
+                Proceed to checkout
+              </Button>
+            </div>
+          </div>
+        ) : null}
       </div>
     </PageShell>
   );

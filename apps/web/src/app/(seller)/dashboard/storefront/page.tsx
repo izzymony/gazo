@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { toast } from "sonner";
 import VendorStoreFront from "@/features/storefront";
-import BottomNav from "@/features/seller-shell/BottomNav";
 import ConfettiCelebration from "@vibaar/ui/ConfettiCelebration";
 
 const StoreFrontPage = () => {
@@ -60,15 +59,16 @@ const StoreFrontPage = () => {
 
   return (
     <>
-      {/* ✅ SAFE: Enhanced VendorStoreFront with optional props */}
-      <div className={isNewStore ? 'new-store-context w-full' : 'w-full'}>
-        <VendorStoreFront
-          isNewStore={isNewStore}
-          storeName={storeName}
-        />
-      </div>
-
-      <BottomNav />
+      {/* No wrapper. The storefront owns its own scroll region and needs the
+          frame's height to resolve against; a height-less div in between is
+          what stopped `h-full` resolving and killed the collapse-on-scroll.
+          The old `.new-store-context` class also made this a conditional
+          positioned ancestor, so the page's absolute children changed their
+          containing block depending on whether the store was newly created. */}
+      <VendorStoreFront
+        isNewStore={isNewStore}
+        storeName={storeName}
+      />
 
       {/* ✅ SAFE: Confetti Animation */}
       <ConfettiCelebration
@@ -108,28 +108,6 @@ const StoreFrontPage = () => {
         
         .animate-leave {
           animation: leave 0.2s ease-in forwards;
-        }
-        
-        /* New store context styling */
-        .new-store-context {
-        position: relative;
-        }
-
-        /* Enhanced styles for new stores - target AllProducts component */
-        .new-store-context .add-product-btn,
-        .new-store-context [class*="add-product"] {
-          background: linear-gradient(135deg, #ff4757, #ff3742) !important;
-          box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3) !important;
-          animation: gentle-pulse 2s infinite;
-        }
-        
-        @keyframes gentle-pulse {
-          0%, 100% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.02);
-          }
         }
       `}</style>
     </>

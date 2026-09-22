@@ -14,6 +14,7 @@ import (
 	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	fileupload "github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/file-upload"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/payments"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
@@ -34,6 +35,7 @@ type BusinessService struct {
 	productService                   *ProductService
 	walletService                    *WalletService
 	dispatcher                       *NotificationDispatcher
+	payouts                          *PayoutService
 }
 
 func NewBusinessService(db *gorm.DB) *BusinessService {
@@ -50,6 +52,9 @@ func NewBusinessService(db *gorm.DB) *BusinessService {
 		productService:                   NewProductService(db),
 		walletService:                    NewWalletService(db),
 		dispatcher:                       NewNotificationDispatcher(db),
+		// Notifications for payout events are emitted by the flows that own
+		// them, not by account maintenance, so this one needs no dispatcher.
+		payouts: NewPayoutService(db, payments.NewPaystackPaymentService(db), nil),
 	}
 }
 
@@ -112,12 +117,13 @@ func (s *BusinessService) CreateBusiness(input requests.Business) (interface{}, 
 		if err != nil {
 			logger.Error("Business address validation failed: " + err.Error())
 			// Continue with business creation but log the error - don't block business creation
-			fmt.Printf("⚠️  WARNING: Business created without Shipbubble address validation: %v\n", err)
+			logger.Error(fmt.Sprintf("business created without a validated shipping address: %v", err))
 		} else {
 			// Set the validated address code in the business address
 			if business.Address != nil {
 				business.Address.ShipbubbleAddressCode = addressCode
-				fmt.Printf("✅ Business address validated with owner name: %s %s. Address code: %d\n", user.Firstname, user.Lastname, addressCode)
+				logger.Info(fmt.Sprintf("business address validated business_id=%s address_code=%d",
+					business.ID, addressCode))
 			}
 		}
 	}
@@ -173,7 +179,6 @@ func (s *BusinessService) UpdateBusiness(id, userId string, input domain.Busines
 
 	// Only check for duplicate name if the name is actually changing
 	if currentBusiness.Name != input.Name {
-		fmt.Printf("🔍 DEBUG: Name is changing from '%s' to '%s'\n", currentBusiness.Name, input.Name)
 
 		existing, exists, err := s.businessRepo.GetOneWithExistence(map[string]interface{}{"name": input.Name})
 		if err != nil {
@@ -181,13 +186,11 @@ func (s *BusinessService) UpdateBusiness(id, userId string, input domain.Busines
 		}
 
 		if exists && existing.ID != id {
-			fmt.Printf("🔍 DEBUG: Found existing business with name '%s' (ID: %s), Current ID: %s\n", input.Name, existing.ID, id)
+			logger.Info(fmt.Sprintf("business name already taken by business_id=%s (updating %s)", existing.ID, id))
 			return nil, fmt.Errorf("a different business with the name '%s' already exists", input.Name)
 		}
 
-		fmt.Printf("🔍 DEBUG: No existing business found with name '%s', proceeding with update\n", input.Name)
 	} else {
-		fmt.Printf("🔍 DEBUG: Name not changing (still '%s'), skipping duplicate check\n", currentBusiness.Name)
 	}
 
 	// Validate business address with Shipbubble if address is provided
@@ -215,11 +218,12 @@ func (s *BusinessService) UpdateBusiness(id, userId string, input domain.Busines
 		if err != nil {
 			logger.Error("Business address validation failed during update: " + err.Error())
 			// Continue with business update but log the error
-			fmt.Printf("⚠️  WARNING: Business updated without Shipbubble address validation: %v\n", err)
+			logger.Error(fmt.Sprintf("business updated without a validated shipping address: %v", err))
 		} else {
 			// Set the validated address code
 			input.Address.ShipbubbleAddressCode = addressCode
-			fmt.Printf("✅ Business address updated and validated with owner name: %s %s. Address code: %d\n", user.Firstname, user.Lastname, addressCode)
+			logger.Info(fmt.Sprintf("business address revalidated business_id=%s address_code=%d",
+				id, addressCode))
 		}
 	}
 
@@ -543,11 +547,9 @@ func (s *BusinessService) GetOrder(id, userId string) (*domain.OrderItem, error)
 }
 
 func (s *BusinessService) MarkOrderReady(id, userId string) (*domain.OrderItem, error) {
-	fmt.Printf("DEBUG: MarkOrderReady called with id=%s, userId=%s\n", id, userId)
 
 	business, err := s.businessRepo.GetOne(map[string]interface{}{"user_id": userId})
 	if err != nil {
-		fmt.Printf("DEBUG: Error getting business: %v\n", err)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("invalid user")
 		}
@@ -555,30 +557,23 @@ func (s *BusinessService) MarkOrderReady(id, userId string) (*domain.OrderItem, 
 
 	}
 	if business == nil {
-		fmt.Printf("DEBUG: Business is nil\n")
 		return nil, fmt.Errorf("invalid business")
 	}
-
-	fmt.Printf("DEBUG: Found business with ID=%s for user=%s\n", business.ID, userId)
 
 	queryParams := map[string]interface{}{
 		"business_id": business.ID,
 		"id":          id,
 	}
-	fmt.Printf("DEBUG: Querying order item with params: %+v\n", queryParams)
 
 	existing, err := s.orderRepo.GetOneOrderItem(queryParams, false)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		fmt.Printf("DEBUG: Error getting order item: %v\n", err)
 		return nil, fmt.Errorf("something went wrong")
 	}
 	if existing == nil {
-		fmt.Printf("DEBUG: Order item not found with id=%s and business_id=%s\n", id, business.ID)
-		fmt.Printf("DEBUG: This means either the order item ID doesn't exist, or it doesn't belong to this business\n")
+		logger.Error(fmt.Sprintf("mark order ready: order item %s not found for business %s", id, business.ID))
 		return nil, fmt.Errorf("invalid order")
 	}
 
-	fmt.Printf("DEBUG: Found order item with ID=%s\n", existing.ID)
 	if existing.ShipmentID != "" {
 		return nil, fmt.Errorf("order already marked as ready")
 	}
@@ -603,7 +598,7 @@ func (s *BusinessService) MarkOrderReady(id, userId string) (*domain.OrderItem, 
 	// create shipment
 	err = s.shippingService.CreateShipment(existing.ID, false)
 	if err != nil {
-		fmt.Printf("DEBUG: CreateShipment failed with error: %v\n", err)
+		logger.Error(fmt.Sprintf("mark order ready: create shipment failed for order item %s: %v", id, err))
 		return nil, fmt.Errorf("failed to create shipment: %v", err)
 	}
 
@@ -1126,7 +1121,6 @@ func (s *BusinessService) GetStoreAnalytics(businessId string) (*domain.StoreAna
 		return nil, fmt.Errorf("invalid business")
 	}
 
-	fmt.Println("business.ID; ", business.ID)
 	return s.businessRepo.GetStoreAnalytics(business.ID)
 }
 
@@ -1327,15 +1321,23 @@ func (s *BusinessService) UpdateBankAccountDetail(id string, userID string, data
 		return err
 	}
 
-	// NS2 seller.payout.bank_changed — security alert, in-app + WhatsApp, best-effort.
-	bankLabel := data.Bank
-	if len(data.AccountNumber) >= 4 {
-		bankLabel = data.Bank + " ••" + data.AccountNumber[len(data.AccountNumber)-4:]
+	// UpdateAccountDetails clears the cached Paystack recipient in the same
+	// statement, because it pointed at the OLD bank account and reusing it would
+	// pay the previous destination. This re-registers against the new details;
+	// if Paystack is unreachable, the payout path registers it later.
+	account.ID = id
+	account.PaystackRecipientCode = ""
+	// Best-effort: a Paystack outage must not stop a seller saving their bank
+	// details. The payout path ensures the recipient again if this misses.
+	if err := s.payouts.RegisterPayoutAccount(&account); err != nil {
+		logger.Error(fmt.Errorf("could not pre-register payout account %s: %w", id, err))
 	}
+
+	// NS2 seller.payout.bank_changed — security alert, in-app + WhatsApp, best-effort.
 	_ = s.dispatcher.Emit(context.Background(), EmitInput{
 		Event:  "seller.payout.bank_changed",
 		UserID: userID,
-		Vars:   map[string]string{"bank": bankLabel},
+		Vars:   map[string]string{"bank": maskedBankLabel(data.Bank, data.AccountNumber)},
 	})
 
 	return nil
@@ -1389,15 +1391,18 @@ func (s *BusinessService) AddBankAccountDetail(userID string, req requests.Busin
 		return fmt.Errorf("something went wrong")
 	}
 
-	// NS2 seller.payout.bank_added (in-app).
-	bankLabel := req.Bank
-	if len(req.AccountNumber) >= 4 {
-		bankLabel = req.Bank + " ••" + req.AccountNumber[len(req.AccountNumber)-4:]
+	// Register the Paystack payout recipient now rather than at the first
+	// withdrawal. Best-effort on purpose: a Paystack outage must not stop a
+	// seller saving their bank details, and the payout path ensures it again.
+	if err := s.payouts.RegisterPayoutAccount(account); err != nil {
+		logger.Error(fmt.Errorf("could not pre-register payout account %s: %w", account.ID, err))
 	}
+
+	// NS2 seller.payout.bank_added (in-app).
 	_ = s.dispatcher.Emit(context.Background(), EmitInput{
 		Event:  "seller.payout.bank_added",
 		UserID: userID,
-		Vars:   map[string]string{"bank": bankLabel},
+		Vars:   map[string]string{"bank": maskedBankLabel(req.Bank, req.AccountNumber)},
 	})
 
 	return nil

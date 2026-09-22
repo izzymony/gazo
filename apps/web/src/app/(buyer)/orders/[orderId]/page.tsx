@@ -4,9 +4,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import OrderLineItem from "@/features/orders/OrderLineItem";
+import DetailRow from "@vibaar/ui/common/DetailRow";
 import { PiCube, CircleCheck, ChevronUp, ChevronDown } from "@vibaar/ui/icons";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Dialog from "@vibaar/ui/common/Dialog";
 import useOrderStore from "@/store/orderStore";
 import { useParams } from "next/navigation";
@@ -22,6 +24,7 @@ import useProductStore from "@/store/productStore";
 import useBusinessStore from "@/store/businessStore";
 import InputField from "@vibaar/ui/common/InputField";
 import Button from "@vibaar/ui/common/Button";
+import ChipToggle from "@vibaar/ui/common/ChipToggle";
 import useAuthStore from "@/store/authStore";
 // import Image from "next/image";
 import useShippingStore from "@/store/shippingStore";
@@ -31,15 +34,18 @@ import DispatchContactCard from "@/features/orders/DispatchContactCard";
 import { formatTimeAgos, formatTimestamp } from "@/lib/converter";
 import { OrderDatas } from "@/lib/order";
 import { ProductData } from "@/lib/types";
+import Badge from "@vibaar/ui/common/Badge";
+import { supportWhatsAppUrl } from "@/lib/support";
+import StarRating from "@/features/orders/StarRating";
 
 const ActivityTop = ({ title, date }: { title: string; date: string }) => {
   return (
     <div className="flex gap-3">
       <OrderStatusIcon status={title} />
       <div className="flex flex-col justify-between">
-        <p className="text-ink-60 font-normal text-body-sm">Status:</p>
-        <p className="text-ink-90 font-medium text-h1">{title}</p>
-        <p className="text-ink-60 font-normal text-body-sm">
+        <p className="text-foreground-secondary font-normal text-body-sm">Status:</p>
+        <p className="text-foreground-primary font-medium text-h1">{title}</p>
+        <p className="text-foreground-secondary font-normal text-body-sm">
           {formatTimestamp(date)}
         </p>
       </div>
@@ -64,23 +70,23 @@ const ActivityText = ({
         <p
           className={`text-body-sm font-medium ${show
             ? `${title.toLowerCase() === "order delivered"
-              ? "text-success-strong"
-              : "text-brand"
+              ? "text-success-foreground"
+              : "text-brandDeep"
             }`
-            : "text-ink-60"
+            : "text-foreground-secondary"
             }`}>
           {title}
         </p>
-        <p className="text-caption font-normal text-ink-40">
+        <p className="text-caption font-normal text-foreground-muted">
           {formatTimeAgos(time)}
         </p>
       </div>
-      <p className="text-caption font-normal text-ink-40">{details}</p>
+      <p className="text-caption font-normal text-foreground-muted">{details}</p>
     </div>
   );
 };
 
-const Check = () => <CircleCheck size={16} className="text-ink-40" />;
+const Check = () => <CircleCheck size={16} className="text-foreground-muted" />;
 
 const Indicators = ({ show = false }: { show: boolean }) => {
   return (
@@ -88,12 +94,12 @@ const Indicators = ({ show = false }: { show: boolean }) => {
       <div
         className={
           !show
-            ? "h-[10px] border border-ink-20"
-            : "h-[10px] border border-brand"
+            ? "h-[10px] border border-outline-strong"
+            : "h-[10px] border border-brandDeep"
         }
       />
       {show ? (
-        <div className="w-4 h-4 rounded-full border border-brand bg-brand/10 flex justify-center items-center">
+        <div className="w-4 h-4 rounded-full border border-brandDeep bg-brand/10 flex justify-center items-center">
           <div className="w-[10px] h-[10px] bg-brand rounded-full" />
         </div>
       ) : (
@@ -101,7 +107,7 @@ const Indicators = ({ show = false }: { show: boolean }) => {
           <Check />
         </div>
       )}
-      <div className="flex-1 border border-ink-20" />
+      <div className="flex-1 border border-outline-strong" />
     </div>
   );
 };
@@ -126,53 +132,6 @@ const ActivityCard = ({
   );
 };
 
-const ItemCard = ({
-  name,
-  quantity,
-  image,
-  price,
-  variant,
-}: {
-  name: string;
-  quantity: number;
-  image: string;
-  price: number;
-  variant?: string;
-}) => {
-  return (
-    <div className="w-full flex space-x-3 border-ink-10 border rounded-field p-2">
-      <img
-        src={image} // Dynamic product image
-        className="w-[60px] h-[60px] object-cover rounded-field border"
-        alt={name}
-      />
-      <div className="flex-1 flex-col flex justify-between">
-        <p className="text-ink-90 font-normal text-body-sm">{name}</p>
-        {variant && (
-          <div className="flex text-ink-40 text-body-sm font-medium space-x-4">
-            <p>{variant}</p>
-          </div>
-        )}
-        <div className="flex text-ink-60 text-body-sm font-medium space-x-4">
-          <p> {formatCurrency(price)}</p>
-          <p className="text-ink-90">x {quantity}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Sales = ({ item1, item2 }: { item1: string; item2: number }) => {
-  return (
-    <div className="flex justify-between items-center">
-      <p className="text-ink-60 text-body-sm font-normal">{item1}</p>
-      <p className="text-ink-90 text-body-sm font-medium">
-        {formatCurrency(item2)}
-      </p>
-    </div>
-  );
-};
-
 const Cards = ({
   order,
   products,
@@ -192,34 +151,28 @@ const Cards = ({
         </p>
       </div>
       <div className="gap-3">
-        <ItemCard
+        <OrderLineItem bordered
           name={productName?.title as string}
           quantity={order.quantity}
           image={
-            productName?.image ? productName.image[0] : "/PRODUCT IMAGE (2).png"
+            productName?.image ? productName.image[0] : "/images/product-placeholder.svg"
           }
           price={order.price}
           variant={order.variant_selection}
         />
       </div>
-      <div className="border border-ink-10 rounded-card p-3 gap-2 flex flex-col">
-        <Sales
-          item1={`Subtotal: ${order.quantity} items`}
-          item2={order.order?.sub_total || (order.price * order.quantity)}
+      <div className="border border-outline rounded-card p-3 gap-2 flex flex-col">
+        <DetailRow
+          label={`Subtotal: ${order.quantity} items`}
+          value={formatCurrency(order.order?.sub_total || (order.price * order.quantity))}
         />
-        <Sales
-          item1="Discount:"
-          item2={
+        <DetailRow label="Discount:" value={formatCurrency(
             productName?.original_price
               ? +productName?.original_price - +order.price
               : 0
-          }
-        />
-        <Sales
-          item1="Shipping:"
-          item2={order.shipping_option?.price ? +order.shipping_option.price.slice(3) : 0}
-        />
-        <Sales item1="Total:" item2={order.order?.total || ((order.price * order.quantity) + (order.shipping_option?.price ? +order.shipping_option.price.slice(3) : 0))} />
+          )} />
+        <DetailRow label="Shipping:" value={formatCurrency(order.shipping_option?.price ? +order.shipping_option.price.slice(3) : 0)} />
+        <DetailRow label={"Total:"} value={formatCurrency(order.order?.total || ((order.price * order.quantity) + (order.shipping_option?.price ? +order.shipping_option.price.slice(3) : 0)))} />
       </div>
     </div>
   );
@@ -236,9 +189,7 @@ const Shipping = ({
     <div className="mt-4">
       <p className="mb-3 text-body-sm font-normal">Shipping profile</p>
       <div className="p-2 rounded-field border flex flex-col gap-2 text-body font-normal">
-        <span className="border-[0.5px] rounded-full font-normal px-3 py-[2px] text-body-sm border-brand bg-brand/10 text-brand w-[max-content]">
-          Default
-        </span>
+        <Badge tone="brand" size="md">Default</Badge>
         <p>
           {singleShippingDetails.shipping_user?.firstname +
             " " +
@@ -252,7 +203,7 @@ const Shipping = ({
             router.push("/cart/shipping-profile");
           }}
           type="button"
-          className="w-full rounded-full py-2 border bg-white text-brand text-body font-medium mt-2">
+          className="w-full rounded-full py-2 border bg-surface text-brandDeep text-body font-medium mt-2">
           Change Shipping Details
         </button>
       </div>
@@ -263,12 +214,12 @@ const Shipping = ({
 const Bottom = () => {
   return (
     <div className="w-full mt-4 pb-3 flex justify-between items-center">
-      <div className="flex text-ink-90 font-medium text-body-sm items-center">
+      <div className="flex text-foreground-primary font-medium text-body-sm items-center">
         <Shield /> Return policy
       </div>
-      <div className="flex items-center text-ink-60 text-body-sm">
+      <div className="flex items-center text-foreground-secondary text-body-sm">
         Free return within{" "}
-        <div className=" text-ink-90 mx-1 font-medium text-body-sm">
+        <div className=" text-foreground-primary mx-1 font-medium text-body-sm">
           {" 24hrs "}
         </div>
         <Emergency />
@@ -292,30 +243,14 @@ const Rating = ({
       <p className="text-h1 font-medium text-center mb-3">
         {isRated ? "Thanks for your rating!" : "How was your order?"}
       </p>
-      <div className="flex gap-2 items-center mb-3">
-        {[1, 2, 3, 4, 5].map((star) => {
-          const filled = isRated ? (rated as number) >= star : rating >= star;
-          return (
-            <svg
-              key={star}
-              onClick={isRated ? undefined : () => handleStarClick(star)}
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill={filled ? "var(--warning)" : "var(--ink-5)"}
-              stroke="var(--warning)"
-              strokeWidth={1.5}
-              className={isRated ? "w-10 h-10" : "w-10 h-10 cursor-pointer"}>
-              <path
-                d="M12 2.75l3.09 6.26 6.91 1-5 4.87 1.18 6.88L12 17.77l-6.18 3.25 1.18-6.88-5-4.87 6.91-1L12 2.75z"
-                strokeLinejoin="round"
-                strokeLinecap="round"
-              />
-            </svg>
-          );
-        })}
-      </div>
+      <StarRating
+        className="mb-3"
+        size="lg"
+        value={isRated ? (rated as number) : rating}
+        onRate={isRated ? undefined : handleStarClick}
+      />
 
-      <p className="text-body-sm font-medium text-center text-ink-60 mt-2">
+      <p className="text-body-sm font-medium text-center text-foreground-secondary mt-2">
         {isRated
           ? `You rated this order ${rated} star${
               (rated as number) > 1 ? "s" : ""
@@ -328,7 +263,7 @@ const Rating = ({
 
 const ProgressBar = ({ pick }: { pick: number }) => {
   return (
-    <div className="w-full bg-ink-10 rounded-full h-1 my-3 flex justify-between overflow-hidden">
+    <div className="w-full bg-surface-strong rounded-full h-1 my-3 flex justify-between overflow-hidden">
       {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
         <div
           key={item}
@@ -399,14 +334,13 @@ const Order = () => {
       <PageShell
         header={
           <Header
-            showBack
-            customText="Order"
-            onBackClick={() => router.back()}
+            onBack={() => router.back()}
+            title="Order"
           />
         }>
         <div className="w-full flex flex-col items-center text-center mt-20">
           <p className="text-h2 font-medium mb-2">Order not found</p>
-          <p className="text-ink-60 text-body-sm mb-6 max-w-[320px]">
+          <p className="text-foreground-secondary text-body-sm mb-6 max-w-[320px]">
             We couldn&apos;t load this order. It may still be processing, or the link
             may be incorrect.
           </p>
@@ -465,10 +399,18 @@ const Order = () => {
       <PageShell
         header={
           <Header
-            showBack
-            onBackClick={() => router.push("/orders")}
-            customText={`Order #${newOrder?.order?.invoice}`}
-            showEmer
+            onBack={() => router.push("/orders")}
+            title={`Order #${newOrder?.order?.invoice}`}
+            trailing={
+              <a
+                href={supportWhatsAppUrl(`Hi, I need help with order #${newOrder?.order?.invoice ?? ""}`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Get help with this order"
+                className="inline-flex items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40">
+                <Emergency />
+              </a>
+            }
           />
         }>
         <div className="h-full w-full">
@@ -487,8 +429,8 @@ const Order = () => {
             <div
               className={
                 status
-                  ? "relative border border-ink-10 rounded-card px-4 pb-3 pt-4 gap-3 w-full"
-                  : "relative border border-ink-10 rounded-card px-4 pb-3 pt-4 gap-3 h-[204px] w-full overflow-hidden"
+                  ? "relative border border-outline rounded-card px-4 pb-3 pt-4 gap-3 w-full"
+                  : "relative border border-outline rounded-card px-4 pb-3 pt-4 gap-3 h-[204px] w-full overflow-hidden"
               }>
               <div className="w-full">
                 <ActivityTop
@@ -520,21 +462,21 @@ const Order = () => {
                   ))}
               </div>
               {status ? (
-                <div
+                <button type="button"
                   onClick={() => setStatus(!status)}
-                  className="flex justify-center items-center mt-2 text-brand font-medium text-body-sm">
+                  className="text-left flex justify-center items-center mt-2 text-brandDeep font-medium text-body-sm">
                   Collapse timeline{" "}
-                  <ChevronUp size={16} className="text-brand" />
-                </div>
+                  <ChevronUp size={16} className="text-brandDeep" />
+                </button>
               ) : (
                 <>
                   <div className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-white via-white to-transparent" />
-                  <div
+                  <button type="button"
                     onClick={() => setStatus(!status)}
-                    className="flex justify-center items-center text-brand font-medium text-body-sm w-full absolute bottom-3 left-0 right-0 h-[40px]">
+                    className="text-left flex justify-center items-center text-brandDeep font-medium text-body-sm w-full absolute bottom-3 left-0 right-0 h-[40px]">
                     View full timeline{" "}
-                    <ChevronDown size={16} className="text-brand" />
-                  </div>
+                    <ChevronDown size={16} className="text-brandDeep" />
+                  </button>
                 </>
               )}
             </div>
@@ -563,21 +505,21 @@ const Order = () => {
           </div>
           {/* Order Details Section */}
           <div className="flex flex-col gap-3 py-4">
-            <p className="text-ink-60 text-body-sm">
+            <p className="text-foreground-secondary text-body-sm">
               Order ID:{" "}
-              <span className="font-medium text-ink-90">
+              <span className="font-medium text-foreground-primary">
                 {newOrder?.order?.invoice}
               </span>
             </p>
-            <p className="text-ink-60 text-body-sm">
+            <p className="text-foreground-secondary text-body-sm">
               Date placed:{" "}
-              <span className="font-medium text-ink-90">
+              <span className="font-medium text-foreground-primary">
                 {newOrder?.created_at && formatDate(new Date(newOrder?.created_at))}
               </span>
             </p>
-            <p className="text-ink-60 text-body-sm">
+            <p className="text-foreground-secondary text-body-sm">
               Payment method:{" "}
-              <span className="font-medium text-ink-90">
+              <span className="font-medium text-foreground-primary">
                 Credit card via Paystack
               </span>
             </p>
@@ -594,56 +536,38 @@ const Order = () => {
             </span>
           </p>
 
-          <div className="w-full flex space-x-3 border-ink-10 border rounded-field p-2">
+          <div className="w-full flex space-x-3 border-outline border rounded-field p-2">
             <img
               src={
                 ratedProduct?.image
                   ? ratedProduct.image[0]
-                  : "/PRODUCT IMAGE (2).png"
+                  : "/images/product-placeholder.svg"
               }
-              className="w-[60px] h-[60px] object-cover rounded-field border border-ink-10"
+              className="w-[60px] h-[60px] object-cover rounded-field border border-outline"
               alt={ratedProduct?.title || ""}
             />
             <div className="flex-1 flex-col flex justify-between">
-              <p className="text-ink-90 font-normal text-body-sm">
+              <p className="text-foreground-primary font-normal text-body-sm">
                 {ratedProduct?.title || ""}
               </p>
               {newOrder?.variant_selection && (
-                <p className="text-ink-40 text-body-sm font-medium">
+                <p className="text-foreground-muted text-body-sm font-medium">
                   {newOrder.variant_selection}
                 </p>
               )}
-              <div className="flex text-ink-60 text-body-sm font-medium space-x-4">
+              <div className="flex text-foreground-secondary text-body-sm font-medium space-x-4">
                 <p>{formatCurrency(newOrder?.price || 0)}</p>
-                <p className="text-ink-90">x{newOrder?.quantity}</p>
+                <p className="text-foreground-primary">x{newOrder?.quantity}</p>
               </div>
             </div>
           </div>
 
           {/* Star Rating */}
-          <div className="flex gap-2 items-center">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <svg
-                key={star}
-                onClick={() => handleStarClick(star)}
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill={rating >= star ? "var(--warning)" : "var(--ink-5)"}
-                stroke={rating >= star ? "var(--warning)" : "var(--ink-20)"}
-                strokeWidth={1.5}
-                className="w-10 h-10 cursor-pointer">
-                <path
-                  d="M12 2.75l3.09 6.26 6.91 1-5 4.87 1.18 6.88L12 17.77l-6.18 3.25 1.18-6.88-5-4.87 6.91-1L12 2.75z"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                />
-              </svg>
-            ))}
-          </div>
+          <StarRating size="lg" value={rating} onRate={handleStarClick} />
 
           {/* Feedback + chips (grouped) */}
           <div className="space-y-2">
-            <p className="text-body text-ink-90">
+            <p className="text-body text-foreground-primary">
               You rated the product {rating} star(s). Tell us more about it:
             </p>
             <div className="flex gap-2 flex-wrap">
@@ -654,16 +578,12 @@ const Order = () => {
                 { label: "Excellent", value: 4 },
                 { label: "Outstanding", value: 5 },
               ].map((chip) => (
-                <button
+                <ChipToggle
                   key={chip.value}
-                  onClick={() => handleChipClick(chip.value)}
-                  className={`px-3 py-1 rounded-full border text-caption font-medium cursor-pointer transition-colors duration-300 ${
-                    rating === chip.value
-                      ? "bg-warning border-warning text-white"
-                      : "bg-ink-5 border-ink-10 text-ink-60"
-                  }`}>
+                  selected={rating === chip.value}
+                  onClick={() => handleChipClick(chip.value)}>
                   {chip.label}
-                </button>
+                </ChipToggle>
               ))}
             </div>
           </div>

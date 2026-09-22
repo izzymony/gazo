@@ -30,10 +30,13 @@ jest.mock('next/navigation', () => ({
   },
 }))
 
-// Mock Next.js Image component
+// Mock Next.js Image component.
+// next/image's own props are not DOM attributes, so they are dropped rather
+// than spread: passing `fill`/`priority` through makes React warn about a
+// non-boolean attribute on every test that renders a filled image.
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props) => {
+  default: ({ fill, priority, loader, quality, placeholder, blurDataURL, unoptimized, ...props }) => {
     // eslint-disable-next-line jsx-a11y/alt-text
     return <img {...props} />
   },
@@ -84,3 +87,15 @@ afterEach(() => {
   localStorage.clear()
   sessionStorage.clear()
 })
+// jsdom ships no ResizeObserver, and components that measure their own layout
+// need one — VendorCard watches its product rail to know when it has scrolled
+// to the end. A no-op stub is right for jsdom: nothing there has a size to
+// observe, so the callback would never fire anyway. The behaviour that DOES
+// matter (the initial measurement) runs synchronously in the effect.
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+}

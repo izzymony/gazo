@@ -1,13 +1,34 @@
-'use client';
-import React from 'react';
-import HeroSection from '@/app/(marketing)/landing/components/HeroSection';
+import type { Metadata } from "next";
+import MarketingSite from "@/features/marketing-v2/MarketingSite";
+import StructuredData from "@/features/marketing-v2/StructuredData";
+
+const TITLE = "Vibaar — Turn your attention into income";
+const DESCRIPTION =
+  "Turn social attention into real, paid, trackable orders — a storefront for Instagram and TikTok sellers that takes payment and tracks delivery.";
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: "/",
+    images: [{ url: "/og/og-default.jpg", width: 1200, height: 630, alt: TITLE }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/og/og-default.jpg"],
+  },
+};
 
 export default function Home() {
   return (
-    <div className="landing-page relative w-full h-screen overflow-y-scroll" style={{ scrollBehavior: 'smooth' }}>
-      <main className="relative w-full z-0">
-        <HeroSection />
-      </main>
-    </div>
+    <>
+      <StructuredData />
+      <MarketingSite />
+    </>
   );
 }

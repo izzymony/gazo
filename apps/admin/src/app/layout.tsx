@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "sonner";
-import { dmSans } from "./fonts";
+import { outfit } from "./fonts";
 
 export const metadata: Metadata = {
   title: "Vibaar Admin Portal",
@@ -51,8 +51,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={dmSans.className}>
+    <html lang="en" className={outfit.variable} suppressHydrationWarning>
+      <body className={outfit.className}>
         {children}
         <Toaster 
           richColors 

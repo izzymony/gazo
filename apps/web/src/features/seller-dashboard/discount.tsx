@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { IoCubeOutline } from "@vibaar/ui/icons";
-import DataSort from "./datasort";
 import EmptyState from "@vibaar/ui/common/EmptyState";
 import Section from "@vibaar/ui/common/Section";
 import useBusinessStore from "@/store/businessStore";
@@ -15,24 +14,24 @@ const Discount: React.FC<{ order: any }> = ({ order }) => {
       <div className="flex justify-between items-center ">
         <div className="">
           <div className="flex items-center space-x-8">
-            <span className="text-body font-medium text-ink-90">
+            <span className="text-body font-medium text-foreground-primary">
               {order.title}
             </span>
-            <span className="text-body-sm space-x-1 flex items-center rounded-field bg-ink-3">
+            <span className="text-body-sm space-x-1 flex items-center rounded-field bg-surface-subtle">
               <span>{order.products.length}</span>
               <IoCubeOutline />
             </span>
           </div>
         </div>
         <div>
-          <span className="text-body-sm font-medium text-ink-90 py-1 px-2 rounded-field bg-ink-5">
+          <span className="text-body-sm font-medium text-foreground-primary py-1 px-2 rounded-field bg-surface-muted">
             {order.type}
           </span>
         </div>
       </div>
       <div className="flex justify-between ">
-        <p className="text-body-sm text-ink-40">{order.discount_type}</p>
-        <span className="text-caption text-ink-40">{`${order.valid_from
+        <p className="text-body-sm text-foreground-muted">{order.discount_type}</p>
+        <span className="text-caption text-foreground-muted">{`${order.valid_from
           .toString()
           .slice(0, 10)} - ${order.valid_to.toString().slice(0, 10)}`}</span>
       </div>
@@ -40,11 +39,19 @@ const Discount: React.FC<{ order: any }> = ({ order }) => {
   );
 };
 
-const Page = () => {
-  const [sortOrder, setSortOrder] = useState<"ascending" | "descending">(
-    "ascending"
-  );
-  const [searchTerm, setSearchTerm] = useState("");
+/**
+ * The catalog's Discount list.
+ *
+ * Its sort/search row now lives in the catalog page's tab-bar block, shared
+ * with the other two tabs — it used to render its own copy inside this panel.
+ * (Search is not wired here: the filter it would drive has always been
+ * commented out, so a search box on this tab did nothing.)
+ */
+const Page = ({
+  sortOrder = "ascending",
+}: {
+  sortOrder?: "ascending" | "descending";
+}) => {
   const { discounts, fetchDiscount, setDiscount } = useBusinessStore();
 
   // P12: discounts load HERE (their only render site) instead of on the dashboard
@@ -54,16 +61,6 @@ const Page = () => {
     paginatedFetcher(fetchDiscount, setDiscount, null, 10);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleSortToggle = () => {
-    setSortOrder((prevOrder) =>
-      prevOrder === "ascending" ? "descending" : "ascending"
-    );
-  };
-
-  const handleSortChange = (option: "ascending" | "descending") => {
-    setSortOrder(option);
-  };
 
   const filteredOrders = discounts
     // .filter((order) =>
@@ -76,14 +73,6 @@ const Page = () => {
     });
 
   return (
-    <div className="space-y-6">
-      <DataSort
-        sortOrder={sortOrder}
-        onSortToggle={handleSortToggle}
-        onSortOrderChange={handleSortChange}
-        searchValue={searchTerm}
-        onSearchChange={setSearchTerm}
-      />
       <Section>
         {discounts.length > 0 ? (
           filteredOrders.map((order, index) => (
@@ -97,7 +86,6 @@ const Page = () => {
           />
         )}
       </Section>
-    </div>
   );
 };
 

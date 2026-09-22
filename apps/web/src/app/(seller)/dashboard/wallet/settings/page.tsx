@@ -2,10 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Section from "@vibaar/ui/common/Section";
-import Card from "@vibaar/ui/common/Card";
-import { ChevronRight, Bank, LockPassword } from "@vibaar/ui/icons";
+import Surface from "@vibaar/ui/common/Surface";
+import { ChevronRight, Bank } from "@vibaar/ui/icons";
 
 export default function Page() {
   const router = useRouter();
@@ -13,35 +13,22 @@ export default function Page() {
     <PageShell
       header={
         <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="Wallet Settings"
+          onBack={() => router.back()}
+          title="Wallet Settings"
         />
       }>
       <Section>
-        <Card
+        <Surface
           onClick={() => router.push("/dashboard/payouts")}
           className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Bank size={20} className="text-ink-90" />
-            <p className="text-ink-60 text-body font-normal">
+            <Bank size={20} className="text-foreground-primary" />
+            <p className="text-foreground-secondary text-body font-normal">
               Manage Payout Accounts
             </p>
           </div>
-          <ChevronRight className="text-ink-40" />
-        </Card>
-
-        <Card
-          onClick={() => {}}
-          className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <LockPassword size={20} className="text-ink-90" />
-            <p className="text-ink-60 text-body font-normal">
-              2 Factor Authentication
-            </p>
-          </div>
-          <ChevronRight className="text-ink-40" />
-        </Card>
+          <ChevronRight className="text-foreground-muted" />
+        </Surface>
       </Section>
     </PageShell>
   );

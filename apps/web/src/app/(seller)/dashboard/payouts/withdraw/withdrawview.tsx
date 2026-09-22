@@ -26,7 +26,7 @@ export default function WithdrawView() {
           bank: "",
           account_number: "",
           account_name: "",
-          bank_code: 0,
+          bank_code: "",
           business_id: "",
           is_default: false,
           metadata: [],
@@ -73,27 +73,39 @@ export default function WithdrawView() {
     }
   };
 
+  const withdrawScreen = (
+    <Withdraw
+      action={setView}
+      data={data}
+      amount={amount}
+      setAmount={setAmount}
+    />
+  );
+
   const response =
     view === "withdraw" ? (
-      <Withdraw
-        action={setView}
-        data={data}
-        amount={amount}
-        setAmount={setAmount}
-      />
+      withdrawScreen
     ) : view === "selectaccount" ? (
-      <SelectAccount
-        goBack={() => setView("withdraw")}
-        action={(val: {
-          accountname: string;
-          accountnumber: string;
-          bankname: string;
-          id: string;
-        }) => {
-          setData(val);
-          setView("withdraw");
-        }}
-      />
+      // The withdraw screen stays MOUNTED under the dialog rather than being
+      // swapped out for it. Account selection is one question asked about the
+      // amount already entered, so the amount should remain on screen to be
+      // asked about — and keeping the same element mounted is also what keeps
+      // its state alive without a store round-trip.
+      <>
+        {withdrawScreen}
+        <SelectAccount
+          goBack={() => setView("withdraw")}
+          action={(val: {
+            accountname: string;
+            accountnumber: string;
+            bankname: string;
+            id: string;
+          }) => {
+            setData(val);
+            setView("withdraw");
+          }}
+        />
+      </>
     ) : view === "confirm" ? (
       <Confirm
         action={setView}

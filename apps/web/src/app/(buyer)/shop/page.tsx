@@ -3,13 +3,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import React, { useCallback, useEffect, useRef, useState, useMemo } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { storePath, productPath } from "@/lib/urlHelpers";
 import { FaStar, Search, X, Heart, ShoppingCartAdd } from "@vibaar/ui/icons";
 import Button from "@vibaar/ui/common/Button";
 import useScroll from "@/hooks/useScroll";
-import VendorNav from "@/features/storefront/VendorNav";
-import img1 from "../../../../public/PRODUCT IMAGE (2).png";
 import useBusinessStore from "@/store/businessStore";
 import { useCategories } from "@/hooks/useCategories";
 import { useRoutePrefetch } from "@/hooks/useRoutePrefetch";
@@ -20,7 +18,7 @@ import SearchInput from "@/features/storefront/SearchInput";
 import HeaderSlides from "@vibaar/ui/common/HeaderSlides";
 import { BusinessData } from "@/lib/types";
 import EmptyState from "@vibaar/ui/common/EmptyState";
-import ExploreCard from "@/features/storefront/explorecard";
+import VendorCard from "@/features/storefront/VendorCard";
 import useShippingStore from "@/store/shippingStore";
 import useAuthStore from "@/store/authStore";
 import useOrderStore from "@/store/orderStore";
@@ -46,8 +44,7 @@ const truncateTextByLength = (text: string | undefined, charLimit: number) => {
 const Page: React.FC = () => {
   const router = useRouter();
   const prefetch = useRoutePrefetch();
-  const { isScrolled, addScrollListener } = useScroll(20);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const { isScrolled, scrollRef } = useScroll(20);
   const [searchTerm, setSearchTerm] = useState("");
   const [likedItems] = useState<number[]>([]);
   const {
@@ -111,12 +108,6 @@ const Page: React.FC = () => {
       fetchGuestShippings(ensureGuestId());
     }
   }, [user]);
-
-  useEffect(() => {
-    return () => {
-      addScrollListener(scrollRef);
-    };
-  }, [addScrollListener]);
 
   // Secondary sections' data: the vendor directory (for wishlist/recently-viewed
   // logo lookups) + the per-user wishlist & recently-viewed lists. The marketplace
@@ -204,10 +195,10 @@ const Page: React.FC = () => {
   // Feed failed with nothing to show — retryable error instead of an empty page.
   if (shopVendorsError && shopVendors.length === 0) {
     return (
-      <div ref={scrollRef} className="w-full overflow-y-scroll scrollbar-hide">
-        <div className="w-full flex flex-col mb-0">
+      <div ref={scrollRef} className="w-full h-full overflow-y-scroll scrollbar-hide">
+        <div className="w-full flex flex-col mb-0 min-h-full">
           <HeaderSlides />
-          <div className="rounded-t-2xl -mt-4 pb-10 z-20 bg-white shadow-lg px-4 pt-8 min-h-[50vh] flex flex-col items-center justify-center gap-4 max-w-full lg:max-w-5xl lg:mx-auto text-center">
+          <div className="rounded-t-panel -mt-12 md:-mt-16 lg:-mt-20 pb-10 z-20 bg-surface shadow-lg px-4 pt-8 min-h-[50vh] flex flex-col items-center justify-center gap-4 w-full grow max-w-full lg:max-w-5xl lg:mx-auto text-center rail-safe-foreground">
             <EmptyState
               image="/images/emptystate/products_empty_state.svg"
               title="Couldn't load vendors"
@@ -225,16 +216,27 @@ const Page: React.FC = () => {
             </Button>
           </div>
         </div>
-        <VendorNav />
       </div>
     );
   }
 
   return (
-    <div ref={scrollRef} className="w-full overflow-y-scroll scrollbar-hide">
-      <div className="w-full flex flex-col mb-0">
+    // h-full is what makes this scroll. The buyer frame is `h-dvh
+    // overflow-hidden`, and this element had no height at all: it grew to its
+    // content, so `overflow-y-scroll` had nothing to scroll and the frame simply
+    // clipped everything below the fold. Nothing on the marketplace past the
+    // first screen was reachable — and useInfiniteScroll ignores a container
+    // whose scrollHeight equals its clientHeight, so it rooted on the viewport
+    // and its sentinel, being clipped, never came into view either.
+    <div ref={scrollRef} className="w-full h-full overflow-y-scroll scrollbar-hide">
+      <div className="w-full flex flex-col mb-0 min-h-full">
         <HeaderSlides />
-        <div className="rounded-t-2xl -mt-4 pb-10 z-20 bg-white shadow-lg px-2 md:px-4 lg:px-6 pt-2 md:pt-4 lg:pt-6 max-w-full lg:max-w-5xl lg:mx-auto">
+        {/* The sheet that rides up over the hero. It takes the panel radius
+            like every other large surface: at 16 it was LESS rounded than the
+            vendor cards sitting inside it at 24, which is the one direction
+            nesting never goes — a container cannot be tighter than its contents.
+            Both sheets on this page carry the same value. */}
+        <div className="rounded-t-panel -mt-12 md:-mt-16 lg:-mt-20 pb-10 z-20 bg-surface shadow-lg px-2 md:px-4 lg:px-6 pt-2 md:pt-4 lg:pt-6 w-full grow max-w-full lg:max-w-5xl lg:mx-auto rail-safe-foreground">
           {!isScrolled && (
             <SearchInput
               showSearch={true}
@@ -246,7 +248,7 @@ const Page: React.FC = () => {
               }}
             />
           )}
-          <div className="gap-2 w-full pe-1 flex items-center bg-white sticky top-0 z-30 border-b border-ink-10">
+          <div className="gap-2 w-full pe-1 flex items-center bg-surface sticky top-0 z-30 border-b border-outline">
             {search && isScrolled ? (
               <SearchInput
                 showSearch={true}
@@ -268,35 +270,36 @@ const Page: React.FC = () => {
                       key={it.id}
                       className={
                         it.name === selectedName
-                          ? "py-2 px-4 bg-ink-90 rounded-full text-white text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
-                          : "py-2 px-4 bg-ink-3 rounded-full text-ink-90 text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
+                          ? "py-2 px-4 bg-surface-inverse rounded-full text-white text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
+                          : "py-2 px-4 bg-surface-subtle rounded-full text-foreground-primary text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
                       }>
                       <p className="whitespace-nowrap">{it.name}</p>
                       {it.name === selectedName && (
-                        <div
-                          className="z-modal cursor-pointer"
+                        <button type="button" aria-label="Clear selected category"
+                          className="text-left z-modal cursor-pointer"
                           onClick={(e) => {
                             e.stopPropagation();
                             setSelected({});
                           }}>
                           <X size={12} className="text-white" />
-                        </div>
+                        </button>
                       )}
                     </div>
                   ))}
                 </div>
                 {isScrolled && (
-                  <div
-                    className="py-2 px-2 bg-ink-3 rounded-full text-ink-90 text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
+                  <button type="button" aria-label="Search"
+                    className="text-left py-2 px-2 bg-surface-subtle rounded-full text-foreground-primary text-body-sm font-medium cursor-pointer relative flex flex-row items-center gap-3"
                     onClick={() => setSearch(!search)}>
-                    <Search size={16} className="text-ink-90" />
-                  </div>
+                    <Search size={16} className="text-foreground-primary" />
+                  </button>
                 )}
               </div>
             )}
           </div>
 
-          <div className="h-full overflow-y-scroll scrollbar-hide">
+          {/* Plain wrapper: the page scroller above owns scrolling. */}
+          <div>
             <div className=" ">
               {/* Recently viewed vendors — rendered from the per-user `recent`
                   list (it carries { business, products }); no broad product pull. */}
@@ -306,11 +309,11 @@ const Page: React.FC = () => {
                     <p className="font-medium text-body md:text-body-lg">
                       Recently viewed vendors
                     </p>
-                    <p
+                    <button type="button"
                       onClick={() => router.push("/shop/recently-viewed")}
-                      className="text-caption md:text-body-sm font-medium text-brand cursor-pointer hover:underline">
+                      className="text-left text-caption md:text-body-sm font-medium text-brandDeep cursor-pointer hover:underline">
                       See all
-                    </p>
+                    </button>
                   </div>
                   <div className="overflow-x-auto scrollbar-hide">
                     <div className="flex gap-4 px-0">
@@ -325,48 +328,47 @@ const Page: React.FC = () => {
                           <div
                             key={r.id}
                             className="w-[340px] md:w-[400px] lg:w-[450px] flex-shrink-0">
-                            <ExploreCard
-                              cardAction={() => {
-                                if (details) {
-                                  setStore(details);
-                                }
-                                router.push(storePath(details));
+                            <VendorCard
+                              href={storePath(details)}
+                              vendorId={r.business_id}
+                              name={details?.name || ""}
+                              logo={details?.logo as string | undefined}
+                              category={details?.category}
+                              rating={details?.average_rating}
+                              followers={details?.followers_count}
+                              backgroundImage={backgroundMap.get(r.business_id)}
+                              products={(r.products || []).map((item: any) => ({
+                                id: item.id,
+                                title: item.title,
+                                image: item.image,
+                                price: item.price,
+                                old_price: item.old_price,
+                                // Same as the vendor strip below: without these
+                                // the product link renders as /@handle/p/slug-
+                                // and 404s.
+                                public_id: item.public_id,
+                                slug: item.slug,
+                                rating: item.product_rating?.length
+                                  ? Math.round(
+                                      item.product_rating.reduce(
+                                        (a: number, b: { rate: number }) => a + b.rate,
+                                        0
+                                      ) / item.product_rating.length
+                                    )
+                                  : 0,
+                              }))}
+                              productHref={(product) => productPath(details, product)}
+                              savedProductIds={spotlightProduct.map((sp) => sp.product_id)}
+                              onSaveProduct={(product) =>
+                                product.id && addWishlist(product.id)
+                              }
+                              onPrefetch={() => {
+                                if (details) setStore(details);
+                                prefetch(storePath(details));
                               }}
-                              onPrefetch={() => prefetch(storePath(details))}
                               onPrefetchProduct={(item) =>
                                 prefetch(productPath(details, item))
                               }
-                              smallCardAction={(e, item) => {
-                                setLoadings(true);
-                                e.stopPropagation();
-                                router.push(productPath(details, item));
-                              }}
-                              likedItems={likedItems}
-                              handleLikeClick={(ite) => handleLikeClick(ite)}
-                              image={img1.src}
-                              bussinessName={details?.name || ""}
-                              category={details?.category || ""}
-                              id={r.business_id}
-                              store={r.products || []}
-                              vendorTheme={{
-                                backgroundColor:
-                                  details?.business_setting?.personalised_settings
-                                    ?.background_color,
-                                backgroundImage:
-                                  details?.business_setting?.personalised_settings
-                                    ?.background_image,
-                                backgroundType:
-                                  details?.business_setting?.personalised_settings
-                                    ?.background_state,
-                              }}
-                              businessDetails={{
-                                logo: details?.logo as string | undefined,
-                                followers_count: details?.followers_count,
-                                average_rating: details?.average_rating,
-                              }}
-                              dynamicBackgroundImage={backgroundMap.get(
-                                r.business_id
-                              )}
                             />
                           </div>
                         );
@@ -381,11 +383,11 @@ const Page: React.FC = () => {
                 <div className="mb-5 px-2">
                   <div className="flex justify-between items-center mb-4">
                     <p className="font-medium text-body md:text-body-lg">My wishlists</p>
-                    <p
+                    <button type="button"
                       onClick={() => router.push("")}
-                      className="text-caption md:text-body-sm font-medium text-brand cursor-pointer hover:underline">
+                      className="text-left text-caption md:text-body-sm font-medium text-brandDeep cursor-pointer hover:underline">
                       See all
-                    </p>
+                    </button>
                   </div>
                   <div className="overflow-x-auto md:overflow-visible scrollbar-hide">
                     <div className="flex md:grid md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-4">
@@ -401,30 +403,34 @@ const Page: React.FC = () => {
                               src={
                                 item?.product.image
                                   ? getMobileCompatibleImageUrl(item?.product.image[0])
-                                  : "/PRODUCT IMAGE (2).png"
+                                  : "/images/product-placeholder.svg"
                               }
                               alt={item.product.title ?? ""}
-                              className="w-[140px] h-[140px] object-cover rounded-card"
+                              // Fluid and square, the way the shared ProductCard
+                              // does it. Pinned at 140x140 the image stayed that
+                              // size while its grid column grew past 180 on
+                              // desktop, so it sat letterboxed in its own card.
+                              className="w-full aspect-square object-cover rounded-card"
                               width={140}
                               height={140}
                             />
-                            <span
-                              className="absolute top-2 right-4 h-9 w-9 flex justify-center items-center rounded-full bg-black/20 backdrop-blur-sm cursor-pointer"
+                            <button type="button" aria-label="Add to wishlist"
+                              className="text-left absolute top-2 right-4 h-9 w-9 flex justify-center items-center rounded-full bg-black/20 backdrop-blur-sm cursor-pointer"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleLikeClick(item.id);
                               }}>
                               <Heart size={18} className="text-white" />
-                            </span>
-                            <span
+                            </button>
+                            <button type="button" aria-label="Add to cart"
                               onClick={(e) => handleAddToCart(e, item)}
-                              className="absolute bottom-14 right-4 h-9 w-9 flex justify-center items-center rounded-full cursor-pointer bg-black/30 backdrop-blur-sm">
+                              className="text-left absolute bottom-14 right-4 h-9 w-9 flex justify-center items-center rounded-full cursor-pointer bg-black/30 backdrop-blur-sm">
                               <ShoppingCartAdd size={18} className="text-white" />
-                            </span>
+                            </button>
                             <p className="text-caption font-medium mt-2">
                               {truncateTextByLength(item.product.title, 30)}
                             </p>
-                            <p className="text-caption text-ink-20 font-medium line-through">
+                            <p className="text-caption text-foreground-disabled font-medium line-through">
                               ₦{item?.product.old_price?.toLocaleString()}
                             </p>
                             <div className="flex justify-between">
@@ -432,8 +438,8 @@ const Page: React.FC = () => {
                                 ₦{item?.product.price?.toLocaleString()}
                               </p>
                               <div className="flex gap-2">
-                                <FaStar size={12} className="text-warning" />
-                                <p className="text-caption text-ink-40">
+                                <FaStar size={12} className="text-brandDeep" />
+                                <p className="text-caption text-foreground-muted">
                                   {item.product.weight}
                                 </p>
                               </div>
@@ -447,81 +453,79 @@ const Page: React.FC = () => {
               )}
 
               {/* Explore vendors — P16 marketplace discovery feed */}
-              <div className="mb-5 overflow-y-scroll scrollbar-hide">
+              <div className="mb-5">
                 <div className="flex justify-between items-center py-3 px-2">
                   <h1 className="font-medium text-body md:text-body-lg">
                     Explore social media vendors
                   </h1>
-                  <p
+                  <button type="button"
                     onClick={() => router.push("/shop/spotlights")}
-                    className="text-brand font-medium text-caption md:text-body-sm cursor-pointer hover:underline">
+                    className="text-left text-brandDeep font-medium text-caption md:text-body-sm cursor-pointer hover:underline">
                     View spotlights
-                  </p>
+                  </button>
                 </div>
 
-                <div className="gap-4 md:gap-6 px-2 overflow-y-scroll scrollbar-hide md:grid md:grid-cols-2 lg:grid-cols-2">
+                <div className="gap-4 md:gap-6 px-2 md:grid md:grid-cols-2 lg:grid-cols-2">
                   {shopVendorsLoading
                     ? Array.from({ length: 4 }).map((_, i) => (
                         <div
                           key={i}
-                          className="h-56 rounded-card bg-ink-3 animate-pulse"
+                          className="h-56 rounded-card bg-surface-subtle animate-pulse"
                         />
                       ))
                     : shopVendors.map((v) => (
-                        <ExploreCard
+                        <VendorCard
                           key={v.id}
-                          cardAction={() => {
-                            // Navigate by tag (storefront server-resolves it); record
-                            // the view in the background (non-blocking).
-                            router.push(storePath(v));
-                            addRecentViewed(
-                              { business_ids: [v.id] },
-                              () => fetchRecentlyViewedBusiness()
+                          href={storePath(v)}
+                          vendorId={v.id}
+                          name={v.name}
+                          logo={v.logo}
+                          category={v.category}
+                          rating={v.average_rating}
+                          followers={v.followers_count}
+                          backgroundImage={backgroundMap.get(v.id)}
+                          products={(v.preview_products || []).map((item: any) => ({
+                            id: item.id,
+                            title: item.title,
+                            image: item.image,
+                            price: item.price,
+                            old_price: item.old_price,
+                            // REQUIRED for the product link. Omitting these made
+                            // productPath fall back to `public_id || ''` and emit
+                            // /@handle/p/slug- — a URL that looks valid and 404s,
+                            // on every product link this page rendered. The slug
+                            // looked right only because productSlug regenerates
+                            // it from the title when absent, which hid the fault.
+                            // Both fields are short strings; the trimming below
+                            // is about `variants`, not these.
+                            public_id: item.public_id,
+                            slug: item.slug,
+                            // `rates` is just the scores. The feed used to send
+                            // each preview product's whole record — associations
+                            // and all — and `variants` alone was 7.9MB of a
+                            // 7.8MB page, which could not arrive inside the
+                            // client's timeout on a 3G connection.
+                            rating: item.rates?.length
+                              ? Math.round(
+                                  item.rates.reduce((a: number, b: number) => a + b, 0) /
+                                    item.rates.length
+                                )
+                              : 0,
+                          }))}
+                          productHref={(product) => productPath(v, product)}
+                          savedProductIds={spotlightProduct.map((sp) => sp.product_id)}
+                          onSaveProduct={(product) => product.id && addWishlist(product.id)}
+                          onPrefetch={() => {
+                            prefetch(storePath(v));
+                            // Record the view in the background (non-blocking).
+                            addRecentViewed({ business_ids: [v.id] }, () =>
+                              fetchRecentlyViewedBusiness()
                             ).catch((error) => {
-                              console.error(
-                                "Error adding to recent viewed:",
-                                error
-                              );
+                              console.error("Error adding to recent viewed:", error);
                             });
                           }}
-                          onPrefetch={() => prefetch(storePath(v))}
-                          onPrefetchProduct={(item) =>
-                            prefetch(productPath(v, item))
-                          }
-                          smallCardAction={(e, item) => {
-                            addRecentViewed(
-                              { business_ids: [v.id] },
-                              () => fetchRecentlyViewedBusiness()
-                            );
-                            setLoadings(true);
-                            e.stopPropagation();
-                            router.push(productPath(v, item));
-                          }}
-                          likedItems={likedItems}
-                          handleLikeClick={(ite) => handleLikeClick(ite)}
-                          image={img1.src}
-                          bussinessName={v.name}
-                          category={v.category}
-                          id={v.id}
-                          store={v.preview_products || []}
-                          vendorTheme={{
-                            backgroundColor:
-                              v.business_setting?.personalised_settings
-                                ?.background_color,
-                            backgroundImage:
-                              v.business_setting?.personalised_settings
-                                ?.background_image,
-                            backgroundType:
-                              v.business_setting?.personalised_settings
-                                ?.background_state,
-                          }}
-                          businessDetails={{
-                            logo: v.logo,
-                            followers_count: v.followers_count,
-                            average_rating: v.average_rating,
-                          }}
-                          dynamicBackgroundImage={backgroundMap.get(v.id)}
-                        />
+                          onPrefetchProduct={(item) => prefetch(productPath(v, item))}
+                                                />
                       ))}
                 </div>
 
@@ -552,7 +556,7 @@ const Page: React.FC = () => {
                         {Array.from({ length: 2 }).map((_, i) => (
                           <div
                             key={i}
-                            className="h-56 rounded-card bg-ink-3 animate-pulse"
+                            className="h-56 rounded-card bg-surface-subtle animate-pulse"
                           />
                         ))}
                       </div>
@@ -564,7 +568,6 @@ const Page: React.FC = () => {
           </div>
         </div>
       </div>
-      <VendorNav />
     </div>
   );
 };

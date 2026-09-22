@@ -115,7 +115,10 @@ func (s *AuthService) Register(input requests.SignUpRequest) (interface{}, error
 		// "123456" launch backdoor can no longer authenticate a real account in
 		// production. Production always runs full OTP validation below.
 		if helper.OTPBypassAllowed() {
-			fmt.Printf("[NON-PROD] OTP validation skipped for registration - phone: %s, email: %s, otp: %s\n", input.Phone, input.Email, input.OTP)
+			// Was: phone, email AND the OTP, on every non-production registration.
+			// The label said NON-PROD, but the branch covers staging, so real
+			// contact details and a live one-time code went to retained logs.
+			logger.Info("otp verification skipped for registration (non-production environment)")
 			if input.Email != "" {
 				otpIdentifier = "email"
 			} else {
@@ -502,7 +505,11 @@ func (s *AuthService) SocialAuthCallBack(code, provider, redirectUrl string) (in
 		}
 		defer resp.Body.Close()
 		body, err := io.ReadAll(resp.Body)
-		logger.Info(fmt.Sprintf("response body: %s", string(body)))
+		// The token-exchange response body IS the credential — it carries
+		// access_token and, for some providers, refresh_token and the user's
+		// profile. It was logged in full on every social sign-in, which put
+		// live OAuth tokens into retained logs where anyone with log access
+		// could impersonate the user.
 		if err != nil {
 			return nil, fmt.Errorf("failed to read response body: %v", err)
 		}
@@ -518,7 +525,8 @@ func (s *AuthService) SocialAuthCallBack(code, provider, redirectUrl string) (in
 		}
 
 		token, ok := tokenResponse["access_token"].(string)
-		logger.Info(fmt.Sprintf("token; %v", token))
+		// Never the token. Not truncated, not prefixed — a partial OAuth token
+		// is still a secret being written down.
 		if !ok {
 			logger.Error("missing access token")
 			return nil, errors.New("error occurred, missing access token")
@@ -529,7 +537,7 @@ func (s *AuthService) SocialAuthCallBack(code, provider, redirectUrl string) (in
 			logger.Error(fmt.Sprintf("error fetching user info: %v", err))
 			return nil, errors.New(fmt.Sprintf("error fetching user info: %v", err))
 		}
-		fmt.Println("userData; ", userData)
+		// Was the whole decoded OAuth user: provider id, email, name, picture.
 		user, err = s.userService.FetchOne(map[string]interface{}{"instagram_id": userData.ID}, false)
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New(fmt.Sprintf("error fetching user info: %v", err))

@@ -1,12 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
 import React from 'react'
-import { BsThreeDots, MdOutlineAddCard } from "@vibaar/ui/icons";
+import { MdOutlineAddCard } from "@vibaar/ui/icons";
 import { useRouter } from 'next/navigation';
 import PageShell from '@vibaar/ui/PageShell'
-import Header from '@/design-system/common/Header'
-import Card from '@vibaar/ui/common/Card'
+import Header from "@vibaar/ui/common/Header";
+import Surface from '@vibaar/ui/common/Surface'
 import Section from '@vibaar/ui/common/Section'
+import Badge from "@vibaar/ui/common/Badge";
 
 
 
@@ -17,60 +18,57 @@ const Billing = () => {
         <PageShell
           header={
             <Header
-              showBack
-              onBackClick={() => router.back()}
-              customText="Billing"
+              onBack={() => router.back()}
+              title="Billing"
             />
           }>
             <Section title="Current plan">
-                <Card>
+                <Surface>
                     <div className='flex justify-between'>
                         <p className='font-medium'>Booster</p>
-                        <p className='text-brand text-body-sm'>Change plan</p>
+                        <p className='text-brandDeep text-body-sm'>Change plan</p>
                     </div>
 
-                    <p className="text-ink-40 text-body">₦2,300/month</p>
+                    <p className="text-foreground-muted text-body">₦2,300/month</p>
 
-                    <p className='text-body'> <span className="text-ink-60"> Next billing:</span>  20 Jul 2024</p>
-                </Card>
+                    <p className='text-body'> <span className="text-foreground-secondary"> Next billing:</span>  20 Jul 2024</p>
+                </Surface>
             </Section>
 
             <Section title="Billing cards">
-                <Card className="flex justify-between items-center">
+                <Surface className="flex justify-between items-center">
                     <div className="flex flex-col">
                         <div className="flex items-center space-x-3">
                             <img src={'/images/vendor/visa.png'} alt="Visa" className="w-8 h-5 object-contain" />
                             <div>
-                                <span className='text-body font-medium text-ink-90'>Mastercard-1243</span>
-                                <span className="text-brand ml-2 border border-brand rounded-pill px-2 bg-brand/10 text-caption font-normal">Default</span>
-                                <p className="text-body font-normal text-ink-60">02/29</p>
+                                <span className='text-body font-medium text-foreground-primary'>Mastercard-1243</span>
+                                <Badge tone="brand" className="ml-2">Default</Badge>
+                                <p className="text-body font-normal text-foreground-secondary">02/29</p>
                             </div>
                         </div>
                     </div>
 
-                    <BsThreeDots className='cursor-pointer' />
-                </Card>
-                <Card className="flex justify-between items-center">
+                </Surface>
+                <Surface className="flex justify-between items-center">
                     <div className="flex flex-col">
                         <div className="flex items-center space-x-3">
                             <img src={'/images/vendor/mastercard.png'} alt="Mastercard" className="w-8 h-5 object-contain" />
                             <div>
-                                <span className='text-body font-medium text-ink-90'>Visacard-1243</span>
-                                <span className="text-brand ml-2 border border-brand rounded-pill px-2 bg-brand/10 text-caption font-normal">Default</span>
-                                <p className="text-body font-normal text-ink-60">02/29</p>
+                                <span className='text-body font-medium text-foreground-primary'>Visacard-1243</span>
+                                <Badge tone="brand" className="ml-2">Default</Badge>
+                                <p className="text-body font-normal text-foreground-secondary">02/29</p>
                             </div>
                         </div>
                     </div>
 
-                    <BsThreeDots className='cursor-pointer' />
-                </Card>
+                </Surface>
                 <div className="flex justify-end">
-                    <p
-                        className="cursor-pointer text-brand flex items-center text-body-sm font-medium"
+                    <button type="button"
+                        className="text-left cursor-pointer text-brandDeep flex items-center text-body-sm font-medium"
                         onClick={() => router.push(`/dashboard/settings/billing/add-card`)}
                     >
                         Add new Card <MdOutlineAddCard className="ml-0.5" />
-                    </p>
+                    </button>
                 </div>
             </Section>
       </PageShell>

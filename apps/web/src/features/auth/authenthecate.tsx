@@ -4,9 +4,27 @@
 
 import { useCallback, useState } from "react";
 import OtpInput from "./otp";
-import { toast } from "sonner";
 import IconButton from "@vibaar/ui/common/IconButton";
 import { BiArrowBack } from "@vibaar/ui/icons";
+
+/**
+ * The heading and the "we sent a code to…" line, shared by this full-page step
+ * and by the add-account dialog's second step. Extracted rather than copied so
+ * the two cannot drift into telling a seller different things about the same OTP.
+ */
+export function OtpPrompt({ title, phone }: { title: string; phone?: string }) {
+  return (
+    <>
+      <p className="text-foreground-primary font-medium text-h1">{title}</p>
+      <p className="text-body-sm mt-2 font-normal text-foreground-secondary">
+        We sent a 6 digit OTP code to the provided phone number:{" "}
+        <span className="inline-flex font-medium text-foreground-primary">
+          {phone || "Not set"}
+        </span>
+      </p>
+    </>
+  );
+}
 
 export default function Authenthecate({
   action,
@@ -27,14 +45,29 @@ export default function Authenthecate({
 }) {
   const [otpValue, setOtpValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const handleComplete = useCallback(async (val: any) => {
+  // `otpAction` is in the dep list: with `[]` the callback captured the first
+  // render's prop and kept calling a stale closure.
+  //
+  // No toast either way: verifyOtpSent reports both outcomes itself. This used
+  // to announce "OTP verification successful!!!" unconditionally — the store
+  // swallowed rejections, so a WRONG code produced the error toast and the
+  // success toast together.
+  const handleComplete = useCallback(async (val: string) => {
     setOtpValue(val);
-    await otpAction(val);
-    toast.success("OTP verification successful!!!");
-  }, []);
+    try {
+      await otpAction(val);
+    } catch {
+      // Reported by the store; nothing to add.
+    }
+  }, [otpAction]);
 
   return (
-    <div className="flex-1 h-screen w-screen py-3 px-4 flex flex-col justify-between">
+    // `h-full w-full`, not `h-screen w-screen`. Both existing callers render this
+    // as the whole page inside a frame that is already full height, so the two
+    // measure identically there — but `w-screen` is 100vw, which overflows any
+    // container narrower than the viewport, and that is every container this now
+    // has to work in. Same pixels where it is used today, usable in a panel.
+    <div className="flex-1 h-full w-full py-3 px-4 flex flex-col justify-between">
       <div className="gap-2 flex flex-col mb-4">
         <IconButton
           icon={BiArrowBack}
@@ -42,19 +75,16 @@ export default function Authenthecate({
           className="-ml-2"
           onClick={base ? () => action("confirm") : backAction}
         />
-        <p className="text-ink-90 font-medium text-h1">
-          Authenticate {base ? "Withdrawal" : "Account"}!
-        </p>
-        <p className="text-body-sm mt-2 font-normal text-ink-60">
-          We sent a 6 digit OTP code to the provided phone number:{" "}
-          <span className="inline-flex font-medium text-ink-90">{phone || "Not set"}</span>
-        </p>
+        <OtpPrompt
+          title={`Authenticate ${base ? "Withdrawal" : "Account"}!`}
+          phone={phone}
+        />
       </div>
       <div className="flex-1 my-4 w-full flex flex-col gap-2 items-center">
         <OtpInput onComplete={handleComplete} />
       </div>
-      <div className="w-full border-t border-ink-10 py-2">
-        <div
+      <div className="w-full border-t border-outline py-2">
+        <button type="button"
           onClick={
             isLoading
               ? undefined
@@ -75,11 +105,11 @@ export default function Authenthecate({
                 }
               : buttonAction
           }
-          className={`p-2 h-10 justify-center items-center flex text-white font-medium w-full text-body-sm rounded-full cursor-pointer ${
-            isLoading ? "bg-ink-30 cursor-not-allowed" : "bg-brand"
+          className={`text-left w-full p-2 h-10 justify-center items-center flex font-medium w-full text-body-sm rounded-full cursor-pointer ${
+            isLoading ? "bg-surface-strong text-brandInk cursor-not-allowed" : "bg-brand text-brandInk"
           }`}>
           {isLoading ? "Processing..." : base ? "Confirm withdrawal" : "Confirm"}
-        </div>
+        </button>
       </div>
     </div>
   );

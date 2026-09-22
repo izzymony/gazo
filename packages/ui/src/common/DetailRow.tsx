@@ -10,13 +10,13 @@ interface DetailRowProps {
   className?: string;
 }
 
-// Label is secondary (text-ink-60), value is primary/emphasized (font-medium
-// text-ink-90) so the row has hierarchy.
+// Label is secondary (text-foreground-secondary), value is primary/emphasized (font-medium
+// text-foreground-primary) so the row has hierarchy.
 export default function DetailRow({ label, value, children, className }: DetailRowProps) {
   return (
     <div className={cn("flex items-center justify-between gap-3", className)}>
-      <p className="text-body-sm text-ink-60">{label}</p>
-      {children ?? <p className="text-body font-medium text-ink-90 text-right">{value}</p>}
+      <p className="text-body-sm text-foreground-secondary">{label}</p>
+      {children ?? <p className="text-body font-medium text-foreground-primary text-right">{value}</p>}
     </div>
   );
 }

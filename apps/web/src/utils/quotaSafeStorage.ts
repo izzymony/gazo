@@ -40,13 +40,11 @@ const createQuotaSafeStorage = (): StorageInterface => {
             for (const key of largePotentialKeys) {
               if (key !== name && localStorage.getItem(key)) {
                 localStorage.removeItem(key);
-                console.log(`[QuotaSafeStorage] Cleared large item: ${key}`);
               }
             }
 
             // Try setting again after cleanup
             localStorage.setItem(name, value);
-            console.log(`[QuotaSafeStorage] Successfully set "${name}" after cleanup`);
           } catch (retryError) {
             console.warn(`[QuotaSafeStorage] Still failed after cleanup for "${name}". Falling back to memory storage.`);
             // Could implement in-memory fallback here if needed
@@ -95,16 +93,13 @@ export const getStorageStats = () => {
 
 // Emergency cleanup for app initialization
 export const emergencyStorageCleanup = () => {
-  console.log('[EmergencyCleanup] Starting localStorage cleanup...');
 
   try {
     const stats = getStorageStats();
     if (stats) {
-      console.log('[EmergencyCleanup] Current storage usage:', stats);
 
       // If total size is over 3MB, aggressively clean
       if (stats.totalSize > 3 * 1024 * 1024) {
-        console.log('[EmergencyCleanup] High storage usage detected. Clearing large items...');
 
         // Clear all known problematic stores
         const storesToClear = [
@@ -117,13 +112,11 @@ export const emergencyStorageCleanup = () => {
         for (const store of storesToClear) {
           if (localStorage.getItem(store)) {
             localStorage.removeItem(store);
-            console.log(`[EmergencyCleanup] Cleared: ${store}`);
           }
         }
 
         const newStats = getStorageStats();
         if (newStats) {
-          console.log('[EmergencyCleanup] After cleanup:', newStats);
         }
       }
     }

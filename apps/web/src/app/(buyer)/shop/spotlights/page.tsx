@@ -9,7 +9,6 @@ import useProductStore from "@/store/productStore";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { FaStar, FiUsers, IoIosArrowForward } from "@vibaar/ui/icons";
-import img1 from "../../../../../public/PRODUCT IMAGE (2).png";
 import WishlistComponent from "./wishlistcomponent";
 
 const Page = () => {
@@ -313,9 +312,9 @@ const Page = () => {
                   <div className="z-10">
                     {/* Story Progress Bar */}
                     {isCurrentCard && (
-                      <div className="w-full rounded-field h-1 bg-ink-40/50 z-[9999] relative">
+                      <div className="w-full rounded-field h-1 bg-surface-strong z-[9999] relative">
                         <div
-                          className="h-full bg-white z-[9999] transition-all duration-100"
+                          className="h-full bg-surface z-[9999] transition-all duration-100"
                           style={{ width: `${loadingProgress}%` }}></div>
                       </div>
                     )}
@@ -344,7 +343,7 @@ const Page = () => {
                             <div className="font-normal text-caption flex items-center gap-1 text-white capitalize">
                               <FaStar size={10} className="text-white" />
                               {businessDetails?.average_rating || "0.0"}{" "}
-                              <span className="inline-block h-1 w-1 rounded-full bg-white/70" />{" "}
+                              <span className="inline-block h-1 w-1 rounded-full bg-surface/70" />{" "}
                               <FiUsers size={10} className="text-white" />
                               {businessDetails?.followers_count || "0"}
                             </div>
@@ -361,7 +360,7 @@ const Page = () => {
                               ? "Unfollow"
                               : "Follow"}
                           </button>
-                          <IoIosArrowForward size={20} className="text-white" />
+                          <IoIosArrowForward size={20} className="text-brandInk" />
                         </div>
                       </div>
                     </div>
@@ -402,7 +401,7 @@ const Page = () => {
                           router.push(storePath(businessDetails));
                         }}
                         type="button"
-                        className="flex flex-row gap-1 justify-center items-center text-center py-3 rounded-full text-body-sm font-normal px-3 bg-brand text-white z-30 relative">
+                        className="flex flex-row gap-1 justify-center items-center text-center py-3 rounded-full text-body-sm font-normal px-3 bg-brand text-brandInk z-30 relative">
                         Visit store front{" "}
                         <IoIosArrowForward size={20} className="text-white" />
                       </button>

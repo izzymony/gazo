@@ -7,7 +7,28 @@ import bundleAnalyzer from '@next/bundle-analyzer';
 const withBundleAnalyzer = bundleAnalyzer({ enabled: process.env.ANALYZE === 'true' });
 
 const nextConfig = {
+  // Build output directory. Overridable so a verification build can run without
+  // replacing the .next a concurrent dev server is reading — two sessions share
+  // this app, and a plain build silently corrupts the running one (it 404s on
+  // layout.css and main-app.js and renders unstyled). Defaults to .next.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
+  // Draft routes. A `page.draft.tsx` is only a route when `draft.tsx` counts as
+  // a page extension, which it does in development and never in a production
+  // build — so the route, and everything it imports, is absent from the
+  // deployed bundle and from the route manifest entirely.
+  pageExtensions:
+    process.env.NODE_ENV === 'development' || process.env.INCLUDE_DRAFTS === '1'
+      ? ['tsx', 'ts', 'draft.tsx']
+      : ['tsx', 'ts'],
   reactStrictMode: true,
+  // /landing rendered the same hero as / in every shipped build, so it was a
+  // crawlable duplicate of the homepage. A permanent redirect consolidates that
+  // history rather than throwing it away. (The /v2 preview route needs no such
+  // treatment — it was never committed, so it never shipped, and it carried
+  // noindex throughout.)
+  async redirects() {
+    return [{ source: '/landing', destination: '/', permanent: true }];
+  },
   // Transpile raw-TS workspace packages consumed from packages/* (M1 extraction).
   transpilePackages: ['@vibaar/types', '@vibaar/api-client', '@vibaar/ui'],
   // Allow mobile devices to access dev server

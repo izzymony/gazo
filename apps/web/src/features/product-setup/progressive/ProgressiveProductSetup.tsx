@@ -5,14 +5,19 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "sonner";
+import { isTaxonomyId } from "@/hooks/useCategories";
+import {
+    ProductImagePreparationProvider,
+    useIsPreparingProductImages,
+} from "@/features/product-setup/lib/ProductImagePreparation";
 
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
-import Button from "@vibaar/ui/common/Button";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
+import StepNavigation from "@vibaar/ui/common/StepNavigation";
 import Loader from "@vibaar/ui/common/Loader";
 import useAuthStore from "@/store/authStore";
 import useBusinessStore from "@/store/businessStore";
@@ -93,6 +98,22 @@ const validationSchemas = [
 ];
 
 export default function ProgressiveProductSetup() {
+    // Every product image picker below reports here, so the commit action can
+    // wait for preparation it does not own.
+    return (
+        <ProductImagePreparationProvider>
+            <ProgressiveProductSetupInner />
+        </ProductImagePreparationProvider>
+    );
+}
+
+function ProgressiveProductSetupInner() {
+    const preparingImages = useIsPreparingProductImages();
+    // Read through a ref inside submit handlers: those close over the render
+    // they were created in, and a stale `false` there is exactly the race this
+    // guard exists to close.
+    const preparingRef = useRef(preparingImages);
+    preparingRef.current = preparingImages;
     const router = useRouter();
     const searchParams = useSearchParams();
     const queryStep = searchParams.get("step");
@@ -121,12 +142,13 @@ export default function ProgressiveProductSetup() {
     }, []);
 
     async function handleNextStep() {
+        // A disabled button is an affordance, not a contract: nothing stops a
+        // keyboard submit, a programmatic call, or a click landing in the frame
+        // before React re-renders. The guard belongs on the submission path.
+        if (preparingRef.current) return;
+
         // Log form values without images to avoid quota issues
         const { images, ...valuesWithoutImages } = formik.values;
-        console.log("Form submitted with values:", {
-            ...valuesWithoutImages,
-            imageCount: images?.length || 0
-        });
         const errors = await formik.validateForm();
         if (Object.keys(errors).length === 0) {
             // Track step completion
@@ -143,7 +165,6 @@ export default function ProgressiveProductSetup() {
                 handlePreview();
             }
         } else {
-            console.log("Validation errors:", errors);
 
             // Mark all fields as touched to show validation errors
             const touchedFields: Record<string, boolean> = {};
@@ -208,35 +229,24 @@ export default function ProgressiveProductSetup() {
     // }, [formik.values]);
 
     const handlePublish = () => {
-        console.log('🔍 Publishing with selectedCategory:', selectedCategory);
-        console.log('🔍 Publishing with formik.values:', { 
-            categoryId: formik.values.categoryId, 
-            subCategoryId: formik.values.subCategoryId 
-        });
-        
-        const categoryId = selectedCategory?.categoryId || formik.values.categoryId || "";
-        const subCategoryId = selectedCategory?.subCategoryId || formik.values.subCategoryId || "";
-        
-        console.log('🔍 Final category values for API:', { 
-          categoryId, 
-          subCategoryId
-        });
-        
-        // Use fallback values only if no category is selected
-        const fallbackCategoryId = "9aebee99-0435-4ca1-bf82-7657bd35691a"; // Fashion category UUID
-        const fallbackSubCategoryId = "f6e81ad4-d74f-45e0-a4f4-ba6ad0c91ce8"; // Men's Clothing subcategory UUID
-        
-        const finalCategoryId = categoryId || fallbackCategoryId;
-        const finalSubCategoryId = subCategoryId || fallbackSubCategoryId;
-        
-        if (!categoryId && !subCategoryId) {
-            console.warn('⚠️ No category selected, using fallback values');
-            console.log('🔍 Using fallback category values:', { 
-              finalCategoryId, 
-              finalSubCategoryId 
-            });
+        if (preparingRef.current) return;
+
+        const finalCategoryId = selectedCategory?.categoryId || formik.values.categoryId || "";
+        const finalSubCategoryId = selectedCategory?.subCategoryId || formik.values.subCategoryId || "";
+
+        // No category means no publish. Two hardcoded fallback uuids used to stand
+        // in here — "Fashion" and "Men's Clothing" — and both had been migrated out
+        // of the database by 003_emergency_category_fix.sql, so substituting them
+        // guaranteed the "category not found" the seller then had to decode. A
+        // missing category is the seller's to fix, and it is fixable; a silently
+        // swapped one is neither.
+        if (!isTaxonomyId(finalCategoryId) || !isTaxonomyId(finalSubCategoryId)) {
+            toast.error("Choose a product category before publishing.");
+            setStep(2);
+            setIsPreviewOpen(false);
+            return;
         }
-        
+
         const payload = {
             sku: formik.values.id,
             barcode: "1234567",
@@ -275,10 +285,6 @@ export default function ProgressiveProductSetup() {
 
         // Log payload without image data to avoid quota issues
         const { image, ...payloadWithoutImages } = payload;
-        console.log('🔍 Complete payload being sent to API:', {
-            ...payloadWithoutImages,
-            imageCount: image?.length || 0
-        });
 
         addProduct(payload as unknown as Parameters<typeof addProduct>[0], async () => {
             try {
@@ -293,7 +299,6 @@ export default function ProgressiveProductSetup() {
                     finalCategoryId
                 );
                 if (creationDuration) {
-                    console.log(`Product creation completed in ${creationDuration}s`);
                 }
 
                 // Clear draft on successful creation
@@ -328,7 +333,7 @@ export default function ProgressiveProductSetup() {
 
     if (isPreviewOpen) {
         return (
-            <div className="bg-white h-full w-full">
+            <div className="bg-surface h-full w-full">
                 <ProductPreview
                     publish={handlePublish}
                     setIsPreviewOpen={setIsPreviewOpen}
@@ -341,29 +346,27 @@ export default function ProgressiveProductSetup() {
 
     return (
         <PageShell
-            header={
-                <Header
-                    showBack
-                    showStepNavigation
-                    step={step}
-                    totalSteps={3}
-                    customText="Add Product"
-                    onBackClick={() => {
-                        if (step === 3) {
-                            router.back();
-                        } else if (step > 1) {
-                            router.push(`?step=${step - 1}`);
-                        } else {
-                            router.back();
-                        }
-                    }}
-                />
-            }
-            footerAction={
-                <Button onClick={() => formik.handleSubmit()} loading={isLoading}>
-                    {getButtonText()}
-                </Button>
-            }>
+            pageHeader={{
+                onBack: () => {
+                    if (step === 3) {
+                        router.back();
+                    } else if (step > 1) {
+                        router.push(`?step=${step - 1}`);
+                    } else {
+                        router.back();
+                    }
+                },
+                title: "Add Product",
+                progress: <StepNavigation step={step} totalSteps={3} />,
+                actions: (
+                    <PageActionButton
+                        onClick={() => formik.handleSubmit()}
+                        loading={isLoading}
+                        disabled={preparingImages}>
+                        {preparingImages ? "Preparing image…" : getButtonText()}
+                    </PageActionButton>
+                ),
+            }}>
             <div className="flex flex-col w-full space-y-6 pt-4">
                 {formik && step === 1 && <Step1StartStrong formik={formik} />}
                 {formik && step === 2 && (

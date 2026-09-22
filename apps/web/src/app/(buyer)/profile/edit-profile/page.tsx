@@ -3,8 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import InputField from "@vibaar/ui/common/InputField";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
-import Button from "@vibaar/ui/common/Button";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import Section from "@vibaar/ui/common/Section";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
@@ -25,7 +24,6 @@ const Page = () => {
 
   useEffect(() => {
     if (user) {
-      console.log("user", user);
       setImage(user.profile_image || null);
       setUsers(user);
     }
@@ -105,7 +103,6 @@ const Page = () => {
       dob?: string;
       image?: string;
     }) => {
-      console.log("Submitting values:", values);
       setIsUploading(true);
       
       try {
@@ -119,18 +116,21 @@ const Page = () => {
           formData.append('date_of_birth', values.dob || '');
           
           // Use FormData for upload
-          await updateUser(formData as any, () => {
+          await updateUser(formData, () => {
             toast.success("Profile updated successfully!");
             router.back();
           });
         } else {
-          // No new image, just update other fields
+          // No new image, so profile_image is deliberately OMITTED: the server
+          // leaves the stored avatar untouched when the field is absent. Echoing
+          // the existing Cloudinary URL back made the server try to base64-decode
+          // a URL, which always failed — so anyone who already had an avatar
+          // could not save their name or date of birth at all.
           const payload = {
             firstname: values.firstname,
             lastname: values.lastname,
             username: values.user_name,
             date_of_birth: values.dob,
-            profile_image: user?.profile_image || "",
           };
           
           await updateUser(payload, () => {
@@ -149,18 +149,18 @@ const Page = () => {
 
   return (
     <PageShell
-      header={
-        <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="Edit Profile"
-        />
-      }
-      footerAction={
-        <Button type="button" onClick={formik.handleSubmit} loading={isUploading}>
-          Save
-        </Button>
-      }>
+      pageHeader={{
+        onBack: () => router.back(),
+        title: "Edit Profile",
+        actions: (
+          <PageActionButton
+            type="button"
+            onClick={() => formik.handleSubmit()}
+            loading={isUploading}>
+            Save
+          </PageActionButton>
+        ),
+      }}>
       {/* Avatar (genuine graphic — left as UserProfileImage) */}
       <div
         className="relative flex justify-center items-center cursor-pointer"

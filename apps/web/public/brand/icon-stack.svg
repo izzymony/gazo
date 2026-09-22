@@ -1,0 +1,46 @@
+<svg viewBox="-43 21 1084 739" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!--
+  The brand mark as the three-layer lockup from Figma (node 74:8997, the
+  yellow-ground version): the outlined mark, and two larger copies of its
+  silhouette behind it at 10% and 15% black.
+
+  THE OUTLINE IS AN INNER STROKE. It sits inside the path, so the mark's
+  silhouette is the path itself and the black eats inward. SVG has no inner
+  stroke, so each shape is filled and then stroked at double width clipped to
+  itself, which leaves only the inner half. Drawn as an OUTER stroke instead -
+  which is what this was before - the whole mark grows by the stroke width and
+  the yellow counters read pinched. The measurement that settles it: the
+  outline's outer edge is 97x62, aspect 1.565, which is the BARE path's aspect
+  (1.573). An outer stroke would have pushed it past that.
+
+  The echoes are scaled copies of the mark's silhouette grown by 76, at 1.218
+  and 1.584 about the mark's centre. Those two numbers are not taste: they
+  predict layer ratios of 1.373 and 1.784 against Figma's measured 1.371 and
+  1.784.
+
+  Every value here was measured off the source and verified back the same way.
+  The two echo alphas come from its pixels - 10.2% and 23.5% over the brand
+  yellow, the second being 10% and 15% stacked.
+
+  Regenerate from icon-yellow.svg if the mark ever changes; the geometry below
+  is those two paths, unmodified.
+-->
+<defs>
+  <clipPath id="vibaar-mark-a"><path d="M774.211 256.429C714.026 181.2 616.448 181.2 556.264 256.429L532.309 286.373L665.237 452.533L798.166 286.373L774.211 256.429Z"/></clipPath>
+  <clipPath id="vibaar-mark-b"><path d="M441.901 256.422C381.717 181.193 284.139 181.193 223.955 256.422L200 286.366L390.111 524.003C450.295 599.232 547.873 599.232 608.057 524.003L632.012 494.059L441.901 256.422Z"/></clipPath>
+</defs>
+<g fill="#000000" stroke="#000000" stroke-width="76" stroke-linejoin="round">
+  <g opacity="0.1" transform="translate(499.1 390.2) scale(1.584) translate(-499.1 -390.2)">
+    <path d="M774.211 256.429C714.026 181.2 616.448 181.2 556.264 256.429L532.309 286.373L665.237 452.533L798.166 286.373L774.211 256.429Z"/>
+    <path d="M441.901 256.422C381.717 181.193 284.139 181.193 223.955 256.422L200 286.366L390.111 524.003C450.295 599.232 547.873 599.232 608.057 524.003L632.012 494.059L441.901 256.422Z"/>
+  </g>
+  <g opacity="0.15" transform="translate(499.1 390.2) scale(1.218) translate(-499.1 -390.2)">
+    <path d="M774.211 256.429C714.026 181.2 616.448 181.2 556.264 256.429L532.309 286.373L665.237 452.533L798.166 286.373L774.211 256.429Z"/>
+    <path d="M441.901 256.422C381.717 181.193 284.139 181.193 223.955 256.422L200 286.366L390.111 524.003C450.295 599.232 547.873 599.232 608.057 524.003L632.012 494.059L441.901 256.422Z"/>
+  </g>
+</g>
+<path d="M774.211 256.429C714.026 181.2 616.448 181.2 556.264 256.429L532.309 286.373L665.237 452.533L798.166 286.373L774.211 256.429Z" fill="#FFE500"/>
+<path d="M774.211 256.429C714.026 181.2 616.448 181.2 556.264 256.429L532.309 286.373L665.237 452.533L798.166 286.373L774.211 256.429Z" clip-path="url(#vibaar-mark-a)" stroke="#000000" stroke-width="68"/>
+<path d="M441.901 256.422C381.717 181.193 284.139 181.193 223.955 256.422L200 286.366L390.111 524.003C450.295 599.232 547.873 599.232 608.057 524.003L632.012 494.059L441.901 256.422Z" fill="#FFE500"/>
+<path d="M441.901 256.422C381.717 181.193 284.139 181.193 223.955 256.422L200 286.366L390.111 524.003C450.295 599.232 547.873 599.232 608.057 524.003L632.012 494.059L441.901 256.422Z" clip-path="url(#vibaar-mark-b)" stroke="#000000" stroke-width="68"/>
+</svg>

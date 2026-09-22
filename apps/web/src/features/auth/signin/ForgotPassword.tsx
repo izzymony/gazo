@@ -8,12 +8,18 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import Loader from "@vibaar/ui/common/Loader";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
+import BrandLogo from "@vibaar/ui/common/BrandLogo";
+import StepNavigation from "@vibaar/ui/common/StepNavigation";
 import Button from "@vibaar/ui/common/Button";
 import Otp from "@/features/auth/signup/Otp";
 import CreateNewPassword from "./CreateNewPassword";
 import InputField from "@vibaar/ui/common/InputField";
 import H1 from "@vibaar/ui/common/Typography";
+import AuthSceneController from "@vibaar/ui/authScene/AuthSceneController";
+import { AUTH_SCENES } from "../authScenes";
+import { resolveAuthStep } from "../authSteps";
+import useStepFocus from "../useStepFocus";
 
 
 
@@ -60,10 +66,15 @@ const validationSchema = [
 export default function ForgotPasswordComp() {
     const router = useRouter();
     const { isLoading, sendOtp, forgotPassword } = useAuthStore();
-    const [step, setStep] = useState<number>(0);
     const [isRedirecting] = useState(false);
     const searchParams = useSearchParams();
     const queryStep = searchParams.get('step');
+
+    // The URL's step from the first render, not applied by an effect —
+    // see SignInOverview for the request that behaviour caused. This screen
+    // mounts no artwork on mobile either way, but the step also drives the
+    // progress indicator and the focus target.
+    const [step, setStep] = useState<number>(() => (queryStep ? Number(queryStep) : 0));
 
     useEffect(() => {
         if (queryStep) {
@@ -133,6 +144,28 @@ export default function ForgotPasswordComp() {
         validateOnBlur: true,
     });
 
+    // Forgot-password has no landing state: `?step` is required, and without it
+    // the page renders a header, a progress bar and a live CTA over an empty
+    // column. That URL keeps its current presentation rather than being dressed
+    // up in a two-pane frame.
+    const liveStep = resolveAuthStep("forgot-password", step);
+    const stepRef = useStepFocus(liveStep);
+
+    const onBack = () => {
+        if (step > 1) {
+            setStep(1);
+            router.push(`?step=${1}`);
+        } else {
+            router.push(`/`);
+        }
+    };
+    const progress = <StepNavigation step={step} totalSteps={3} />;
+    const cta = (
+        <Button onClick={handleNextStep} loading={isLoading}>
+            {step === 3 ? "Reset Password" : "Continue"}
+        </Button>
+    );
+
     return (
         <>
             {
@@ -140,40 +173,49 @@ export default function ForgotPasswordComp() {
                     <Loader />
                     :
                     <>
-
-
+                        {liveStep === null ? (
+                        // `/forgot-password` with no `?step` renders a header, a
+                        // progress bar and a live CTA over an empty column. That
+                        // is a routing bug, not a layout one — it keeps exactly
+                        // the presentation it has today rather than being handed
+                        // a desktop media panel.
                         <PageShell
+                            header={<Header onBack={onBack} title={<BrandLogo />} progress={progress} />}
+                            footerAction={cta}>
+                            <div className="flex flex-col w-full flex-1 pt-4" />
+                        </PageShell>
+                        ) : (
+                        <AuthSceneController
+                            // Every step here is a form step: artwork on desktop
+                            // only, and not mounted at all on mobile. `rotate`
+                            // is left off, so the panel holds one static scene
+                            // with no dots and no timer.
+                            scenes={AUTH_SCENES}
+                            mediaOn="desktop"
+                            actionMode="step"
                             header={
                                 <Header
-                                    showBack
-                                    showLogo
-                                    showStepNavigation
-                                    step={step}
-                                    totalSteps={3}
-                                    onBackClick={() => {
-                                        if (step > 1) {
-                                            setStep(1);
-                                            router.push(`?step=${1}`);
-                                        } else {
-                                            router.push(`/`);
-                                        }
-                                    }}
+                                  // `lg:static` as well as `lg:static`: Header is
+                                  // `absolute lg:sticky lg:top-0`, and responsive
+                                  // variants are independent, so the `lg` term
+                                  // alone lets it go sticky again at 1024 and,
+                                  // being `w-full z-sticky`, paint over the media.
+                                  className="lg:static"
+                                  onBack={onBack}
+                                  title={<BrandLogo />}
+                                  progress={progress}
                                 />
                             }
-                            footerAction={
-                                <Button onClick={handleNextStep} loading={isLoading}>
-                                    {step === 3 ? "Reset Password" : "Continue"}
-                                </Button>
-                            }
+                            footerAction={cta}
                         >
-                            <div className="flex flex-col w-full flex-1 pt-4">
+                            <div ref={stepRef} className="flex flex-col w-full flex-1 pt-4">
                                 <div className="flex flex-col w-full flex-1">
                                     {step === 1 && (
 
                                         <div >
                                             <div className="flex-1">
                                                 <H1 className="text-h1 text-start">Forgot Your Password?</H1>
-                                                <p className="text-body mt-2 text-ink-60 text-start">No worries, we&apos;ll help you reset it. Enter email or <br /> phone number to receive your reset code . </p>
+                                                <p className="text-body mt-2 text-foreground-secondary text-start">No worries, we&apos;ll help you reset it. Enter email or <br /> phone number to receive your reset code . </p>
                                                 <div className="mt-6">
                                                     <InputField
                                                         name='email'
@@ -196,7 +238,7 @@ export default function ForgotPasswordComp() {
                                                 error={formik.errors?.otp as string}
                                                 setFieldValue={formik.setFieldValue}
                                             />
-                                            <p className="text-body text-ink-60 font-normal text-start pt-8">
+                                            <p className="text-body text-foreground-secondary font-normal text-start pt-8">
                                                 If you haven&apos;t received the mail try checking your <br /> spam folder or resending it.
                                             </p>
                                         </>
@@ -212,8 +254,8 @@ export default function ForgotPasswordComp() {
 
                                 </div>
                             </div>
-                        </PageShell>
-
+                        </AuthSceneController>
+                        )}
                     </>
             }
         </>

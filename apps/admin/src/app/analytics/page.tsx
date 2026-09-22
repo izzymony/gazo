@@ -260,7 +260,7 @@ export default function AnalyticsPage() {
                     {businesses.slice(0, 5).map((business, index) => (
                       <div key={business.id} className="px-6 py-4 flex items-center justify-between border-b border-gray-100 last:border-b-0 hover:bg-gray-50">
                         <div className="flex items-center">
-                          <div className="flex items-center justify-center w-8 h-8 bg-brand text-white rounded-full text-sm font-bold mr-4">
+                          <div className="flex items-center justify-center w-8 h-8 bg-brand text-brandInk rounded-full text-sm font-bold mr-4">
                             {index + 1}
                           </div>
                           <div>

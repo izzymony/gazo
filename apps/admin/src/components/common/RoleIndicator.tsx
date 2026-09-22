@@ -14,7 +14,7 @@ export default function RoleIndicator() {
     <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-40">
       <div className={`flex items-center px-4 py-2 rounded-xl shadow-soft border-2 ${
         isAdmin 
-          ? 'bg-gradient-to-r from-brand/10 to-brandLight/10 border-brand/30 text-brand' 
+          ? 'bg-gradient-to-r from-brand/10 to-brandLight/10 border-brandDeep/30 text-brandDeep' 
           : 'bg-gradient-to-r from-green-50 to-green-100 border-green-300 text-green-700'
       }`}>
         {isAdmin ? (

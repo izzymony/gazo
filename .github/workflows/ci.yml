@@ -2,7 +2,10 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # staging is the integration branch and main is production-only, so CI has
+    # to gate staging too — otherwise every commit between cutover and release
+    # reaches the staging deploy unverified.
+    branches: [main, staging]
   pull_request:
 
 # Cancel superseded runs on the same ref.
@@ -12,7 +15,6 @@ concurrency:
 
 env:
   HUSKY: "0"
-  CYPRESS_INSTALL_BINARY: "0"
 
 jobs:
   js:
@@ -26,9 +28,33 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # The local-only design-system playground must never reach the repo.
+      # Fails if anything under apps/web/src/app/(dev)/ is tracked, or if the
+      # .gitignore rule protecting it has been removed.
+      - run: node apps/web/scripts/playground-guard.mjs assert-untracked
       - run: pnpm type-check
       - run: pnpm lint
+      # Design-system drift ratchet. Fails on NEW violations against the reviewed
+      # baseline in apps/web/design-drift-baseline.json — dead Tailwind classes
+      # (validated with Tailwind's own engine, not a regex), raw hex, arbitrary
+      # utilities, legacy type scale, raw palette colours, inline styles.
+      # Cleanups lower the floor; a deliberate rise must be re-baselined.
+      - run: node apps/web/scripts/design-drift.mjs --check
       - run: pnpm test
+      # Is each @vibaar/ui module actually reachable from the product? Spans
+      # workspaces, so it cannot live in the package's own Jest run. Follows
+      # intra-library imports, so a primitive used only through another
+      # component still counts as adopted. Fails when a module claims a stable
+      # API, has no consumer, and offers no disposition explaining why.
+      - run: node scripts/check-ui-adoption.cjs
+      # Does any user-visible string claim Vibaar holds customer money?
+      # "The money is held safely... then moves to your wallet... you
+      # withdraw" sat on the homepage for months: a custody claim for a
+      # stored-value product Vibaar does not operate, which no type check
+      # or test could see. The self-test runs FIRST and plants a violation,
+      # because a lint nobody has seen fail is not known to work.
+      - run: node scripts/check-copy-claims.mjs --self-test
+      - run: node scripts/check-copy-claims.mjs
       # Build smoke. Verified env-safe: both apps compile with NO .env files
       # present. Fonts are self-hosted (F3) so there is no build-time Google
       # fetch, Sentry is inert without a DSN, and the statically-generated
@@ -43,6 +69,26 @@ jobs:
     defaults:
       run:
         working-directory: services/backend
+    # The taxonomy migration (014) asserts its own results by casting a message
+    # to integer when a count is wrong. sqlite turns that cast into 0 instead of
+    # an error, so on sqlite a BROKEN migration would look like a passing one —
+    # its tests need real Postgres, and a test that always skips protects nothing.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: vibaar_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      TEST_DATABASE_DSN: host=localhost user=postgres password=postgres dbname=vibaar_test port=5432 sslmode=disable
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5

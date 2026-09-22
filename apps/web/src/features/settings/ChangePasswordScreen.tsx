@@ -1,96 +1,50 @@
 "use client";
 import React from "react";
-import InputField from "@vibaar/ui/common/InputField";
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Button from "@vibaar/ui/common/Button";
 import Section from "@vibaar/ui/common/Section";
 import { useRouter } from "next/navigation";
-import useAuthStore from "@/store/authStore";
+import {
+  CHANGE_PASSWORD_FORM_ID,
+  ChangePasswordFields,
+  useChangePasswordForm,
+} from "./changePassword";
 
 /**
- * Change-password screen shared by the buyer (/profile/settings/change-password)
- * and seller (/dashboard/settings/change-password) routes — one form + one
- * changePassword call, each route group supplying its own surrounding shell.
+ * The CANONICAL change-password screen, shared by the buyer
+ * (/profile/settings/change-password) and seller
+ * (/dashboard/settings/change-password) routes.
+ *
+ * It is also the direct-URL and hard-refresh fallback for the seller dialog: a
+ * navigation from within settings is intercepted and opens as a dialog, but a
+ * pasted link or a reload renders THIS. Its desktop action comes from the shell's
+ * constrained inline-right fallback, so the fallback is never the old fixed
+ * footer — which is the property that makes the dialog convention safe to paste
+ * a URL into.
  */
 export default function ChangePasswordScreen() {
   const router = useRouter();
-  const { changePassword, user } = useAuthStore();
-
-  const formik = useFormik({
-    initialValues: {
-      oldPassword: "",
-      newPassword: "",
-      confirmNewPassword: "",
-    },
-    validationSchema: Yup.object({
-      oldPassword: Yup.string().required("Old Password is required"),
-      newPassword: Yup.string()
-        .min(6, "New Password must be at least 6 characters")
-        .required("New Password is required"),
-      confirmNewPassword: Yup.string()
-        .oneOf([Yup.ref("newPassword")], "Passwords must match")
-        .required("Confirm New Password is required"),
-    }),
-    onSubmit: async (values) => {
-      if (!user?.id) {
-        console.error("User ID is required for password change.");
-        return;
-      }
-      await changePassword(
-        user.id,
-        { old_password: values.oldPassword, new_password: values.newPassword },
-        () => {}
-      );
-    },
-  });
+  const formik = useChangePasswordForm();
 
   return (
     <PageShell
       header={
         <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="Change Password"
+          onBack={() => router.back()}
+          title="Change Password"
         />
       }
       footerAction={
         <Button
           type="submit"
-          onClick={() => formik.handleSubmit()}
+          form={CHANGE_PASSWORD_FORM_ID}
           loading={formik.isSubmitting}>
           Save new password
         </Button>
       }>
       <Section title="Update your password">
-        <form onSubmit={formik.handleSubmit} className="flex flex-col space-y-4">
-          <InputField
-            name="oldPassword"
-            placeholder="Old password"
-            type="password"
-            value={formik.values.oldPassword}
-            onChange={formik.handleChange}
-            error={formik.errors.oldPassword}
-          />
-          <InputField
-            name="newPassword"
-            placeholder="New password"
-            type="password"
-            value={formik.values.newPassword}
-            onChange={formik.handleChange}
-            error={formik.errors.newPassword}
-          />
-          <InputField
-            name="confirmNewPassword"
-            placeholder="Confirm new password"
-            type="password"
-            value={formik.values.confirmNewPassword}
-            onChange={formik.handleChange}
-            error={formik.errors.confirmNewPassword}
-          />
-        </form>
+        <ChangePasswordFields formik={formik} />
       </Section>
     </PageShell>
   );

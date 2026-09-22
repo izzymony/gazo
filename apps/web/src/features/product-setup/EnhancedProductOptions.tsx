@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Button from "@vibaar/ui/common/Button";
+import { useProductImagePreparation } from "./lib/useProductImagePreparation";
 import Checkbox from "@vibaar/ui/common/Checkbox";
+import Loader from "@vibaar/ui/common/Loader";
+import DisclosureButton from "@vibaar/ui/common/DisclosureButton";
 import {
   ChevronDown,
   ChevronRight,
@@ -179,14 +182,6 @@ const getAvailableProperties = (
   });
 };
 
-const handleImageUpload = (file: File): Promise<string> => {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.readAsDataURL(file);
-  });
-};
-
 const generateCombinations = (variations: SmartVariation[]): string[] => {
   if (variations.length === 0) return [];
 
@@ -234,12 +229,12 @@ const formikToSmart = (formikVariations: FormikVariation[]): SmartVariation[] =>
 };
 
 // ===== ICON COMPONENTS (HugeIcons; call sites unchanged) =====
-const ChevronDownIcon = () => <ChevronDown size={20} className="text-ink-60" />;
-const ChevronRightIcon = () => <ChevronRight size={16} className="text-ink-40" />;
-const EditIcon = () => <Edit size={20} className="text-brand" />;
-const CloseIcon = () => <X size={16} className="text-ink-60" />;
-const PlusIcon = () => <Plus size={16} className="text-brand" />;
-const ImageIcon = () => <Photo size={24} className="text-ink-40" />;
+const ChevronDownIcon = () => <ChevronDown size={20} className="text-foreground-secondary" />;
+const ChevronRightIcon = () => <ChevronRight size={16} className="text-foreground-muted" />;
+const EditIcon = () => <Edit size={20} className="text-brandDeep" />;
+const CloseIcon = () => <X size={16} className="text-foreground-secondary" />;
+const PlusIcon = () => <Plus size={16} className="text-brandDeep" />;
+const ImageIcon = () => <Photo size={24} className="text-foreground-muted" />;
 
 // Delegates to the shared Checkbox primitive.
 const CheckBox = ({
@@ -297,10 +292,10 @@ const PropertyToggle = ({
       className={`
         flex items-center gap-2 px-3 py-2 rounded-full text-body font-medium transition-all
         ${isActive
-          ? 'bg-brand text-white border border-brand'
+          ? 'bg-brand text-brandInk border border-brandDeep'
           : isAvailable
-            ? 'bg-white text-ink-70 border border-ink-20 hover:border-brand'
-            : 'bg-ink-5 text-ink-40 border border-ink-10 cursor-not-allowed'
+            ? 'bg-surface text-foreground-secondary border border-outline-strong hover:border-brandDeep'
+            : 'bg-surface-muted text-foreground-muted border border-outline cursor-not-allowed'
         }
       `}
     >
@@ -483,18 +478,12 @@ const VariationsModal = ({
     const formikVars = smartToFormik(newVariations);
     if (formik) {
       formik.setFieldValue('variants', formikVars);
-      console.log('🎯 Template applied: Immediately synced to formik', {
-        templateName: template.name,
-        variationsCount: newVariations.length,
-        formikVarsLength: formikVars.length
-      });
     }
 
     // Also immediately notify parent component of the change
     if (onVariationsUpdate) {
       const variantDetailsForParent: any[] = []; // Empty initially, combinations will be generated later
       onVariationsUpdate(formikVars, variantDetailsForParent);
-      console.log('🔄 Template applied: Immediately notified parent component');
     }
   };
 
@@ -514,17 +503,17 @@ const VariationsModal = ({
       onClick={onClose}
     >
       <div
-        className="bg-white bottom-0 max-h-[90vh] w-full rounded-t-2xl shadow-2xl border-t border-ink-5 flex flex-col"
+        className="bg-surface bottom-0 max-h-[90vh] w-full rounded-t-2xl shadow-2xl border-t border-outline-subtle flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Grabber */}
         <div className="flex justify-center py-3">
-          <div className="bg-ink-20 h-1 rounded-full w-9"></div>
+          <div className="bg-surface-strong h-1 rounded-full w-9"></div>
         </div>
 
         {/* Header */}
-        <div className="px-4 pb-3 border-b border-ink-5">
-          <h2 className="text-h2 font-medium text-ink-90 text-center">Manage product variations</h2>
+        <div className="px-4 pb-3 border-b border-outline-subtle">
+          <h2 className="text-h2 font-medium text-foreground-primary text-center">Manage product variations</h2>
         </div>
 
         {/* Content */}
@@ -550,7 +539,7 @@ const VariationsModal = ({
         </div>
 
         {/* Bottom Actions */}
-        <div className="p-4 border-t border-ink-5">
+        <div className="p-4 border-t border-outline-subtle">
           <div className="flex gap-3">
             <Button
               onClick={handleCancel}
@@ -618,7 +607,7 @@ const SingleStepContent = ({
       {canAddMore && (
         <button
           onClick={onAddVariation}
-          className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-dashed border-brand rounded-full text-brand text-body font-medium hover:bg-brand/5 transition-colors"
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-dashed border-brandDeep rounded-full text-brandDeep text-body font-medium hover:bg-brand/5 transition-colors"
         >
           <PlusIcon />
           <span>Add new Variant</span>
@@ -626,7 +615,7 @@ const SingleStepContent = ({
       )}
 
       {!canAddMore && (
-        <p className="text-body-sm text-ink-50 text-center py-2">
+        <p className="text-body-sm text-foreground-muted text-center py-2">
           Maximum 3 variants supported for optimal property management
         </p>
       )}
@@ -655,6 +644,36 @@ const VariationFieldWithProperties = ({
   baseStock: number;
 }) => {
   const [newValue, setNewValue] = useState('');
+  const { preparing: preparingImage, prepare } = useProductImagePreparation();
+
+  // Variant images ride to the backend in `image_values`, inside the same JSON
+  // body as the product's own photos, so they carry exactly the same cost and
+  // get exactly the same treatment. A failure adds nothing.
+  // The same staleness rule as the product gallery. `variation` and `onUpdate`
+  // are props: the values captured when this input's handler was created are
+  // 1-3s old by the time preparation finishes, so writing a map built from them
+  // would undo any variant edit made in between. Read both through refs.
+  const variationRef = useRef(variation);
+  variationRef.current = variation;
+  const onUpdateRef = useRef(onUpdate);
+  onUpdateRef.current = onUpdate;
+
+  const pickVariantImage = (value: string) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      const prepared = await prepare([file]);
+      if (!prepared || prepared.length === 0) return;
+      const current = variationRef.current;
+      onUpdateRef.current(current.id, {
+        imageValues: { ...current.imageValues, [value]: prepared[0].dataUrl },
+      });
+    };
+    input.click();
+  };
   const [isCustomSectionExpanded, setIsCustomSectionExpanded] = useState(false);
 
   const addValue = () => {
@@ -673,20 +692,24 @@ const VariationFieldWithProperties = ({
   };
 
   return (
-    <div className="border border-ink-10 rounded-card p-4">
+    <div className="border border-outline rounded-card p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex-1 min-w-0">
-          <p className="text-body-sm text-ink-50 mb-1">Variant {index + 1}</p>
+          <p className="text-body-sm text-foreground-muted mb-1">Variant {index + 1}</p>
           <input
             type="text"
             value={variation.name}
             onChange={(e) => onUpdate(variation.id, { name: e.target.value })}
-            className="text-body-lg font-medium text-ink-90 bg-transparent border-none outline-none p-0 w-full"
+            className="text-body-lg font-medium text-foreground-primary bg-transparent border-none outline-none p-0 w-full"
             placeholder="Size"
           />
         </div>
-        <button onClick={() => onRemove(variation.id)} className="p-1 hover:bg-ink-5 rounded flex-shrink-0">
+        <button
+          type="button"
+          onClick={() => onRemove(variation.id)}
+          aria-label={`Remove the ${variation.name || "option"} option`}
+          className="p-1 hover:bg-surface-muted rounded flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40 focus-visible:ring-offset-1">
           <CloseIcon />
         </button>
       </div>
@@ -694,11 +717,13 @@ const VariationFieldWithProperties = ({
       {/* Option Values */}
       <div className="flex flex-wrap gap-2 mb-4">
         {variation.values.map((value) => (
-          <div key={value} className="bg-ink-3 rounded-full px-3 h-[22px] text-body flex items-center gap-2">
-            <span className="text-ink-70">{value}</span>
+          <div key={value} className="bg-surface-subtle rounded-full px-3 h-[22px] text-body flex items-center gap-2">
+            <span className="text-foreground-secondary">{value}</span>
             <button
+              type="button"
               onClick={() => removeValue(value)}
-              className="hover:bg-ink-10 rounded-full p-0.5"
+              aria-label={`Remove ${value}`}
+              className="hover:bg-surface-strong rounded-full p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40 focus-visible:ring-offset-1"
             >
               <X size={12} />
             </button>
@@ -714,52 +739,56 @@ const VariationFieldWithProperties = ({
           onChange={(e) => setNewValue(e.target.value)}
           onKeyPress={(e) => e.key === "Enter" && addValue()}
           placeholder="Enter options"
-          className="flex-1 text-body text-ink-60 bg-transparent border-none outline-none p-0 min-w-0"
+          className="flex-1 text-body text-foreground-secondary bg-transparent border-none outline-none p-0 min-w-0"
         />
         {newValue && (
-          <button
+          <Button
+            variant="link"
+            size="md"
+            fullWidth={false}
             onClick={addValue}
-            className="text-brand text-body font-medium hover:underline flex-shrink-0"
+            className="flex-shrink-0"
           >
             Add
-          </button>
+          </Button>
         )}
       </div>
 
       {/* Property Management Section */}
-      <div className="border-t border-ink-5 pt-4">
+      <div className="border-t border-outline-subtle pt-4">
         <button
           onClick={() => setIsCustomSectionExpanded(!isCustomSectionExpanded)}
-          className={`flex items-center justify-between w-full py-2 hover:bg-ink-3 rounded transition-colors ${isCustomSectionExpanded ? 'mb-3' : 'mb-0'}`}
+          aria-expanded={isCustomSectionExpanded}
+          className={`flex items-center justify-between w-full py-2 hover:bg-surface-subtle rounded transition-colors ${isCustomSectionExpanded ? 'mb-3' : 'mb-0'}`}
         >
           <div className="flex items-center gap-2">
-            <span className="text-body font-medium text-ink-90">Custom Properties</span>
+            <span className="text-body font-medium text-foreground-primary">Custom Properties</span>
             {/* Show clean property indicators */}
             <div className="flex items-center gap-1">
               {variation.ownedProperties?.includes('price') && (
                 <div className="w-4 h-4 bg-brand rounded-full flex items-center justify-center" title="Custom Price">
-                  <span className="text-white text-body-sm font-bold">₦</span>
+                  <span className="text-brandInk text-body-sm font-bold">₦</span>
                 </div>
               )}
               {variation.ownedProperties?.includes('stock') && (
-                <div className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center" title="Custom Stock">
+                <div className="w-4 h-4 bg-info-foreground rounded-full flex items-center justify-center" title="Custom Stock">
                   <span className="text-white text-body-sm font-bold">#</span>
                 </div>
               )}
               {variation.ownedProperties?.includes('image') && (
-                <div className="w-4 h-4 bg-green-600 rounded-full flex items-center justify-center" title="Custom Image">
+                <div className="w-4 h-4 bg-success-foreground rounded-full flex items-center justify-center" title="Custom Image">
                   <Photo size={10} className="text-white" />
                 </div>
               )}
               {(!variation.ownedProperties || variation.ownedProperties.length === 0) && (
-                <span className="text-body-sm text-ink-50">(optional)</span>
+                <span className="text-body-sm text-foreground-muted">(optional)</span>
               )}
             </div>
           </div>
 
           <ChevronDown
             size={16}
-            className={`text-ink-60 transition-transform ${isCustomSectionExpanded ? 'rotate-180' : ''}`}
+            className={`text-foreground-secondary transition-transform ${isCustomSectionExpanded ? 'rotate-180' : ''}`}
           />
         </button>
 
@@ -800,10 +829,10 @@ const VariationFieldWithProperties = ({
                       className={`
                         flex items-center justify-center gap-1 px-2 h-[22px] rounded-full text-body-sm font-medium transition-all
                         ${isActive
-                          ? 'bg-brand/10 text-brand'
+                          ? 'bg-brand/10 text-brandDeep'
                           : isAvailable
-                            ? 'bg-ink-3 text-ink-70 hover:bg-ink-10'
-                            : 'bg-ink-3 text-ink-40 cursor-not-allowed'
+                            ? 'bg-surface-subtle text-foreground-secondary hover:bg-surface-strong'
+                            : 'bg-surface-subtle text-foreground-muted cursor-not-allowed'
                         }
                       `}
                     >
@@ -821,9 +850,9 @@ const VariationFieldWithProperties = ({
               </div>
 
               {/* Always Show Base Information for Context */}
-              <div className="flex items-center gap-4 text-body text-ink-60 mb-2">
+              <div className="flex items-center gap-4 text-body text-foreground-secondary mb-2">
                 <span>Base Price ₦{basePrice}</span>
-                <div className="w-1 h-1 bg-ink-40 rounded-full"></div>
+                <div className="w-1 h-1 bg-surface-strong rounded-full"></div>
                 <span>Base Stock {baseStock}</span>
               </div>
 
@@ -834,64 +863,37 @@ const VariationFieldWithProperties = ({
                     <div key={value} className="flex items-center gap-3">
                       {/* Image Upload */}
                       {variation.ownedProperties?.includes('image') && (
-                        <div className="w-12 h-12 bg-ink-3 rounded-card border border-ink-10 flex-shrink-0 overflow-hidden">
+                        <div className="w-12 h-12 bg-surface-subtle rounded-card border border-outline flex-shrink-0 overflow-hidden">
                           {variation.imageValues?.[value] ? (
                             // Show uploaded image
                             <img
                               src={variation.imageValues[value]}
                               alt={value}
-                              className="w-full h-full object-cover cursor-pointer"
+                              className={`w-full h-full object-cover ${preparingImage ? "cursor-wait opacity-70" : "cursor-pointer"}`}
                               onClick={() => {
-                                const input = document.createElement('input');
-                                input.type = 'file';
-                                input.accept = 'image/*';
-                                input.onchange = (e) => {
-                                  const file = (e.target as HTMLInputElement).files?.[0];
-                                  if (file) {
-                                    const reader = new FileReader();
-                                    reader.onload = () => {
-                                      onUpdate(variation.id, {
-                                        imageValues: {
-                                          ...variation.imageValues,
-                                          [value]: reader.result as string
-                                        }
-                                      });
-                                    };
-                                    reader.readAsDataURL(file);
-                                  }
-                                };
-                                input.click();
+                                if (preparingImage) return;
+                                pickVariantImage(value);
                               }}
                             />
                           ) : (
                             // Show upload placeholder
                             <button
+                              type="button"
                               onClick={() => {
-                                const input = document.createElement('input');
-                                input.type = 'file';
-                                input.accept = 'image/*';
-                                input.onchange = (e) => {
-                                  const file = (e.target as HTMLInputElement).files?.[0];
-                                  if (file) {
-                                    const reader = new FileReader();
-                                    reader.onload = () => {
-                                      onUpdate(variation.id, {
-                                        imageValues: {
-                                          ...variation.imageValues,
-                                          [value]: reader.result as string
-                                        }
-                                      });
-                                    };
-                                    reader.readAsDataURL(file);
-                                  }
-                                };
-                                input.click();
+                                pickVariantImage(value);
                               }}
-                              className="w-full h-full flex items-center justify-center hover:bg-ink-5 transition-colors border border-dashed border-ink-20 hover:border-ink-40 rounded-card cursor-pointer group"
+                              disabled={preparingImage}
+                              aria-busy={preparingImage}
+                              aria-label={preparingImage ? "Preparing image" : `Add an image for ${value}`}
+                              className="w-full h-full flex items-center justify-center hover:bg-surface-muted transition-colors border border-dashed border-outline-strong hover:border-outline-emphasis rounded-card cursor-pointer group disabled:cursor-wait disabled:opacity-70"
                             >
-                              <div className="w-6 h-6 rounded-full bg-ink-10 group-hover:bg-ink-20 flex items-center justify-center transition-colors">
-                                <Plus size={12} className="text-ink-50 group-hover:text-ink-60" />
-                              </div>
+                              {preparingImage ? (
+                                <Loader variant="inline" />
+                              ) : (
+                                <div className="w-6 h-6 rounded-full bg-surface-strong group-hover:bg-surface-strong flex items-center justify-center transition-colors">
+                                  <Plus size={12} className="text-foreground-muted group-hover:text-foreground-secondary" />
+                                </div>
+                              )}
                             </button>
                           )}
                         </div>
@@ -899,14 +901,14 @@ const VariationFieldWithProperties = ({
 
                       {/* Value Name */}
                       <div className="flex-1">
-                        <p className="text-body font-medium text-ink-90">{value}</p>
+                        <p className="text-body font-medium text-foreground-primary">{value}</p>
                       </div>
 
                       {/* Custom Inputs */}
                       {variation.ownedProperties?.includes('price') && (
                         <div className="">
-                          <div className="flex items-center border border-ink-10 rounded-field px-2 py-1.5 bg-white">
-                            <span className="text-body-sm text-ink-50 mr-1">+ ₦</span>
+                          <div className="flex items-center border border-outline rounded-field px-2 py-1.5 bg-surface">
+                            <span className="text-body-sm text-foreground-muted mr-1">+ ₦</span>
                             <input
                               type="number"
                               value={variation.priceValues?.[value] || 0}
@@ -919,7 +921,7 @@ const VariationFieldWithProperties = ({
                                   }
                                 });
                               }}
-                              className="w-16 text-body-sm bg-transparent border-none outline-none text-ink-90"
+                              className="w-16 text-body-sm bg-transparent border-none outline-none text-foreground-primary"
                               placeholder="0"
                             />
                           </div>
@@ -928,8 +930,8 @@ const VariationFieldWithProperties = ({
 
                       {variation.ownedProperties?.includes('stock') && (
                         <div className="">
-                          <div className="flex items-center border border-ink-10 rounded-field px-2 py-1.5 bg-white">
-                            <span className="text-body-sm text-ink-50 mr-1">X</span>
+                          <div className="flex items-center border border-outline rounded-field px-2 py-1.5 bg-surface">
+                            <span className="text-body-sm text-foreground-muted mr-1">X</span>
                             <input
                               type="number"
                               value={variation.stockValues?.[value] || Math.floor(baseStock / variation.values.length) || 20}
@@ -942,7 +944,7 @@ const VariationFieldWithProperties = ({
                                   }
                                 });
                               }}
-                              className="w-20 text-body-sm bg-transparent border-none outline-none text-ink-90"
+                              className="w-20 text-body-sm bg-transparent border-none outline-none text-foreground-primary"
                               placeholder="0"
                             />
                           </div>
@@ -951,8 +953,10 @@ const VariationFieldWithProperties = ({
 
                       {/* Remove Option */}
                       <button
+                        type="button"
                         onClick={() => removeValue(value)}
-                        className="p-1 hover:bg-ink-5 rounded flex-shrink-0"
+                        aria-label={`Remove ${value}`}
+                        className="p-1 hover:bg-surface-muted rounded flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandDeep/40 focus-visible:ring-offset-1"
                       >
                         <CloseIcon />
                       </button>
@@ -1016,13 +1020,6 @@ export default function EnhancedProductOptions({
 
   // Initialize with existing variations and variant details from props (for edit flow)
   useEffect(() => {
-    console.log('🎯 MODAL PROPS DEBUG - EnhancedProductOptions received:', {
-      'existingVariations?.length': existingVariations?.length || 0,
-      'existingVariantDetails?.length': existingVariantDetails?.length || 0,
-      'existingVariations': existingVariations,
-      'existingVariantDetails': existingVariantDetails?.slice(0, 3),
-      'customPricingCount': existingVariantDetails?.filter(v => v.price)?.length || 0
-    });
 
     if (existingVariations.length > 0) {
       // Convert existing variations to SmartVariation format
@@ -1043,10 +1040,6 @@ export default function EnhancedProductOptions({
       const formikVars = smartToFormik(smartVars);
       formik.setFieldValue('variants', formikVars);
 
-      console.log('✅ Set existing variations in both state and formik:', {
-        smartVars,
-        formikVars
-      });
     }
 
     if (existingVariantDetails.length > 0) {
@@ -1061,14 +1054,6 @@ export default function EnhancedProductOptions({
       }));
 
       setVariantCombinations(existingCombinations);
-      console.log('✅ Set existing variant combinations with pricing:', {
-        'combinations.length': existingCombinations.length,
-        'withCustomPricing': existingCombinations.filter(c => c.price && c.price > 0).length,
-        'examplePrices': existingCombinations.slice(0, 3).map(c => ({
-          combo: c.combination,
-          price: c.price
-        }))
-      });
     }
   }, [existingVariations, existingVariantDetails]);
 
@@ -1077,14 +1062,12 @@ export default function EnhancedProductOptions({
     // CRITICAL: Skip formik initialization if we have props data
     // Props data from parent component takes precedence over formik
     if (existingVariantDetails && existingVariantDetails.length > 0) {
-      console.log('📌 Skipping formik initialization - using props data instead');
       return; // Exit early - props-based useEffect will handle initialization
     }
 
     // Only use formik as fallback when no props data is available
     // Handle case where variant_combinations table doesn't exist or is empty
     if (formik.values.variant_combinations && formik.values.variant_combinations.length > 0) {
-      console.log('📋 Initializing from formik.values.variant_combinations');
       const existingCombinations: VariationCombination[] = formik.values.variant_combinations.map((combo: any, index: number) => ({
         id: `existing-${index}`,
         combination: combo.combination_key || combo.combination || '',
@@ -1276,15 +1259,16 @@ export default function EnhancedProductOptions({
     <>
       <div className="w-full">
         {/* Section Header */}
-        <div className="flex items-center justify-between border-b border-ink-5">
+        <div className="flex items-center justify-between border-b border-outline-subtle">
           <button
             onClick={() => setIsProductOptionsCollapsed(!isProductOptionsCollapsed)}
+            aria-expanded={!isProductOptionsCollapsed}
             className="flex items-center gap-3 flex-1"
           >
-            <h2 className="text-body-lg font-medium text-ink-90">Product options</h2>
+            <h2 className="text-body-lg font-medium text-foreground-primary">Product options</h2>
             <ChevronDown
               size={16}
-              className={`text-ink-60 transition-transform ml-auto ${isProductOptionsCollapsed ? 'rotate-180' : ''}`}
+              className={`text-foreground-secondary transition-transform ml-auto ${isProductOptionsCollapsed ? 'rotate-180' : ''}`}
             />
           </button>
         </div>
@@ -1294,14 +1278,14 @@ export default function EnhancedProductOptions({
           /* Collapsed Preview Mode */
           <div className="py-3">
             {isVariableProduct && hasVariations ? (
-              <p className="text-body text-ink-60">
+              <p className="text-body text-foreground-secondary">
                 {(() => {
                   const { optionCount, totalCombinations } = getPreviewCounts();
                   return `${optionCount} ${optionCount === 1 ? 'option' : 'options'}, ${totalCombinations} ${totalCombinations === 1 ? 'item' : 'items'}`;
                 })()}
               </p>
             ) : (
-              <p className="text-body text-ink-60">
+              <p className="text-body text-foreground-secondary">
                 {isVariableProduct ? 'Variable product setup in progress' : 'Simple product'}
               </p>
             )}
@@ -1320,7 +1304,7 @@ export default function EnhancedProductOptions({
             {/* Template Selection (when enabled but no variants yet) */}
             {shouldShowTemplates && (
               <div className="space-y-3">
-                <p className="text-body text-ink-60">
+                <p className="text-body text-foreground-secondary">
                   Choose from a template or add custom variants
                 </p>
 
@@ -1330,13 +1314,13 @@ export default function EnhancedProductOptions({
                     <button
                       key={template.id}
                       onClick={() => handleManageVariations(template)}
-                      className="w-full p-4 border border-brand bg-brand/5 rounded-card text-left hover:bg-brand/10 transition-colors"
+                      className="w-full p-4 border border-brandDeep bg-brand/5 rounded-card text-left hover:bg-brand/10 transition-colors"
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{template.icon}</span>
                         <div className="flex-1">
-                          <h3 className="text-body-lg font-medium text-brand">{template.name}</h3>
-                          <p className="text-body text-ink-60 mt-0.5">{template.description}</p>
+                          <h3 className="text-body-lg font-medium text-brandDeep">{template.name}</h3>
+                          <p className="text-body text-foreground-secondary mt-0.5">{template.description}</p>
                         </div>
                         <ChevronRightIcon />
                       </div>
@@ -1347,15 +1331,15 @@ export default function EnhancedProductOptions({
                 {/* Custom Option */}
                 <button
                   onClick={() => handleManageVariations()}
-                  className="w-full p-4 border border-ink-10 bg-white rounded-card text-left hover:border-brand/30 transition-colors"
+                  className="w-full p-4 border border-outline bg-surface rounded-card text-left hover:border-brandDeep/30 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 flex items-center justify-center">
                       <EditIcon />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-body-lg font-medium text-brand">Create Custom variants</h3>
-                      <p className="text-body text-ink-60 mt-0.5">Create your own</p>
+                      <h3 className="text-body-lg font-medium text-brandDeep">Create Custom variants</h3>
+                      <p className="text-body text-foreground-secondary mt-0.5">Create your own</p>
                     </div>
                     <ChevronRightIcon />
                   </div>
@@ -1368,7 +1352,7 @@ export default function EnhancedProductOptions({
               <div className="space-y-4">
                 {/* Summary Header with Edit Button */}
                 <div className="flex items-center justify-between">
-                  <h3 className="text-body font-medium text-ink-90">
+                  <h3 className="text-body font-medium text-foreground-primary">
                     {(() => {
                       const variationCounts = formik.values.variants.map((v: FormikVariation) =>
                         `${v.values?.length || 0} ${v.name}s`
@@ -1378,7 +1362,7 @@ export default function EnhancedProductOptions({
                   </h3>
                   <button
                     onClick={() => handleManageVariations()}
-                    className="flex items-center gap-1 px-2 py-1 text-brand text-body-sm font-medium hover:bg-brand/5 rounded transition-colors"
+                    className="flex items-center gap-1 px-2 py-1 text-brandDeep text-body-sm font-medium hover:bg-brand/5 rounded transition-colors"
                   >
                     <EditIcon />
                     Edit
@@ -1396,14 +1380,15 @@ export default function EnhancedProductOptions({
                         {/* Variant Header - Clickable */}
                         <button
                           onClick={() => toggleSection(sectionKey)}
-                          className="flex items-center justify-between py-2 w-full text-left hover:bg-ink-3 rounded transition-colors"
+                          aria-expanded={!isCollapsed}
+                          className="flex items-center justify-between py-2 w-full text-left hover:bg-surface-subtle rounded transition-colors"
                         >
-                          <span className="text-body font-medium text-ink-90">
+                          <span className="text-body font-medium text-foreground-primary">
                             {variation.name} ({variation.values?.length || 0})
                           </span>
                           <ChevronDown
                             size={16}
-                            className={`text-ink-60 transition-transform ${isCollapsed ? 'rotate-180' : ''}`}
+                            className={`text-foreground-secondary transition-transform ${isCollapsed ? 'rotate-180' : ''}`}
                           />
                         </button>
 
@@ -1415,10 +1400,10 @@ export default function EnhancedProductOptions({
                               const hasCustomProps = variation.ownedProperties && variation.ownedProperties.length > 0;
 
                               return (
-                                <div key={valueIndex} className="bg-white border border-ink-10 rounded-card p-2 flex items-center gap-2">
+                                <div key={valueIndex} className="bg-surface border border-outline rounded-card p-2 flex items-center gap-2">
                                   {/* Image if variant owns image property */}
                                   {variation.ownedProperties?.includes('image') && (
-                                    <div className="w-12 h-12 bg-ink-5 rounded-card overflow-hidden flex items-center justify-center flex-shrink-0">
+                                    <div className="w-12 h-12 bg-surface-muted rounded-card overflow-hidden flex items-center justify-center flex-shrink-0">
                                       {variation.imageValues?.[value] ? (
                                         <img
                                           src={variation.imageValues[value]}
@@ -1426,7 +1411,7 @@ export default function EnhancedProductOptions({
                                           className="w-full h-full object-cover"
                                         />
                                       ) : (
-                                        <Photo size={20} className="text-ink-40" />
+                                        <Photo size={20} className="text-foreground-muted" />
                                       )}
                                     </div>
                                   )}
@@ -1434,16 +1419,16 @@ export default function EnhancedProductOptions({
                                   {/* Content aligned to the right of image */}
                                   <div className="flex-1 min-w-0">
                                     {/* Value Name */}
-                                    <p className="text-body font-medium text-ink-90">{value}</p>
+                                    <p className="text-body font-medium text-foreground-primary">{value}</p>
 
                                     {/* Pricing & Stock Info - Only show if specific properties are enabled */}
                                     {(variation.ownedProperties?.includes('price') || variation.ownedProperties?.includes('stock')) && (
-                                      <div className="flex items-center gap-2 text-body-sm mt-1 text-ink-60">
+                                      <div className="flex items-center gap-2 text-body-sm mt-1 text-foreground-secondary">
                                         {variation.ownedProperties?.includes('price') && (
                                           <span>+₦{variation.priceValues?.[value] || 0}</span>
                                         )}
                                         {variation.ownedProperties?.includes('price') && variation.ownedProperties?.includes('stock') && (
-                                          <span className="text-ink-40">•</span>
+                                          <span className="text-foreground-muted">•</span>
                                         )}
                                         {variation.ownedProperties?.includes('stock') && (
                                           <span>
@@ -1483,18 +1468,19 @@ export default function EnhancedProductOptions({
                   return (
                     <div className="">
                       {/* Total Variants Header - Clickable */}
-                      <button
-                        onClick={() => toggleSection(totalVariantsKey)}
-                        className="flex items-center justify-between py-2 w-full text-left hover:bg-ink-3 rounded transition-colors"
-                      >
-                        <span className="text-body font-medium text-ink-90">
+                      <DisclosureButton
+                          expanded={!isTotalVariantsCollapsed}
+                          onClick={() => toggleSection(totalVariantsKey)}
+                          className="flex items-center justify-between py-2 w-full text-left hover:bg-surface-subtle rounded transition-colors"
+                        >
+                        <span className="text-body font-medium text-foreground-primary">
                           Total Variants ({totalCombinations})
                         </span>
                         <ChevronDown
                           size={16}
-                          className={`text-ink-60 transition-transform ${isTotalVariantsCollapsed ? 'rotate-180' : ''}`}
+                          className={`text-foreground-secondary transition-transform ${isTotalVariantsCollapsed ? 'rotate-180' : ''}`}
                         />
-                      </button>
+                      </DisclosureButton>
 
                       {/* Show all actual combinations generated from variants - Collapsible */}
                       {!isTotalVariantsCollapsed && (
@@ -1520,9 +1506,9 @@ export default function EnhancedProductOptions({
                             const baseImage = formik.values?.images?.[0]?.base64 || null;
 
                             return (
-                              <div key={idx} className="bg-white border border-ink-10 rounded-card p-2 flex items-center gap-2">
+                              <div key={idx} className="bg-surface border border-outline rounded-card p-2 flex items-center gap-2">
                                 {/* Always show image - either custom variant image, base product image, or placeholder */}
-                                <div className="w-12 h-12 bg-ink-5 rounded-card overflow-hidden flex-shrink-0">
+                                <div className="w-12 h-12 bg-surface-muted rounded-card overflow-hidden flex-shrink-0">
                                   {baseImage && !shouldShowCustomImage ? (
                                     // Show base product image when no custom image property is enabled
                                     <img
@@ -1568,7 +1554,7 @@ export default function EnhancedProductOptions({
                                       // Final fallback to placeholder if no base image available
                                       return (
                                         <div className="w-full h-full flex items-center justify-center">
-                                          <Photo size={20} className="text-ink-40" />
+                                          <Photo size={20} className="text-foreground-muted" />
                                         </div>
                                       );
                                     })()
@@ -1582,14 +1568,14 @@ export default function EnhancedProductOptions({
                                       />
                                     ) : (
                                       <div className="w-full h-full flex items-center justify-center">
-                                        <Photo size={20} className="text-ink-40" />
+                                        <Photo size={20} className="text-foreground-muted" />
                                       </div>
                                     )
                                   )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-body font-medium text-ink-90">{combo}</p>
-                                  <div className="flex items-center gap-2 text-body-sm text-ink-60 mt-1">
+                                  <p className="text-body font-medium text-foreground-primary">{combo}</p>
+                                  <div className="flex items-center gap-2 text-body-sm text-foreground-secondary mt-1">
                                     {/* Show actual price values */}
                                     {shouldShowCustomPrice ? (
                                       (() => {
@@ -1616,7 +1602,7 @@ export default function EnhancedProductOptions({
                                     ) : (
                                       <span>₦{basePrice.toLocaleString()}</span>
                                     )}
-                                    <span className="text-ink-40">•</span>
+                                    <span className="text-foreground-muted">•</span>
                                     {/* Show actual stock values */}
                                     {shouldShowCustomStock ? (
                                       (() => {

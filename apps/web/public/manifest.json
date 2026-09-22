@@ -1,11 +1,11 @@
 {
-  "name": "Vibaar - Sell Smarter on Instagram & TikTok",
+  "name": "Vibaar \u2014 Turn your attention into income",
   "short_name": "Vibaar",
-  "description": "Create your free online store in minutes. Accept payments, manage orders, and grow your business on Instagram & TikTok. Built for Nigerian entrepreneurs.",
+  "description": "Turn social attention into protected, paid, trackable orders.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#FFE500",
+  "theme_color": "#FFE500",
   "scope": "/",
   "orientation": "portrait",
   "lang": "en-US",
@@ -21,6 +21,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

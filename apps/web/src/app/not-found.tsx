@@ -12,18 +12,18 @@ export default function NotFound() {
       <div className="w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center mb-5">
         <HugeiconsIcon icon={Compass01Icon} size={30} color="var(--brand)" />
       </div>
-      <p className="text-display font-bold text-ink-90 leading-none mb-1">404</p>
-      <h2 className="text-h2 font-semibold text-ink-90 mb-2 text-balance">
+      <p className="text-display font-bold text-foreground-primary leading-none mb-1">404</p>
+      <h2 className="text-h2 font-semibold text-foreground-primary mb-2 text-balance">
         Page not found
       </h2>
-      <p className="text-body text-ink-60 mb-6 max-w-xs leading-[20px]">
+      <p className="text-body text-foreground-secondary mb-6 max-w-xs leading-[20px]">
         The page you&apos;re looking for doesn&apos;t exist or may have moved.
       </p>
       <Link
         href="/"
-        className="inline-flex items-center justify-center gap-2 rounded-full bg-brand text-white text-body font-medium py-3 px-6 touch-manipulation active:bg-brandHover"
+        className="inline-flex items-center justify-center gap-2 rounded-full bg-brand text-brandInk text-body font-medium py-3 px-6 touch-manipulation active:bg-brandHover"
       >
-        <HugeiconsIcon icon={Home01Icon} size={18} color="white" />
+        <HugeiconsIcon icon={Home01Icon} size={18} color="currentColor" />
         Back home
       </Link>
     </div>

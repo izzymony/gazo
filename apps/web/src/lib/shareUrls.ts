@@ -40,6 +40,21 @@ export const getPublicStoreUrl = (store: StoreData): string => {
 };
 
 /**
+ * Is there actually a public link to share?
+ *
+ * A store with no handle produced `vibaar.com/@` (and a product under it,
+ * `vibaar.com/@/p/slug-`), which the share sheet handed over as though it were
+ * a real address. Callers check this first and say what is missing instead.
+ */
+export const canShareStore = (store: StoreData): boolean =>
+  Boolean(store?.tag && String(store.tag).trim());
+
+export const canShareProduct = (
+  product: ProductData,
+  store: StoreData
+): boolean => canShareStore(store) && Boolean(product?.public_id);
+
+/**
  * Public product URL: /@{handle}/p/{slug}-{publicId} (Rev 2).
  * @example getPublicProductUrl({ public_id: 'k7x9a2q1', title: 'Nike Air' }, { tag: 'bukky-styles' })
  *          => 'https://vibaar.com/@bukky-styles/p/nike-air-k7x9a2q1'

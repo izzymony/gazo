@@ -1,12 +1,16 @@
 import localFont from "next/font/local";
 
-// Self-hosted DM Sans (P0b) — mirrors apps/web so the admin build never fetches
-// Google Fonts at build time (which failed the build until network was allowed).
-export const dmSans = localFont({
-  src: "./fonts/dm-sans-latin.woff2",
+// ONE family for the whole app: Outfit — mirrors apps/web/src/app/fonts.ts.
+// same letterform as the vibaar wordmark, so the UI descends from the logo.
+// Its weight range covers display and body, so no secondary family is needed.
+//
+// Self-hosted via next/font/local — never `next/font/google`. A build-time
+// Google fetch made builds network-fragile, which is what F3/P0b removed.
+export const outfit = localFont({
+  src: "./fonts/outfit-latin.woff2",
   weight: "400 700",
   style: "normal",
   display: "swap",
-  variable: "--font-dm-sans",
+  variable: "--font-outfit",
   fallback: ["system-ui", "-apple-system", "sans-serif"],
 });

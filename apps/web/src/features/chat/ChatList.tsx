@@ -6,6 +6,7 @@ import EmptyState from "@vibaar/ui/common/EmptyState";
 import Loader from "@vibaar/ui/common/Loader";
 import { BubbleChat } from "@vibaar/ui/icons";
 import { relativeTime } from "./relativeTime";
+import Badge from "@vibaar/ui/common/Badge";
 
 /* eslint-disable @next/next/no-img-element */
 /**
@@ -46,7 +47,7 @@ export default function ChatList({
         <button
           key={c.id}
           onClick={() => onSelect(c)}
-          className="w-full flex items-center gap-3 py-3 text-left active:bg-ink-3 transition-colors">
+          className="w-full flex items-center gap-3 py-3 text-left active:bg-surface-subtle transition-colors">
           <img
             src={
               c.other_participant.avatar
@@ -58,10 +59,10 @@ export default function ChatList({
           />
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between gap-2">
-              <p className="text-ink-90 font-medium text-body line-clamp-1">
+              <p className="text-foreground-primary font-medium text-body line-clamp-1">
                 {c.other_participant.name || "Vibaar user"}
               </p>
-              <span className="text-ink-40 text-caption flex-shrink-0">
+              <span className="text-foreground-muted text-caption flex-shrink-0">
                 {relativeTime(c.last_message_at)}
               </span>
             </div>
@@ -70,15 +71,19 @@ export default function ChatList({
                 className={cn(
                   "text-body-sm line-clamp-1",
                   c.unread_count > 0
-                    ? "text-ink-90 font-medium"
-                    : "text-ink-60"
+                    ? "text-foreground-primary font-medium"
+                    : "text-foreground-secondary"
                 )}>
                 {c.last_message || "Say hello 👋"}
               </p>
               {c.unread_count > 0 && (
-                <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-brand text-white text-micro font-semibold flex items-center justify-center">
+                <Badge
+                  tone="brand"
+                  variant="solid"
+                  srLabel="unread"
+                  className="flex-shrink-0 min-w-5 h-5 justify-center px-1.5 font-semibold">
                   {c.unread_count > 9 ? "9+" : c.unread_count}
-                </span>
+                </Badge>
               )}
             </div>
           </div>

@@ -52,12 +52,12 @@ export default function RootLayoutClient({
   return (
     <QueryProvider>
       <div
-        className={`antialiased h-dvh overflow-hidden bg-white`}>
+        className={`antialiased h-dvh overflow-hidden bg-surface`}>
         {/* Google Analytics page view tracking */}
         <Suspense fallback={null}>
           <PageViewTracker />
         </Suspense>
-        <div className="relative w-full flex flex-col items-center h-full bg-white overflow-y-auto">
+        <div className="relative w-full flex flex-col items-center h-full bg-surface overflow-y-auto">
           {children}
         </div>
       </div>

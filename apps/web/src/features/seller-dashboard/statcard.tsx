@@ -18,7 +18,7 @@ const StatsCard: React.FC<StatsCardProps> = ({ data }) => {
         return (
           <div
             key={index}
-            className="border border-ink-10 p-2 rounded-card">
+            className="border border-outline p-2 rounded-card">
             <p className="font-medium text-body-sm mb-1">{item.label}</p>
             <div className="flex gap-1 items-center">
               <p className="font-medium text-h2">
@@ -29,14 +29,14 @@ const StatsCard: React.FC<StatsCardProps> = ({ data }) => {
                   <p
                     className={cn(
                       "text-body-sm",
-                      isNegative ? "text-red" : "text-green"
+                      isNegative ? "text-error-foreground" : "text-success-foreground"
                     )}>
                     {item.percentage}
                   </p>
                   {isNegative ? (
-                    <ArrowDownRight size={14} className="text-red" />
+                    <ArrowDownRight size={14} className="text-error-foreground" />
                   ) : (
-                    <ArrowUpRight size={14} className="text-green" />
+                    <ArrowUpRight size={14} className="text-success-foreground" />
                   )}
                 </div>
               )}

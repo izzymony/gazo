@@ -64,24 +64,37 @@ func (s *UserService) Update(request requests.UpdateUserRequest, userId string, 
 		user.UserName = request.Username
 	}
 	user.Phone = request.PhoneNumber
-	dob, err := time.Parse("2006-01-02", request.DateOfBirth)
-	if err != nil {
-		return nil, fmt.Errorf("invalid date of birth format")
+	// Date of birth is optional. Parsing unconditionally meant a user who had
+	// never set one submitted "" and got a hard "invalid date of birth format",
+	// so they could never save any other field either.
+	if request.DateOfBirth != "" {
+		dob, err := time.Parse("2006-01-02", request.DateOfBirth)
+		if err != nil {
+			return nil, fmt.Errorf("invalid date of birth format")
+		}
+		user.DateOfBirth = dob
 	}
-	user.DateOfBirth = dob
 
 	if request.ProfileImage != "" {
-
-		decodedImage, err := helper.DecodeBase64Image(request.ProfileImage)
-		if err != nil {
-			logger.Error(fmt.Sprintf("error while decoding image %v", err))
-			return nil, fmt.Errorf("something went wrong")
+		// An http(s) value is ALREADY a hosted image — either the URL the client
+		// sent back unchanged, or the one the handler just uploaded from a
+		// multipart file. Only a data-URI/base64 payload needs decoding first.
+		// Base64-decoding a URL can only fail, so treating every value as base64
+		// meant any user who already had an avatar could not save their profile.
+		if strings.HasPrefix(request.ProfileImage, "http://") || strings.HasPrefix(request.ProfileImage, "https://") {
+			user.ProfileImage = request.ProfileImage
+		} else {
+			decodedImage, err := helper.DecodeBase64Image(request.ProfileImage)
+			if err != nil {
+				logger.Error(fmt.Sprintf("error while decoding image %v", err))
+				return nil, fmt.Errorf("something went wrong")
+			}
+			url, err := fileupload.UploadFileCloudinary(decodedImage)
+			if err != nil {
+				return nil, fmt.Errorf("something went wrong")
+			}
+			user.ProfileImage = url
 		}
-		url, err := fileupload.UploadFileCloudinary(decodedImage)
-		if err != nil {
-			return nil, fmt.Errorf("something went wrong")
-		}
-		user.ProfileImage = url
 	}
 
 	// Handle referral code during profile completion

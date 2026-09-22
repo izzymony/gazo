@@ -4,13 +4,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import RadioGroup from "@vibaar/ui/common/RadioGroup";
-import Button from "@vibaar/ui/common/Button";
 import Checkbox from "@vibaar/ui/common/Checkbox";
 import InputField from "@vibaar/ui/common/InputField";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import PageActionButton from "@vibaar/ui/common/PageActionButton";
 import Accordion from "@vibaar/ui/common/Accordion";
 import Dialog from "@vibaar/ui/common/Dialog";
 import { useRouter } from "next/navigation";
@@ -113,26 +112,30 @@ function Page() {
         valid_from: toISODate(formik.values.startDate),
         valid_to: toISODate(formik.values.endDate),
       };
-      await createDiscount(couponData);
+      // Leave the form only on a confirmed create. createDiscount used to
+      // resolve on failure, so router.back() discarded the whole filled-in
+      // form for a discount that was never created.
+      try {
+        await createDiscount(couponData);
+      } catch {
+        // createDiscount toasts the reason; stay put so the input survives.
+        return;
+      }
       router.back();
     },
   });
 
   return (
     <PageShell
-      header={
-        <Header
-          showBack
-          showMenu
-          customText="Create Discount"
-          onBackClick={() => router.back()}
-        />
-      }
-      footerAction={
-        <Button type="button" onClick={() => formik.handleSubmit()}>
-          Add Discount
-        </Button>
-      }>
+      pageHeader={{
+        onBack: () => router.back(),
+        title: "Create Discount",
+        actions: (
+          <PageActionButton type="button" onClick={() => formik.handleSubmit()}>
+            Add Discount
+          </PageActionButton>
+        ),
+      }}>
       <form
         onSubmit={formik.handleSubmit}
         className="w-full flex flex-col space-y-6">
@@ -142,10 +145,6 @@ function Page() {
             <InputField
               name="discountType"
               placeholder="Discount Type"
-              options={[
-                { value: "Coupon code", label: "Coupon code" },
-                { value: "buy_x_get_y", label: "Buy X get Y free" },
-              ]}
               value={formik.values.discountType}
               onChange={() => {}}
               type="drop"
@@ -185,7 +184,7 @@ function Page() {
                 { label: "Percentage %", value: "Percentage" },
                 { label: "Fixed ", value: "Fixed" },
               ]}
-              className="border border-ink-10 rounded-field p-2"
+              className="border border-outline rounded-field p-2"
               name="discountValue"
               selectedValue={formik.values.discountValue}
               onChange={(value: string) =>
@@ -216,7 +215,7 @@ function Page() {
                 { label: "Store Wide Products", value: "Store Wide Products" },
                 { label: "Selected Products", value: "Selected Products" },
               ]}
-              className="border border-ink-10 rounded-field p-2"
+              className="border border-outline rounded-field p-2"
               name="productType"
               selectedValue={formik.values.productType}
               onChange={(value: string) =>
@@ -301,7 +300,7 @@ function Page() {
                     { value: "price", label: "Price" },
                     { value: "order_count", label: "Order Count" },
                   ]}
-                  className="border border-ink-10 rounded-field p-2"
+                  className="border border-outline rounded-field p-2"
                   name="discountValue"
                   selectedValue={minimumRequirementOption}
                   onChange={(value: string) =>
@@ -351,7 +350,7 @@ function Page() {
                     { label: "Total Usage", value: "total_usage" },
                     { value: "customer_usage", label: "Customer Usage" },
                   ]}
-                  className="border border-ink-10 rounded-field p-2"
+                  className="border border-outline rounded-field p-2"
                   name="discountLimit"
                   selectedValue={discountLimitOption}
                   onChange={(value: string) => setDiscountLimitOption(value)}
@@ -388,7 +387,7 @@ function Page() {
           onClose={() => setShow(false)}
           ariaLabel="Select a product">
           <div className="flex flex-col space-y-4">
-            <p className="text-ink-90 text-body font-medium text-center">
+            <p className="text-foreground-primary text-body font-medium text-center">
               Select a product
             </p>
             <InputField
@@ -401,7 +400,7 @@ function Page() {
             />
             <div className="max-h-[438px] overflow-y-scroll scrollbar-hide">
               {sell.map((it) => (
-                  <div
+                  <button type="button"
                     onClick={() => {
                       const value = it.id;
                       formik.setFieldValue("selectedProducts", [
@@ -411,7 +410,7 @@ function Page() {
                       setShow(false);
                     }}
                     key={it.id}
-                    className="w-full mb-2 flex gap-4 ">
+                    className="text-left w-full mb-2 flex gap-4 ">
                     <div key={it.id} className="w-full flex-1 flex gap-4 ">
                       <img
                         src={it?.image?.[0] || ""}
@@ -419,16 +418,16 @@ function Page() {
                         className="w-10 h-10 rounded-field object-cover"
                       />
                       <div className="text-body-sm">
-                        <p className="text-ink-90 font-medium">{it.title}</p>
-                        <p className="text-ink-60">
+                        <p className="text-foreground-primary font-medium">{it.title}</p>
+                        <p className="text-foreground-secondary">
                           Stock:{it.stock} Variant:{it.weight}
                         </p>
                       </div>
                     </div>
-                    <p className="text-body font-medium text-ink-90">
+                    <p className="text-body font-medium text-foreground-primary">
                       {formatCurrency(it?.price ? +it.price : 0)}
                     </p>
-                  </div>
+                  </button>
                 ))}
               </div>
           </div>
@@ -438,20 +437,20 @@ function Page() {
           onClose={() => setShows(false)}
           ariaLabel="Select a discount type">
           <div className="flex flex-col space-y-4">
-            <p className="text-ink-90 text-body font-medium text-center">
+            <p className="text-foreground-primary text-body font-medium text-center">
               Select a discount type
             </p>
             <div className="max-h-[438px] overflow-y-scroll scrollbar-hide">
               {["Coupon code", "buy_x_get_y"].map((it) => (
-                <div
+                <button type="button"
                   onClick={() => {
                     formik.setFieldValue("discountType", it);
                     setShows(false);
                   }}
                   key={it}
-                  className="w-full mb-4 flex gap-4 ">
-                  <p className="text-body font-medium text-ink-90">{it}</p>
-                </div>
+                  className="text-left w-full w-full mb-4 flex gap-4 ">
+                  <p className="text-body font-medium text-foreground-primary">{it}</p>
+                </button>
               ))}
             </div>
           </div>

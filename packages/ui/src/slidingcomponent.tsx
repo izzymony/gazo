@@ -2,6 +2,17 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { cn } from "@vibaar/utils";
+import { focusRing } from "./styles";
+import {
+  FaInstagram,
+  FaTiktok,
+  FaFacebook,
+  FaWhatsapp,
+  FaXTwitter,
+  PiShareFatThin,
+  type IconProps,
+} from "./icons";
 
 interface SocialProfiles {
   instagram?: string;
@@ -11,6 +22,40 @@ interface SocialProfiles {
   x?: string;
 }
 
+const PLATFORMS: {
+  id: keyof SocialProfiles;
+  label: string;
+  Icon: React.ComponentType<IconProps>;
+  url: (handle: string) => string;
+}[] = [
+  { id: "instagram", label: "Instagram", Icon: FaInstagram, url: (h) => `https://instagram.com/${h}` },
+  { id: "tiktok", label: "TikTok", Icon: FaTiktok, url: (h) => `https://tiktok.com/@${h}` },
+  { id: "facebook", label: "Facebook", Icon: FaFacebook, url: (h) => `https://facebook.com/${h}` },
+  {
+    id: "whatsapp",
+    label: "WhatsApp",
+    Icon: FaWhatsapp,
+    url: (h) => `https://wa.me/${h.replace(/[^\d]/g, "")}`,
+  },
+  { id: "x", label: "X", Icon: FaXTwitter, url: (h) => `https://x.com/${h}` },
+];
+
+/**
+ * A store's social links plus a share action, revealed by the header kebab.
+ *
+ * THE BUG THIS FIXES: every glyph in here was an inline SVG painted
+ * `fill="white"` — ten of them — sitting on a `bg-surface-subtle` pill, which is
+ * very nearly white. The menu opened correctly and rendered a blank white
+ * capsule, so it read as a control that did nothing. (Same fault as the mode
+ * switch's white-on-yellow icon: artwork with a colour baked in, on a surface
+ * that colour cannot be seen against.) They are icon components now, drawing in
+ * `currentColor`, so the pill's own text colour carries them — and ~200 lines of
+ * hand-drawn path data goes with them.
+ *
+ * The links are also LINKS. Tapping a store's Instagram icon used to copy the
+ * handle to the clipboard and close the menu; nothing here ever opened a
+ * profile.
+ */
 export default function ExpandableIconMenu({
   isOpen,
   setIsOpen,
@@ -31,240 +76,84 @@ export default function ExpandableIconMenu({
           text: "Here's something cool I found.",
           url: window.location.href,
         });
-      } catch (err) {
-        console.error("Error sharing:", err);
+      } catch {
+        // The user dismissing the share sheet is not an error.
       }
     } else {
-      // Desktop: copy to clipboard
       try {
         await navigator.clipboard.writeText(window.location.href);
         toast.success("Link copied!", { duration: 2000 });
-      } catch (err) {
+      } catch {
         toast.error("Failed to copy link");
       }
     }
   };
 
-  const handleCopy = async (val: string) => {
-    if (!isOpen) return;
-    try {
-      await navigator.clipboard.writeText(val);
-      toast.success("Successfully copied " + val);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-      toast.error("Failed to copy link");
-    }
+  /**
+   * A stored profile can be a bare handle, an `@handle`, or a full URL, because
+   * the store-details form accepts all three.
+   */
+  const hrefFor = (platform: (typeof PLATFORMS)[number], value: string) => {
+    const raw = value.trim();
+    if (/^https?:\/\//i.test(raw)) return raw;
+    return platform.url(raw.replace(/^@/, ""));
   };
 
-  const handleIconClick = (id: number, link?: string) => {
-    if (link || link === "") {
-      handleCopy(link);
-    }
-    if (id !== 0) {
-      //("Clicked icon", id);
-    }
-    setIsOpen(false); // Collapse
-  };
-
-  const handleMain = (link: string) => {
-    handleCopy(link);
-    setIsOpen(!isOpen);
-  };
-
-  // Define all available social media platforms with their icons
-  const allSocialPlatforms = [
-    {
-      id: "instagram",
-      icon: (
-        <svg
-          width="20"
-          height="21"
-          viewBox="0 0 20 21"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M10.0006 2.32031C7.82789 2.32031 7.55522 2.32981 6.70188 2.36865C5.85021 2.40765 5.26887 2.54248 4.7602 2.74031C4.23402 2.94465 3.78769 3.21798 3.34301 3.66281C2.89801 4.10748 2.62467 4.55381 2.41967 5.07981C2.22134 5.58865 2.08633 6.17015 2.048 7.02148C2.01 7.87481 2 8.14765 2 10.3203C2 12.493 2.00967 12.7648 2.04833 13.6181C2.0875 14.4698 2.22234 15.0511 2.42 15.5598C2.62451 16.086 2.89784 16.5323 3.34268 16.977C3.78719 17.422 4.23352 17.696 4.75936 17.9003C5.26837 18.0981 5.84987 18.233 6.70138 18.272C7.55473 18.3108 7.82723 18.3203 9.99975 18.3203C12.1726 18.3203 12.4444 18.3108 13.2978 18.272C14.1495 18.233 14.7315 18.0981 15.2405 17.9003C15.7665 17.696 16.2121 17.422 16.6567 16.977C17.1017 16.5323 17.375 16.086 17.58 15.56C17.7767 15.0511 17.9117 14.4696 17.9517 13.6183C17.99 12.765 18 12.493 18 10.3203C18 8.14765 17.99 7.87498 17.9517 7.02165C17.9117 6.16998 17.7767 5.58865 17.58 5.07998C17.375 4.55381 17.1017 4.10748 16.6567 3.66281C16.2116 3.21781 15.7666 2.94448 15.24 2.74031C14.73 2.54248 14.1483 2.40765 13.2966 2.36865C12.4433 2.32981 12.1716 2.32031 9.99825 2.32031H10.0006ZM9.28291 3.76198C9.49591 3.76165 9.73358 3.76198 10.0006 3.76198C12.1366 3.76198 12.3898 3.76965 13.2333 3.80798C14.0133 3.84365 14.4366 3.97398 14.7186 4.08348C15.092 4.22848 15.3581 4.40181 15.638 4.68181C15.918 4.96181 16.0913 5.22848 16.2366 5.60181C16.3462 5.88348 16.4767 6.30681 16.5122 7.08681C16.5505 7.93015 16.5588 8.18348 16.5588 10.3185C16.5588 12.4535 16.5505 12.7068 16.5122 13.5501C16.4765 14.3301 16.3462 14.7535 16.2366 15.0351C16.0916 15.4085 15.918 15.6743 15.638 15.9541C15.358 16.2341 15.0921 16.4075 14.7186 16.5525C14.437 16.6625 14.0133 16.7925 13.2333 16.8281C12.3899 16.8665 12.1366 16.8748 10.0006 16.8748C7.86439 16.8748 7.61123 16.8665 6.76788 16.8281C5.98787 16.7921 5.56454 16.6618 5.28237 16.5523C4.90903 16.4073 4.64236 16.234 4.36236 15.954C4.08236 15.674 3.90902 15.408 3.76369 15.0345C3.65418 14.7528 3.52368 14.3295 3.48818 13.5495C3.44985 12.7061 3.44218 12.4528 3.44218 10.3165C3.44218 8.18015 3.44985 7.92815 3.48818 7.08481C3.52385 6.30481 3.65418 5.88148 3.76369 5.59948C3.90869 5.22615 4.08236 4.95948 4.36236 4.67948C4.64236 4.39948 4.90903 4.22615 5.28237 4.08081C5.56437 3.97081 5.98787 3.84081 6.76788 3.80498C7.50589 3.77165 7.79189 3.76165 9.28291 3.75998V3.76198Z"
-            fill="white"
-          />
-          <path
-            d="M14.2538 5.07066C14.0639 5.07066 13.8783 5.12697 13.7204 5.23247C13.5625 5.33797 13.4394 5.48793 13.3668 5.66336C13.2941 5.8388 13.2751 6.03184 13.3122 6.21807C13.3493 6.4043 13.4408 6.57536 13.575 6.7096C13.7093 6.84385 13.8804 6.93525 14.0667 6.97226C14.2529 7.00926 14.446 6.9902 14.6214 6.91749C14.7968 6.84478 14.9467 6.72168 15.0521 6.56377C15.1576 6.40585 15.2138 6.22021 15.2138 6.03033C15.2138 5.50033 14.7838 5.07033 14.2538 5.07033V5.07066Z"
-            fill="white"
-          />
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M9.98338 6.19233C7.71452 6.19233 5.875 8.03183 5.875 10.3007C5.875 12.5695 7.71452 14.4082 9.98338 14.4082C12.2522 14.4082 14.0913 12.5695 14.0913 10.3007C14.0913 8.03183 12.2522 6.19233 9.98338 6.19233ZM10 12.9453C11.4498 12.9453 12.625 11.7701 12.625 10.3203C12.625 8.87058 11.4498 7.69533 10 7.69533C8.55026 7.69533 7.375 8.87058 7.375 10.3203C7.375 11.7701 8.55026 12.9453 10 12.9453Z"
-            fill="white"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "tiktok",
-      icon: (
-        <svg
-          width="20"
-          height="21"
-          viewBox="0 0 20 21"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg">
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M8.52143 8.62472V8.00075C8.30482 7.97009 8.08642 7.95416 7.86765 7.95312C5.19251 7.95312 3.01611 10.1295 3.01611 12.8042C3.01611 14.4449 3.83625 15.8973 5.08734 16.7756C4.24963 15.8798 3.7839 14.6991 3.78458 13.4729C3.78458 10.8363 5.89904 8.68628 8.52143 8.62472Z"
-            fill="#00F2EA"
-          />
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M8.63634 15.6866C9.82989 15.6866 10.8036 14.7373 10.8479 13.5542L10.8519 2.99289H12.7817C12.7405 2.77238 12.7197 2.54855 12.7194 2.32422H10.0839L10.0795 12.8859C10.0355 14.0686 9.06144 15.0176 7.86825 15.0176C7.51001 15.0177 7.15717 14.9305 6.84033 14.7633C7.0449 15.0487 7.31451 15.2813 7.62681 15.4418C7.93912 15.6024 8.28516 15.6863 8.63634 15.6866ZM16.3873 6.57927V5.99229C15.6781 5.99296 14.9841 5.78669 14.3905 5.39874C14.911 5.99792 15.6117 6.41212 16.3877 6.57927"
-            fill="#00F2EA"
-          />
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M12.7189 12.8013V7.44572C13.7872 8.21387 15.0702 8.62637 16.3861 8.62477V6.57662C15.6103 6.40932 14.9096 5.99498 14.3893 5.39574C13.9725 5.12473 13.6151 4.77197 13.3387 4.35883C13.0623 3.94569 12.8727 3.48076 12.7812 2.99219H10.8515L10.8474 13.5535C10.8031 14.7362 9.8294 15.6856 8.63585 15.6856C8.28467 15.6852 7.93863 15.6013 7.62633 15.4407C7.31405 15.2802 7.04445 15.0476 6.83984 14.7623C6.48194 14.5747 6.1821 14.2928 5.97276 13.9472C5.76342 13.6016 5.65255 13.2054 5.65215 12.8013C5.65282 12.214 5.88646 11.6509 6.30183 11.2357C6.71717 10.8204 7.28035 10.5868 7.86776 10.5861C8.0957 10.5861 8.31447 10.6235 8.52151 10.6887V8.62221C5.89912 8.68376 3.78467 10.8338 3.78467 13.4704C3.78467 14.7454 4.28012 15.9061 5.08743 16.773C5.90129 17.3459 6.87248 17.6529 7.86776 17.652C10.5429 17.652 12.7189 15.476 12.7189 12.8013Z"
-            fill="white"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "facebook",
-      icon: (
-        <svg
-          width="20"
-          height="21"
-          viewBox="0 0 20 21"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg">
-          <g clipPath="url(#clip0_7046_239121)">
-            <path
-              d="M20 10.5273C20 5.00454 15.5228 0.527344 10 0.527344C4.4772 0.527344 0 5.00454 0 10.5273C0 15.2169 3.2288 19.1521 7.5844 20.2329V13.5833H5.5224V10.5273H7.5844V9.21054C7.5844 5.80694 9.1248 4.22934 12.4664 4.22934C13.1 4.22934 14.1932 4.35374 14.6404 4.47774V7.24774C14.4044 7.22294 13.9944 7.21054 13.4852 7.21054C11.8456 7.21054 11.212 7.83174 11.212 9.44654V10.5273H14.4784L13.9172 13.5833H11.212V20.4541C16.1628 19.8561 20 15.6401 20 10.5273Z"
-              fill="white"
-            />
-          </g>
-          <defs>
-            <clipPath id="clip0_7046_239121">
-              <rect
-                width="20"
-                height="20"
-                fill="white"
-                transform="translate(0 0.320312)"
-              />
-            </clipPath>
-          </defs>
-        </svg>
-      ),
-    },
-    {
-      id: "whatsapp",
-      icon: (
-        <svg
-          width="20"
-          height="21"
-          viewBox="0 0 20 21"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg">
-          <g clipPath="url(#clip0_7046_239122)">
-            <path
-              d="M16.7763 3.60268C18.6513 5.47768 19.812 7.93304 19.812 10.6116C19.812 16.058 15.2584 20.5223 9.76737 20.5223C8.11558 20.5223 6.50844 20.0759 5.03523 19.317L-0.187988 20.6562L1.19594 15.5223C0.347726 14.0491 -0.143345 12.3527 -0.143345 10.567C-0.143345 5.12054 4.32094 0.65625 9.76737 0.65625C12.4459 0.65625 14.9459 1.72768 16.7763 3.60268ZM9.76737 18.8259C14.3209 18.8259 18.1156 15.1205 18.1156 10.6116C18.1156 8.37946 17.1781 6.32589 15.6156 4.76339C14.0531 3.20089 11.9995 2.35268 9.81201 2.35268C5.25844 2.35268 1.55308 6.05804 1.55308 10.567C1.55308 12.1295 1.99951 13.6473 2.80308 14.9866L3.0263 15.2991L2.17808 18.3348L5.30308 17.4866L5.57094 17.6652C6.86558 18.4241 8.29416 18.8259 9.76737 18.8259ZM14.3209 12.6652C14.5442 12.7991 14.7227 12.8437 14.7674 12.9777C14.8567 13.067 14.8567 13.558 14.6334 14.1384C14.4102 14.7188 13.4281 15.2545 12.9817 15.2991C12.1781 15.433 11.5531 15.3884 9.99058 14.6741C7.49058 13.6027 5.88344 11.1027 5.74951 10.9688C5.61558 10.7902 4.76737 9.62947 4.76737 8.37946C4.76737 7.17411 5.39237 6.59375 5.61558 6.32589C5.8388 6.05804 6.10665 6.01339 6.28523 6.01339C6.41915 6.01339 6.59773 6.01339 6.73165 6.01339C6.91023 6.01339 7.0888 5.96875 7.31201 6.45982C7.49058 6.95089 8.0263 8.15625 8.07094 8.29018C8.11558 8.42411 8.16023 8.55804 8.07094 8.73661C7.62451 9.67411 7.0888 9.62946 7.35665 10.0759C8.3388 11.7277 9.2763 12.308 10.7495 13.0223C10.9727 13.1563 11.1067 13.1116 11.2852 12.9777C11.4192 12.7991 11.9102 12.2188 12.0442 11.9955C12.2227 11.7277 12.4013 11.7723 12.6245 11.8616C12.8477 11.9509 14.0531 12.5312 14.3209 12.6652Z"
-              fill="white"
-            />
-          </g>
-          <defs>
-            <clipPath id="clip0_7046_239122">
-              <rect
-                width="20"
-                height="20"
-                fill="white"
-                transform="translate(0 0.320312)"
-              />
-            </clipPath>
-          </defs>
-        </svg>
-      ),
-    },
-    {
-      id: "x",
-      icon: (
-        <svg
-          width="20"
-          height="21"
-          viewBox="0 0 20 21"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M11.9013 8.32031L19.3513 0.320312H17.5838L11.119 7.32031L5.95503 0.320312H0.320312L8.10631 11.3203L0.320312 19.3203H2.08781L8.88781 12.3203L14.3653 19.3203H20L11.9013 8.32031ZM9.74031 11.3203L8.94531 10.3203L2.70031 1.32031H5.08781L10.1403 8.82031L10.9353 9.82031L17.5853 18.3203H15.1978L9.74031 11.3203Z"
-            fill="white"
-          />
-        </svg>
-      ),
-    },
-  ];
-
-  // Create items array with only configured social platforms
-  const items = allSocialPlatforms.filter((platform) => {
-    // Check if this social platform is configured (has a non-empty value)
-    const profileValue = socialProfiles[platform.id as keyof SocialProfiles];
-    return profileValue && profileValue.trim() !== "";
-  }).map((platform, index) => ({
-    id: index + 1,
-    icon: platform.icon,
-    link: socialProfiles[platform.id as keyof SocialProfiles] || "",
+  const items = PLATFORMS.filter((p) => (socialProfiles[p.id] || "").trim() !== "").map((p) => ({
+    ...p,
+    href: hrefFor(p, socialProfiles[p.id] || ""),
   }));
+
+  const pill =
+    "inline-flex items-center gap-1 rounded-pill bg-surface-subtle px-2 py-1.5 text-foreground-primary shadow-card backdrop-blur-sm z-dropdown";
+  const control = cn(
+    "flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-surface-muted",
+    focusRing
+  );
 
   return (
     <div className="flex gap-2">
-      <motion.div className="inline-flex z-50 items-center gap-2 rounded-full px-2 py-2 backdrop-blur-sm bg-ink-20/10 shadow-md">
-{/* Only show social icons when menu is open */}
-        {isOpen && items.map((item, index) => (
-          <AnimatePresence key={item.id}>
-            <motion.button
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{
-                duration: 0.2,
-                delay: index * 0.05,
-              }}
-              onClick={() => handleIconClick(item.id, item.link)}
-              className="hover:bg-ink-20/20 rounded-full">
-              {item.icon}
-            </motion.button>
-          </AnimatePresence>
-        ))}
-      </motion.div>
+      {/* The pill only exists when it has something in it. It rendered
+          unconditionally, so a closed menu — and any store with no social
+          profiles — painted an empty disc beside the kebab. */}
+      {isOpen && items.length > 0 && (
+        <motion.div className={pill}>
+          {items.map((item, index) => (
+            <AnimatePresence key={item.id}>
+              <motion.a
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Open ${item.label} profile`}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2, delay: index * 0.05 }}
+                onClick={() => setIsOpen(false)}
+                className={control}>
+                <item.Icon size={20} aria-hidden="true" />
+              </motion.a>
+            </AnimatePresence>
+          ))}
+        </motion.div>
+      )}
 
       {isOpen && (
-        <motion.div className="inline-flex z-50 items-center gap-2 rounded-full px-2 backdrop-blur-sm bg-ink-20/10 shadow-md">
+        <motion.div className={pill}>
           <AnimatePresence>
             <motion.button
+              type="button"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
-              transition={{
-                duration: 0.2,
-                delay: items.length * 0.05,
-              }}
+              transition={{ duration: 0.2, delay: items.length * 0.05 }}
               onClick={() => {
                 handleShare();
-                handleIconClick(items.length + 1);
+                setIsOpen(false);
               }}
-              className="p-1 rounded-full hover:bg-ink-20/20">
-              <svg
-                width="18"
-                height="16"
-                viewBox="0 0 18 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M16.2295 8.82551C16.4329 8.65113 16.5346 8.56395 16.5719 8.4602C16.6046 8.36914 16.6046 8.26953 16.5719 8.17847C16.5346 8.07472 16.4329 7.98754 16.2295 7.81316L9.17051 1.76264C8.82032 1.46248 8.64523 1.3124 8.49699 1.30872C8.36815 1.30553 8.24509 1.36213 8.16367 1.46203C8.06999 1.57697 8.06999 1.80759 8.06999 2.26881V5.84819C6.29109 6.15941 4.66298 7.0608 3.45308 8.41422C2.13401 9.88976 1.40435 11.7993 1.40332 13.7785V14.2885C2.27777 13.2351 3.36958 12.3831 4.60395 11.7909C5.69223 11.2689 6.86867 10.9596 8.06999 10.8781V14.3699C8.06999 14.8311 8.06999 15.0617 8.16367 15.1766C8.24509 15.2765 8.36815 15.3331 8.49699 15.3299C8.64523 15.3263 8.82032 15.1762 9.17051 14.876L16.2295 8.82551Z"
-                  stroke="white"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+              aria-label="Share this page"
+              className={control}>
+              <PiShareFatThin size={20} aria-hidden="true" />
             </motion.button>
           </AnimatePresence>
         </motion.div>

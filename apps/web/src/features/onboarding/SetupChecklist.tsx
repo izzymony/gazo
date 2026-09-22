@@ -77,15 +77,15 @@ export default function SetupChecklist() {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -8 }}
         transition={{ duration: 0.25 }}
-        className="bg-white border border-ink-10 rounded-card overflow-hidden shadow-card"
+        className="bg-surface border border-outline rounded-card overflow-hidden shadow-card"
       >
         {/* Header */}
         <div className="px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center">
-              <Store size={16} className="text-brand" />
+              <Store size={16} className="text-brandDeep" />
             </div>
-            <h3 className="font-medium text-body text-ink-90">
+            <h3 className="font-medium text-body text-foreground-primary">
               Complete Your Store Setup
             </h3>
           </div>
@@ -98,7 +98,7 @@ export default function SetupChecklist() {
           >
             <ChevronDown
               size={16}
-              className={`text-ink-40 transition-transform duration-200 ${
+              className={`text-foreground-muted transition-transform duration-200 ${
                 checklistMinimized ? "" : "rotate-180"
               }`}
             />
@@ -108,12 +108,12 @@ export default function SetupChecklist() {
         {/* Progress bar */}
         <div className="px-4 pb-3">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-caption text-ink-40">
+            <span className="text-caption text-foreground-muted">
               {steps.filter((s) => s.completed).length} of {steps.length} complete
             </span>
-            <span className="text-caption font-semibold text-brand">{percent}%</span>
+            <span className="text-caption font-semibold text-brandDeep">{percent}%</span>
           </div>
-          <div className="h-1.5 bg-ink-10 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-surface-strong rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-brand rounded-full"
               initial={{ width: 0 }}
@@ -143,19 +143,19 @@ export default function SetupChecklist() {
                     >
                       <div className="flex items-center gap-2.5 flex-1 min-w-0">
                         {step.completed ? (
-                          <div className="w-5 h-5 rounded-full bg-green flex items-center justify-center flex-shrink-0">
+                          <div className="w-5 h-5 rounded-full bg-success-foreground flex items-center justify-center flex-shrink-0">
                             <Check size={10} className="text-white" strokeWidth={2.5} />
                           </div>
                         ) : (
-                          <div className="w-5 h-5 rounded-full border-[1.5px] border-ink-20 flex-shrink-0" />
+                          <div className="w-5 h-5 rounded-full border-[1.5px] border-outline-strong flex-shrink-0" />
                         )}
                         <span
                           className={`text-body-sm ${
                             step.completed
-                              ? "text-ink-40 line-through"
+                              ? "text-foreground-muted line-through"
                               : isNext
-                              ? "text-ink-90 font-medium"
-                              : "text-ink-60"
+                              ? "text-foreground-primary font-medium"
+                              : "text-foreground-secondary"
                           }`}
                         >
                           {step.label}
@@ -170,7 +170,7 @@ export default function SetupChecklist() {
                               router.push(step.route);
                             }
                           }}
-                          className="bg-brand text-white text-caption font-semibold px-3 rounded-full h-7 whitespace-nowrap flex-shrink-0 touch-manipulation inline-flex items-center justify-center gap-0.5 leading-none active:scale-95 transition-transform"
+                          className="bg-brand text-brandInk text-caption font-semibold px-3 rounded-full h-7 whitespace-nowrap flex-shrink-0 touch-manipulation inline-flex items-center justify-center gap-0.5 leading-none active:scale-95 transition-transform"
                           style={{ boxShadow: '0px 2px 10px 0px rgb(var(--brand-rgb) / 0.25)' }}
                         >
                           {step.ctaLabel}
@@ -183,8 +183,8 @@ export default function SetupChecklist() {
               </div>
 
               {/* Tip */}
-              <div className="mx-4 mb-3 py-2 px-3 bg-warning/10 rounded-field">
-                <p className="text-caption text-warning-strong font-medium">
+              <div className="mx-4 mb-3 py-2 px-3 bg-warning-surface rounded-field">
+                <p className="text-caption text-warning-foreground font-medium">
                   💡 Stores with 3+ products get 3x more views
                 </p>
               </div>

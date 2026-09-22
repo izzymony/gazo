@@ -1,12 +1,9 @@
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 /* eslint-disable @next/next/no-img-element */
 export default function Message() {
-  const router = useRouter();
   return (
-    <div
-      onClick={() => router.push("/inbox/message/12")}
-      className="w-full gap-3 flex cursor-pointer">
+    <Link href={"/inbox/message/12"} className="w-full gap-3 flex cursor-pointer">
       <div className="flex-1">
         <div className="w-full flex gap-3">
           <div className="relative">
@@ -17,18 +14,18 @@ export default function Message() {
             />
           </div>
           <div className="flex-1 flex-col flex">
-            <p className="line-clamp-1 text-ink-90 font-medium text-body">
+            <p className="line-clamp-1 text-foreground-primary font-medium text-body">
               Gucci Store
             </p>
-            <p className="text-ink-60 text-body-sm font-normal line-clamp-1">
+            <p className="text-foreground-secondary text-body-sm font-normal line-clamp-1">
               Message Preview
             </p>
           </div>
         </div>
       </div>
       <div>
-        <p className="text-ink-40 text-caption">4m ago</p>
+        <p className="text-foreground-muted text-caption">4m ago</p>
       </div>
-    </div>
+    </Link>
   );
 }

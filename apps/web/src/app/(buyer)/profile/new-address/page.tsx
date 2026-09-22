@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import PageShell from "@vibaar/ui/PageShell";
-import Header from "@/design-system/common/Header";
+import Header from "@vibaar/ui/common/Header";
 import Button from "@vibaar/ui/common/Button";
 import Section from "@vibaar/ui/common/Section";
 import { useRouter } from "next/navigation";
@@ -53,13 +53,12 @@ const Page = () => {
     <PageShell
       header={
         <Header
-          showBack
-          onBackClick={() => router.back()}
-          customText="Enter address manually"
+          onBack={() => router.back()}
+          title="Enter address manually"
         />
       }
       footerAction={
-        <Button type="submit" onClick={formik.handleSubmit} loading={isLoading}>
+        <Button type="submit" onClick={() => formik.handleSubmit()} loading={isLoading}>
           Save address
         </Button>
       }>

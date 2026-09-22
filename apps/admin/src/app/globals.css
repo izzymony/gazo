@@ -107,7 +107,7 @@
   }
   
   .admin-button-danger {
-    @apply inline-flex items-center justify-center rounded-md bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brandDark focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center rounded-md bg-adminError px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-adminErrorDark focus:outline-none focus:ring-2 focus:ring-adminError focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
   }
   
   .admin-badge {
@@ -301,3 +301,15 @@
     display: none !important;
   }
 }
+/* ── Brand typography ──────────────────────────────────────────────────
+   Mirrors apps/web: one family, Outfit (geometric, single-storey `a`,
+   matching the vibaar wordmark), for headings and body alike. Self-hosted
+   via next/font/local (src/app/fonts.ts) — never a build-time Google fetch. */
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--font-outfit), 'Outfit', system-ui, -apple-system, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+body { font-weight: 450; }
+strong, b { font-weight: 600; }

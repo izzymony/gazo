@@ -37,7 +37,7 @@ export default function DeliverySheet({
               />
             ))
           ) : (
-            <div className="text-center text-ink-40 py-4 text-body-sm">
+            <div className="text-center text-foreground-muted py-4 text-body-sm">
               No delivery options available. Please select a valid location.
             </div>
           )}

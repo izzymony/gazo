@@ -300,7 +300,6 @@ const useShippingStore = create<ShippingState>()(
       },
 
       fetchShippingOptions: async (val: ShippingOptions, guestId?: string) => {
-        console.log(val, guestId);
         set({ isLoading: true, error: null });
         
         // First, try with the provided guestId or as authenticated user
@@ -319,7 +318,6 @@ const useShippingStore = create<ShippingState>()(
         
         try {
           const response: any = (await Client(option)) as AxiosResponse;
-          console.log("response shipping ", response.data.data);
           set({
             shippingOptions: response.data.data,
             isLoading: false,
@@ -330,7 +328,6 @@ const useShippingStore = create<ShippingState>()(
           
           // If authentication failed (401) and we haven't tried guest mode yet, try with guest ID
           if (error?.response?.status === 401 && !guestId) {
-            console.log("🔄 Authentication failed, retrying as guest user...");
             try {
               const ensuredGuestId = useShippingStore.getState().ensureGuestId();
               const guestOption = {
@@ -341,7 +338,6 @@ const useShippingStore = create<ShippingState>()(
               };
               
               const guestResponse: any = (await Client(guestOption)) as AxiosResponse;
-              console.log("✅ Guest shipping options successful:", guestResponse.data.data);
               set({
                 shippingOptions: guestResponse.data.data,
                 isLoading: false,

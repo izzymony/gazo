@@ -1,0 +1,20 @@
+{
+  // Production Worker. Keep this separate from wrangler.jsonc, which owns
+  // staging.vibaar.com and must remain independently deployable.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "vibaar-web",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "routes": [
+    { "pattern": "vibaar.com", "custom_domain": true },
+    { "pattern": "www.vibaar.com", "custom_domain": true }
+  ]
+}

@@ -84,7 +84,7 @@ export default function ShareModal({
     <Dialog isOpen={isOpen} onClose={onClose}>
       <div className="flex flex-col">
         {/* Header */}
-        <h2 className="text-body-lg font-semibold text-ink-90 text-center mb-6">
+        <h2 className="text-body-lg font-semibold text-foreground-primary text-center mb-6">
           {title}
         </h2>
 
@@ -102,7 +102,7 @@ export default function ShareModal({
               >
                 {option.icon}
               </div>
-              <span className="text-body-sm text-ink-80">
+              <span className="text-body-sm text-foreground-secondary">
                 {option.name}
               </span>
             </button>
@@ -110,16 +110,16 @@ export default function ShareModal({
         </div>
 
         {/* Copy Link Section */}
-        <div className="bg-ink-3 rounded-full flex items-center gap-3 pl-5 pr-1.5 py-1.5">
-          <span className="text-body text-ink-80 truncate flex-1">
+        <div className="bg-surface-subtle rounded-full flex items-center gap-3 pl-5 pr-1.5 py-1.5">
+          <span className="text-body text-foreground-secondary truncate flex-1">
             {shareUrl}
           </span>
           <button
             onClick={handleCopyLink}
             className={`flex items-center justify-center gap-1.5 px-5 py-3 rounded-full min-h-[44px] font-semibold text-body transition-all touch-manipulation ${
               copied
-                ? "bg-green text-white"
-                : "bg-brand text-white active:scale-95"
+                ? "bg-success-foreground text-foreground-primary"
+                : "bg-brand text-brandInk active:scale-95"
             }`}
             style={{
               boxShadow: !copied ? '4px 8px 24px 0px rgb(var(--brand-rgb) / 0.2)' : undefined

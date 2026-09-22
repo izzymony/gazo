@@ -20,19 +20,19 @@ export default function UserContactForm({
       <H1 className="text-h1 leading-[28px] text-start">
         {isGuestPrefill ? "Verify your contact" : "Enter your phone number or email to continue"}
       </H1>
-      <p className="text-body mt-3 tracking-[0.5px] leading-[20px] text-ink-40 text-start">
+      <p className="text-body mt-3 tracking-[0.5px] leading-[20px] text-foreground-muted text-start">
         {isGuestPrefill 
           ? "We've prefilled your contact info from your order. Please verify and continue." 
           : "Sign in or create new account with your phone number or email"}
       </p>
       {isGuestPrefill && (
-        <div className="bg-success/10 border border-success/20 rounded-field p-3 mt-4">
+        <div className="bg-success-surface border border-success-border rounded-field p-3 mt-4">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <CircleCheck size={16} className="text-success-strong" />
+              <CircleCheck size={16} className="text-success-foreground" />
             </div>
             <div className="ml-3">
-              <p className="text-body-sm text-success-strong">
+              <p className="text-body-sm text-success-foreground">
                 Contact details from your recent order
               </p>
             </div>
