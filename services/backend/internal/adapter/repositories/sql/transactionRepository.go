@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 
@@ -200,25 +201,14 @@ func (repo *TransactionRepository) Create(data *domain.Transaction, isGuest bool
 		tableName += "_guest"
 	}
 
-	tx := repo.db.Begin()
-
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
-	q := tx.Table(tableName).Create(data)
-	if q.Error != nil {
-		tx.Rollback()
-		return nil, q.Error
-	}
-	if err := tx.Commit().Error; err != nil {
+	err := database.WithTransaction(repo.db, "create_transaction", func(tx *gorm.DB) error {
+		return tx.Table(tableName).Create(data).Error
+	})
+	if err != nil {
 		return nil, err
 	}
 
 	return data, nil
-
 }
 
 func (repo *TransactionRepository) Update(id string, input domain.Transaction, isGuest bool) (*domain.Transaction, error) {
@@ -227,22 +217,12 @@ func (repo *TransactionRepository) Update(id string, input domain.Transaction, i
 		tableName += "_guest"
 	}
 
-	tx := repo.db.Table(tableName).Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
 	input.ID = id
 
-	q := tx.Where("id = ?", id).Updates(input)
-	if q.Error != nil {
-		tx.Rollback()
-		return nil, q.Error
-	}
-
-	if err := tx.Commit().Error; err != nil {
+	if err := database.WithTransaction(repo.db.Table(tableName), "update_transaction",
+		func(tx *gorm.DB) error {
+			return tx.Where("id = ?", id).Updates(input).Error
+		}); err != nil {
 		return nil, err
 	}
 

@@ -12,6 +12,7 @@ import (
 
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/payments"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 )
 
@@ -248,7 +249,7 @@ func (s *PayoutService) claimForTransfer(requestID string) (*domain.WithdrawalRe
 	var req domain.WithdrawalRequest
 	var account domain.BusinessBankAccountDetail
 
-	err := s.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(s.db, "claim_for_transfer", func(tx *gorm.DB) error {
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
 			Where("id = ?", requestID).First(&req).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -437,7 +438,7 @@ func (s *PayoutService) applyTransition(requestID string, from, to domain.Withdr
 		accountID string
 	)
 
-	err := s.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(s.db, "apply_transition", func(tx *gorm.DB) error {
 		var req domain.WithdrawalRequest
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
 			Where("id = ?", requestID).First(&req).Error; err != nil {

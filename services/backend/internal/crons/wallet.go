@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/services"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
-	"github.com/Tinovalabs/vibaar/services/backend/internal/core/services"
-	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
-	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 )
 
 type WalletCron struct {
@@ -94,7 +95,7 @@ func (c *WalletCron) releaseFromTable(table string, isGuest bool) {
 		var beforeSales float64
 		var sellerVerified bool
 
-		err := c.DB.Transaction(func(tx *gorm.DB) error {
+		err := database.WithTransaction(c.DB, "release_from_table", func(tx *gorm.DB) error {
 			if err := tx.Table(table).Clauses(clause.Locking{Strength: "UPDATE"}).
 				First(&item, "id = ?", item.ID).Error; err != nil {
 				return err

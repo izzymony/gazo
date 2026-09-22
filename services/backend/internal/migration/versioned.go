@@ -12,6 +12,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
+
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 )
 
 // Directory form, which is RECURSIVE — so `sql/pre/*.sql` is picked up without
@@ -156,7 +158,7 @@ func applyPhase(db *gorm.DB, fsys fs.FS, dir string, peers ...string) error {
 		// Apply the file's statements + record the version in ONE transaction, so a
 		// crash mid-file leaves it unrecorded and the next boot re-runs it cleanly
 		// (the files are idempotent).
-		if err := db.Transaction(func(tx *gorm.DB) error {
+		if err := database.WithTransaction(db, "apply_phase", func(tx *gorm.DB) error {
 			for _, stmt := range m.statements {
 				if err := tx.Exec(stmt).Error; err != nil {
 					return fmt.Errorf("statement %q: %w", truncate(stmt, 80), err)

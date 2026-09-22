@@ -40,8 +40,7 @@ func (s *ShippingController) GetUserShippingProfile(c *gin.Context) {
 
 	resp, total, err := s.service.GetAllShippingProfile(userIdentifier, isGuest, page, limit)
 	if err != nil {
-		logger.Error("Error fetching shipping addresses: " + err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		respondError(c, http.StatusBadRequest, "error_fetching_shipping_addresses", "", err)
 		return
 	}
 
@@ -67,8 +66,7 @@ func (s *ShippingController) SetDefaultShippingProfile(c *gin.Context) {
 
 	resp, err := s.service.SetDefaultShippingProfile(id, userIdentifier, isGuest)
 	if err != nil {
-		logger.Error("Error saving shipping address " + err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		respondError(c, http.StatusBadRequest, "set_default_shipping_profile", "", err)
 		return
 	}
 
@@ -97,8 +95,7 @@ func (s *ShippingController) GetShippingOptions(c *gin.Context) {
 
 	resp, err := s.service.GetShippingOptions(request, userIdentifier, isGuest)
 	if err != nil {
-		logger.Error("error getting shipping options " + err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		respondError(c, http.StatusBadRequest, "get_shipping_options", "", err)
 		return
 	}
 
@@ -135,8 +132,7 @@ func (s *ShippingController) UpdateShippingProfile(c *gin.Context) {
 	}
 	resp, err := s.service.UpdateShippingProfile(id, request, userIdentifier, isGuest)
 	if err != nil {
-		logger.Error("Error saving shipping address " + err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		respondError(c, http.StatusBadRequest, "update_shipping_profile", "", err)
 		return
 	}
 
@@ -155,8 +151,7 @@ func (s *ShippingController) DeleteShippingProfile(c *gin.Context) {
 	}
 	err = s.service.DeleteShippingProfile(id, userIdentifier, isGuest)
 	if err != nil {
-		logger.Error("Error deleting shipping address " + err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		respondError(c, http.StatusBadRequest, "error_deleting_shipping_address", "", err)
 		return
 	}
 
@@ -179,8 +174,7 @@ func (s *ShippingController) GetShippingProfile(c *gin.Context) {
 
 	resp, err := s.service.GetShippingProfile(id, userIdentifier, isGuest)
 	if err != nil {
-		logger.Error("error adding shipping info" + err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		respondError(c, http.StatusBadRequest, "get_shipping_profile", id, err)
 		return
 	}
 
@@ -208,8 +202,9 @@ func (s *ShippingController) AddShippingProfile(c *gin.Context) {
 
 	resp, err := s.service.AddShippingProfile(request, userIdentifier, isGuest)
 	if err != nil {
-		logger.Error("error adding shipping info" + err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		// The path that was verified leaking on staging: a driver error reached
+		// here, was concatenated into a log line AND returned in the body.
+		respondError(c, http.StatusBadRequest, "add_shipping_profile", "", err)
 		return
 	}
 

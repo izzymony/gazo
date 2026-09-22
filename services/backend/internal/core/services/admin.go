@@ -11,6 +11,7 @@ import (
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	fileupload "github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/file-upload"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/payments"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
@@ -156,7 +157,7 @@ func (s *AdminService) ApproveWithdrawal(requestID string) error {
 func (s *AdminService) RejectWithdrawal(requestID, reason string) error {
 	var sellerID string
 	var amount float64
-	err := s.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(s.db, "reject_withdrawal", func(tx *gorm.DB) error {
 		// 1. Fetch and lock withdrawal request
 		var withdrawalRequest domain.WithdrawalRequest
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).

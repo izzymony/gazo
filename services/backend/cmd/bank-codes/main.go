@@ -143,7 +143,7 @@ func main() {
 // the legacy jsonb key at all — so it could print "repaired" while payouts
 // still went to the old recipient.
 func applyRepair(db *gorm.DB, id, code string) error {
-	return db.Transaction(func(tx *gorm.DB) error {
+	return database.WithTransaction(db, "apply_repair", func(tx *gorm.DB) error {
 		res := tx.Exec(`
 			UPDATE business_bank_account_details
 			SET bank_code = ?,

@@ -12,6 +12,7 @@ import (
 	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/payments"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 
@@ -206,7 +207,7 @@ func (s *TransactionService) InitiateCheckout(input requests.InitiateCheckout, u
 	// the actual reserved credit); the payload keeps the gross order + the
 	// authoritative CreditApplied.
 	var transaction *domain.Transaction
-	txErr := s.db.Transaction(func(tx *gorm.DB) error {
+	txErr := database.WithTransaction(s.db, "initiate_checkout", func(tx *gorm.DB) error {
 		var sUsed, wUsed float64
 		if creditIntent > 0 {
 			refRepo := mysql_repo.NewReferralRepository(tx)
@@ -286,7 +287,7 @@ func (s *TransactionService) InitiateCheckout(input requests.InitiateCheckout, u
 // own short tx, so it is safe from the synchronous init-failure path, MarkFailed, and
 // the reconcile cron.
 func (s *TransactionService) releaseReservation(txnID string, isGuest bool) {
-	err := s.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(s.db, "release_reservation", func(tx *gorm.DB) error {
 		txTxnRepo := mysql_repo.NewTransactionRepository(tx)
 		won, cerr := txTxnRepo.ClaimReservationRelease(txnID, isGuest)
 		if cerr != nil {
@@ -426,7 +427,7 @@ func (s *TransactionService) Verify(input requests.VerifyTransaction, isGuest bo
 		// or a client retry re-processes cleanly. Paystack verify (above) and the
 		// best-effort notifications + referral (below) stay outside the tx.
 		var alreadyProcessed bool
-		txErr := s.db.Transaction(func(tx *gorm.DB) error {
+		txErr := database.WithTransaction(s.db, "verify", func(tx *gorm.DB) error {
 			txTxnRepo := mysql_repo.NewTransactionRepository(tx)
 			txOrderRepo := mysql_repo.NewOrderRepository(tx)
 			txProductRepo := mysql_repo.NewProductRepository(tx)

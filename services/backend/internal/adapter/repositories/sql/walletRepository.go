@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
-	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 )
 
 type WalletRepository struct {
@@ -88,7 +89,7 @@ func (r *WalletRepository) UpdateBalanceField(businessID string, field string, a
 		return fmt.Errorf("invalid wallet field: %s", field)
 	}
 
-	return r.db.Transaction(func(tx *gorm.DB) error {
+	return database.WithTransaction(r.db, "update_balance_field", func(tx *gorm.DB) error {
 		if err := tx.Model(&domain.Wallet{}).
 			Where("business_id = ?", businessID).
 			UpdateColumn(field, gorm.Expr(fmt.Sprintf("%s + ?", field), amount)).Error; err != nil {
@@ -172,7 +173,7 @@ func (r *WalletRepository) MoveFundsWithLedger(
 		return errors.New("ledger record is required: a balance move must be recorded")
 	}
 
-	return r.db.Transaction(func(tx *gorm.DB) error {
+	return database.WithTransaction(r.db, "move_funds_with_ledger", func(tx *gorm.DB) error {
 		var wallet domain.Wallet
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
 			Where("business_id = ?", businessID).First(&wallet).Error; err != nil {
@@ -253,7 +254,7 @@ func (r *WalletRepository) CreditWithLedger(
 		return errors.New("ledger record is required: a balance credit must be recorded")
 	}
 
-	return r.db.Transaction(func(tx *gorm.DB) error {
+	return database.WithTransaction(r.db, "credit_with_ledger", func(tx *gorm.DB) error {
 		var wallet domain.Wallet
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
 			Where("business_id = ?", businessID).First(&wallet).Error; err != nil {
@@ -409,7 +410,7 @@ func (r *WalletRepository) LockBalance(businessID string, amount float64) error 
 	if amount <= 0 {
 		return fmt.Errorf("invalid amount: %.2f", amount)
 	}
-	return r.db.Transaction(func(tx *gorm.DB) error {
+	return database.WithTransaction(r.db, "lock_balance", func(tx *gorm.DB) error {
 		var wallet domain.Wallet
 		// Use FOR UPDATE to lock the row and prevent concurrent modifications
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).

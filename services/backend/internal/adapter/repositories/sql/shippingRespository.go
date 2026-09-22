@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fmt"
 
-	"gorm.io/gorm/clause"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
+	"gorm.io/gorm/clause"
 
 	"gorm.io/gorm"
 )
@@ -28,25 +29,26 @@ func (repo *ShippingRepository) AddShippingProfile(input *domain.ShippingProfile
 		tableName += "_guest"
 	}
 
-	tx := repo.db.Table(tableName).Begin()
+	err := database.WithTransaction(repo.db.Table(tableName), "add_shipping_profile",
+		func(tx *gorm.DB) error {
+			if input.IsDefault {
+				if err := tx.Model(&domain.ShippingProfile{}).
+					Where("user_id = ?", input.UserID).
+					Update("is_default", false).Error; err != nil {
+					return err
+				}
+			}
 
-	if input.IsDefault {
-		if err := tx.Model(&domain.ShippingProfile{}).
-			Where("user_id = ?", input.UserID).
-			Update("is_default", false).Error; err != nil {
-			tx.Rollback()
-			return nil, err
-		}
-	}
+			if err := tx.Create(&input).Error; err != nil {
+				return err
+			}
 
-	if err := tx.Create(&input).Error; err != nil {
-		tx.Rollback()
+			input.ShippingUser.ShippingProfileID = input.ID
+			return nil
+		})
+	if err != nil {
 		return nil, err
 	}
-
-	input.ShippingUser.ShippingProfileID = input.ID
-
-	tx.Commit()
 	return input, nil
 }
 
@@ -56,31 +58,28 @@ func (repo *ShippingRepository) UpdateShippingProfile(id string, input domain.Sh
 		tableName += "_guest"
 	}
 
-	tx := repo.db.Table(tableName).Begin()
-
 	var profile domain.ShippingProfile
-	if err := tx.First(&profile, "id = ?", id).Error; err != nil {
-		tx.Rollback()
+	err := database.WithTransaction(repo.db.Table(tableName), "update_shipping_profile",
+		func(tx *gorm.DB) error {
+			if err := tx.First(&profile, "id = ?", id).Error; err != nil {
+				return err
+			}
+
+			helper.Copy(input, &profile)
+
+			if profile.IsDefault {
+				if err := tx.Model(&domain.ShippingProfile{}).
+					Where("user_id = ? AND id != ?", profile.UserID, id).
+					Update("is_default", false).Error; err != nil {
+					return err
+				}
+			}
+
+			return tx.Save(&profile).Error
+		})
+	if err != nil {
 		return nil, err
 	}
-
-	helper.Copy(input, &profile)
-
-	if profile.IsDefault {
-		if err := tx.Model(&domain.ShippingProfile{}).
-			Where("user_id = ? AND id != ?", profile.UserID, id).
-			Update("is_default", false).Error; err != nil {
-			tx.Rollback()
-			return nil, err
-		}
-	}
-
-	if err := tx.Save(&profile).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-
-	tx.Commit()
 	return &profile, nil
 }
 
@@ -90,12 +89,13 @@ func (repo *ShippingRepository) DeleteShippingProfile(id string, isGuest bool) e
 		tableName += "_guest"
 	}
 
-	tx := repo.db.Table(tableName).Begin()
-
-	if err := tx.Where("id = ?", id).Delete(&domain.ShippingProfile{}).Error; err != nil {
-		return err
-	}
-	return nil
+	// This opened a transaction and returned without ever committing OR rolling
+	// back, so the DELETE was never durable and the connection was held until
+	// the pool reclaimed it — while the caller was told the delete succeeded.
+	return database.WithTransaction(repo.db.Table(tableName), "delete_shipping_profile",
+		func(tx *gorm.DB) error {
+			return tx.Where("id = ?", id).Delete(&domain.ShippingProfile{}).Error
+		})
 }
 
 func (repo *ShippingRepository) FindShippingProfile(id string, isGuest bool) (*domain.ShippingProfile, error) {
@@ -211,7 +211,7 @@ func (repo *ShippingRepository) CreateShippingRates(data []domain.ShippingOption
 		tableName += "_guest"
 	}
 
-	err := repo.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(repo.db, "create_shipping_rates", func(tx *gorm.DB) error {
 		if err := tx.Table(tableName).Create(&data).Error; err != nil {
 			return err
 		}

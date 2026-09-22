@@ -1,6 +1,7 @@
 package seeder
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -604,7 +605,7 @@ func findExternalCategoryUUIDByProviderId(db *gorm.DB, providerId string) (strin
 	var externalCategory domain.ExternalCategory
 	err := db.Where("provider_id = ?", providerId).First(&externalCategory).Error
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// If not found, return empty string (will be handled by caller)
 			return "", nil
 		}
@@ -640,7 +641,7 @@ func createOrUpdateCategory(db *gorm.DB, categoryData CategoryData) (*domain.Cat
 	err = db.Where("name = ? OR slug = ?", categoryData.Name, slug).First(&category).Error
 
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// Create new category
 			category = domain.Category{
 				Name:               categoryData.Name,
@@ -680,7 +681,7 @@ func createOrUpdateSubcategory(db *gorm.DB, subcatData SubcategoryData, category
 	err := db.Where("name = ? AND category_id = ?", subcatData.Name, categoryId).First(&subcategory).Error
 	
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// Create new subcategory
 			subcategory = domain.SubCategory{
 				Name:          subcatData.Name,
@@ -741,7 +742,7 @@ func seedShipbubbleCategories(db *gorm.DB) error {
 		err := db.Where("provider_id = ? AND provider = ?", extCategory.ProviderId, "shipbubble").First(&existing).Error
 		
 		if err != nil {
-			if err == gorm.ErrRecordNotFound {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
 				// Create new external category
 				if err := db.Create(&extCategory).Error; err != nil {
 					return fmt.Errorf("failed to create external category %q: %v", extCategory.Name, err)

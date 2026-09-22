@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jackc/pgx/v5/pgconn"
-
 	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/dberr"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 
@@ -33,7 +33,7 @@ func NewReferralService(db *gorm.DB) *ReferralService {
 // CreditSignupBonus credits the universal ₦1,000 signup bonus to a new user
 // This is called for ALL new users, regardless of whether they use a referral code
 func (s *ReferralService) CreditSignupBonus(userID string) error {
-	err := s.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(s.db, "credit_signup_bonus", func(tx *gorm.DB) error {
 		txRepo := mysql_repo.NewReferralRepository(tx)
 
 		// Idempotency (RW1): one signup bonus per user. This fast-path check stops
@@ -93,27 +93,27 @@ func (s *ReferralService) CreditSignupBonus(userID string) error {
 	return nil
 }
 
-// isSignupBonusRaceLoss reports whether err is the unique-violation raised by
-// idx_credit_entries_one_signup_bonus_per_user (migration 013) — i.e. a
-// concurrent call already granted this user's signup bonus.
-//
-// Matched via the pgx PgError code (23505 = unique_violation) plus the index
-// name, so an unrelated unique violation elsewhere in the transaction is NOT
-// swallowed. Falls back to a string check because the error may arrive wrapped
-// by GORM rather than as a typed *pgconn.PgError.
-func isSignupBonusRaceLoss(err error) bool {
-	if err == nil {
-		return false
-	}
-	const idxName = "idx_credit_entries_one_signup_bonus_per_user"
+// signupBonusIndex is the partial unique index from migration 013 that makes
+// CreditSignupBonus safe under concurrency. Named here as a constant because it
+// is a schema object this code branches on, not a string in an error message.
+const signupBonusIndex = "idx_credit_entries_one_signup_bonus_per_user"
 
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) {
-		return pgErr.Code == "23505" && strings.Contains(pgErr.ConstraintName, idxName)
-	}
-	msg := err.Error()
-	return strings.Contains(msg, idxName) &&
-		(strings.Contains(msg, "23505") || strings.Contains(msg, "duplicate key value"))
+// isSignupBonusRaceLoss reports whether err is the unique violation raised by
+// signupBonusIndex — i.e. a concurrent call already granted this user's bonus.
+//
+// Asked of the SANITIZED error, because errors from the repository boundary no
+// longer carry a driver message (see internal/dberr). This function previously
+// inspected *pgconn.PgError.ConstraintName and, failing that, substring-matched
+// the driver's text; the boundary discards both, so both checks silently
+// stopped matching and every race loser would have surfaced as a failed signup.
+// Its tests did not catch that because they all constructed raw
+// *pgconn.PgError values, which the application no longer produces here.
+//
+// dberr.IsDuplicateOn requires the class AND the constraint, so a unique
+// violation on any other constraint still surfaces as a real error — which
+// matters, because swallowing one would hide a double-credit.
+func isSignupBonusRaceLoss(err error) bool {
+	return dberr.IsDuplicateOn(err, signupBonusIndex)
 }
 
 // ValidateReferralUsername checks if a username exists and is not the user's own
@@ -169,7 +169,7 @@ func (s *ReferralService) SetReferrer(refereeID, referrerUsername string) error 
 	}
 
 	// Use transaction to store relationship and create pending entry
-	return s.db.Transaction(func(tx *gorm.DB) error {
+	return database.WithTransaction(s.db, "set_referrer", func(tx *gorm.DB) error {
 		txRepo := mysql_repo.NewReferralRepository(tx)
 
 		// Store the referrer's username
@@ -235,7 +235,7 @@ func (s *ReferralService) ActivateReferral(refereeID, orderID string) error {
 	}
 
 	// Use transaction for atomic updates
-	return s.db.Transaction(func(tx *gorm.DB) error {
+	return database.WithTransaction(s.db, "activate_referral", func(tx *gorm.DB) error {
 		txRepo := mysql_repo.NewReferralRepository(tx)
 
 		// Atomic winner-takes-all activation guard (RW1): flip referral_activated
@@ -338,7 +338,7 @@ func (s *ReferralService) UseCredit(userID string, amount, orderTotal float64, o
 	}
 
 	// Use transaction for atomic deduction
-	return s.db.Transaction(func(tx *gorm.DB) error {
+	return database.WithTransaction(s.db, "use_credit", func(tx *gorm.DB) error {
 		txRepo := mysql_repo.NewReferralRepository(tx)
 
 		// Deduct from shopping credit first, then withdrawable

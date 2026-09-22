@@ -2,6 +2,7 @@ package mysql_repo
 
 import (
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/ports"
 	"time"
@@ -132,7 +133,7 @@ func (repo *OrderRepository) GetAllOrderItems(params map[string]interface{}, isG
 	}).Preload("Product", func(db *gorm.DB) *gorm.DB {
 		return db.Select("id, title, price, image, business_id")
 	}).Preload("Shipment").Preload("ShippingOption")
-	
+
 	for field, value := range params {
 		if helper.NotEmpty(value) {
 			query = query.Where(field+" = ?", value)
@@ -274,7 +275,7 @@ func (repo *OrderRepository) Create(data *domain.Order, isGuest bool) (*domain.O
 	// SAVEPOINT instead of a real BEGIN — so this nests safely and never returns
 	// ErrInvalidTransaction (the manual Begin()/Commit() here was the same class of
 	// bug fixed for the transaction repo; it broke every order-on-success checkout).
-	err := repo.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(repo.db, "create", func(tx *gorm.DB) error {
 		items := data.Items
 		data.Items = nil
 
@@ -324,22 +325,12 @@ func (repo *OrderRepository) UpdateOrder(id string, input domain.Order, isGuest 
 		tableName += "_guest"
 	}
 
-	tx := repo.db.Table(tableName).Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
 	input.ID = id
 
-	q := tx.Where("id = ?", id).Updates(input)
-	if q.Error != nil {
-		tx.Rollback()
-		return nil, q.Error
-	}
-
-	if err := tx.Commit().Error; err != nil {
+	if err := database.WithTransaction(repo.db.Table(tableName), "update_order",
+		func(tx *gorm.DB) error {
+			return tx.Where("id = ?", id).Updates(input).Error
+		}); err != nil {
 		return nil, err
 	}
 
@@ -406,7 +397,7 @@ func (repo *OrderRepository) UpdateOrderItem(id string, input domain.OrderItem, 
 	// Begin()/Commit() that rolled the outer checkout tx back on a *sql.Tx. Same class
 	// as the Create/AppendActivity fixes. Omit associations so Select("*") only rewrites
 	// scalar columns and never upserts the item's (empty) value-type associations.
-	err := repo.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(repo.db, "update_order_item", func(tx *gorm.DB) error {
 		// Table(tableName) targets order_items_guest for guests; Model(&OrderItem{})
 		// keeps the schema so Select("*") + the jsonb Valuers map correctly. Read-back
 		// uses the same table — before this both used Model() and silently updated
@@ -436,7 +427,7 @@ func (repo *OrderRepository) UpdateOrderItemStatus(id string, status string, sta
 	// (same class as the Create/AppendActivity/UpdateOrderItem fixes). Table(tableName)
 	// targets order_items_guest for guests — the Update previously used Model() and
 	// always hit order_items, silently missing guest items (webhook/admin fulfillment).
-	err := repo.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(repo.db, "update_order_item_status", func(tx *gorm.DB) error {
 		// Only update status and status_updated_at fields - NOT activity arrays
 		if err := tx.Table(tableName).Where("id = ?", id).Updates(map[string]interface{}{
 			"status":            status,
@@ -473,11 +464,13 @@ func (repo *OrderRepository) DeleteOrder(id string, isGuest bool) error {
 		tableName += "_guest"
 	}
 
-	tx := repo.db.Table(tableName).Begin()
-	if err := tx.Where("id = ?", id).Delete(&domain.Order{}).Error; err != nil {
-		return err
-	}
-	return nil
+	// Same defect as DeleteShippingProfile: a transaction was opened and never
+	// committed, so the DELETE never became durable while the caller was told
+	// it had succeeded.
+	return database.WithTransaction(repo.db.Table(tableName), "delete_order",
+		func(tx *gorm.DB) error {
+			return tx.Where("id = ?", id).Delete(&domain.Order{}).Error
+		})
 }
 
 func (repo *OrderRepository) AppendActivity(id string, newActivity domain.OrderActivity, activityType string, isGuest bool) (*domain.OrderItem, error) {
@@ -498,7 +491,7 @@ func (repo *OrderRepository) AppendActivity(id string, newActivity domain.OrderA
 	// *sql.Tx sets ErrInvalidTransaction but leaves ConnPool pointing at the caller's
 	// tx, so the deferred/inline tx.Rollback() aborted the whole checkout tx and the
 	// just-created order vanished. (Same class as the Create fix above / 368a981.)
-	err := repo.db.Transaction(func(tx *gorm.DB) error {
+	err := database.WithTransaction(repo.db, "append_activity", func(tx *gorm.DB) error {
 		if err := tx.Table(tableName).Where("id = ?", id).Select(selectField).First(&existingOrder).Error; err != nil {
 			return err
 		}

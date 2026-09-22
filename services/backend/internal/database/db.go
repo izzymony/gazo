@@ -71,6 +71,12 @@ func ConnectDB() *gorm.DB {
 		panic(err)
 	}
 
+	// Contain persistence errors at the boundary, before any repository can see
+	// one. Registered immediately after Open so no query runs unconverted.
+	if err := registerErrorSanitizer(db); err != nil {
+		panic(err)
+	}
+
 	// Configure connection pool for production stability
 	sqlDB, err := db.DB()
 	if err != nil {

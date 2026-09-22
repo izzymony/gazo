@@ -333,3 +333,89 @@ func TestNewGormLogger_NonLocalNeverInterpolates(t *testing.T) {
 		}
 	}
 }
+
+// The gap that ParamsFilter alone does not close.
+//
+// `db.Raw(...).Scan(&dest)` installs GORM's traceRecorder for the duration of
+// the call (finisher_api.go:525-547). The processor applies ParamsFilter only
+// when `db.Logger` implements it (callbacks.go:136); traceRecorder does not, so
+// Explain interpolates and the logger is handed SQL with the values already in
+// it. Found by the sanitizer test in this package, not by reading the docs.
+func TestRedactSQLLiterals_RemovesEveryLiteralShape(t *testing.T) {
+	cases := []struct {
+		name string
+		in   string
+		want string
+	}{
+		{
+			name: "an interpolated string value, which is the measured leak",
+			in:   `SELECT id FROM t WHERE street = '77 Sentinel Crescent, Probeville'`,
+			want: `SELECT id FROM t WHERE street = '?'`,
+		},
+		{
+			name: "placeholders survive — they are the shape, not a value",
+			in:   `INSERT INTO t (email,phone) VALUES ($1,$2)`,
+			want: `INSERT INTO t (email,phone) VALUES ($1,$2)`,
+		},
+		{
+			name: "several values on one statement",
+			in:   `INSERT INTO t (a,b,c) VALUES ('ada@example.com','+2349001234567',42)`,
+			want: `INSERT INTO t (a,b,c) VALUES ('?','?',?)`,
+		},
+		{
+			name: "an escaped quote does not end the literal early",
+			in:   `SELECT * FROM t WHERE name = 'O''Brien, 5 Probe St' AND id = 3`,
+			want: `SELECT * FROM t WHERE name = '?' AND id = ?`,
+		},
+		{
+			name: "identifiers containing digits are untouched",
+			in:   `SELECT int4col, sha256_hash, col_2 FROM t2 LIMIT 10`,
+			want: `SELECT int4col, sha256_hash, col_2 FROM t2 LIMIT ?`,
+		},
+		{
+			name: "a numeric amount is a literal too",
+			in:   `UPDATE wallets SET available_balance = 154320.75 WHERE id = 'w-1'`,
+			want: `UPDATE wallets SET available_balance = ? WHERE id = '?'`,
+		},
+		{
+			name: "dollar quoting, where the delimiter is the writer's choice",
+			in:   `SELECT $tag$17 Probe Close$tag$ AS a`,
+			want: `SELECT $tag$?$tag$ AS a`,
+		},
+		{
+			name: "an unterminated literal does not run off the end",
+			in:   `SELECT * FROM t WHERE a = 'unclosed`,
+			want: `SELECT * FROM t WHERE a = '?'`,
+		},
+		{
+			name: "casts and types keep their digits",
+			in:   `SELECT a::numeric(10,2), b::int8 FROM t`,
+			want: `SELECT a::numeric(?,?), b::int8 FROM t`,
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := redactSQLLiterals(c.in); got != c.want {
+				t.Errorf("redactSQLLiterals()\n  in:   %s\n  got:  %s\n  want: %s", c.in, got, c.want)
+			}
+		})
+	}
+}
+
+// Belt and braces: no sentinel survives redaction, whatever shape it arrives in.
+func TestRedactSQLLiterals_NoSentinelSurvives(t *testing.T) {
+	for label, value := range allSentinels() {
+		for _, shape := range []string{
+			`SELECT * FROM t WHERE c = '%s'`,
+			`INSERT INTO t (a) VALUES ('%s')`,
+			`SELECT * FROM t WHERE c = $tag$%s$tag$`,
+			`UPDATE t SET a = '%s' WHERE id = 7`,
+		} {
+			stmt := fmt.Sprintf(shape, value)
+			if got := redactSQLLiterals(stmt); strings.Contains(got, value) {
+				t.Errorf("the %s sentinel survived redaction: %s", label, got)
+			}
+		}
+	}
+}
