@@ -94,7 +94,15 @@ func TestMoneySafety_AdminCompletedMustClaimDeliveredBeforeMovingFunds(t *testin
 func TestMoneySafety_PaymentConfirmMustBeAtomicAcrossOrderAndWalletSideEffects(t *testing.T) {
 	verifyBody := sliceFunc(t, readServiceSource(t, "transactionService.go"), `func (s *TransactionService) Verify(input requests.VerifyTransaction, isGuest bool) (interface{}, error)`)
 
-	hasTransactionBoundary := strings.Contains(verifyBody, ".Transaction(") ||
+	// WithTransaction first: since the persistence-error boundary landed it is
+	// the ONLY sanctioned way to open a transaction, and a source guard that
+	// knows only the old spellings reports a correct refactor as a money-safety
+	// breach. This one did exactly that — it fired on
+	// `database.WithTransaction(s.db, "verify", ...)` while the boundary was
+	// intact — so the accepted set is kept in step with the rule the
+	// transaction guard in internal/database enforces.
+	hasTransactionBoundary := strings.Contains(verifyBody, "WithTransaction(") ||
+		strings.Contains(verifyBody, ".Transaction(") ||
 		strings.Contains(verifyBody, "Begin()") ||
 		strings.Contains(verifyBody, "BeginTx(")
 	if !hasTransactionBoundary {
