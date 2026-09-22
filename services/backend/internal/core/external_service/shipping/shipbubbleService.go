@@ -1,165 +1,126 @@
 package shipping
 
 import (
-	"bytes"
-	"encoding/json"
+	"errors"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/Tinovalabs/vibaar/services/backend/internal/core/domain"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/logger"
 )
 
 type ShipbubbleService struct {
 	apiKey  string
 	baseURL string
+	// mock gates the fabricated courier options. It comes from the RESOLVED
+	// configuration, so "are mocks allowed" is answered once, at construction,
+	// by the same code that decides the base URL and the key.
+	mock bool
 }
+
+// ErrNoCouriers reports that Shipbubble returned no courier for this route.
+//
+// It is a legitimate answer, not a fault — the route may simply be unserviced —
+// and the caller's job is to degrade to the seller's own delivery, or to tell
+// the buyer there is no delivery option. What it must NOT do is invent one.
+var ErrNoCouriers = errors.New("no couriers available for this route")
 
 func NewShipbubbleService() *ShipbubbleService {
-	// Default to production key, fallback to staging if not available
-	apiKey := os.Getenv("SHIPBUBBLE_API_KEY_PROD")
-	if apiKey == "" {
-		apiKey = os.Getenv("SHIPBUBBLE_API_KEY_STAGING")
+	cfg, errs := ResolveConfig(os.Getenv)
+
+	// The configuration is validated at BOOT (see ValidateConfig, wired into
+	// main), so reaching here with errors means the process was started without
+	// that gate — a test, or a code path that bypassed it. Say so once, without
+	// the key and without failing the constructor, which has no way to report.
+	for _, e := range errs {
+		logger.Error("shipbubble configuration: " + e.Error())
 	}
 
-	baseURL := os.Getenv("SHIPBUBBLE_API_URL")
-	if baseURL == "" {
-		baseURL = "https://app.shipbubble.com/api/v1"
-	}
+	// Which VARIABLE supplied the key, never the key. An earlier version of
+	// this line printed the credential in full on every boot, which put a live
+	// Shipbubble key into Render's retained logs.
+	logger.Info(fmt.Sprintf("shipbubble configured: base_url=%s key_var=%s key_present=%t mock=%t",
+		cfg.BaseURL, cfg.KeyVar, cfg.APIKey != "", cfg.Mock))
 
-	// Use mock service for local development only
-	if os.Getenv("ENV") == "local" && os.Getenv("ENABLE_MOCK_SERVICES") == "true" {
-		mockURL := os.Getenv("SHIPBUBBLE_API_URL")
-		if mockURL != "" {
-			baseURL = mockURL
-		} else {
-			baseURL = "http://localhost:8088/mock"
-		}
-	}
+	return NewShipbubbleServiceWithConfig(cfg)
+}
 
-	// Never print the key itself. This logged it in full on every boot, which
-	// with a real Shipbubble key would put the live credential into Render's
-	// retained logs. Whether one is CONFIGURED is the useful signal.
-	fmt.Printf("SHIPBUBBLE: key configured: %t, ENV: %s, BaseURL: %s, ENABLE_MOCK: %s\n",
-		apiKey != "", os.Getenv("ENV"), baseURL, os.Getenv("ENABLE_MOCK_SERVICES"))
-
+// NewShipbubbleServiceWithConfig builds a client from an explicit
+// configuration, so the base URL and — crucially — whether fabricated courier
+// options are permitted are stated by the caller rather than read from the
+// environment.
+//
+// It exists because "mocks only when Mock is true" is a property worth testing
+// directly, and reaching it through environment variables makes the test assert
+// the env plumbing rather than the behaviour.
+func NewShipbubbleServiceWithConfig(cfg Config) *ShipbubbleService {
 	return &ShipbubbleService{
-		apiKey:  apiKey,
-		baseURL: baseURL,
+		apiKey:  cfg.APIKey,
+		baseURL: cfg.BaseURL,
+		mock:    cfg.Mock,
 	}
 }
 
+// ValidateAddress registers a delivery address with Shipbubble and returns its
+// address code.
+//
+// The address itself is never logged. It is the customer's home.
 func (s *ShipbubbleService) ValidateAddress(data ShipbubbleAddressInfo) (*ShipbubbleResponseData, error) {
-	url := fmt.Sprintf("%s/shipping/address/validate", s.baseURL)
-
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request data: %w", err)
-	}
-
-	fmt.Printf("🔥 SHIPBUBBLE DEBUG: ValidateAddress URL: %s\n", url)
-	fmt.Printf("🔥 SHIPBUBBLE DEBUG: Address data: %s\n", string(jsonData))
-
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+s.apiKey)
-
-	client := &http.Client{Timeout: 30 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
-	}
-	defer resp.Body.Close()
-
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	fmt.Printf("🔥 SHIPBUBBLE DEBUG: ValidateAddress response status: %d\n", resp.StatusCode)
-	fmt.Printf("🔥 SHIPBUBBLE DEBUG: ValidateAddress response body: %s\n", string(bodyBytes))
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("API returned status: %d", resp.StatusCode)
-	}
-
 	var result ShipbubbleResponse
-	err = json.Unmarshal(bodyBytes, &result)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+	if err := s.do("validate_address", http.MethodPost, "/shipping/address/validate", data, &result); err != nil {
+		return nil, err
 	}
-
-	fmt.Printf("🔥 SHIPBUBBLE DEBUG: ValidateAddress parsed - AddressCode: %d\n", result.Data.AddressCode)
-
 	return &result.Data, nil
 }
 
+// FetchShippingRates asks Shipbubble for courier options.
+//
+// A zero-courier response is a legitimate answer — the route may be unserviced —
+// so it returns normally and the caller degrades to the seller's own delivery.
+// It used to log the entire request payload and the whole response on that
+// branch, which is where receiver names, addresses and phone numbers reached
+// the logs most often.
 func (s *ShipbubbleService) FetchShippingRates(data FetchRatesRequest) (*FetchRatesResponse, error) {
-	url := fmt.Sprintf("%s/shipping/fetch_rates", s.baseURL)
-
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request data: %w", err)
-	}
-
-	fmt.Printf("🔥 SHIPBUBBLE DEBUG: FetchShippingRates URL: %s\n", url)
-	fmt.Printf("🔥 SHIPBUBBLE DEBUG: Request data: %s\n", string(jsonData))
-
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+s.apiKey)
-
-	client := &http.Client{Timeout: 30 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, _ := io.ReadAll(resp.Body)
-
-	fmt.Printf("🔥 SHIPBUBBLE DEBUG: Response status: %d\n", resp.StatusCode)
-	fmt.Printf("🔥 SHIPBUBBLE DEBUG: Response body: %s\n", string(body))
-
 	var result FetchRatesResponse
-	err = json.Unmarshal(body, &result)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+	if err := s.do("fetch_rates", http.MethodPost, "/shipping/fetch_rates", data, &result); err != nil {
+		return nil, err
 	}
-
-	fmt.Printf("🔥 SHIPBUBBLE DEBUG: Parsed response - Status: %s, Couriers count: %d\n", result.Status, len(result.Data.Couriers))
-
-	// Critical warning if no couriers returned
 	if len(result.Data.Couriers) == 0 {
-		fmt.Printf("⚠️ ⚠️ ⚠️ CRITICAL: Shipbubble returned ZERO couriers ⚠️ ⚠️ ⚠️\n")
-		fmt.Printf("⚠️ Request payload was: %s\n", string(jsonData))
-		fmt.Printf("⚠️ API Status: %s, Message: %s\n", result.Status, result.Message)
-		fmt.Printf("⚠️ Full response: %+v\n", result)
+		// The FACT, and nothing from the response. Shipbubble's `message` on a
+		// no-coverage reply echoes the submitted addresses back, so recording it
+		// — even truncated — puts the buyer's street into the logs. Truncation
+		// shortens PII; it does not remove it.
+		logger.Info("shipbubble fetch_rates returned no couriers")
 	}
-
 	return &result, nil
 }
 
+// GetRatesResponse maps Shipbubble's couriers to shipping options.
+//
+// Zero couriers returns ErrNoCouriers OUTSIDE mock mode, and that is the whole
+// point of this function's contract. It used to return `getMockOptions()`
+// unconditionally: two fabricated couriers — "Mock Express Delivery" at ₦2,500
+// with `request_token: "mock_request_token_express"` — presented to the buyer as
+// real choices. On staging and production that is a delivery service that does
+// not exist, priced and charged for, and the booking would then fail at
+// CreateShipment with a request token Shipbubble has never seen. The buyer has
+// already paid by then.
+//
+// The gate is the RESOLVED config's Mock flag, not an env read: one place
+// decides, at construction, and a test can construct either.
 func (s *ShipbubbleService) GetRatesResponse(response *FetchRatesResponse, addressCode int) ([]GetRatesResponse, error) {
 	couriers := response.Data.Couriers
-	fmt.Printf("🔥 SHIPBUBBLE DEBUG: Returning %d real couriers (no tier collapse)\n", len(couriers))
 
-	// Resilience: no real couriers → mock options (unchanged fallback).
 	if len(couriers) == 0 {
-		return getMockOptions(), nil
+		if s.mock {
+			// Local development against the mock endpoint, where there is no
+			// real provider to ask and no buyer to mislead.
+			return getMockOptions(), nil
+		}
+		return nil, ErrNoCouriers
 	}
 
 	// Effective price = the discounted amount when a discount applies, else the
@@ -201,42 +162,15 @@ func (s *ShipbubbleService) GetRatesResponse(response *FetchRatesResponse, addre
 	return rates, nil
 }
 
+// CreateShipment books a label.
+//
+// The payload carries both parties' names, addresses, phones and emails, and the
+// response carries the courier's contact details; neither is logged.
 func (s *ShipbubbleService) CreateShipment(payload CreateShipmentRequest) (*CreateShipmentResponse, error) {
-	url := fmt.Sprintf("%s/shipping/labels", s.baseURL)
-
-	fmt.Printf("DEBUG CreateShipment API: Making request to URL: %s\n", url)
-	fmt.Printf("DEBUG CreateShipment API: Payload: %+v\n", payload)
-
-	jsonData, err := json.Marshal(payload)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request data: %w", err)
-	}
-
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+s.apiKey)
-
-	client := &http.Client{Timeout: 30 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, _ := io.ReadAll(resp.Body)
-
-	fmt.Println("DEBUG Shipbubble CreateShipment Response:", string(body))
-
 	var result CreateShipmentResponse
-	err = json.Unmarshal(body, &result)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+	if err := s.do("create_shipment", http.MethodPost, "/shipping/labels", payload, &result); err != nil {
+		return nil, err
 	}
-
 	return &result, nil
 }
 

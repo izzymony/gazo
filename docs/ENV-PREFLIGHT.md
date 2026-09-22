@@ -130,9 +130,9 @@ one can register in production.
 
 | Var | Blocking | Prod-guard | Format / example | Set at | Verify |
 |---|---|---|---|---|---|
-| `SHIPBUBBLE_API_KEY_PROD` | ✅ | — | live Shipbubble key | Render (vault) | rates fetch on checkout |
-| `SHIPBUBBLE_API_KEY_STAGING` | — | — | sandbox key (staging only) | Render | — |
-| `SHIPBUBBLE_API_URL` | ✅ | — | real Shipbubble URL (**not** the local mock) | Render | — |
+| `SHIPBUBBLE_API_KEY_PROD` | ✅ (production only) | ✅ (required; rejects `sb_sandbox_`) | live key. **Read ONLY in production** — never a fallback for staging | Render (vault) | rates fetch on checkout |
+| `SHIPBUBBLE_API_KEY_STAGING` | ✅ (staging/dev/local) | — | sandbox key. **Read ONLY outside production**, and required there unless the local mock is on. Rejects `sb_prod_` | Render | rates fetch on staging checkout |
+| `SHIPBUBBLE_API_URL` | ✅ | ✅ (must be https; `app.shipbubble.com` refused by name) | `https://api.shipbubble.com/v1` — the default if unset | Render | address validation returns JSON, not an HTML 404 |
 | `ENABLE_MOCK_SERVICES` | — | ✅ (reject `true`) | unset/`false` in prod | Render | real shipping/SMS used |
 | `ALLOWED_ORIGINS` | ✅ | ✅ (reject localhost) | `https://vibaar.com,https://www.vibaar.com,https://admin.vibaar.com` | Render | prod frontend calls not CORS-blocked |
 | `WHATSAPP_WEBHOOK_VERIFY_TOKEN` | ⚠ | — | your inbound-webhook token (fails closed outside local) | Render | WhatsApp webhook verifies |
@@ -201,7 +201,7 @@ them as **build environment variables**; changing one needs a **rebuild**.
 
 Fix or ignore knowingly — these are why you must use this doc over the template:
 
-- **`services/backend/.env.example` is stale.** It **omits `PAYSTACK_AUTH`** (the key the API client actually uses) and `PAYSTACK_URL`; it lists `SMTP_*`/`FROM_EMAIL` (code uses `SENDGRID_*`), `INSTAGRAM_ID`/`_SECRET` (code reads `INSTAGRAM_CLIENT_ID`/`_SECRET`), `SENDCHAMP_API_KEY`/`_SENDER_NAME` (code reads `SENDCHAMP_PUBLIC_API_KEY`/`_SENDER_ID`), `SHIPBUBBLE_API_KEY` (code reads `_PROD`/`_STAGING`). **Recommend regenerating `.env.example` from code reads** as a follow-up.
+- **`services/backend/.env.example` is stale.** It **omits `PAYSTACK_AUTH`** (the key the API client actually uses) and `PAYSTACK_URL`; it lists `SMTP_*`/`FROM_EMAIL` (code uses `SENDGRID_*`), `INSTAGRAM_ID`/`_SECRET` (code reads `INSTAGRAM_CLIENT_ID`/`_SECRET`), `SENDCHAMP_API_KEY`/`_SENDER_NAME` (code reads `SENDCHAMP_PUBLIC_API_KEY`/`_SENDER_ID`), `SHIPBUBBLE_API_KEY` (code reads `_PROD` in production and `_STAGING` everywhere else, with no fallback). **Recommend regenerating `.env.example` from code reads** as a follow-up.
 - **`apps/web` has no `.env.example`.** §8 above is its de-facto template.
 - **Admin's dual API-URL vars** (§9) and **Paystack's dual secret vars** (§4) are latent footguns until unified.
 - **Multiple SMS providers wired** (§6) — pick one for production.
@@ -251,7 +251,7 @@ SMS_ID=Vibaar                      # registered with the SMS provider
 SENDGRID_API_KEY=SG.xxx
 SENDGRID_FROM_EMAIL=noreply@vibaar.com
 SHIPBUBBLE_API_KEY_PROD=xxx
-SHIPBUBBLE_API_URL=<real shipbubble url>
+SHIPBUBBLE_API_URL=https://api.shipbubble.com/v1
 ALLOWED_ORIGINS=https://vibaar.com,https://www.vibaar.com,https://admin.vibaar.com
 # dev bypasses OFF (guard rejects true): SKIP_SMS_VERIFICATION / ENABLE_MOCK_SERVICES / USE_LOCAL_FILE_STORAGE
 ```

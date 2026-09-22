@@ -135,6 +135,18 @@ Most launch-day failures are here, not in the code.
 - **OAuth redirect URIs:** update Google / Instagram / TikTok consoles to the vibaar domains. A stale redirect URI fails only in production, only at login.
 - **Paystack webhook** → `https://api.vibaar.com/...`. Payment confirmation depends on it; test with Paystack's webhook replay before announcing.
 - **Shipbubble webhook** → same host. Note that **guest courier orders are deliberately gated off** (guests get self-delivery only) because the courier lifecycle is not guest-aware — see `GetShippingOptions`.
+- **Shipbubble API base** must be `https://api.shipbubble.com/v1`. It is the
+  default when `SHIPBUBBLE_API_URL` is unset, and the startup guard **refuses
+  `app.shipbubble.com` by name** — that is the dashboard host, and staging was
+  set to it, which made every address validation return an HTML 404 and every
+  seller look like they had no delivery option. The webhook secret is the same
+  API key, selected by the same rule.
+- **Shipbubble key, per environment, with no fallback:** production reads only
+  `SHIPBUBBLE_API_KEY_PROD`; staging, development and local read only
+  `SHIPBUBBLE_API_KEY_STAGING`. A key carrying the other environment's prefix
+  (`sb_prod_` / `sb_sandbox_`) is refused at boot. **Setting only the production
+  key on a staging service now fails startup instead of quietly booking real
+  couriers against the live account.**
 - **WhatsApp webhook:** `WHATSAPP_WEBHOOK_VERIFY_TOKEN` must be set. Outside local the handshake now **fails closed** if it's missing.
 - **Transactional providers:** code currently uses Twilio (SMS) + SendGrid (email); the Tinova stack is **Termii** + **Resend** — swap keys/adapters as a follow-up.
 

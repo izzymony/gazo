@@ -9,6 +9,7 @@ import (
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/controller"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/adapter/api/routes"
 	mysql_repo "github.com/Tinovalabs/vibaar/services/backend/internal/adapter/repositories/sql"
+	"github.com/Tinovalabs/vibaar/services/backend/internal/core/external_service/shipping"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/crons"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/database"
 	"github.com/Tinovalabs/vibaar/services/backend/internal/helper"
@@ -44,6 +45,25 @@ func main() {
 			logger.Error("invalid environment configuration: " + e.Error())
 		}
 		logger.Error("refusing to start — fix the environment configuration above")
+		os.Exit(1)
+	}
+
+	// Shipping provider guard. Separate from ValidateEnv because it applies in
+	// EVERY environment, not just production: the defect it exists to prevent
+	// was a staging misconfiguration (SHIPBUBBLE_API_URL pointing at the
+	// dashboard host), and it presented as "this seller has no delivery option
+	// for your address" — a plausible product message — for as long as it was
+	// set. Checkout cannot work without a correct base URL and the right key,
+	// so refusing to boot is strictly better than discovering it per-request.
+	shippingErrs, shippingWarnings := shipping.ValidateConfig(os.Getenv)
+	for _, w := range shippingWarnings {
+		logger.Info("shipping configuration warning: " + w)
+	}
+	if len(shippingErrs) > 0 {
+		for _, e := range shippingErrs {
+			logger.Error("invalid shipping configuration: " + e.Error())
+		}
+		logger.Error("refusing to start — fix the shipping configuration above")
 		os.Exit(1)
 	}
 
