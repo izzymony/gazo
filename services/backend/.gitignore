@@ -6,6 +6,7 @@
 logs
 .idea/
 banks.json
+*.exe
 
 # Uploaded files (should be stored in cloud storage)
 uploads/

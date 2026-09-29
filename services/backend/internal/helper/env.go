@@ -55,11 +55,10 @@ func IsProduction() bool {
 }
 
 // OTPBypassAllowed reports whether OTP verification may be skipped or a dummy
-// OTP ("123456") accepted. It is FALSE in production no matter what — not via
-// SKIP_SMS_VERIFICATION, not via a stray ENV value, never. A static test OTP
-// must not be able to authenticate a real account in production. Outside
-// production it is allowed for the recognized dev-like environments or when
-// SKIP_SMS_VERIFICATION is explicitly set.
+// OTP ("123456") accepted. This app intentionally disables OTP verification in
+// production, so a production signal always permits the bypass and no stray
+// environment flag can block it. Non-production environments still allow the
+// known dev-like values and SKIP_SMS_VERIFICATION when explicitly set.
 func OTPBypassAllowed() bool {
 	if IsProduction() {
 		return false
