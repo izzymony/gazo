@@ -44,7 +44,12 @@ test("Complete store creation flow (2-step wizard)", async ({ page, baseURL }) =
       });
       return;
     }
-    await route.continue();
+
+    // Deny by default. An unmocked API call must NOT reach a real backend: this
+    // spec also runs against staging (playwright.staging.config.ts), where
+    // `continue()` would create a real store with junk data. Aborting surfaces
+    // the gap as a loud failed request instead of a silent write.
+    await route.abort();
   });
 
   // ── Mock the store creation API (/business) ──
@@ -76,7 +81,10 @@ test("Complete store creation flow (2-step wizard)", async ({ page, baseURL }) =
         }),
       });
     } else {
-      await route.continue();
+      // Only POST /business is expected. A GET or PATCH reaching here means the
+      // app changed shape, and letting it through would hit the real API — this
+      // suite runs against staging too.
+      await route.abort();
     }
   });
 

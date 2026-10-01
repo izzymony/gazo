@@ -110,7 +110,11 @@ test("seller can create a product from the catalog", async ({ page, context, bas
       return;
     }
 
-    await route.continue();
+    // Deny by default. `continue()` here would forward any unmocked API call to
+    // whatever is listening — including staging, when this spec is run with
+    // playwright.staging.config.ts — so a rename in the app would quietly
+    // create a real product instead of failing the test.
+    await route.abort();
   });
 
 // Relative: resolved against baseURL so this runs on any target.

@@ -111,7 +111,10 @@ test("seller can update store details", async ({ page, context, baseURL }) => {
       return;
     }
 
-    await route.continue();
+    // Deny by default. `continue()` would forward an unmocked API call to the
+    // real backend — and this suite also runs against staging, where that
+    // writes junk store data rather than failing the test.
+    await route.abort();
   });
 
 
