@@ -170,9 +170,18 @@ await expect(page.getByRole("heading", { name: "Start Strong" })).toBeVisible();
   await page.getByRole("button", { name: "Publish" }).click();
   // `toBeOK` only applies to an APIResponse; this is a page Response.
   expect((await createProductResponse).status()).toBe(201);
-  // Generous: the first visit to /dashboard/storefront in `next dev` compiles
-  // the route on demand, which can outlast the default expect timeout.
+
+  // 60s, matching `navigationTimeout` in the shared config. The first visit to
+  // /dashboard/storefront is compiled on demand, and 30s lost that race often
+  // enough to make this spec the flakiest in the suite: it passed when
+  // editproducts happened to warm the same route group first and failed when run
+  // alone. The create call above already proved the product was created, so a
+  // timeout here was purely a compile-budget problem, never a product failure.
+  //
+  // The timeout stays UNDER the 120s test timeout on purpose. Equal to it, the
+  // two race and the failure surfaces as a bare "Test timeout exceeded" with
+  // only a click log, hiding which navigation actually stalled.
   await expect(page).toHaveURL(/\/dashboard\/storefront\?status=new-product/, {
-    timeout: 30_000,
+    timeout: 60_000,
   });
 });

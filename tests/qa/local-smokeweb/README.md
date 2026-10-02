@@ -72,16 +72,16 @@ Note: the category dialog's name label is `pointer-events-none` and each categor
 Run all local smoke-web specs from the repository root:
 
 ```bash
-pnpm exec playwright test test-local/smokeweb --config=playwright.config.ts --project=chromium
+pnpm exec playwright test tests/qa/local-smokeweb --config=playwright.config.ts --project=chromium
 ```
 
 Run one spec or one named workflow:
 
 ```bash
-pnpm exec playwright test test-local/smokeweb/webtest.spec.ts --config=playwright.config.ts --project=chromium
-pnpm exec playwright test test-local/smokeweb/store-creation.spec.ts --config=playwright.config.ts --project=chromium
-pnpm exec playwright test test-local/smokeweb/addproduct.spec.ts --config=playwright.config.ts --project=chromium
-pnpm exec playwright test test-local/smokeweb/webtest.spec.ts --config=playwright.config.ts --project=chromium --grep "signup"
+pnpm exec playwright test tests/qa/local-smokeweb/webtest.spec.ts --config=playwright.config.ts --project=chromium
+pnpm exec playwright test tests/qa/local-smokeweb/store-creation.spec.ts --config=playwright.config.ts --project=chromium
+pnpm exec playwright test tests/qa/local-smokeweb/addproduct.spec.ts --config=playwright.config.ts --project=chromium
+pnpm exec playwright test tests/qa/local-smokeweb/webtest.spec.ts --config=playwright.config.ts --project=chromium --grep "signup"
 ```
 
 The specs navigate directly to `http://localhost:3000`; changing `QA_WEB_URL` alone will not change their destination. Update their `page.goto` calls before targeting a different host.

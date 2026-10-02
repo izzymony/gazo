@@ -26,6 +26,38 @@ export async function signIn(page: Page, email: string, password: string) {
 }
 
 /**
+ * Wait until React has actually taken ownership of the DOM.
+ *
+ * Next serves a complete, interactive-looking page BEFORE hydration. Typing
+ * into a form during that window is the most expensive mistake available in a
+ * Playwright suite, because it fails silently and gets misdiagnosed: `fill` sets
+ * the DOM value, dispatches an event nothing is listening for, and the
+ * controlled input stays empty in React state. The submit then fails validation
+ * against a field that visibly holds what was typed into it:
+ *
+ *   [c] Error: No request matching /api/v1/login fired
+ *   alerts: ["Email is required", "Password is required"]
+ *
+ * which reads like a broken backend, not a timing problem.
+ *
+ * React attaches `__reactProps$`/`__reactFiber$` to DOM nodes as it hydrates, so
+ * the presence of one is a real signal rather than a sleep-and-hope timeout.
+ */
+export async function waitForHydration(page: Page) {
+  await page.waitForFunction(
+    () => {
+      const el = document.querySelector("input, button, a");
+      if (!el) return false;
+      return Object.keys(el).some(
+        (k) => k.startsWith("__reactProps$") || k.startsWith("__reactFiber$")
+      );
+    },
+    undefined,
+    { timeout: 60_000 }
+  );
+}
+
+/**
  * Click a control and confirm it actually did something.
  *
  * Next serves the markup before React attaches handlers, so a click fired the

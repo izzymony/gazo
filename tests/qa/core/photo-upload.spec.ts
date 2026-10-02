@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
-import zlib from "node:zlib";
 import { resolveTargets, requireSellerCredentials } from "../env.cjs";
 import { signIn, gotoRoute } from "../login";
+import { noisePng } from "./helpers/images";
 
 const targets = resolveTargets();
 const creds = requireSellerCredentials();
@@ -11,50 +11,12 @@ const FIXTURE_MARKER = "qa-fixture:photo-upload";
 const PHOTO_COUNT = 5;
 
 /**
- * A multi-megabyte PNG of pure noise.
- *
- * Noise on purpose: a solid colour compresses to a few hundred bytes, which
- * would exercise none of the resizing, re-encoding or upload budget this test
- * exists to measure. Generated rather than committed — five real photos would
- * put ~15MB of binaries in the repo.
+ * `noisePng` — a multi-megabyte PNG of pure noise — lives in helpers/images.ts
+ * now that the other upload journeys need real bytes too. It used to be defined
+ * here, and the local suite's 1×1 pixel fixture was never equivalent: it fits in
+ * a `buffer` literal, so it skips every resize, re-encode and byte budget the
+ * upload path actually spends.
  */
-function noisePng(side: number): Buffer {
-  const table = Array.from({ length: 256 }, (_, n) => {
-    let c = n;
-    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-    return c >>> 0;
-  });
-  const crc32 = (buf: Buffer) => {
-    let crc = 0xffffffff;
-    for (const b of buf) crc = table[(crc ^ b) & 0xff] ^ (crc >>> 8);
-    return (crc ^ 0xffffffff) >>> 0;
-  };
-  const chunk = (type: string, data: Buffer) => {
-    const len = Buffer.alloc(4);
-    len.writeUInt32BE(data.length);
-    const td = Buffer.concat([Buffer.from(type, "ascii"), data]);
-    const crc = Buffer.alloc(4);
-    crc.writeUInt32BE(crc32(td));
-    return Buffer.concat([len, td, crc]);
-  };
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(side, 0);
-  ihdr.writeUInt32BE(side, 4);
-  ihdr[8] = 8;
-  ihdr[9] = 2; // 8-bit RGB
-  const rows: Buffer[] = [];
-  for (let y = 0; y < side; y++) {
-    const row = Buffer.alloc(side * 3 + 1);
-    for (let i = 1; i < row.length; i++) row[i] = Math.floor(Math.random() * 256);
-    rows.push(row);
-  }
-  return Buffer.concat([
-    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-    chunk("IHDR", ihdr),
-    chunk("IDAT", zlib.deflateSync(Buffer.concat(rows), { level: 1 })),
-    chunk("IEND", Buffer.alloc(0)),
-  ]);
-}
 
 test.describe("Photo upload", () => {
   test("five large photos survive preparation, save and reload", async ({ page, request }) => {

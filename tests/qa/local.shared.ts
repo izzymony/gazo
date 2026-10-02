@@ -8,7 +8,7 @@ import { defineConfig, devices } from "@playwright/test";
 // Required rather than `import`ed because that file is CommonJS with no
 // declarations. The type is asserted here instead of shipping a .d.ts for four
 // functions, so the contract is visible where it is used.
-const { resolveTargets } = require("../tests/qa/env.cjs") as {
+const { resolveTargets } = require("./env.cjs") as {
   resolveTargets: (env?: Record<string, string | undefined>) => {
     web: string;
     admin: string;
@@ -36,11 +36,11 @@ const { resolveTargets } = require("../tests/qa/env.cjs") as {
  *              that OWNS port 8088, so the real backend must be stopped.
  *   staging  — deployed, so the stub is never started and nothing binds a port.
  *
- * `testDir` is scoped to test-local on purpose. It used to be "." with a glob
- * matching every spec file, which ALSO collected tests/qa — so a bare
- * `playwright test` would start the local stub and then run the staging specs
- * against localhost with fixture data, failing on missing credentials rather
- * than saying anything was misconfigured.
+ * `testDir` is scoped to tests/qa/local-smokeweb on purpose. It used to be "."
+ * with a glob matching every spec file, which ALSO collected tests/qa — so a
+ * bare `playwright test` would start the local stub and then run the staging
+ * specs against localhost with fixture data, failing on missing credentials
+ * rather than saying anything was misconfigured.
  */
 export type SmokewebTarget = "local" | "staging";
 
@@ -60,7 +60,7 @@ export function smokewebConfig(target: SmokewebTarget) {
   );
 
   return defineConfig({
-    testDir: "test-local",
+    testDir: "tests/qa/local-smokeweb",
     testMatch: /.*\.spec\.ts$/,
 
     // Only meaningful against a deployed target: storefront.spec.ts asserts the
@@ -89,14 +89,14 @@ export function smokewebConfig(target: SmokewebTarget) {
     outputDir: "test-results/local",
 
     // Starts the stub backend the Next SERVER reads from. See
-    // test-local/smokeweb/globalSetup.ts for why `page.route` cannot cover it.
+    // tests/qa/local-smokeweb/globalSetup.ts for why `page.route` cannot cover it.
     // Never set for staging: nothing there should bind a port.
     //
     // Resolved relative to THIS file, not the config entry point, which is why
-    // the path is `smokeweb/...` and not `test-local/smokeweb/...`.
+    // the path is `./local-smokeweb/globalSetup.ts` and not a root-level alias.
     globalSetup: isStaging
       ? undefined
-      : require.resolve("./smokeweb/globalSetup.ts"),
+      : require.resolve("./local-smokeweb/globalSetup.ts"),
 
     expect: { timeout: 15_000 },
     use: {

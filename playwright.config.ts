@@ -5,8 +5,8 @@
  *     pnpm test:local
  *
  * For staging, use playwright.staging.config.ts (`pnpm test:local:staging`).
- * Both share one config body — see test-local/playwright.shared.ts.
+ * Both share one config body — see tests/qa/local.shared.ts.
  */
-import { smokewebConfig } from "./test-local/playwright.shared";
+import { smokewebConfig } from "./tests/qa/local.shared";
 
 export default smokewebConfig("local");

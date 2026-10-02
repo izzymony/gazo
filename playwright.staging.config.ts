@@ -18,6 +18,6 @@
  * Overridable with QA_WEB_URL / QA_ADMIN_URL / QA_API_URL. Pointed at
  * production it refuses, same as `pnpm qa`, unless QA_ALLOW_PRODUCTION=1.
  */
-import { smokewebConfig } from "./test-local/playwright.shared";
+import { smokewebConfig } from "./tests/qa/local.shared";
 
 export default smokewebConfig("staging");

@@ -11,8 +11,11 @@ test("Edit product flow", async ({ page, context, baseURL }) => {
   test.slow();
 
   const newTitle = `Updated test Product ${Date.now().toString().slice(-6)}`;
-  const oldPrice = "1200";
   const newPrice = "1500";
+  // Must exceed the new price: the schema's `price-relationship` test rejects a
+  // compare price that is not higher, so reusing the fixture's 1200 here would
+  // block the submit before any PUT was built.
+  const comparePrice = "2000";
   const newInventory = "4";
 
   await context.addCookies([
@@ -63,8 +66,12 @@ test("Edit product flow", async ({ page, context, baseURL }) => {
             price: oldPrice,
             description: "A product created by the local Playwright workflow.",
             inventory: newInventory,
-            categoryId: CATEGORY_ID,
-            subcategoryId: SUBCATEGORY_ID,
+            // Snake case is what the component reads. With camelCase here it never
+            // set `selectedCategory`, and the `isTaxonomyId` guard in
+            // EditProductSetup.tsx:327 refused to submit — "Choose a product
+            // category before updating." — so no PUT was ever sent.
+            category_id: CATEGORY_ID,
+            sub_category_id: SUBCATEGORY_ID,
             category: "electronics",
             image: ["https://res.cloudinary.com/demo/image/upload/sample.jpg"],
             stock: 34,
@@ -115,6 +122,10 @@ test("Edit product flow", async ({ page, context, baseURL }) => {
   await expect(titleInput).toHaveValue("Original Product", { timeout: 30_000 });
   await titleInput.fill(newTitle);
 
+  // The assertions below cover price, so the test has to actually edit price.
+  await page.locator('input[name="price"]').fill(newPrice);
+  await page.locator('input[name="comparePrice"]').fill(comparePrice);
+
   const putResponse = page.waitForResponse(
     (response) =>
       response.request().method() === "PUT" &&
@@ -131,7 +142,7 @@ test("Edit product flow", async ({ page, context, baseURL }) => {
     category_id: CATEGORY_ID,
     sub_category_id: SUBCATEGORY_ID,
     is_combination: false,
-    price: { price: Number(newPrice), old_price: Number(oldPrice) },
+    price: { price: Number(newPrice), old_price: Number(comparePrice) },
   });
 });
 
@@ -181,8 +192,8 @@ test("seller can add an image while editing a product", async ({ page, context, 
             price: "1200",
             description: "A product created by the local Playwright workflow.",
             inventory: "4",
-            categoryId: CATEGORY_ID,
-            subcategoryId: SUBCATEGORY_ID,
+            category_id: CATEGORY_ID,
+            sub_category_id: SUBCATEGORY_ID,
             category: "electronics",
             image: ["https://res.cloudinary.com/demo/image/upload/sample.jpg"],
             stock: 34,
