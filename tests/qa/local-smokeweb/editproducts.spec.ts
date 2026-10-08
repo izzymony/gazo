@@ -12,6 +12,7 @@ test("Edit product flow", async ({ page, context, baseURL }) => {
 
   const newTitle = `Updated test Product ${Date.now().toString().slice(-6)}`;
   const newPrice = "1500";
+  const oldPrice = "1200";
   // Must exceed the new price: the schema's `price-relationship` test rejects a
   // compare price that is not higher, so reusing the fixture's 1200 here would
   // block the submit before any PUT was built.

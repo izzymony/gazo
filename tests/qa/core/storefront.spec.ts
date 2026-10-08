@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { resolveTargets, requireSellerCredentials } from "../env.cjs";
 import { signIn, gotoRoute } from "../login";
+import { requireOptIn } from "./helpers/staging";
 
 const targets = resolveTargets();
 const creds = requireSellerCredentials();
@@ -34,8 +35,15 @@ test.describe("Seller storefront core", () => {
   test("can create a store on staging when the seller does not already own one", async ({ page, request }) => {
     const { business } = await sellerBusiness(request);
     if (business) {
-      test.skip("Seller already has a business on this staging account; create-store flow is not applicable.");
+      test.skip(
+        true,
+        "Seller already has a business on this staging account; create-store flow is not applicable."
+      );
     }
+    requireOptIn(
+      "QA_ALLOW_STORE_CREATION",
+      "a permanent store (the API does not expose a store-delete endpoint)"
+    );
 
     const storeName = `QA Store ${Date.now().toString().slice(-6)}`;
     const storeHandle = `qa${Date.now().toString().slice(-6)}`;

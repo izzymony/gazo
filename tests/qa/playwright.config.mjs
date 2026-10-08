@@ -39,11 +39,20 @@ export default defineConfig({
     },
     {
       // 85% of traffic is mobile, so the pages that matter get a phone viewport
-      // too. Smoke only — the core journeys stay on one viewport to keep the
-      // suite fast.
+      // too. Smoke and selected buyer core journeys use a phone viewport; the
+      // write-heavy seller core stays desktop-only to keep runs predictable.
       name: "smoke-mobile",
       testMatch: /smoke\/web\.spec\.ts$/,
       use: { ...devices["Pixel 5"] },
+    },
+    {
+      // Mobile buyer coverage is deliberately limited to public storefront and
+      // browser-local cart journeys. It does not repeat seller writes/uploads.
+      name: "core-mobile",
+      testMatch: /core\/(buyer|storefront-view)\.spec\.ts$/,
+      use: { ...devices["Pixel 5"] },
+      fullyParallel: false,
+      workers: 1,
     },
     {
       name: "core",

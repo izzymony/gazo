@@ -332,17 +332,15 @@ export async function editFixture(
  * on every CI pass would quietly fill the QA store.
  *
  * These therefore SKIP unless the variable is set. That is a deliberate
- * exception to "missing setup FAILS the run": the alternative is a green run
- * that grows staging by one product per execution, which is a slower way to
- * break the environment. The skip reason names the variable, so the report says
- * what to do rather than looking like an absent feature.
+ * exception to "missing setup FAILS the run": writes to shared staging must
+ * never happen accidentally. The skip reason names the variable, so the report
+ * says what to do rather than looking like an absent feature.
  */
 export function requireOptIn(variable: string, whatItLeaves: string) {
   if (process.env[variable] === "1") return;
   test.skip(
     true,
-    `${variable}=1 is not set. This test creates ${whatItLeaves}, and the API has no ` +
-      `endpoint to remove it, so a run that always created one would permanently ` +
-      `grow the QA environment. Set ${variable}=1 for a pass that exercises it.`
+    `${variable}=1 is not set. This test writes ${whatItLeaves} to staging. ` +
+      `Set ${variable}=1 only when that write is intended.`
   );
 }

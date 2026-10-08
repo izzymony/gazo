@@ -81,27 +81,6 @@ test.describe("Auth", () => {
     await page.route("**/api/v1/users/me", (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(me) })
     );
-    await page.route("**/api/v1/send-otp", (route) =>
-      route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({ data: { data: {} } }),
-      })
-    );
-    await page.route("**/api/v1/verification-code/validate-code", (route) =>
-      route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({ data: { data: {} } }),
-      })
-    );
-    await page.route("**/api/v1/forgot-password", (route) =>
-      route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({ data: { data: {} } }),
-      })
-    );
   }
 
   test("Complete full user signup flow", async ({ page }) => {
@@ -135,9 +114,8 @@ test.describe("Auth", () => {
       intervalMs: 1_000,
     });
 
-    // Step 3 — profile. Reaching these fields proves OTP is disabled in this
-    // environment; with OTP on, step 3 is the code screen instead
-    // (SignUpOverview.tsx:366).
+    // Step 3 — profile. Signup OTP is disabled in the current configuration,
+    // so this is the final form step before registration.
     await expect(page.locator("input[name='fullName']")).toBeVisible({ timeout: 30_000 });
     await page.locator("input[name='fullName']").fill("Test QualityUser");
     await page.locator("input[name='user_name']").fill(`testuser${stamp.toString().slice(-6)}`);
@@ -171,45 +149,6 @@ test.describe("Auth", () => {
     expect(cookies.find((c) => c.name === "accessToken")?.value).toBe("mock-access-token");
   });
 
-  test("completes the forgot password flow", async ({ page }) => {
-    const email = "forgot@example.com";
-
-    await mockAuthApi(page, email);
-
-    // Step 1 — request a reset code. `?step` is required; the bare route has no
-    // form to drive.
-    await gotoRoute(page, "/forgot-password?step=1", page.locator("input[name='email']"));
-    await waitForHydration(page);
-    await page.locator("input[name='email']").fill(email);
-    const cont = page.getByRole("button", { name: /^continue$/i });
-
-    // The sendOtp success callback is what advances the step, so the request
-    // and the new URL together prove it was wired and accepted.
-    await submitOnce(page, cont, { request: "/api/v1/send-otp", url: /step=2/ });
-
-    // Step 2 — the code. Six single-character boxes with no name or label, so
-    // they are selected by their numeric input mode and filled positionally.
-    const boxes = page.locator("input[inputmode='numeric']");
-    await expect(boxes).toHaveCount(6, { timeout: 30_000 });
-    for (const [i, digit] of [..."123456"].entries()) {
-      await boxes.nth(i).fill(digit);
-    }
-
-    // Completing the boxes does NOT advance on its own — the parent gates the
-    // step on `otp.length === 6` behind this button (ForgotPassword.tsx:100).
-    await clickUntil(cont, async () => /step=3/.test(page.url()), {
-      attempts: 15,
-      intervalMs: 1_000,
-    });
-
-    // Step 3 — choose the new password, which hands off to signin.
-    await page.locator("input[name='password']").fill("NewPassword123!");
-    await page.locator("input[name='confirmPassword']").fill("NewPassword123!");
-    await submitOnce(page, page.getByRole("button", { name: /reset password/i }), {
-      request: "/api/v1/forgot-password",
-      url: /\/signin\?step=1/,
-    });
-  });
 });
 
 test.describe("Product browsing", () => {

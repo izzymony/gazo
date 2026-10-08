@@ -10,6 +10,7 @@ interface OtpProps {
   otp: string;
   error?: string | string[] | FormikErrors<unknown>[] | undefined;
   setOtpValue?: (val: string) => void;
+  verificationType?: "register_otp" | "withdrawal_otp" | null;
   email: string;
   setFieldValue: (
     field: string,
@@ -24,6 +25,7 @@ const Otp = ({
   error,
   setFieldValue,
   setOtpValue = () => { },
+  verificationType = "register_otp",
 }: OtpProps) => {
   const { verifyOtpSent } = useProductStore();
   return (
@@ -40,18 +42,19 @@ const Otp = ({
             onComplete={async (val) => {
               setOtpValue(val);
               setFieldValue("otp", val);
-              try {
-                await verifyOtpSent({
-                  identifier: email,
-                  otp: val,
-                  verification_type: "register_otp",
-                });
-              } catch {
-                // verifyOtpSent reports the failure itself. It now re-throws, and
-                // this handler is awaited by OtpInput with no catch of its own —
-                // without this the rejection would surface as an unhandled
-                // promise rejection. The parent step gate is unchanged here; see
-                // the follow-up about advancing without a verified result.
+              if (verificationType) {
+                try {
+                  await verifyOtpSent({
+                    identifier: email,
+                    otp: val,
+                    verification_type: verificationType,
+                  });
+                } catch {
+                  // verifyOtpSent reports the failure itself. It now re-throws, and
+                  // this handler is awaited by OtpInput with no catch of its own —
+                  // without this the rejection would surface as an unhandled
+                  // promise rejection.
+                }
               }
             }}
           // otp={otp}

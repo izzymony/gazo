@@ -237,6 +237,7 @@ export default function ForgotPasswordComp() {
                                                 email={formik.values.email}
                                                 error={formik.errors?.otp as string}
                                                 setFieldValue={formik.setFieldValue}
+                                                verificationType={null}
                                             />
                                             <p className="text-body text-foreground-secondary font-normal text-start pt-8">
                                                 If you haven&apos;t received the mail try checking your <br /> spam folder or resending it.

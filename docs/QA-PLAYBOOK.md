@@ -76,12 +76,39 @@ target is overridable so the same suite serves the production smoke.
 **Core** — needs a seeded environment and `QA_SELLER_*`. **Missing credentials
 FAIL the run, they do not skip**: a skipped core run reports green having
 exercised no authenticated journey at all. Core also runs on a single worker,
-because its tests mutate one shared seller, cart and product:
+because its tests use one shared seller, browser cart and product (and restore
+the seller's storefront appearance after the theme check):
 - seller signs in and reaches the dashboard
 - **a product edit survives a reload**
-- a product page opens and renders
-- a product can be added to the cart
-- product links on `/shop` carry a public id
+- the seller's storefront renders products; Deals and Reviews tabs switch to
+  their own controls; unknown store handles and product ids render not-found
+- a product page renders purchase controls and its quantity stepper works
+- an empty cart renders its empty state; adding a product updates its quantity
+  and total, and removing the last item returns to empty
+- proceeding to checkout opens either the shipping-profile or order-review
+  step; the test stops before saving an address, placing an order, or paying
+- product links on `/shop` carry a public id, and an unknown-vendor search
+  reaches the feed's no-results state when the staging feed responds successfully
+- latest staging retry timed out with the feed showing "Couldn't load vendors";
+  this search journey is still unverified and must not be counted as passed
+- the seller can update the storefront background color; the original theme is
+  restored and verified against the API in cleanup
+- account and address lifecycle tests are opt-in: signup permanently creates a
+  user; shipping creates a temporary address, obtains a live quote, selects a
+  delivery option, and deletes the address in cleanup
+
+`core-mobile` runs the buyer cart and storefront specs on a Pixel 5 viewport.
+Run it with `pnpm exec playwright test --config=tests/qa/playwright.config.mjs --project=core-mobile`;
+it uses the same staging seller credentials and seeded catalog as desktop core.
+
+The store-creation journey runs only when the configured seller has no store,
+and then requires `QA_ALLOW_STORE_CREATION=1` because the created store cannot
+be deleted by the API. Live signup and shipping journeys require explicit,
+flow-specific opt-ins. Signup follows the currently deployed UI. Password
+recovery is not automated; keep its verification step and password change in
+manual QA. Shipping requires valid contact/address data; its profile is deleted
+in `finally`, while the delivery quote is a real Shipbubble/provider request.
+Do not use shared personal accounts or addresses.
 
 Run it:
 
@@ -91,6 +118,26 @@ export QA_SELLER_EMAIL=… QA_SELLER_PASSWORD=…
 pnpm qa:staging                  # everything
 pnpm qa:smoke                    # smoke only, no credentials needed
 ```
+
+The live account/shipping tests are in `tests/qa/core/account-shipping-live.spec.ts`
+and are skipped unless their individual write gate is set:
+
+- Signup: `QA_ALLOW_SIGNUP=1` plus `QA_SIGNUP_EMAIL`, `QA_SIGNUP_PHONE`,
+  `QA_SIGNUP_PASSWORD`, `QA_SIGNUP_FULL_NAME`, and `QA_SIGNUP_USERNAME`.
+  Use a unique, unused identity; accounts cannot be removed. Automated coverage
+  does not assert or enter an OTP.
+- Password recovery has no automated coverage; exercise the complete verified
+  reset manually using a dedicated QA account.
+- Shipping and delivery: `QA_ALLOW_SHIPPING_PROFILE=1` plus
+  `QA_SHIPPING_FULL_NAME`, `QA_SHIPPING_PHONE`, `QA_SHIPPING_EMAIL`, and
+  `QA_SHIPPING_ADDRESS`. Supply an address accepted by the configured delivery
+  provider. Profile deletion is attempted in `finally`; confirm cleanup in the
+  API if the run is interrupted.
+
+All secret/contact values should be provided through the environment, not
+command-line arguments or committed files. Do not set these gates in routine
+CI. The shipping test performs live Shipbubble/quote calls but stops before
+order creation and payment.
 
 Point it elsewhere with `QA_WEB_URL`, `QA_ADMIN_URL`, `QA_API_URL`. Production
 targets are **refused** unless `QA_ALLOW_PRODUCTION=1`, and even then only the
@@ -102,10 +149,12 @@ Secrets are read from the environment, never passed as arguments.
 
 Automation is bad at judgement, feel, and third-party dashboards. See
 [STAGING-QA-CHECKLIST.md](./STAGING-QA-CHECKLIST.md). Payment specifically:
-**the Paystack redirect, the webhook, and the order-status transition are
-manual for launch.** A card round-trip is the flakiest thing to automate and a
-webhook cannot be awaited deterministically from a browser. The automated suite
-covers the security half — that both webhooks reject unsigned calls.
+**order placement, the Paystack redirect, the webhook, and the order-status
+transition remain manual for launch.** The automated shipping journey stops at
+the review page before `Pay Now`, so it creates no order or payment session. A
+card round-trip is the flakiest thing to automate and a webhook cannot be awaited
+deterministically from a browser. The automated suite covers the security half —
+that both webhooks reject unsigned calls.
 
 ## 5. Two traps, learned the hard way
 

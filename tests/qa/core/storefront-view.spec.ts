@@ -46,6 +46,23 @@ test.describe("Storefront on live staging", () => {
       timeout: 45_000,
     });
 
+    const dealsTab = page.getByRole("tab", { name: "Deals" });
+    await dealsTab.click();
+    await expect(dealsTab).toHaveAttribute("aria-selected", "true");
+    await expect(page.getByRole("tabpanel").getByRole("button", { name: "Sort deals" })).toBeVisible();
+
+    const reviewsTab = page.getByRole("tab", { name: "Reviews" });
+    await reviewsTab.click();
+    await expect(reviewsTab).toHaveAttribute("aria-selected", "true");
+    await expect(
+      page.getByRole("tabpanel").getByRole("group", { name: "Filter reviews by rating" })
+    ).toBeVisible();
+
+    const productsTab = page.getByRole("tab", { name: "Products" });
+    await productsTab.click();
+    await expect(productsTab).toHaveAttribute("aria-selected", "true");
+    await expect(card).toBeVisible();
+
     // A soft 404 still answers 200, so the body is the only evidence.
     await expect(page.getByText("Page not found", { exact: false })).toHaveCount(0);
   });
@@ -59,6 +76,19 @@ test.describe("Storefront on live staging", () => {
       timeout: 45_000,
     });
     expect(page.url()).toContain("/@qa-no-such-store-");
+  });
+
+  test("an unknown public product id renders not-found", async ({ page, request }) => {
+    const token = await apiToken(request, creds.email, creds.password);
+    const store = await storefrontFor(request, token);
+    const missingId = Date.now().toString(36).slice(-9).padStart(8, "q");
+
+    await gotoRoute(page, `/@${store.handle}/p/qa-missing-${missingId}`);
+
+    await expect(page.getByText("Page not found", { exact: false }).first()).toBeVisible({
+      timeout: 45_000,
+    });
+    expect(page.url()).toContain(`/@${store.handle}/p/qa-missing-${missingId}`);
   });
 });
 

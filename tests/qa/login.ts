@@ -43,16 +43,20 @@ export async function signIn(page: Page, email: string, password: string) {
  * React attaches `__reactProps$`/`__reactFiber$` to DOM nodes as it hydrates, so
  * the presence of one is a real signal rather than a sleep-and-hope timeout.
  */
-export async function waitForHydration(page: Page) {
+export async function waitForHydration(
+  page: Page,
+  target?: import("@playwright/test").Locator
+) {
+  const targetHandle = target ? await target.elementHandle() : null;
   await page.waitForFunction(
-    () => {
-      const el = document.querySelector("input, button, a");
+    (specificTarget) => {
+      const el = specificTarget ?? document.querySelector("input, button, a");
       if (!el) return false;
       return Object.keys(el).some(
         (k) => k.startsWith("__reactProps$") || k.startsWith("__reactFiber$")
       );
     },
-    undefined,
+    targetHandle,
     { timeout: 60_000 }
   );
 }

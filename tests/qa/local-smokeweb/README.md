@@ -21,15 +21,18 @@ The test stubs `validate-email-or-phone` and `auth/register`, so those endpoints
 
 ### User login
 
-`webtest.spec.ts` opens `/login`, enters an email, submits it, enters a password, and expects navigation to `/welcome`, `/shop`, or `/dashboard`.
+`webtest.spec.ts` opens `/signin?step=1`, enters a mocked existing account's
+email and password, and checks that the sign-in flow reaches `/welcome`. The
+login and `/users/me` requests are stubbed, so no real account or auth service
+is required. This verifies the client-side request and navigation contract, not
+the backend's credential validation.
 
-This test currently types the literal value `[EMAIL_ADDRESS]` and does not stub the login API. It therefore is not a self-contained happy-path test: it needs a valid test account and working auth service, and the placeholder must be replaced with that account's email before it can reliably pass. It does not create or configure credentials itself.
+### Password recovery
 
-### Forgot password
-
-`webtest.spec.ts` opens `/forgot-password`, enters an email, submits, and expects navigation to `/reset-password`.
-
-Like login, this test types the literal `[EMAIL_ADDRESS]` and does not stub the request. It requires the app's password-recovery endpoint to be available; replace the placeholder with an appropriate test email. The test checks navigation only, not message delivery or completion of a password reset.
+Password recovery is intentionally not automated here. The production flow
+requires a verified code before changing a password; exercise it manually with a
+dedicated QA account. The local suite does not request, enter, or validate OTPs
+and does not change account passwords.
 
 ### Product browsing
 
@@ -65,7 +68,8 @@ Note: the category dialog's name label is `pointer-events-none` and each categor
 - Dependencies installed from the repository root with `pnpm install`.
 - Chromium installed for Playwright. On a fresh setup, run `pnpm exec playwright install chromium`.
 - The web app running locally on port 3000. Start it from the repository root with `pnpm --filter @vibaar/web dev`.
-- For product browsing, at least one product must be available. Login and forgot-password need a test email and working auth service as described above. Store creation supplies its own mocked authenticated session.
+- Store creation supplies its own mocked authenticated session. Login also uses
+  mocked auth responses; password recovery is manual.
 
 ## Run the tests
 
