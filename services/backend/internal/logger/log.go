@@ -11,6 +11,11 @@ import (
 
 func init() {
 	fileName := helper.LogFile
+	if err := os.MkdirAll(helper.LogDir, 0755); err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	// Create the log file if doesn't exist. And append to it if it already exists.
 	f, err := os.OpenFile(fileName, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
 	Formatter := new(log.TextFormatter)
